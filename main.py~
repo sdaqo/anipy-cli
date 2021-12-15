@@ -15,7 +15,7 @@ player = "mpv"
 
 
 def play(embed_url, video_url):
-    player_command = player + " cache=yes " +  '--http-header-fields="Referer: ' + embed_url + '"' + " " + video_url
+    player_command = player + " " +  '--http-header-fields="Referer: ' + embed_url + '"' + " " + video_url
     sp.run(player_command)
 
 def main():
