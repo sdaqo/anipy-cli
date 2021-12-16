@@ -40,7 +40,7 @@ To start `anipy-cli`
 ### Set video quality
 `main.py -q "Your desired quality"` 
 
-By default `ani-py-cli` tries to get the best quality, you can spify a quality like `360/720/1080...` (without the "p" at the end)
+By default `ani-py-cli` tries to get the best quality avalible. You can spify a quality like so: `360/720/1080...` (without the "p" at the end)
 
 You can also use  `best` or ` worst`.
 
