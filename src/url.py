@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import subprocess as sp
-
+import webbrowser
 
 
 GREEN = '\033[92m'
@@ -20,12 +20,24 @@ def get_embed_url(url):
     link = soup.find("a", {"href": "#", "rel": "100"})
     return f'https:{link["data-video"]}'
 
+
 def get_video_url(embed_url):
 
+    print(embed_url)
     r = requests.get(embed_url, headers=headers)
-    link = re.search(r"\s*sources.*", r.text).group()
-    link = re.search(r"https:.*(m3u8)|(mp4)", link).group()
     
+    try:
+        link = re.search(r"\s*sources.*", str(r.text)).group()
+        link = re.search(r"https:.*(m3u8)|(mp4)", link).group()
+    except:
+        open_in_browser = input("Oops, could not find video-url. Do you want to watch the Episode in the browser? (y/N): ")
+        if open_in_browser == "y" or open_in_browser == "Y":
+            webbrowser.open(embed_url)
+            quit()
+        else:
+            quit()
+            
+        
     return link
 
 def quality(video_url, embed_url, quality):
