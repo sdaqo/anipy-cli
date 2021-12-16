@@ -23,7 +23,6 @@ def get_embed_url(url):
 
 def get_video_url(embed_url):
 
-    print(embed_url)
     r = requests.get(embed_url, headers=headers)
     
     try:
