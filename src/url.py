@@ -57,8 +57,7 @@ def quality(video_url, embed_url, quality):
 
         response = sp.check_output(cURL,
                                    shell=True, 
-                                   stdout=sp.DEVNULL, 
-                                   stderr=sp.STDOUT)
+                                   stderr=sp.DEVNULL)
         
         qualitys = re.findall(r'\d+p', response.decode('utf-8')) 
         for i in range(len(qualitys)):
