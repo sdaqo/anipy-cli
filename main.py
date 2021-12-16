@@ -29,6 +29,5 @@ def main():
     video_url = url.quality(video_url, embed_url, args.quality)
     x = Thread(target=play , args=(embed_url, video_url))
     x.start()
-    print("Threading")
 if __name__ == "__main__":
     main()
