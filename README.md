@@ -9,6 +9,7 @@
 [Still in development]
 
 # Dependencies:
+- `Python 3.0`
 
 - `BeautifulSoup`
 
@@ -17,19 +18,22 @@
 - `cURL`
 
 - `mpv`
-
+ 
 
 # Usage
 
 ### Install Dependencies
+Get Python from: https://www.python.org/downloads/
 
-`pip install requests`
 
-`pip install bs4`
 
 Get mpv from: https://mpv.io/installation/
 
-Curl should be preinstalled on Windows, Linux and macOS if not get it from here https://curl.se/download.html
+Curl should be preinstalled on Windows, Linux and macOS if not get it from here: https://curl.se/download.html
+
+ To install requests do: `pip install requests`
+
+To install BeautifulSoup do: `pip install bs4`
 
 ## Start up 
 To start `anipy-cli`
@@ -40,7 +44,7 @@ To start `anipy-cli`
 ### Set video quality
 `main.py -q "Your desired quality"` 
 
-By default `ani-py-cli` tries to get the best quality, you can spify a quality like `360/720/1080...` (without the "p" at the end)
+By default `ani-py-cli` tries to get the best quality avalible. You can spify a quality like so: `360/720/1080...` (without the "p" at the end)
 
 You can also use  `best` or ` worst`.
 
