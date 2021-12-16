@@ -42,8 +42,8 @@ def get_video_url(embed_url):
 def quality(video_url, embed_url, quality):
 
     # Using cUrl here because I just couldnt find a soulution 
-    # for getting the quality-subprofiles of the video. 
-    # Somehow cUrl just works so im using it here.
+    # for getting the quality-subprofiles of the m3u8-playlist. 
+    # since cURl just works I'm using it here.
     
     
     if quality == None:
@@ -51,7 +51,7 @@ def quality(video_url, embed_url, quality):
     else:
         pass
     
-    # skip if curl is not avalible
+    # skip if curl is not avalible, since the url also works without a specified quality
     try:
         cURL = 'curl -s --referer {0} {1}'.format(embed_url, video_url)
 

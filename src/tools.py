@@ -35,7 +35,7 @@ def write_history(link, is_history):
     except:
         pass
     
-    # match exsisting with provided link  so we can change the newliy watched seconds when link already in jistory with the old ones
+   
     f = open("history/history.txt", "rt")
     
     data = f.readlines()
@@ -54,7 +54,9 @@ def write_history(link, is_history):
         index += 1
     
     if in_data == True:
-        if is_history == True:
+        # match exsisting with provided link so we can add the newly watched seconds, when link already in history, to the old ones
+        if is_history == True: 
+            
             time.sleep(10) #delay until player opens (guessed) 
             while stop == False:
                 time.sleep(1)
@@ -70,12 +72,14 @@ def write_history(link, is_history):
         else:
             pass
     else:
+        # loop to measure time until player is closed
         time.sleep(10) #delay until player opens (guessed) 
         while stop == False:
             time.sleep(1)
             seconds += 1
             
         f = open("history/history.txt", "a")
+        # seperate link and seconds with "#" to make it esier to read history
         f.write(link + "#" + str(seconds) + "\n")
 
     

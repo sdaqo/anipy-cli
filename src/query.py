@@ -18,7 +18,7 @@ def pages(url):
         pages.append(link.get('data-page'))
     
     try:
-        return int(pages[-1])
+        return int(pages[-1]) #return the last item in pages-list to get number of result-pages
     except:
         return 1
     
@@ -48,7 +48,6 @@ def query(search_input):
             temp_list.append(i)
         else:
             pass  
-    
        
     links.clear()
     links.extend(temp_list)
