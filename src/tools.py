@@ -15,7 +15,11 @@ def play(embed_url, video_url, link, is_history, start_at="0"):
     stop = False
     player_command = player + " --start=+" + str(start_at) + " --cache=yes " +  '--http-header-fields="Referer: ' + embed_url + '"' + " " + video_url
     Thread(target=write_history, args=(link, is_history)).start()
-    sp.run(player_command)
+    sp.run(player_command, 
+           shell=True, 
+           stdout=sp.DEVNULL, 
+           stderr=sp.STDOUT)
+    
     stop = True
 
 def write_history(link, is_history):
