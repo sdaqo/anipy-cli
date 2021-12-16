@@ -4,7 +4,7 @@
 
 ### Scrapes: https://gogoanime.wiki
 
-### Heavily inspired by https://github.com/pystardust/ani-cli/ (with more features)
+### Heavily inspired by https://github.com/pystardust/ani-cli/ but with more features
 
 [Still in development]
 
