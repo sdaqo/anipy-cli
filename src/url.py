@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup, BeautifulStoneSoup
+from bs4 import BeautifulSoup
 import requests
 import re
 import subprocess as sp
