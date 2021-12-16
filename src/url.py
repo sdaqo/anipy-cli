@@ -29,7 +29,7 @@ def get_video_url(embed_url):
         link = re.search(r"\s*sources.*", str(r.text)).group()
         link = re.search(r"https:.*(m3u8)|(mp4)", link).group()
     except:
-        open_in_browser = input("Oops, could not find video-url. Do you want to watch the Episode in the browser? (y/N): ")
+        open_in_browser = input(ERROR + "Oops, could not find video-url. Do you want to watch the Episode in the browser? (y/N): ")
         if open_in_browser == "y" or open_in_browser == "Y":
             webbrowser.open(embed_url)
             quit()
@@ -42,8 +42,8 @@ def get_video_url(embed_url):
 def quality(video_url, embed_url, quality):
 
     # Using cUrl here because I just couldnt find a soulution 
-    # for getting the quality-subprofiles of the m3u8-playlist. 
-    # since cURl just works I'm using it here.
+    # for getting the quality-subprofiles of the m3u8-playlist
+    # with request and bs4. 
     
     
     if quality == None:
@@ -84,6 +84,3 @@ def quality(video_url, embed_url, quality):
         url = video_url
     
     return url
-
-    
-    

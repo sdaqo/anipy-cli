@@ -128,3 +128,4 @@ def pick_history():
         quit()
     
     return link, resume_seconds 
+131
