@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, BeautifulStoneSoup
 import requests
 import re
 import subprocess as sp
@@ -28,39 +28,48 @@ def get_video_url(embed_url):
     
     return link
 
-def quality(video_url, embed_url, quality="best"):
+def quality(video_url, embed_url, quality):
 
     # Using cUrl here because I just couldnt find a soulution 
     # for getting the quality-subprofiles of the video. 
     # Somehow cUrl just works so im using it here.
-    cURL = 'curl -s --referer {0} {1}'.format(embed_url, video_url)
     
-    response = sp.check_output(cURL)
-    qualitys = re.findall(r'\d+p', response.decode('utf-8')) 
-     
-    for i in range(len(qualitys)):
-        qualitys[i] = qualitys[i].replace("p", "")
-    
-    if quality == "best" or quality == "worst":
-        if quality == "best":
-            quality = qualitys[-1]
-        else:
-            quality = qualitys[0]
+    # skip if curl is not avalible
+    if quality == None:
+        quality = "best"
     else:
-        if quality in qualitys:
-            quality = quality
-        else:
-            quality = qualitys[-1]
-            print(ERROR + "Your quality is not avalible using: " + qualitys[-1] + END)
-            pass
-    
-    try:
-        quality = quality.replace("p", "")
-    except:
         pass
     
-    url = video_url.replace("m3u8", "") + quality + ".m3u8"
-    
+    try:
+        cURL = 'curl -s --referer {0} {1}'.format(embed_url, video_url)
+
+        response = sp.check_output(cURL)
+        qualitys = re.findall(r'\d+p', response.decode('utf-8')) 
+        for i in range(len(qualitys)):
+            qualitys[i] = qualitys[i].replace("p", "")
+
+        if quality == "best" or quality == "worst":
+            if quality == "best":
+                quality = qualitys[-1]
+            else:
+                quality = qualitys[0]
+        else:
+            if quality in qualitys:
+                quality = quality
+            else:
+                quality = qualitys[-1]
+                print(ERROR + "Your quality is not avalible using: " + qualitys[-1] + "p" + END)
+                pass
+            
+        try:
+            quality = quality.replace("p", "")
+        except:
+            pass
+        
+        url = video_url.replace("m3u8", "") + quality + ".m3u8"
+        
+    except:
+        url = video_url
     
     return url
 
