@@ -12,7 +12,7 @@ from threading import Thread
 my_parser = argparse.ArgumentParser(description='Play Animes from gogoanime in local video-player.')
 my_parser.add_argument('-q', '--quality', action='store', required=False, help='Pick quality. 1080, 720, 480 etc. / best,worst')
 my_parser.add_argument('-H', '--history', required=False, dest="history", action='store_true', help='Play History. History file stored in history/history.txt')           
-my_parser.add_argument('-d', '--delete-history', required=False, dest='delete', action='store_true', help='Delete your History.')
+my_parser.add_argument('-D', '--delete-history', required=False, dest='delete', action='store_true', help='Delete your History.')
 args = my_parser.parse_args()
 
 
