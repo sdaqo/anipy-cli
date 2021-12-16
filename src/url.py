@@ -34,12 +34,13 @@ def quality(video_url, embed_url, quality):
     # for getting the quality-subprofiles of the video. 
     # Somehow cUrl just works so im using it here.
     
-    # skip if curl is not avalible
+    
     if quality == None:
         quality = "best"
     else:
         pass
     
+    # skip if curl is not avalible
     try:
         cURL = 'curl -s --referer {0} {1}'.format(embed_url, video_url)
 
