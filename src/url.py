@@ -53,9 +53,13 @@ def quality(video_url, embed_url, quality):
     
     # skip if curl is not avalible, since the url also works without a specified quality
     try:
-        cURL = 'curl -s --referer {0} {1}'.format(embed_url, video_url)
+        cURL = 'curl -s --referer "{0}" "{1}"'.format(embed_url, video_url)
 
-        response = sp.check_output(cURL)
+        response = sp.check_output(cURL,
+                                   shell=True, 
+                                   stdout=sp.DEVNULL, 
+                                   stderr=sp.STDOUT)
+        
         qualitys = re.findall(r'\d+p', response.decode('utf-8')) 
         for i in range(len(qualitys)):
             qualitys[i] = qualitys[i].replace("p", "")
