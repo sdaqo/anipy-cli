@@ -9,6 +9,7 @@
 [Still in development]
 
 # Dependencies:
+- `Python 3.0`
 
 - `BeautifulSoup`
 
@@ -17,19 +18,22 @@
 - `cURL`
 
 - `mpv`
-
+ 
 
 # Usage
 
 ### Install Dependencies
+Get Python from: https://www.python.org/downloads/
 
-`pip install requests`
 
-`pip install bs4`
 
 Get mpv from: https://mpv.io/installation/
 
-Curl should be preinstalled on Windows, Linux and macOS if not get it from here https://curl.se/download.html
+Curl should be preinstalled on Windows, Linux and macOS if not get it from here: https://curl.se/download.html
+
+ To install requests do: `pip install requests`
+
+To install BeautifulSoup do: `pip install bs4`
 
 ## Start up 
 To start `anipy-cli`
