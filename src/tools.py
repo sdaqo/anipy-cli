@@ -46,11 +46,12 @@ def write_history(link, is_history):
     
     for i in data:
         if link in i:
-                index = index
-                in_data = True
-                break
+            index = index
+            in_data = True
+            break
         else:
             pass
+             
         index += 1
     
     if in_data == True:
@@ -66,6 +67,7 @@ def write_history(link, is_history):
             changed_secs = changed_line[1].replace(changed_line[1], str(seconds + int(changed_line[1])))
             changed_line = changed_line[0] + "#" + changed_secs + "\n"
             data[index] = changed_line
+            data += [data.pop(index)] #move element to last line
             f = open("history/history.txt", "w")
             for element in data:    
                 f.write(element)
@@ -97,8 +99,7 @@ def read_history():
             resume_seconds.append(i[1].replace("\n", ""))
 
 
-    except Exception as a:
-        print(a)
+    except:
         pass
     
     return links, resume_seconds
@@ -128,4 +129,3 @@ def pick_history():
         quit()
     
     return link, resume_seconds 
-131
