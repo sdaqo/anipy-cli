@@ -1,9 +1,14 @@
 # anipy-cli
 ### Little tool in python to watch anime from the terminal (the better way to watch anime)
-### Has a resume playback function when  picking from History
 
 ### Scrapes: https://gogoanime.wiki
 
+TODO:
+- [x] 📺 Search gogoanime and extract .m3u8 link to play anime 
+- [x] ⌚History & resume playback 
+- [x] ❇️Video-quality selection 
+- [x] 🗒️Menu that pops up after starting episode 
+- [ ] 👇Download-function
 
 [Still in development]
 
