@@ -8,8 +8,8 @@ ERROR = '\033[93m'
 END = '\x1b[0m'
 
 options =[GREEN + "[n] " + END + "Next Episode", GREEN + "[p] " + END + "Previous Episode",
-          GREEN + "[h] " + END + "History selection", GREEN + "[a] " + END + "Search for Anime",
-          GREEN + "[q] " + END + "Quit"]
+          GREEN + "[r] " + END + "Replay episode", GREEN + "[h] " + END + "History selection",
+          GREEN + "[a] " + END + "Search for Anime", GREEN + "[q] " + END + "Quit"]
 
 def clear_console():
     os.system('cls' if os.name=='nt' else 'clear')
@@ -59,7 +59,12 @@ def main_menu(link):
                 link = link.replace(episode, str(int(episode) - 1))
                 start_episode(link)
                 main_menu(link)
-
+                
+        elif which_option == "r": # replay episode
+            kill_subprocess()
+            start_episode(link)
+            main_menu(link)   
+            
         elif which_option == "h": # History selection
             kill_subprocess() 
             clear_console()
