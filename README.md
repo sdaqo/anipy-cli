@@ -4,7 +4,6 @@
 
 ### Scrapes: https://gogoanime.wiki
 
-### Heavily inspired by https://github.com/pystardust/ani-cli/ but with more features
 
 [Still in development]
 
@@ -60,4 +59,7 @@ This will let you pick one of your anime-episodes that you previously watched an
 
 # Notes
 ## Resume PLayback
-### The Resume playback function counts the seconds after the video player is opened and stops when its closed. It stores the value and uses it when `-H` is called, not when you just play a episode like normal. When you play a episode from History, it will continue to count and adds it to the existing value.   
+### The Resume playback function counts the seconds after the video player is opened and stops when its closed (does not stop when you pause the video). It stores the value and uses it when `-H` is called, not when you just play a episode like normal. When you play a episode from History, it will continue to count and adds it to the existing value.    
+
+# Credits
+### Heavily inspired by https://github.com/pystardust/ani-cli/
