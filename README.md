@@ -9,6 +9,7 @@ TODO:
 - [x] ❇️Video-quality selection 
 - [x] 🗒️Menu that pops up after starting episode 
 - [ ] 👇Download-function
+- [ ] 🚀Deploy to PyPI
 
 [Still in development]
 
