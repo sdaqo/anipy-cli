@@ -1,26 +1,11 @@
 import time
 import os
-from threading import Thread
-import subprocess as sp
+from src import play
 
-
-player = "mpv"
 GREEN = '\033[92m'
 ERROR = '\033[93m'
 END = '\x1b[0m'
 
-
-def play(embed_url, video_url, link, is_history, start_at="0"):
-    global stop 
-    stop = False
-    player_command = player + " --start=+" + str(start_at) + " --cache=yes " +  '--http-header-fields="Referer: ' + embed_url + '"' + " " + video_url
-    Thread(target=write_history, args=(link, is_history)).start()
-    sp.run(player_command, 
-           shell=True, 
-           stdout=sp.DEVNULL, 
-           stderr=sp.STDOUT)
-    
-    stop = True
 
 def write_history(link, is_history):
 
@@ -59,7 +44,7 @@ def write_history(link, is_history):
         if is_history == True: 
             
             time.sleep(10) #delay until player opens (guessed) 
-            while stop == False:
+            while play.stop == False:
                 time.sleep(1)
                 seconds += 1
 
@@ -76,7 +61,7 @@ def write_history(link, is_history):
     else:
         # loop to measure time until player is closed
         time.sleep(10) #delay until player opens (guessed) 
-        while stop == False:
+        while play.stop == False:
             time.sleep(1)
             seconds += 1
             
@@ -113,7 +98,9 @@ def pick_history():
     links.reverse()
     resume_seconds.reverse()
 
-    
+    if not links:
+        print(ERROR + "No history")
+        quit()
     counter = 1
     for i in links:
         print(GREEN + "["+  str(counter) + "]" +  END + " " + str(i.replace("https://gogoanime.wiki/", "")))

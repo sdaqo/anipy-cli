@@ -1,9 +1,9 @@
-from src import query, url, tools
+from src import query, url, play, history
 import argparse
 from threading import Thread
 
 # TODO:
-#     [] - add threading for mpv process to be able to do more stuff
+#     [x] - add threading for mpv process to be able to do more stuff
 #     [] - add more options
 #     [] - add next ep ,last ep etc. 
 #     [] - add downloading
@@ -33,7 +33,7 @@ def main():
         link = query.query(search)
         link_with_episode = query.episode(link)
     else:
-        picked_history = tools.pick_history()
+        picked_history = history.pick_history()
         link_with_episode = picked_history[0]
         
     embed_url = url.get_embed_url(link_with_episode)
@@ -41,10 +41,10 @@ def main():
     video_url = url.quality(video_url, embed_url, args.quality)
     
     if args.history == False:
-        t1 = Thread(target=tools.play , args=(embed_url, video_url, link_with_episode, args.history,))
+        t1 = Thread(target=play.play , args=(embed_url, video_url, link_with_episode, args.history,))
         t1.start()
     else:
-        t1 = Thread(target=tools.play , args=(embed_url, video_url, link_with_episode, args.history, picked_history[1], ))
+        t1 = Thread(target=play.play , args=(embed_url, video_url, link_with_episode, args.history, picked_history[1], ))
         t1.start()
         
 if __name__ == "__main__":
