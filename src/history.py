@@ -57,18 +57,23 @@ def write_history(link, is_history):
             for element in data:    
                 f.write(element)
         else:
-            pass
+            # if already in history and the episode is played from history-selection, move it to firstt plavce in history 
+            data += [data.pop(index)]
+            f = open("history/history.txt", "w")
+            for element in data:    
+                f.write(element)
+                
     else:
         # loop to measure time until player is closed
         time.sleep(10) #delay until player opens (guessed) 
         while play.stop == False:
+            
             time.sleep(1)
             seconds += 1
             
         f = open("history/history.txt", "a")
         # seperate link and seconds with "#" to make it esier to read history
         f.write(link + "#" + str(seconds) + "\n")
-
     
 def read_history():
     try:
