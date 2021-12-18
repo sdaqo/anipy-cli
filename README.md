@@ -1,6 +1,5 @@
 # anipy-cli
-### Little tool in python to watch anime from the terminal (the better way to watch anime)
-
+### Little tool written in python to watch anime from the terminal (the better way to watch anime)
 ### Scrapes: https://gogoanime.wiki
 
 TODO:
