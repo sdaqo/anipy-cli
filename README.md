@@ -57,9 +57,12 @@ This will let you pick one of your anime-episodes that you previously watched an
 
 `main.py -D`
 
-# Notes
-## Resume PLayback
-### The Resume playback function counts the seconds after the video player is opened and stops when its closed (does not stop when you pause the video). It stores the value and uses it when `-H` is called, not when you just play a episode like normal. When you play a episode from History, it will continue to count and adds it to the existing value.    
+# Features
+### Resume Playback
+#### The Resume playback function counts the seconds after the video player is opened and stops when its closed (does not stop when you pause the video). It stores the value and uses it when `-H` is called, not when you just play a episode like normal. When you play a episode from History, it will continue to count and adds it to the existing value.    
+
+### Menu
+#### Has a menu that pops up after you picked an episode to play, there yopu can either play next episode, play previous episode, replay episode, open history selection, search for another anime or quit.
 
 # Credits
 ### Heavily inspired by https://github.com/pystardust/ani-cli/
