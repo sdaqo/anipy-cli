@@ -1,12 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+from src.colors import colors
 
 base_url = "https://gogoanime.wiki/"
 
-GREEN = '\033[92m'
-ERROR = '\033[93m'
-END = '\x1b[0m'
+
 
 def pages(url):
     
@@ -37,7 +36,7 @@ def query(search_input):
     
     
     if not links:
-        print(ERROR + "No search results found")
+        print(colors.ERROR + "No search results found")
         quit()
     
     #delete double entrys and append to previous list
@@ -54,20 +53,26 @@ def query(search_input):
     temp_list.clear()
     
     list_index = 1
+    
     for j in links:
-        print(GREEN + "["+  str(list_index) + "]" +  END + " " + str(j.replace("/category/", "")))  
+        if list_index % 2 == 0:
+            color = colors.YELLOW
+        else:
+            color = ""
+            
+        print(colors.GREEN + "["+  str(list_index) + "]" +  colors.END + " " +  "{0}".format(color) + str(j.replace("/category/", "")) + colors.END)  
         list_index += 1
         
    
     
     #get the right anime
 
-    which_anime = input("Enter Number: ")
+    which_anime = input("Enter Number: " + colors.CYAN)
     
     try: 
         link = links[int(which_anime) - 1]
     except:
-        print(ERROR + "Invalid Input")
+        print(colors.ERROR + "Invalid Input")
         quit()
     
     link = base_url + link.replace("/", "", 1)
@@ -85,15 +90,16 @@ def episode(url):
         ep_count.append(link.get('ep_end'))
     
     while True:
-        which_episode = input("Episode " + GREEN + "[1-" + ep_count[-1] + "]" + END + ": ")
+        which_episode = input(colors.END + "Episode " + colors.GREEN + "[1-" + ep_count[-1] + "]" + colors.END + ": " + colors.CYAN)
+        
         try:
             if int(which_episode) in list(range(1, int(ep_count[-1]) + 1)):
                 break
             else:
-                print(ERROR + "Number out of range.")
+                print(colors.ERROR + "Number out of range.")
                 
         except:
-            print(ERROR + "Invalid Input")
+            print(colors.ERROR + "Invalid Input")
             
             
     video_url = url.replace("/category", "") + "-episode-" + which_episode

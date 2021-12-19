@@ -1,15 +1,13 @@
 from src import play, query, url, history #local imports
-import main 
+import main
+from src.colors import colors
 import re, os, time, signal
 from threading import Thread
 
-GREEN = '\033[92m'
-ERROR = '\033[93m'
-END = '\x1b[0m'
 
-options =[GREEN + "[n] " + END + "Next Episode", GREEN + "[p] " + END + "Previous Episode",
-          GREEN + "[r] " + END + "Replay episode", GREEN + "[h] " + END + "History selection",
-          GREEN + "[a] " + END + "Search for Anime", GREEN + "[q] " + END + "Quit"]
+options =[colors.GREEN + "[n] " + colors.END + "Next Episode", colors.GREEN + "[p] " + colors.END + "Previous Episode",
+          colors.GREEN + "[r] " + colors.END + "Replay episode", colors.GREEN + "[h] " + colors.END + "History selection",
+          colors.GREEN + "[a] " + colors.END + "Search for Anime", colors.GREEN + "[q] " + colors.END + "Quit"]
 
 def clear_console():
     os.system('cls' if os.name=='nt' else 'clear')
@@ -30,13 +28,13 @@ def kill_subprocess():
         
 def main_menu(link):
     clear_console()
-    print(GREEN + "Playing: " + link.replace("https://gogoanime.wiki/", ""))
+    print(colors.GREEN + "Playing: " + colors.RED + link.replace("https://gogoanime.wiki/", ""))
     
     for i in options:
         print(i) 
     
     while True:   
-        which_option = input("Enter option: ")
+        which_option = input("Enter option: " + colors.CYAN)
         
         if which_option == "n": # next episode
             kill_subprocess()
@@ -52,7 +50,7 @@ def main_menu(link):
             episode = episode.group(0)
 
             if episode == "1":
-                print(ERROR + "There is no episode before that.")
+                print(colors.ERROR + "There is no episode before that.")
                 pass
             else:
                 kill_subprocess()
@@ -77,19 +75,20 @@ def main_menu(link):
         elif which_option == "a": # Anime Search
             kill_subprocess()
             clear_console()
-            search = input("Search for Anime: ")
+            search = input("Search for Anime: " + colors.CYAN)
+            print(colors.END)
             search_link = query.query(search)
             search_link_with_episode = query.episode(search_link)
             start_episode(search_link_with_episode)
             main_menu(search_link_with_episode)
 
-        elif which_option == "q":
+        elif which_option == "q": # quit
             kill_subprocess()
-            time.sleep(2)
+            time.sleep(1.2) # wait until write_history is finished 
             quit()
             
         else:
-            print(ERROR + "Invalid Input")
+            print(colors.ERROR + "Invalid Input" + colors.END)
 
 
 

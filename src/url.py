@@ -1,13 +1,7 @@
+import requests, re, webbrowser, time, subprocess as sp
 from bs4 import BeautifulSoup
-import requests
-import re
-import subprocess as sp
-import webbrowser
+from src.colors import colors
 
-
-GREEN = '\033[92m'
-ERROR = '\033[93m'
-END = '\x1b[0m'
 
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44"
@@ -29,7 +23,7 @@ def get_video_url(embed_url):
         link = re.search(r"\s*sources.*", str(r.text)).group()
         link = re.search(r"https:.*(m3u8)|(mp4)", link).group()
     except:
-        open_in_browser = input(ERROR + "Oops, could not find video-url. Do you want to watch the Episode in the browser? (y/N): ")
+        open_in_browser = input(colors.ERROR + "Oops, could not find video-url. Do you want to watch the Episode in the browser? (y/N): ")
         if open_in_browser == "y" or open_in_browser == "Y":
             webbrowser.open(embed_url)
             quit()
@@ -73,7 +67,8 @@ def quality(video_url, embed_url, quality):
                 quality = quality
             else:
                 quality = qualitys[-1]
-                print(ERROR + "Your quality is not avalible using: " + qualitys[-1] + "p" + END)
+                print(colors.ERROR + "Your quality is not avalible using: " + qualitys[-1] + "p" + colors.END)
+                time.sleep(1.5)
                 pass
             
         try:

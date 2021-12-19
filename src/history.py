@@ -1,10 +1,7 @@
 import time
 import os
 from src import play
-
-GREEN = '\033[92m'
-ERROR = '\033[93m'
-END = '\x1b[0m'
+from src.colors import colors
 
 
 def write_history(link, is_history):
@@ -104,11 +101,11 @@ def pick_history():
     resume_seconds.reverse()
 
     if not links:
-        print(ERROR + "No history")
+        print(colors.ERROR + "No history")
         quit()
     counter = 1
     for i in links:
-        print(GREEN + "["+  str(counter) + "]" +  END + " " + str(i.replace("https://gogoanime.wiki/", "")))
+        print(colors.GREEN + "["+  str(counter) + "]" +  colors.END + " " + str(i.replace("https://gogoanime.wiki/", "")))
         counter += 1
     
     which_anime = input("Enter Number: ")
@@ -117,7 +114,7 @@ def pick_history():
         link = links[int(which_anime) - 1]
         resume_seconds = resume_seconds[int(which_anime) - 1]
     except:
-        print(ERROR + "Invalid Input")
+        print(colors.ERROR + "Invalid Input")
         quit()
     
     return link, resume_seconds 
