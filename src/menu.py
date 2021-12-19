@@ -95,7 +95,7 @@ def main_menu(link):
 def start_episode(link, resume_seconds = 0, is_history = False): 
          
     embed_url = url.get_embed_url(link)
-    video_url = url.get_video_url(embed_url)    
+    video_url = url.get_video_url(embed_url, link)    
     video_url = url.quality(video_url, embed_url, main.args.quality)
     
     if is_history == False:
