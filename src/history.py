@@ -7,7 +7,6 @@ import queue
 done_writing_queue = queue.Queue()
 
 def write_history(link, is_history, is_on_web = False):
-    done_writing = False
     # try making files and dirs    
     try:
         os.mkdir("history")
