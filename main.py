@@ -3,13 +3,6 @@ import argparse
 from threading import Thread
 from src.colors import colors
 
-# TODO:
-#     [x] - add threading for mpv process to be able to do more stuff
-#     [] - add more options
-#     [x] - add next ep ,last ep etc. 
-#     [] - add downloading
-#     [x] - add History with resume   
-
 my_parser = argparse.ArgumentParser(description='Play Animes from gogoanime in local video-player.')
 my_parser.add_argument('-q', '--quality', action='store', required=False, help='Pick quality. 1080, 720, 480 etc. / best,worst')
 my_parser.add_argument('-H', '--history', required=False, dest="history", action='store_true', help='Play History. History is stored in history/history.txt')           
