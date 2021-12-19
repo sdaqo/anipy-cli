@@ -4,7 +4,7 @@ from src import play
 from src.colors import colors
 
 
-def write_history(link, is_history):
+def write_history(link, is_history, is_on_web = False):
 
     # try making files and dirs    
     try:
@@ -61,13 +61,16 @@ def write_history(link, is_history):
                 f.write(element)
                 
     else:
-        # loop to measure time until player is closed
-        time.sleep(10) #delay until player opens (guessed) 
-        while play.stop == False:
-            
-            time.sleep(1)
-            seconds += 1
-            
+        if is_on_web == False:
+            # loop to measure time until player is closed
+            time.sleep(10) #delay until player opens (guessed) 
+            while play.stop == False:
+
+                time.sleep(1)
+                seconds += 1
+        else:
+            pass
+        
         f = open("history/history.txt", "a")
         # seperate link and seconds with "#" to make it esier to read history
         f.write(link + "#" + str(seconds) + "\n")

@@ -32,7 +32,7 @@ def main():
         link_with_episode = picked_history[0]
         
     embed_url = url.get_embed_url(link_with_episode)
-    video_url = url.get_video_url(embed_url)    
+    video_url = url.get_video_url(embed_url, link_with_episode)    
     video_url = url.quality(video_url, embed_url, args.quality)
     
     if args.history == False:

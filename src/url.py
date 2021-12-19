@@ -1,7 +1,7 @@
 import requests, re, webbrowser, time, subprocess as sp
 from bs4 import BeautifulSoup
 from src.colors import colors
-
+frä
 
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44"
@@ -15,7 +15,7 @@ def get_embed_url(url):
     return f'https:{link["data-video"]}'
 
 
-def get_video_url(embed_url):
+def get_video_url(embed_url, link_with_episode):
 
     r = requests.get(embed_url, headers=headers)
     
@@ -26,6 +26,8 @@ def get_video_url(embed_url):
         open_in_browser = input(colors.ERROR + "Oops, could not find video-url. Do you want to watch the Episode in the browser? (y/N): ")
         if open_in_browser == "y" or open_in_browser == "Y":
             webbrowser.open(embed_url)
+            history.write_history(link_with_episode, False, True)
+            print(colors.GREEN + "Episode saved in history" + colors.END)
             quit()
         else:
             quit()
