@@ -2,10 +2,12 @@ import time
 import os
 from src import play
 from src.colors import colors
+import queue
 
+done_writing_queue = queue.Queue()
 
 def write_history(link, is_history, is_on_web = False):
-
+    done_writing = False
     # try making files and dirs    
     try:
         os.mkdir("history")
@@ -54,7 +56,7 @@ def write_history(link, is_history, is_on_web = False):
             for element in data:    
                 f.write(element)
         else:
-            # if already in history and the episode is played from history-selection, move it to firstt plavce in history 
+            # if already in history and the episode is not played from history-selection, move it to firstt plavce in history 
             data += [data.pop(index)]
             f = open("history/history.txt", "w")
             for element in data:    
@@ -65,7 +67,6 @@ def write_history(link, is_history, is_on_web = False):
             # loop to measure time until player is closed
             time.sleep(10) #delay until player opens (guessed) 
             while play.stop == False:
-
                 time.sleep(1)
                 seconds += 1
         else:
@@ -74,8 +75,16 @@ def write_history(link, is_history, is_on_web = False):
         f = open("history/history.txt", "a")
         # seperate link and seconds with "#" to make it esier to read history
         f.write(link + "#" + str(seconds) + "\n")
+    done_writing_queue.put(True)
     
 def read_history():
+    
+    while True:
+        check = done_writing_queue.get()
+        if check == True:
+            break
+        time.sleep(0.2)
+        
     try:
         f = open("history/history.txt", "rt")
         data = f.readlines()

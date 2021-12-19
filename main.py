@@ -14,7 +14,7 @@ args = my_parser.parse_args()
 if args.delete == True:
     try:
         open("history/history.txt", "w")
-        print(colors.RED + "Done")
+        print(colors.RED + "Done" + colors.END)
         
     except:
         print(colors.END + "There is no History-File.")
@@ -28,6 +28,7 @@ def main():
         link = query.query(search)
         link_with_episode = query.episode(link)
     else:
+        history.done_writing_queue.put(True)
         picked_history = history.pick_history()
         link_with_episode = picked_history[0]
         

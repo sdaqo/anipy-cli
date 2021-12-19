@@ -38,6 +38,11 @@ def main_menu(link):
         
         if which_option == "n": # next episode
             kill_subprocess()
+            while True:
+                check = history.done_writing_queue.get()
+                if check == True:
+                    break
+                time.sleep(0.3)
             episode = re.search(r"[0-9]", link)
             episode = episode.group(0)
             link = link.replace(episode, str(int(episode) + 1))
@@ -45,21 +50,29 @@ def main_menu(link):
             main_menu(link)   
             
         elif which_option == "p": #previous episode
-            
             episode = re.search(r"[0-9]", link)
             episode = episode.group(0)
-
             if episode == "1":
                 print(colors.ERROR + "There is no episode before that.")
                 pass
             else:
                 kill_subprocess()
+                while True:
+                    check = history.done_writing_queue.get()
+                    if check == True:
+                        break
+                    time.sleep(0.3)
                 link = link.replace(episode, str(int(episode) - 1))
                 start_episode(link)
                 main_menu(link)
                 
         elif which_option == "r": # replay episode
             kill_subprocess()
+            while True:
+                check = history.done_writing_queue.get()
+                if check == True:
+                    break
+                time.sleep(0.3)
             start_episode(link)
             main_menu(link)   
             
@@ -72,11 +85,16 @@ def main_menu(link):
             start_episode(link_with_episode, picked_history[1], is_history)
             main_menu(link_with_episode)
 
-        elif which_option == "a": # Anime Search
+        elif which_option == "a": # Anime Search            
             kill_subprocess()
+            while True:
+                check = history.done_writing_queue.get()
+                if check == True:
+                    break
+                time.sleep(0.3)
+
             clear_console()
             search = input("Search for Anime: " + colors.CYAN)
-            print(colors.END)
             search_link = query.query(search)
             search_link_with_episode = query.episode(search_link)
             start_episode(search_link_with_episode)
@@ -84,7 +102,11 @@ def main_menu(link):
 
         elif which_option == "q": # quit
             kill_subprocess()
-            time.sleep(1.2) # wait until write_history is finished 
+            while True:
+                check = history.done_writing_queue.get()
+                if check == True:
+                    break
+                time.sleep(0.2)
             quit()
             
         else:
@@ -99,8 +121,8 @@ def start_episode(link, resume_seconds = 0, is_history = False):
     video_url = url.quality(video_url, embed_url, main.args.quality)
     
     if is_history == False:
-        t1 = Thread(target=play.play , args=(embed_url, video_url, link, main.args.history,))
+        t1 = Thread(target=play.play , args=(embed_url, video_url, link, is_history,))
         t1.start()
     else:
-        t1 = Thread(target=play.play , args=(embed_url, video_url, link, main.args.history, resume_seconds, ))
+        t1 = Thread(target=play.play , args=(embed_url, video_url, link, is_history, resume_seconds, ))
         t1.start()
