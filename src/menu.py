@@ -95,7 +95,6 @@ def main_menu(link):
                 if check == True:
                     break
                 time.sleep(0.3)
-            print(link)
             start_episode(link)
             main_menu(link)
             
