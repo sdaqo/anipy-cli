@@ -82,7 +82,6 @@ def query(search_input):
 
 
 def episode(url):
-    
     ep_count = []
     querys = requests.get(url)
     soup = BeautifulSoup(querys.content, "html.parser")

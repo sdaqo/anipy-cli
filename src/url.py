@@ -26,7 +26,7 @@ def get_video_url(embed_url, link_with_episode):
         open_in_browser = input(colors.ERROR + "Oops, could not find video-url. Do you want to watch the Episode in the browser? (y/N): ")
         if open_in_browser == "y" or open_in_browser == "Y":
             webbrowser.open(embed_url)
-            history.write_history(link_with_episode, False, True)
+            history.write_history(link_with_episode, False, True) # False and True refer to is_history and is_on_web
             print(colors.GREEN + "Episode saved in history" + colors.END)
             quit()
         else:
@@ -69,7 +69,7 @@ def quality(video_url, embed_url, quality):
                 quality = quality
             else:
                 quality = qualitys[-1]
-                print(colors.ERROR + "Your quality is not avalible using: " + qualitys[-1] + "p" + colors.END)
+                print(colors.ERROR + "Your quality is not avalible using: " + quality + "p" + colors.END)
                 time.sleep(1.5)
                 pass
             

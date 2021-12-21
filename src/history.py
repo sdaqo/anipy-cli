@@ -119,7 +119,7 @@ def pick_history():
         print(colors.GREEN + "["+  str(counter) + "]" +  colors.END + " " + str(i.replace("https://gogoanime.wiki/", "")))
         counter += 1
     
-    which_anime = input("Enter Number: ")
+    which_anime = input("Enter Number: " + colors.CYAN)
     
     try: 
         link = links[int(which_anime) - 1]
