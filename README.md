@@ -117,6 +117,8 @@ TODO:
 
 - `geckodriver`
 
+- `Firefox`
+
 - `cURL`
 
 - `mpv`
@@ -125,14 +127,23 @@ TODO:
 # Usage
 
 ## Install Dependencies
-### Geckodriver
-Geckodriver is the render engine of firefox, it is needed for selenium. 
+### Geckodriver (Needs Firefox)
+Geckodriver is the render engine of firefox, it is needed for selenium. It needs firefox which you can get from here: https://www.mozilla.org/firefox/new/ or with the package manager of your linux-distro.
 
 Installation:
 
-Windows: The `geckodriver.exe` executeable is already in the repo, but it is always smart to get the newest realese, for this go to: https://github.com/mozilla/geckodriver/releases
+Windows:
 
-Linux: On Arch-Based system the package `geckodriver` is already in the Community-Repo and can be installed like so: `sudo pacman -S geckodriver`. On Debian-Systems the installation is harder:
+- Download the latest build for your version of windows from: https://github.com/mozilla/geckodriver/releases
+- Extract `geckodriver.exe` from the .zip file into any location
+- Search for `Edit the system environment variables` and open the first entry. When the window pops up click on "Environment Variables"
+- In the first box select the Variable named Path then click on Edit.
+- Click the "New" button and type the Path to the folder where your `geckodriver.exe` is located. 
+- Click on OK and close the windows. You are done.
+
+Linux: 
+
+On Arch-Based system the package `geckodriver` is already in the Community-Repo and can be installed like so: `sudo pacman -S geckodriver`. On Debian-Systems the installation is harder:
 
 - Go to https://github.com/mozilla/geckodriver/releases and download the latest .tar.gz file for your system.
 - Extract the file to any folder with `tar -xvzf geckodriver*`

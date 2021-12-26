@@ -24,10 +24,8 @@ def get_video_url(embed_url, link_with_episode):
         try:
             browser = webdriver.Firefox()
         except:
-            try:
-                browser = webdriver.Firefox(executable_path=pathlib.Path(__file__).parent.resolve() + "\\geckodriver.exe")
-            except:
-                print("Firefox geckodriver Webdriver not found, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
+            print("Firefox geckodriver Webdriver is not instaled or not in PATH, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
+        
         browser.get(embed_url)
         browser.execute_script('document.getElementsByClassName("jw-icon")[2].click()')
         html_source = browser.page_source
@@ -47,7 +45,7 @@ def get_video_url(embed_url, link_with_episode):
         except:
             pass
         
-        print(colors.ERROR + "[Exception] " + str(e) + colors.END + " If you get this error a lot please feel free to open a Issue open github: https://github.com/sdaqo/anipy-cli/issues" +"\n")
+        print(colors.ERROR + "[Exception] " + str(e) + colors.END + " If you get this error a lot please feel free to open a Issue on github: https://github.com/sdaqo/anipy-cli/issues" +"\n")
         open_in_browser = input(colors.ERROR + "Oops, an exception occured. Do you want to watch the Episode in the browser? (y/N): ")
         if open_in_browser == "y" or open_in_browser == "Y":
             webbrowser.open(embed_url)
