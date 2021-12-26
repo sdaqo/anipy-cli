@@ -18,7 +18,6 @@ def get_embed_url(url):
 
 
 def get_video_url(embed_url, link_with_episode):
-    print(embed_url)
     try:
         """new code"""
         os.environ['MOZ_HEADLESS'] = '1'
