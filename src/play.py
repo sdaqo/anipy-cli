@@ -10,9 +10,8 @@ terminate = False
 def play(embed_url, video_url, link, is_history, start_at="0"):
     global stop, sub_proc
     stop = False
-    player_command = player + " --start=+" + str(start_at) + " --cache=yes " +  '--http-header-fields="Referer: ' + embed_url + '"' + " " + video_url
+    player_command = player + " --start=+" + str(start_at) + " --cache=yes " +  '--http-header-fields="Referer: ' + embed_url + '" "' + video_url + '"'
     Thread(target=write_history, args=(link, is_history)).start()
-    
     if os.name in ('nt', 'dos'):
         sub_proc = sp.Popen(player_command)
     else:
