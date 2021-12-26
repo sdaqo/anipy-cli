@@ -1,4 +1,4 @@
-> # Currently not working due to changes on gogoplay, trying to fix this.
+> # Playback in local video player currently not working due to changes on gogoplay, trying to fix this.
 
 # anipy-cli
 ### Little tool written in python to watch anime from the terminal (the better way to watch anime)
