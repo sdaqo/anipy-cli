@@ -1,4 +1,4 @@
-> # Playback in local video player currently not working due to changes on gogoplay, trying to fix this.
+> # Script working again, except of quality selection which is coming soon. (hopefully)
 
 # anipy-cli
 ### Little tool written in python to watch anime from the terminal (the better way to watch anime)
@@ -21,6 +21,10 @@ TODO:
 
 - `requests`
 
+- `selenium`
+
+- `geckodriver`
+
 - `cURL`
 
 - `mpv`
@@ -28,21 +32,34 @@ TODO:
 
 # Usage
 
-### Install Dependencies
+## Install Dependencies
+### Geckodriver
+Geckodriver is the render engine of firefox, it is needed for selenium. 
+
+Installation:
+
+Windows: The `geckodriver.exe` executeable is already in the repo, but it is always smart to get the newest realese, for this go to: https://github.com/mozilla/geckodriver/releases
+
+Linux: On Arch-Based system the package `geckodriver` is already in the Community-Repo and can be installed like so: `sudo pacman -S geckodriver`. On Debian-Systems the installation is harder:
+
+- Go to https://github.com/mozilla/geckodriver/releases and download the latest .tar.gz file for your system.
+- Extract the file to any folder with `tar -xvzf geckodriver*`
+- Make it executable with `chmod +x geckodriver`
+- Add it to the PATH like so: `export PATH=$PATH:/path-to-extracted-file/`
+
+### Other dependencies
 Get Python from: https://www.python.org/downloads/
-
-
 
 Get mpv from: https://mpv.io/installation/
 
 Curl should be preinstalled on Windows, Linux and macOS if not get it from here: https://curl.se/download.html
 
- To install requests do: `pip install requests`
+### Python-Libs
 
-To install BeautifulSoup do: `pip install bs4`
+To install `bs4`, `selenium` and `requests` open a terminal in the root-folder and execute `pip install -r requirements.txt`
 
 ## Start up 
-To start `anipy-cli`
+To start `anipy-cli` do:
 
 `pyton main.py`
 
