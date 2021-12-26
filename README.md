@@ -1,4 +1,4 @@
-> ## Script working again, except of quality selection which is coming soon. (hopefully) Until now it only works on linux with firefox installed im going to patch this probably tomorrow.
+> ## Script working again, yeah, except of quality selection which is coming soon. The workaround is done with Selenium and is pretty bad I will try to make this better (or not).
 
 # anipy-cli
 ### Little tool written in python to watch anime from the terminal (the better way to watch anime)
