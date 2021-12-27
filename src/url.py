@@ -21,34 +21,39 @@ def get_embed_url(url):
 def get_video_url(embed_url, link_with_episode, user_quality):
     print("Getting video url")
     try:
-        """new code"""
-        os.environ['MOZ_HEADLESS'] = '1'
         try:
-            browser = webdriver.Firefox()
-        except:
-            print("Firefox geckodriver Webdriver is not instaled or not in PATH, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
-        
-        browser.get(embed_url)
-        # start the player in browser so the video-url is generated 
-        browser.execute_script('document.getElementsByClassName("jw-icon")[2].click()')
-        html_source = browser.page_source
-        soup = BeautifulSoup(html_source, "html.parser")
-        # get quality options
-        try:
-            qualitys = soup.find(id="jw-settings-submenu-quality")
-            user_quality = quality(qualitys, user_quality)
-            # Click the quality, the user picked, in the quality selection, so the right link is being generated. 
-            browser.execute_script("document.evaluate('//*[@id=\"jw-settings-submenu-quality\"]/div/button[{0}]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()".format(user_quality + 1))
-        except:
-            print("Something went wrong with the quality selection. Loading default quality.")
-            time.sleep(1.5)
-        # extract video link
-        html_source = browser.page_source
-        soup = BeautifulSoup(html_source, "html.parser")
-        link = soup.find("video")
-        link = link.get('src')
-        browser.quit()
+            """new code"""
+            os.environ['MOZ_HEADLESS'] = '1'
+            try:
+                browser = webdriver.Firefox()
+            except:
+                print("Firefox geckodriver Webdriver is not instaled or not in PATH, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
 
+            browser.get(embed_url)
+            # start the player in browser so the video-url is generated 
+            browser.execute_script('document.getElementsByClassName("jw-icon")[2].click()')
+            html_source = browser.page_source
+            soup = BeautifulSoup(html_source, "html.parser")
+            # get quality options
+            try:
+                qualitys = soup.find(id="jw-settings-submenu-quality")
+                user_quality = quality(qualitys, user_quality)
+                # Click the quality, the user picked, in the quality selection, so the right link is being generated. 
+                browser.execute_script("document.evaluate('//*[@id=\"jw-settings-submenu-quality\"]/div/button[{0}]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()".format(user_quality + 1))
+            except:
+                print("Something went wrong with the quality selection. Loading default quality.")
+                time.sleep(1.5)
+            # extract video link
+            html_source = browser.page_source
+            soup = BeautifulSoup(html_source, "html.parser")
+            link = soup.find("video")
+            link = link.get('src')
+            browser.quit()
+        except KeyboardInterrupt:
+            print(colors.ERROR + "Interrupted" + colors.END)
+            browser.quit()
+            quit()
+        
         """old code"""
         #link = soup.find("video", {"class": "jw-video"})
         #print(f'https:{link["src"]}')
