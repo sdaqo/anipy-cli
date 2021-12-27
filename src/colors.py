@@ -7,5 +7,3 @@ class colors():
     CYAN = '\u001b[36m'
     RED = '\u001b[31m'
     END = '\x1b[0m'
-
-

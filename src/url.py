@@ -1,13 +1,14 @@
-import os, requests, re, webbrowser, time, subprocess as sp
-from bs4 import BeautifulSoup
+import queue, os, requests, re, webbrowser, time, subprocess as sp
+from bs4 import BeautifulSoup, NavigableString, Comment
 from src.colors import colors
 from main import history
 from selenium import webdriver
-import pathlib
+from threading import Thread
 
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44"
     }
+
 
 def get_embed_url(url):
     
@@ -17,7 +18,8 @@ def get_embed_url(url):
     return f'https:{link["data-video"]}'
 
 
-def get_video_url(embed_url, link_with_episode):
+def get_video_url(embed_url, link_with_episode, user_quality):
+    print("Getting video url")
     try:
         """new code"""
         os.environ['MOZ_HEADLESS'] = '1'
@@ -27,7 +29,20 @@ def get_video_url(embed_url, link_with_episode):
             print("Firefox geckodriver Webdriver is not instaled or not in PATH, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
         
         browser.get(embed_url)
+        # start the player in browser so the video-url is generated 
         browser.execute_script('document.getElementsByClassName("jw-icon")[2].click()')
+        html_source = browser.page_source
+        soup = BeautifulSoup(html_source, "html.parser")
+        # get quality options
+        try:
+            qualitys = soup.find(id="jw-settings-submenu-quality")
+            user_quality = quality(qualitys, user_quality)
+            # Click the quality, the user picked, in the quality selection, so the right link is being generated. 
+            browser.execute_script("document.evaluate('//*[@id=\"jw-settings-submenu-quality\"]/div/button[{0}]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()".format(user_quality + 1))
+        except:
+            print("Something went wrong with the quality selection. Loading default quality.")
+            time.sleep(1.5)
+        # extract video link
         html_source = browser.page_source
         soup = BeautifulSoup(html_source, "html.parser")
         link = soup.find("video")
@@ -40,12 +55,13 @@ def get_video_url(embed_url, link_with_episode):
         #link = re.search(r"\s*sources.*", str(r.text)).group()
         #link = re.search(r"https:.*(m3u8)|(mp4)", link).group()
     except Exception as e:
+
         try:
             browser.close()
         except:
             pass
         
-        print(colors.ERROR + "[Exception] " + str(e) + colors.END + " If you get this error a lot please feel free to open a Issue on github: https://github.com/sdaqo/anipy-cli/issues" +"\n")
+        print(colors.ERROR + "[Exception] " + str(e) + colors.END + "\nIf you get this error a lot please feel free to open a Issue on github: https://github.com/sdaqo/anipy-cli/issues" )
         open_in_browser = input(colors.ERROR + "Oops, an exception occured. Do you want to watch the Episode in the browser? (y/N): ")
         if open_in_browser == "y" or open_in_browser == "Y":
             webbrowser.open(embed_url)
@@ -58,52 +74,47 @@ def get_video_url(embed_url, link_with_episode):
         
     return link
 
-def quality(video_url, embed_url, quality):
+def quality(html_code, quality):
 
-    # Using cUrl here because I just couldnt find a soulution 
-    # for getting the quality-subprofiles of the m3u8-playlist
-    # with request and bs4. 
-    
     
     if quality == None:
         quality = "best"
     else:
         pass
-    
-    # skip if curl is not avalible, since the url also works without a specified quality
-    try:
-        cURL = 'curl -s --referer "{0}" "{1}"'.format(embed_url, video_url)
 
-        response = sp.check_output(cURL,
-                                   shell=True, 
-                                   stderr=sp.DEVNULL)
-        
-        qualitys = re.findall(r'\d+p', response.decode('utf-8')) 
+    try:
+
+        qualitys = re.findall(r'\d+ P', str(html_code))
+
+        temp_list = []
+        for i in qualitys:
+            if i not in temp_list:
+                temp_list.append(i)
+            else:
+                pass  
+        qualitys.clear()
+        qualitys.extend(temp_list)
+
         for i in range(len(qualitys)):
-            qualitys[i] = qualitys[i].replace("p", "")
+            qualitys[i] = qualitys[i].replace(" P", "")
 
         if quality == "best" or quality == "worst":
             if quality == "best":
-                quality = qualitys[-1]
+                quality = qualitys.index(qualitys[-1])
             else:
-                quality = qualitys[0]
+                quality = qualitys.index(qualitys[0])
         else:
             if quality in qualitys:
-                quality = quality
+                quality = qualitys.index(quality)
             else:
-                quality = qualitys[-1]
-                print(colors.ERROR + "Your quality is not avalible using: " + quality + "p" + colors.END)
+                quality = qualitys.index(qualitys[-1])
+                print(colors.ERROR + "Your quality is not avalible using: " + qualitys[quality] + "p" + colors.END)
                 time.sleep(1.5)
                 pass
             
-        try:
-            quality = quality.replace("p", "")
-        except:
-            pass
-        
-        url = video_url.replace("m3u8", "") + quality + ".m3u8"
-        
     except:
-        url = video_url
+
+        pass
     
-    return url
+
+    return quality
