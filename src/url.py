@@ -47,7 +47,7 @@ def get_video_url(embed_url, link_with_episode, user_quality):
         soup = BeautifulSoup(html_source, "html.parser")
         link = soup.find("video")
         link = link.get('src')
-        browser.close()
+        browser.quit()
 
         """old code"""
         #link = soup.find("video", {"class": "jw-video"})
@@ -55,9 +55,8 @@ def get_video_url(embed_url, link_with_episode, user_quality):
         #link = re.search(r"\s*sources.*", str(r.text)).group()
         #link = re.search(r"https:.*(m3u8)|(mp4)", link).group()
     except Exception as e:
-
         try:
-            browser.close()
+            browser.quit()
         except:
             pass
         
