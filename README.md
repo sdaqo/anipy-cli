@@ -35,7 +35,10 @@ TODO:
 # Usage
 
 ## Install Dependencies
-### Geckodriver (Needs Firefox)
+
+#### [Note] If you are on Linux you can skip step 1 (apart from firefox) and 3. Just do `sudo make all` to install dependencies and be able to be able to execute the script from everywhere. To uninstall just do `sudo make uninstall`
+ 
+### 1. Geckodriver (Needs Firefox)
 Geckodriver is the render engine of firefox, it is needed for selenium. It needs firefox which you can get from here: https://www.mozilla.org/firefox/new/ or with the package manager of your linux-distro.
 
 Installation:
@@ -58,14 +61,14 @@ On Arch-Based system the package `geckodriver` is already in the Community-Repo 
 - Make it executable with `chmod +x geckodriver`
 - Add it to the PATH like so: `export PATH=$PATH:/path-to-extracted-file/`
 
-### Other dependencies
+### 2. Other dependencies
 Get Python from: https://www.python.org/downloads/
 
 Get mpv from: https://mpv.io/installation/
 
 Curl should be preinstalled on Windows, Linux and macOS if not get it from here: https://curl.se/download.html
 
-### Python-Libs
+### 3. Python-Libs
 
 To install `bs4`, `selenium` and `requests` open a terminal in the root-folder and execute `pip install -r requirements.txt`
 
@@ -100,4 +103,5 @@ This will let you pick one of your anime-episodes that you previously watched an
 #### Has a menu that pops up after you picked an episode to play, there yopu can either play next episode, play previous episode, replay episode, open history selection, search for another anime or quit.
 
 # Credits
-### Heavily inspired by https://github.com/pystardust/ani-cli/
+#### Heavily inspired by https://github.com/pystardust/ani-cli/
+#### Migueldeoleiros for the makefile 
