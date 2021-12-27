@@ -1,11 +1,11 @@
-> ## Script working again, yeah, except of quality selection which is coming soon. The workaround is done with Selenium and is pretty bad, I am going to try and make it better sometime.
+> ## Script working again, yeah, and quality selection as well. The workaround is done with Selenium and is pretty bad, I am going to try and make it better sometime.
 
 # anipy-cli
 ### Little tool written in python to watch anime from the terminal (the better way to watch anime)
 ### Scrapes: https://gogoanime.wiki
 
 TODO:
-- [x] 📺 Search gogoanime and extract .m3u8 link to play anime 
+- [x] 📺 Search gogoanime and extract video url to play anime 
 - [x] ⌚History & resume playback 
 - [x] ❇️Video-quality selection 
 - [x] 🗒️Menu that pops up after starting episode 
