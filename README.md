@@ -36,7 +36,7 @@ TODO:
 
 ## Install Dependencies
 
-#### [Note] If you are on Linux you can skip step 1 (apart from firefox) and 3. Just do `sudo make all` to install dependencies and be able to be able to execute the script from everywhere. To uninstall just do `sudo make uninstall`
+#### [Note] If you are on Linux you can skip step 1 (apart from firefox) and 3. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
  
 ### 1. Geckodriver (Needs Firefox)
 Geckodriver is the render engine of firefox, it is needed for selenium. It needs firefox which you can get from here: https://www.mozilla.org/firefox/new/ or with the package manager of your linux-distro.
