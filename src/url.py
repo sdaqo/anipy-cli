@@ -25,7 +25,7 @@ def get_video_url(embed_url, link_with_episode, user_quality):
             """new code"""
             os.environ['MOZ_HEADLESS'] = '1'
             try:
-                browser = webdriver.Firefox()
+                browser = webdriver.Firefox(service_log_path=os.devnull)
             except:
                 print("Firefox geckodriver Webdriver is not instaled or not in PATH, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
 
