@@ -18,7 +18,7 @@ args = my_parser.parse_args()
 
 if args.delete == True:
     try:
-        open("history/history.txt", "w")
+        open(history.history_file, "w")
         print(colors.RED + "Done" + colors.END)
         
     except:
