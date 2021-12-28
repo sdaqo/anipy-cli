@@ -1,7 +1,9 @@
-from src import play, query, url, history #local imports
+#local imports
+from src import play, query, url, history 
 import main
 from src.colors import colors
-import re, os, time, signal
+#imports
+import re, os, time, signal, sys
 from threading import Thread
 
 base_url = "https://gogoanime.wiki/"
@@ -130,7 +132,7 @@ def main_menu(link):
                 if check == True:
                     break
                 time.sleep(0.2)
-            quit()
+            sys.exit()
             
         else:
             print(colors.ERROR + "Invalid Input" + colors.END)

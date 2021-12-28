@@ -1,7 +1,9 @@
-import queue, os, requests, re, webbrowser, time, subprocess as sp
-from bs4 import BeautifulSoup, NavigableString, Comment
+# local imports 
 from src.colors import colors
-from main import history
+from main import history, path_to_geckodriver
+# imports
+import pathlib, sys, queue, os, requests, re, webbrowser, time, subprocess as sp
+from bs4 import BeautifulSoup, NavigableString, Comment
 from selenium import webdriver
 from threading import Thread
 
@@ -25,7 +27,7 @@ def get_video_url(embed_url, link_with_episode, user_quality):
             """new code"""
             os.environ['MOZ_HEADLESS'] = '1'
             try:
-                browser = webdriver.Firefox(service_log_path=os.devnull)
+                browser = webdriver.Firefox(executable_path=path_to_geckodriver, service_log_path=os.devnull)
             except:
                 print("Firefox geckodriver Webdriver is not instaled or not in PATH, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
 
@@ -52,7 +54,7 @@ def get_video_url(embed_url, link_with_episode, user_quality):
         except KeyboardInterrupt:
             print(colors.ERROR + "Interrupted" + colors.END)
             browser.quit()
-            quit()
+            sys.exit()
         
         """old code"""
         #link = soup.find("video", {"class": "jw-video"})
@@ -71,9 +73,9 @@ def get_video_url(embed_url, link_with_episode, user_quality):
             webbrowser.open(embed_url)
             history.write_history(link_with_episode, False, True) # False and True refer to is_history and is_on_web
             print(colors.GREEN + "Episode saved in history" + colors.END)
-            quit()
+            sys.exit()
         else:
-            quit()
+            sys.exit()
             
         
     return link

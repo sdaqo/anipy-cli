@@ -1,6 +1,8 @@
+# local imports
+from  src.history import write_history
+#imports
 from threading import Thread
 import subprocess as sp
-from  src.history import write_history
 import time
 import os
 

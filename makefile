@@ -4,8 +4,6 @@ all: dependencies install
 
 dependencies:
 	pip install -r requirements.txt
-	cp $(CURDIR)/geckodriver $(PREFIX)/bin/
-	chmod 0755 $(DESTDIR)$(PREFIX)/bin/geckodriver
 
 install:
 	echo "#!/bin/sh" > $(PREFIX)/bin/anipy-cli
@@ -14,6 +12,5 @@ install:
 
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/bin/anipy-cli
-	$(RM) $(DESTDIR)$(PREFIX)/bin/geckodriver
 
 .PHONY: all dependencies install uninstall

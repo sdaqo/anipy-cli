@@ -1,25 +1,27 @@
-import time
-import os
+# imports
+import time, os, sys, pathlib, queue
+# local imports
 from src import play
 from src.colors import colors
-import queue
 
 done_writing_queue = queue.Queue()
+path_to_history_folder = str(pathlib.Path(__file__).parent.absolute()).replace("src", "history")
+history_file = path_to_history_folder + "/history.txt"
 
 def write_history(link, is_history, is_on_web = False):
     # try making files and dirs    
     try:
-        os.mkdir("history")
+        os.mkdir(path_to_history_folder)
     except:
         pass
     
     try:
-        open("history/history.txt", "x")
+        open(history_file, "x")
     except:
         pass
     
    
-    f = open("history/history.txt", "rt")
+    f = open(history_file, "rt")
     
     data = f.readlines()
     index = 0
@@ -51,13 +53,13 @@ def write_history(link, is_history, is_on_web = False):
             changed_line = changed_line[0] + "#" + changed_secs + "\n"
             data[index] = changed_line
             data += [data.pop(index)] #move element to last line
-            f = open("history/history.txt", "w")
+            f = open(history_file, "w")
             for element in data:    
                 f.write(element)
         else:
             # if already in history and the episode is not played from history-selection, move it to firstt plavce in history 
             data += [data.pop(index)]
-            f = open("history/history.txt", "w")
+            f = open(history_file, "w")
             for element in data:    
                 f.write(element)
                 
@@ -71,7 +73,7 @@ def write_history(link, is_history, is_on_web = False):
         else:
             pass
         
-        f = open("history/history.txt", "a")
+        f = open(history_file, "a")
         # seperate link and seconds with "#" to make it esier to read history
         f.write(link + "#" + str(seconds) + "\n")
     done_writing_queue.put(True)
@@ -85,7 +87,7 @@ def read_history():
         time.sleep(0.2)
         
     try:
-        f = open("history/history.txt", "rt")
+        f = open(history_file, "rt")
         data = f.readlines()
         links = []
         resume_seconds = []
@@ -113,7 +115,7 @@ def pick_history():
 
     if not links:
         print(colors.ERROR + "No history")
-        quit()
+        sys.exit()
     counter = 1
     for i in links:
         print(colors.GREEN + "["+  str(counter) + "]" +  colors.END + " " + str(i.replace("https://gogoanime.wiki/", "")))
@@ -126,6 +128,6 @@ def pick_history():
         resume_seconds = resume_seconds[int(which_anime) - 1]
     except:
         print(colors.ERROR + "Invalid Input")
-        quit()
+        sys.exit()
     
     return link, resume_seconds 

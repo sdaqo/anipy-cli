@@ -1,7 +1,9 @@
+# local imports 
+from src.colors import colors
+#imports
 import requests
 from bs4 import BeautifulSoup
-import re
-from src.colors import colors
+import re, sys
 
 base_url = "https://gogoanime.wiki/"
 
@@ -37,7 +39,7 @@ def query(search_input):
     
     if not links:
         print(colors.ERROR + "No search results found")
-        quit()
+        sys.exit()
     
     #delete double entrys and append to previous list
     
@@ -73,7 +75,7 @@ def query(search_input):
         link = links[int(which_anime) - 1]
     except:
         print(colors.ERROR + "Invalid Input")
-        quit()
+        sys.exit()
     
     link = base_url + link.replace("/", "", 1)
        
