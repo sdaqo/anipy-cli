@@ -58,7 +58,7 @@ Curl should be preinstalled on Windows, Linux and macOS if not get it from here:
 ## Start up 
 To start `anipy-cli` do:
 
-`pyton main.py`
+`python3 main.py`
 
 or, if you are on Linux and did `sudo make all` or `sudo make install` do:
 
