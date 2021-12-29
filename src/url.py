@@ -8,10 +8,7 @@ import requests
 import re
 import webbrowser
 import time
-import subprocess as sp
-from bs4 import BeautifulSoup, NavigableString, Comment
-from threading import Thread
-
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
 
