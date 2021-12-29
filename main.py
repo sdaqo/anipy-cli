@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # local imports 
 from src import query, play, history, menu, download, url
 from src.colors import colors
