@@ -1,29 +1,25 @@
 # imports
-import time, os, sys, pathlib, queue
+import time, sys, queue
+from pathlib import Path
 # local imports
 from src import play
 from src.colors import colors
 
 done_writing_queue = queue.Queue()
-path_to_history_folder = str(pathlib.Path(__file__).parent.absolute()).replace("src", "history")
-history_file = path_to_history_folder + "/history.txt"
+history_folder_path = Path(Path(__file__).parent.parent) / "history" 
+history_file_path = history_folder_path / "history.txt"
 
 def write_history(link, is_history, is_on_web = False):
-    # try making files and dirs    
+    # Make the history folder and file if they doesn't exist
     try:
-        os.mkdir(path_to_history_folder)
-    except:
-        pass
-    
-    try:
-        open(history_file, "x")
-    except:
-        pass
-    
+        history_folder_path.mkdir(parents=True, exist_ok=True)
+        history_file_path.touch(exist_ok=True) 
+    except PermissionError:
+        print("Unable to write/read to where history file is suposed to be due to permissions.")
    
-    f = open(history_file, "rt")
-    
-    data = f.readlines()
+    with history_file_path.open('r') as history_file:
+        data = history_file.readlines()
+
     index = 0
     in_data = False
     seconds = 0
@@ -53,16 +49,15 @@ def write_history(link, is_history, is_on_web = False):
             changed_line = changed_line[0] + "#" + changed_secs + "\n"
             data[index] = changed_line
             data += [data.pop(index)] #move element to last line
-            f = open(history_file, "w")
-            for element in data:    
-                f.write(element)
+            with history_file_path.open('w') as history_file:
+                for element in data:    
+                    history_file.write(element)
         else:
             # if already in history and the episode is not played from history-selection, move it to firstt plavce in history 
             data += [data.pop(index)]
-            f = open(history_file, "w")
-            for element in data:    
-                f.write(element)
-                
+            with history_file_path.open('w') as history_file:
+                for element in data:    
+                    history_file.write(element)
     else:
         if is_on_web == False:
             # loop to measure time until player is closed
@@ -73,13 +68,13 @@ def write_history(link, is_history, is_on_web = False):
         else:
             pass
         
-        f = open(history_file, "a")
-        # seperate link and seconds with "#" to make it esier to read history
-        f.write(link + "#" + str(seconds) + "\n")
+        with history_file_path.open('a') as history_file:
+            # seperate link and seconds with "#" to make it esier to read history
+            history_file.write(link + "#" + str(seconds) + "\n")
+
     done_writing_queue.put(True)
     
 def read_history():
-    
     while True:
         check = done_writing_queue.get()
         if check == True:
@@ -87,8 +82,8 @@ def read_history():
         time.sleep(0.2)
         
     try:
-        f = open(history_file, "rt")
-        data = f.readlines()
+        with history_file_path.open('r') as history_file:
+            data = history_file.readlines()
         links = []
         resume_seconds = []
         

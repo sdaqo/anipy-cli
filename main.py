@@ -16,10 +16,10 @@ args = my_parser.parse_args()
 
 if args.delete == True:
     try:
-        open(history.history_file, "w")
+        history.history_file_path.open('w').close()
         print(colors.RED + "Done" + colors.END)
         
-    except:
+    except FileNotFoundError:
         print(colors.END + "There is no History-File.")
         
     sys.exit()
