@@ -1,20 +1,17 @@
 # local imports
-from webdriver_manager.utils import ChromeType
 from src.colors import colors
 from main import history
 # imports
 import sys
+import platform
 import os
 import requests
 import re
 import webbrowser
 import time
-import subprocess as sp
-from bs4 import BeautifulSoup, NavigableString, Comment
-from threading import Thread
-import subprocess
-
+from bs4 import BeautifulSoup
 from selenium import webdriver
+import subprocess
 
 os.environ['WDM_LOG_LEVEL'] = '0'
 
@@ -34,10 +31,10 @@ def get_default_browser():
         with OpenKey(HKEY_CLASSES_ROOT, r'{}\shell\open\command'.format(browser_choice)) as regkey:
             browser_path_tuple = QueryValueEx(regkey, None)
             return browser_path_tuple[0].split('"')[1]
-    elif os.name in ('posix'):
+    elif platform.system() in ('Darwin'):
         """ needs implementation """
-        return None
-    elif sys.platform in "linux":
+        return ""
+    elif platform.system() in ('Linux'):
         program_name = "xdg-mime"
         arguments = ["query", "default"]
         last_argument = ["x-scheme-handler/https"]
@@ -49,6 +46,8 @@ def get_default_browser():
         output = subprocess.Popen(
             command, stdout=subprocess.PIPE).communicate()[0]
         return output.decode('utf-8').splitlines()[0]
+    else:
+        return ""
 
 
 def get_embed_url(url):
@@ -79,7 +78,7 @@ def get_video_url(embed_url, link_with_episode, user_quality):
                         chrome_type=ChromeType.CHROMIUM).install(), service_log_path=os.devnull)
 
                 else:
-                    print("Running on firefox as default")
+                    print("Defaulting to firefox")
                     from webdriver_manager.firefox import GeckoDriverManager
 
                     browser = webdriver.Firefox(

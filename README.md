@@ -23,9 +23,7 @@ TODO:
 
 - `selenium`
 
-- `geckodriver`
-
-- `Firefox/Chrome or Chromium`
+- `Firefox`
 
 - `cURL`
 
@@ -36,30 +34,31 @@ TODO:
 
 ## Install Dependencies
 
-#### [Note] If you are on Linux you can skip step 1 (apart from browser) and 3. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
+#### [Note] If you are on Linux you can skip step 1. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
  
-### 1. Webdriver (Needs Firefox/Chrome/Chromium)
-Webdriver is the render engine for browser, it is needed for selenium.
 
-You need to have one of these browsers Firefox/Chrome/Chromium to run this script.
-
-Installation:
+### 1. Python-Libs
+To install `bs4`, `selenium` and `requests` open a terminal in the root-folder and execute `pip install -r requirements.txt`
 
 ### 2. Other dependencies
+
 Get Python from: https://www.python.org/downloads/
+
+Firefox, it's needed for Selenium, you can get it here: https://www.mozilla.org/firefox/new or with the package manager of your linux Distro.
 
 Get mpv from: https://mpv.io/installation/
 
 Curl should be preinstalled on Windows, Linux and macOS if not get it from here: https://curl.se/download.html
 
-### 3. Python-Libs
-
-To install `bs4`, `selenium` , `requests` and `webdriver-manager` open a terminal in the root-folder and execute `pip install -r requirements.txt`
-
 ## Start up 
 To start `anipy-cli` do:
 
-`python main.py`
+`pyton main.py`
+
+or, if you are on Linux and did `sudo make all` or `sudo make install` do:
+
+`anipy-cli` from everywhere on your system.
+
 
 ## Options
 ### Set video quality
