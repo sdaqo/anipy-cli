@@ -4,9 +4,6 @@ from src.colors import colors
 # imports
 import argparse, sys
 from threading import Thread
-import pathlib
-
-path_to_geckodriver = str(pathlib.Path(__file__).parent.resolve()) + "/geckodriver"
 
 my_parser = argparse.ArgumentParser(description='Play Animes from gogoanime in local video-player.')
 my_parser.add_argument('-q', '--quality', action='store', required=False, help='Pick quality. 1080, 720, 480 etc. / best,worst')
