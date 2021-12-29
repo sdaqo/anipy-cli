@@ -107,3 +107,4 @@ def main_activity():
  
     for k, l, p  in zip(video_urls, embeded_urls, names):
         download(k, l, p)
+    sys.exit()
