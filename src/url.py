@@ -3,6 +3,7 @@ from src.colors import colors
 from main import history
 # imports
 import sys
+import platform
 import os
 import requests
 import re
@@ -10,13 +11,43 @@ import webbrowser
 import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from webdriver_manager.firefox import GeckoDriverManager
+import subprocess
 
 os.environ['WDM_LOG_LEVEL'] = '0'
 
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44"
 }
+
+
+def get_default_browser():
+
+    if os.name in ('nt', 'dos'):
+        from winreg import HKEY_CLASSES_ROOT, HKEY_CURRENT_USER, OpenKey, QueryValueEx
+
+        with OpenKey(HKEY_CURRENT_USER, r'SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice') as regkey:
+            browser_choice = QueryValueEx(regkey, 'ProgId')[0]
+
+        with OpenKey(HKEY_CLASSES_ROOT, r'{}\shell\open\command'.format(browser_choice)) as regkey:
+            browser_path_tuple = QueryValueEx(regkey, None)
+            return browser_path_tuple[0].split('"')[1]
+    elif platform.system() in ('Darwin'):
+        """ needs implementation """
+        return ""
+    elif platform.system() in ('Linux'):
+        program_name = "xdg-mime"
+        arguments = ["query", "default"]
+        last_argument = ["x-scheme-handler/https"]
+
+        command = [program_name]
+        command.extend(arguments)
+        command.extend(last_argument)
+
+        output = subprocess.Popen(
+            command, stdout=subprocess.PIPE).communicate()[0]
+        return output.decode('utf-8').splitlines()[0]
+    else:
+        return ""
 
 
 def get_embed_url(url):
@@ -33,12 +64,28 @@ def get_video_url(embed_url, link_with_episode, user_quality):
             """new code"""
             os.environ['MOZ_HEADLESS'] = '1'
             try:
+                if "chrome" in get_default_browser():
+                    from webdriver_manager.chrome import ChromeDriverManager
 
-                browser = webdriver.Firefox(
-                    executable_path=GeckoDriverManager().install(), service_log_path=os.devnull)
+                    browser = webdriver.Chrome(
+                        executable_path=ChromeDriverManager().install(), service_log_path=os.devnull)
+
+                elif "chromium" in get_default_browser():
+                    from webdriver_manager.chrome import ChromeDriverManager
+                    from webdriver_manager.utils import ChromeType
+
+                    browser = webdriver.Chrome(ChromeDriverManager(
+                        chrome_type=ChromeType.CHROMIUM).install(), service_log_path=os.devnull)
+
+                else:
+                    print("Defaulting to firefox")
+                    from webdriver_manager.firefox import GeckoDriverManager
+
+                    browser = webdriver.Firefox(
+                        executable_path=GeckoDriverManager().install(), service_log_path=os.devnull)
 
             except:
-                print("Firefox geckodriver Webdriver is not instaled or not in PATH, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
+                print("Webdriver could not start, supported browsers are Firefox, Chrome and Chromium, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
 
             browser.get(embed_url)
             # start the player in browser so the video-url is generated
