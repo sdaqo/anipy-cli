@@ -1,5 +1,5 @@
 # imports
-import time, os, sys, pathlib, queue
+import time, sys, queue
 from pathlib import Path
 # local imports
 from src import play

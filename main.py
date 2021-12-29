@@ -1,5 +1,4 @@
 # local imports 
-from webdriver_manager.utils import File
 from src import query, url, play, history, menu
 from src.colors import colors
 # imports
