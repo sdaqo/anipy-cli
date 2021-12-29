@@ -32,6 +32,8 @@ TODO:
 - `cURL`
 
 - `mpv`
+
+- `tqdm`
  
 
 # Usage
@@ -41,7 +43,7 @@ TODO:
 #### [Note] If you are on Linux you can skip step 1. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
  
 ### 1. Python-Libs
-To install `bs4`, `selenium`, `requests` and `webdriver-manager` open a terminal in the root-folder and execute `pip install -r requirements.txt`
+To install `bs4`, `selenium`, `requests`, `webdriver-manager`, and `tqdm` open a terminal in the root-folder and execute `pip install -r requirements.txt`
 
 ### 2. Other dependencies
 
