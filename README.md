@@ -25,7 +25,7 @@ TODO:
 
 - `geckodriver`
 
-- `Firefox`
+- `Firefox/Chrome or Chromium`
 
 - `cURL`
 
@@ -38,8 +38,8 @@ TODO:
 
 #### [Note] If you are on Linux you can skip step 1 (apart from firefox) and 3. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
  
-### 1. Geckodriver (Needs Firefox)
-Geckodriver is the render engine of firefox, it is needed for selenium. It needs firefox which you can get from here: https://www.mozilla.org/firefox/new/ or with the package manager of your linux-distro.
+### 1. Webdriver (Needs Firefox/Chrome/Chromium)
+Webdriver is the render engine for browsers, it is needed for selenium. You need to have Firefox/Chrome/Chromium to use this script.
 
 Installation:
 
