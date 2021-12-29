@@ -1,6 +1,6 @@
 # local imports 
 from src.colors import colors
-from main import history, path_to_geckodriver
+from main import history
 # imports
 import pathlib, sys, queue, os, requests, re, webbrowser, time, subprocess as sp
 from bs4 import BeautifulSoup, NavigableString, Comment
@@ -27,7 +27,7 @@ def get_video_url(embed_url, link_with_episode, user_quality):
             """new code"""
             os.environ['MOZ_HEADLESS'] = '1'
             try:
-                browser = webdriver.Firefox(executable_path=path_to_geckodriver, service_log_path=os.devnull)
+                browser = webdriver.Firefox(service_log_path=os.devnull)
             except:
                 print("Firefox geckodriver Webdriver is not instaled or not in PATH, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
 
