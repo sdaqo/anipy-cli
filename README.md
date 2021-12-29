@@ -68,6 +68,12 @@ By default `ani-py-cli` tries to get the best quality avalible. You can spify a 
 
 You can also use  `best` or ` worst`.
 
+### Download
+
+`main.py -d` or `anipy-cli -d`
+
+This will drop you in the download mode, from ther you can search an anime and download it. You can specify a range of episodes like so `1-4` or `4-20` etc.
+
 ### History
 `main.py -H`
 
