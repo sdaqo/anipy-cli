@@ -36,32 +36,14 @@ TODO:
 
 ## Install Dependencies
 
-#### [Note] If you are on Linux you can skip step 1 (apart from firefox) and 3. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
+#### [Note] If you are on Linux you can skip step 1 (apart from browser) and 3. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
  
 ### 1. Webdriver (Needs Firefox/Chrome/Chromium)
-Webdriver is the render engine for browsers, it is needed for selenium. You need to have Firefox/Chrome/Chromium to use this script.
+Webdriver is the render engine for browser, it is needed for selenium.
+
+You need to have one of these browsers Firefox/Chrome/Chromium to run this script.
 
 Installation:
-
-
-#### Old installation, can skip to step 2
-Windows:
-
-- Download the latest build for your version of windows from: https://github.com/mozilla/geckodriver/releases
-- Extract `geckodriver.exe` from the .zip file into any location
-- Search for `Edit the system environment variables` and open the first entry. When the window pops up click on "Environment Variables"
-- In the first box select the Variable named Path then click on Edit.
-- Click the "New" button and type the Path to the folder where your `geckodriver.exe` is located. 
-- Click on OK and close the windows. You are done.
-
-Linux: 
-
-On Arch-Based system the package `geckodriver` is already in the Community-Repo and can be installed like so: `sudo pacman -S geckodriver`. On Debian-Systems the installation is harder:
-
-- Go to https://github.com/mozilla/geckodriver/releases and download the latest .tar.gz file for your system.
-- Extract the file to any folder with `tar -xvzf geckodriver*`
-- Make it executable with `chmod +x geckodriver`
-- Add it to the PATH like so: `export PATH=$PATH:/path-to-extracted-file/`
 
 ### 2. Other dependencies
 Get Python from: https://www.python.org/downloads/
