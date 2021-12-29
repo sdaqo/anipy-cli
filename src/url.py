@@ -15,6 +15,7 @@ from threading import Thread
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
 
+os.environ['WDM_LOG_LEVEL'] = '0'
 
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44"
