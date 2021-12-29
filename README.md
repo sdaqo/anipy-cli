@@ -23,7 +23,7 @@ TODO:
 
 - `selenium`
 
-- `Firefox`
+- `Firefox/Chrome/Chromium`
 
 - `cURL`
 
@@ -38,7 +38,7 @@ TODO:
  
 
 ### 1. Python-Libs
-To install `bs4`, `selenium` and `requests` open a terminal in the root-folder and execute `pip install -r requirements.txt`
+To install `bs4`, `selenium`, `requests` and `webdriver-manager` open a terminal in the root-folder and execute `pip install -r requirements.txt`
 
 ### 2. Other dependencies
 
