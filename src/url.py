@@ -24,9 +24,8 @@ headers = {
 
 
 def get_default_browser():
-    browser_path = None
 
-    if sys.platform == "windows":
+    if "win" in sys.platform:
         try:
             from winreg import HKEY_CLASSES_ROOT, HKEY_CURRENT_USER, OpenKey, QueryValueEx
 
@@ -35,15 +34,14 @@ def get_default_browser():
 
             with OpenKey(HKEY_CLASSES_ROOT, r'{}\shell\open\command'.format(browser_choice)) as regkey:
                 browser_path_tuple = QueryValueEx(regkey, None)
-                browser_path = browser_path_tuple[0].split('"')[1]
+                return browser_path_tuple[0].split('"')[1]
 
         except Exception:
-            log.error(
+            print(
                 'Failed to look up default browser in system registry. Using fallback value.')
-        print(browser_path)
-
     elif sys.platform == "macosx":
-        """ need implementation """
+        """ needs implementation """
+        return None
     elif sys.platform == "linux":
         program_name = "xdg-mime"
         arguments = ["query", "default"]

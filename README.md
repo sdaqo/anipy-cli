@@ -43,6 +43,8 @@ Webdriver is the render engine for browsers, it is needed for selenium. You need
 
 Installation:
 
+
+#### Old installation, can skip to step 2
 Windows:
 
 - Download the latest build for your version of windows from: https://github.com/mozilla/geckodriver/releases
@@ -70,12 +72,12 @@ Curl should be preinstalled on Windows, Linux and macOS if not get it from here:
 
 ### 3. Python-Libs
 
-To install `bs4`, `selenium` and `requests` open a terminal in the root-folder and execute `pip install -r requirements.txt`
+To install `bs4`, `selenium` , `requests` and `webdriver-manager` open a terminal in the root-folder and execute `pip install -r requirements.txt`
 
 ## Start up 
 To start `anipy-cli` do:
 
-`pyton main.py`
+`python main.py`
 
 ## Options
 ### Set video quality
