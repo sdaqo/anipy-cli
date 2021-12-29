@@ -1,19 +1,28 @@
-# local imports 
+# local imports
 from src.colors import colors
 from main import history
 # imports
-import pathlib, sys, queue, os, requests, re, webbrowser, time, subprocess as sp
+import sys
+import os
+import requests
+import re
+import webbrowser
+import time
+import subprocess as sp
 from bs4 import BeautifulSoup, NavigableString, Comment
-from selenium import webdriver
 from threading import Thread
+
+from selenium import webdriver
+from webdriver_manager.firefox import GeckoDriverManager
+
+os.environ['WDM_LOG_LEVEL'] = '0'
 
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44"
-    }
+}
 
 
 def get_embed_url(url):
-    
     r = requests.get(url)
     soup = BeautifulSoup(r.content, "html.parser")
     link = soup.find("a", {"href": "#", "rel": "100"})
@@ -27,23 +36,30 @@ def get_video_url(embed_url, link_with_episode, user_quality):
             """new code"""
             os.environ['MOZ_HEADLESS'] = '1'
             try:
-                browser = webdriver.Firefox(service_log_path=os.devnull)
+
+                browser = webdriver.Firefox(
+                    executable_path=GeckoDriverManager().install(), service_log_path=os.devnull)
+
             except:
                 print("Firefox geckodriver Webdriver is not instaled or not in PATH, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
 
             browser.get(embed_url)
-            # start the player in browser so the video-url is generated 
-            browser.execute_script('document.getElementsByClassName("jw-icon")[2].click()')
+            # start the player in browser so the video-url is generated
+
+            browser.execute_script(
+                'document.getElementsByClassName("jw-icon")[2].click()')
             html_source = browser.page_source
             soup = BeautifulSoup(html_source, "html.parser")
             # get quality options
             try:
                 qualitys = soup.find(id="jw-settings-submenu-quality")
                 user_quality = quality(qualitys, user_quality)
-                # Click the quality, the user picked, in the quality selection, so the right link is being generated. 
-                browser.execute_script("document.evaluate('//*[@id=\"jw-settings-submenu-quality\"]/div/button[{0}]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()".format(user_quality + 1))
+                # Click the quality, the user picked, in the quality selection, so the right link is being generated.
+                browser.execute_script(
+                    "document.evaluate('//*[@id=\"jw-settings-submenu-quality\"]/div/button[{0}]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()".format(user_quality + 1))
             except:
-                print("Something went wrong with the quality selection. Loading default quality.")
+                print(
+                    "Something went wrong with the quality selection. Loading default quality.")
                 time.sleep(1.5)
             # extract video link
             html_source = browser.page_source
@@ -55,34 +71,36 @@ def get_video_url(embed_url, link_with_episode, user_quality):
             print(colors.ERROR + "Interrupted" + colors.END)
             browser.quit()
             sys.exit()
-        
+
         """old code"""
-        #link = soup.find("video", {"class": "jw-video"})
-        #print(f'https:{link["src"]}')
-        #link = re.search(r"\s*sources.*", str(r.text)).group()
-        #link = re.search(r"https:.*(m3u8)|(mp4)", link).group()
+        # link = soup.find("video", {"class": "jw-video"})
+        # print(f'https:{link["src"]}')
+        # link = re.search(r"\s*sources.*", str(r.text)).group()
+        # link = re.search(r"https:.*(m3u8)|(mp4)", link).group()
     except Exception as e:
         try:
             browser.quit()
         except:
             pass
-        
-        print(colors.ERROR + "[Exception] " + str(e) + colors.END + "\nIf you get this error a lot please feel free to open a Issue on github: https://github.com/sdaqo/anipy-cli/issues" )
-        open_in_browser = input(colors.ERROR + "Oops, an exception occured. Do you want to watch the Episode in the browser? (y/N): ")
+
+        print(colors.ERROR + "[Exception] " + str(e) + colors.END +
+              "\nIf you get this error a lot please feel free to open a Issue on github: https://github.com/sdaqo/anipy-cli/issues")
+        open_in_browser = input(
+            colors.ERROR + "Oops, an exception occured. Do you want to watch the Episode in the browser? (y/N): ")
         if open_in_browser == "y" or open_in_browser == "Y":
             webbrowser.open(embed_url)
-            history.write_history(link_with_episode, False, True) # False and True refer to is_history and is_on_web
+            # False and True refer to is_history and is_on_web
+            history.write_history(link_with_episode, False, True)
             print(colors.GREEN + "Episode saved in history" + colors.END)
             sys.exit()
         else:
             sys.exit()
-            
-        
+
     return link
+
 
 def quality(html_code, quality):
 
-    
     if quality == None:
         quality = "best"
     else:
@@ -97,7 +115,7 @@ def quality(html_code, quality):
             if i not in temp_list:
                 temp_list.append(i)
             else:
-                pass  
+                pass
         qualitys.clear()
         qualitys.extend(temp_list)
 
@@ -114,13 +132,13 @@ def quality(html_code, quality):
                 quality = qualitys.index(quality)
             else:
                 quality = qualitys.index(qualitys[-1])
-                print(colors.ERROR + "Your quality is not avalible using: " + qualitys[quality] + "p" + colors.END)
+                print(colors.ERROR + "Your quality is not avalible using: " +
+                      qualitys[quality] + "p" + colors.END)
                 time.sleep(1.5)
                 pass
-            
+
     except:
 
         pass
-    
 
     return quality
