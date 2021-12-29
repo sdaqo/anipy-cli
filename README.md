@@ -23,7 +23,7 @@ TODO:
 
 - `selenium`
 
-- `geckodriver`
+- `webdriver-manager`
 
 - `Firefox`
 
@@ -36,39 +36,19 @@ TODO:
 
 ## Install Dependencies
 
-#### [Note] If you are on Linux you can skip step 1 (apart from firefox) and 3. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
+#### [Note] If you are on Linux you can skip step 2. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
  
-### 1. Geckodriver (Needs Firefox)
-Geckodriver is the render engine of firefox, it is needed for selenium. It needs firefox which you can get from here: https://www.mozilla.org/firefox/new/ or with the package manager of your linux-distro.
 
-Installation:
-
-Windows:
-
-- Download the latest build for your version of windows from: https://github.com/mozilla/geckodriver/releases
-- Extract `geckodriver.exe` from the .zip file into any location
-- Search for `Edit the system environment variables` and open the first entry. When the window pops up click on "Environment Variables"
-- In the first box select the Variable named Path then click on Edit.
-- Click the "New" button and type the Path to the folder where your `geckodriver.exe` is located. 
-- Click on OK and close the windows. You are done.
-
-Linux: 
-
-On Arch-Based system the package `geckodriver` is already in the Community-Repo and can be installed like so: `sudo pacman -S geckodriver`. On Debian-Systems the installation is harder:
-
-- Go to https://github.com/mozilla/geckodriver/releases and download the latest .tar.gz file for your system.
-- Extract the file to any folder with `tar -xvzf geckodriver*`
-- Make it executable with `chmod +x geckodriver`
-- Add it to the PATH like so: `export PATH=$PATH:/path-to-extracted-file/`
-
-### 2. Other dependencies
+### 1. Other dependencies
 Get Python from: https://www.python.org/downloads/
+
+Firefox is needed for selenium, you can get it from here: https://www.mozilla.org/firefox/new/
 
 Get mpv from: https://mpv.io/installation/
 
 Curl should be preinstalled on Windows, Linux and macOS if not get it from here: https://curl.se/download.html
 
-### 3. Python-Libs
+### 2. Python-Libs
 
 To install `bs4`, `selenium` and `requests` open a terminal in the root-folder and execute `pip install -r requirements.txt`
 
@@ -76,6 +56,10 @@ To install `bs4`, `selenium` and `requests` open a terminal in the root-folder a
 To start `anipy-cli` do:
 
 `pyton main.py`
+
+or, if you already did `sudo make install` or `sudo make all`:
+
+`anipy-cli` from anywhere on your system.
 
 ## Options
 ### Set video quality
