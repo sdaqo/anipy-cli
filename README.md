@@ -9,7 +9,8 @@ TODO:
 - [x] ⌚History & resume playback 
 - [x] ❇️Video-quality selection 
 - [x] 🗒️Menu that pops up after starting episode 
-- [x] 👇Download-function
+- [x] 📥Download-function
+- [ ] ⚙ Config file for download-path and more
 - [ ] 🚀Deploy to PyPI
 
 [Still in development]
