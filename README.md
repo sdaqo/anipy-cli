@@ -67,7 +67,7 @@ or, if you are on Linux and did `sudo make all` or `sudo make install` do:
 
 ## Options
 ### Set video quality
-`main.py -q "Your desired quality"` 
+`main.py -q "Your desired quality"`  or `anipy-cli -q "Your desired quality"` 
 
 By default `ani-py-cli` tries to get the best quality avalible. You can spify a quality like so: `360/720/1080...` (without the "p" at the end)
 
@@ -80,14 +80,14 @@ You can also use  `best` or ` worst`.
 This will drop you in the download mode, from ther you can search an anime and download it. You can specify a range of episodes like so `1-4` or `4-20` etc.
 
 ### History
-`main.py -H`
+`main.py -H` or `anipy-cli -H`
 
 This will let you pick one of your anime-episodes that you previously watched and resumes playback at the time you exited the video player.
 
 
 ### Delete History
 
-`main.py -D`
+`main.py -D` or `anipy-cli -D`
 
 # Features
 ### Resume Playback
