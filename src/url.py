@@ -1,6 +1,6 @@
 # local imports
 from src.colors import colors
-from main import history
+from src import history
 # imports
 import sys
 import os

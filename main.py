@@ -1,5 +1,5 @@
 # local imports 
-from src import query, url, play, history, menu
+from src import query, play, history, menu, download, url
 from src.colors import colors
 # imports
 import argparse, sys
@@ -7,7 +7,8 @@ from threading import Thread
 
 my_parser = argparse.ArgumentParser(description='Play Animes from gogoanime in local video-player.')
 my_parser.add_argument('-q', '--quality', action='store', required=False, help='Pick quality. 1080, 720, 480 etc. / best,worst')
-my_parser.add_argument('-H', '--history', required=False, dest="history", action='store_true', help='Play History. History is stored in history/history.txt')           
+my_parser.add_argument('-H', '--history', required=False, dest="history", action='store_true', help='Play History. History is stored in history/history.txt')
+my_parser.add_argument('-d', '--download', required=False, dest='download', action='store_true', help='Download mode. Download multiple episodes like so: first_numer-second_number (e.g. 1-3)')           
 my_parser.add_argument('-D', '--delete-history', required=False, dest='delete', action='store_true', help='Delete your History.')
 # TODO: add argument so `python main.py <Some Anime>` is possible
 args = my_parser.parse_args()
@@ -23,6 +24,13 @@ if args.delete == True:
         
     sys.exit()
 
+
+if args.download == True:
+    download.main_activity()
+    
+else:
+    pass
+
 def main():
     
     if args.history == False:
@@ -36,7 +44,8 @@ def main():
         
     embed_url = url.get_embed_url(link_with_episode)
     video_url = url.get_video_url(embed_url, link_with_episode, args.quality)    
-   
+    print(video_url)
+    print("\n"+ embed_url)
     if args.history == False:
         t1 = Thread(target=play.play , args=(embed_url, video_url, link_with_episode, args.history,))
         t1.start()
@@ -44,7 +53,7 @@ def main():
         t1 = Thread(target=play.play , args=(embed_url, video_url, link_with_episode, args.history, picked_history[1], ))
         t1.start()
         
-    menu.main_menu(link_with_episode)
+    #menu.main_menu(link_with_episode)
     
 if __name__ == "__main__":
     main()
