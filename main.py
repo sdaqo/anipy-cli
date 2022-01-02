@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 # local imports 
+import config
 from src import query, play, history, menu, download, url
 from src.colors import colors
-import config
 # imports
 import argparse, sys
 from threading import Thread
