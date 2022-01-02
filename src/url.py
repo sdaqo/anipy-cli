@@ -16,7 +16,8 @@ import subprocess
 os.environ['WDM_LOG_LEVEL'] = '0'
 
 headers = {
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44"
+    "user-agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36 Edg/95.0.1020.44"
 }
 
 
@@ -25,15 +26,20 @@ def get_default_browser():
     if os.name in ('nt', 'dos'):
         from winreg import HKEY_CLASSES_ROOT, HKEY_CURRENT_USER, OpenKey, QueryValueEx
 
-        with OpenKey(HKEY_CURRENT_USER, r'SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice') as regkey:
+        with OpenKey(
+                HKEY_CURRENT_USER,
+                r'SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice'
+        ) as regkey:
             browser_choice = QueryValueEx(regkey, 'ProgId')[0]
 
-        with OpenKey(HKEY_CLASSES_ROOT, r'{}\shell\open\command'.format(browser_choice)) as regkey:
+        with OpenKey(
+                HKEY_CLASSES_ROOT,
+                r'{}\shell\open\command'.format(browser_choice)) as regkey:
             browser_path_tuple = QueryValueEx(regkey, None)
             return browser_path_tuple[0].split('"')[1]
     elif platform.system() in ('Darwin'):
         """ needs implementation """
-        return ""
+        raise NotImplementedError()
     elif platform.system() in ('Linux'):
         program_name = "xdg-mime"
         arguments = ["query", "default"]
@@ -43,8 +49,8 @@ def get_default_browser():
         command.extend(arguments)
         command.extend(last_argument)
 
-        output = subprocess.Popen(
-            command, stdout=subprocess.PIPE).communicate()[0]
+        output = subprocess.Popen(command,
+                                  stdout=subprocess.PIPE).communicate()[0]
         return output.decode('utf-8').splitlines()[0]
     else:
         return ""
@@ -68,24 +74,29 @@ def get_video_url(embed_url, link_with_episode, user_quality):
                     from webdriver_manager.chrome import ChromeDriverManager
 
                     browser = webdriver.Chrome(
-                        executable_path=ChromeDriverManager().install(), service_log_path=os.devnull)
+                        executable_path=ChromeDriverManager().install(),
+                        service_log_path=os.devnull)
 
                 elif "chromium" in get_default_browser():
                     from webdriver_manager.chrome import ChromeDriverManager
                     from webdriver_manager.utils import ChromeType
 
                     browser = webdriver.Chrome(ChromeDriverManager(
-                        chrome_type=ChromeType.CHROMIUM).install(), service_log_path=os.devnull)
+                        chrome_type=ChromeType.CHROMIUM).install(),
+                                               service_log_path=os.devnull)
 
                 else:
                     print("Defaulting to firefox")
                     from webdriver_manager.firefox import GeckoDriverManager
 
                     browser = webdriver.Firefox(
-                        executable_path=GeckoDriverManager().install(), service_log_path=os.devnull)
+                        executable_path=GeckoDriverManager().install(),
+                        service_log_path=os.devnull)
 
             except:
-                print("Webdriver could not start, supported browsers are Firefox, Chrome and Chromium, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions.")
+                print(
+                    "Webdriver could not start, supported browsers are Firefox, Chrome and Chromium, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions."
+                )
 
             browser.get(embed_url)
             # start the player in browser so the video-url is generated
@@ -100,10 +111,12 @@ def get_video_url(embed_url, link_with_episode, user_quality):
                 user_quality = quality(qualitys, user_quality)
                 # Click the quality, the user picked, in the quality selection, so the right link is being generated.
                 browser.execute_script(
-                    "document.evaluate('//*[@id=\"jw-settings-submenu-quality\"]/div/button[{0}]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()".format(user_quality + 1))
+                    "document.evaluate('//*[@id=\"jw-settings-submenu-quality\"]/div/button[{0}]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click()"
+                    .format(user_quality + 1))
             except:
                 print(
-                    "Something went wrong with the quality selection. Loading default quality.")
+                    "Something went wrong with the quality selection. Loading default quality."
+                )
                 time.sleep(1.5)
             # extract video link
             html_source = browser.page_source
@@ -115,7 +128,6 @@ def get_video_url(embed_url, link_with_episode, user_quality):
             print(colors.ERROR + "Interrupted" + colors.END)
             browser.quit()
             sys.exit()
-
         """old code"""
         # link = soup.find("video", {"class": "jw-video"})
         # print(f'https:{link["src"]}')
@@ -127,10 +139,14 @@ def get_video_url(embed_url, link_with_episode, user_quality):
         except:
             pass
 
-        print(colors.ERROR + "[Exception] " + str(e) + colors.END +
-              "\nIf you get this error a lot please feel free to open a Issue on github: https://github.com/sdaqo/anipy-cli/issues")
+        print(
+            colors.ERROR + "[Exception] " + str(e) + colors.END +
+            "\nIf you get this error a lot please feel free to open a Issue on github: https://github.com/sdaqo/anipy-cli/issues"
+        )
         open_in_browser = input(
-            colors.ERROR + "Oops, an exception occured. Do you want to watch the Episode in the browser? (y/N): ")
+            colors.ERROR +
+            "Oops, an exception occured. Do you want to watch the Episode in the browser? (y/N): "
+        )
         if open_in_browser == "y" or open_in_browser == "Y":
             webbrowser.open(embed_url)
             # False and True refer to is_history and is_on_web
