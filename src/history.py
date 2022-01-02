@@ -4,20 +4,19 @@ from pathlib import Path
 # local imports
 from src import play
 from src.colors import colors
+from main import config
 
 done_writing_queue = queue.Queue()
-history_folder_path = Path(Path(__file__).parent.parent) / "history" 
-history_file_path = history_folder_path / "history.txt"
 
 def write_history(link, is_history, is_on_web = False):
     # Make the history folder and file if they doesn't exist
     try:
-        history_folder_path.mkdir(parents=True, exist_ok=True)
-        history_file_path.touch(exist_ok=True) 
+        config.history_folder_path.mkdir(parents=True, exist_ok=True)
+        config.history_file_path.touch(exist_ok=True) 
     except PermissionError:
         print("Unable to write/read to where history file is suposed to be due to permissions.")
    
-    with history_file_path.open('r') as history_file:
+    with config.history_file_path.open('r') as history_file:
         data = history_file.readlines()
 
     index = 0
@@ -49,13 +48,13 @@ def write_history(link, is_history, is_on_web = False):
             changed_line = changed_line[0] + "#" + changed_secs + "\n"
             data[index] = changed_line
             data += [data.pop(index)] #move element to last line
-            with history_file_path.open('w') as history_file:
+            with config.history_file_path.open('w') as history_file:
                 for element in data:    
                     history_file.write(element)
         else:
             # if already in history and the episode is not played from history-selection, move it to firstt plavce in history 
             data += [data.pop(index)]
-            with history_file_path.open('w') as history_file:
+            with config.history_file_path.open('w') as history_file:
                 for element in data:    
                     history_file.write(element)
     else:
@@ -68,7 +67,7 @@ def write_history(link, is_history, is_on_web = False):
         else:
             pass
         
-        with history_file_path.open('a') as history_file:
+        with config.history_file_path.open('a') as history_file:
             # seperate link and seconds with "#" to make it esier to read history
             history_file.write(link + "#" + str(seconds) + "\n")
 
@@ -82,7 +81,7 @@ def read_history():
         time.sleep(0.2)
         
     try:
-        with history_file_path.open('r') as history_file:
+        with config.history_file_path.open('r') as history_file:
             data = history_file.readlines()
         links = []
         resume_seconds = []
@@ -113,7 +112,7 @@ def pick_history():
         sys.exit()
     counter = 1
     for i in links:
-        print(colors.GREEN + "["+  str(counter) + "]" +  colors.END + " " + str(i.replace("https://gogoanime.wiki/", "")))
+        print(colors.GREEN + "["+  str(counter) + "]" +  colors.END + " " + str(i.replace(config.gogoanime_url, "")))
         counter += 1
     
     which_anime = input("Enter Number: " + colors.CYAN)

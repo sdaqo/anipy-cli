@@ -1,12 +1,12 @@
 #local imports
 from src import play, query, url, history 
 import main
+from main import config
 from src.colors import colors
 #imports
 import re, os, time, signal, sys
 from threading import Thread
 
-base_url = "https://gogoanime.wiki/"
 
 options =[
           colors.GREEN + "[n] " + colors.END + "Next Episode", 
@@ -37,7 +37,7 @@ def kill_subprocess_with_player():
         
 def main_menu(link):
     clear_console()
-    print(colors.GREEN + "Playing: " + colors.RED + link.replace(base_url, ""))
+    print(colors.GREEN + "Playing: " + colors.RED + link.replace(config.gogoanime_url, ""))
     
     for i in options:
         print(i) 
@@ -88,8 +88,8 @@ def main_menu(link):
         elif which_option == "s": # select episode
             episode = re.search(r"episode-[0-9]*", link)
             episode = episode.group(0).replace("episode-", "")
-            link = link.replace(base_url, "").replace("-episode-" + episode, "")
-            link = base_url + "category/" + link
+            link = link.replace(config.gogoanime_url, "").replace("-episode-" + episode, "")
+            link = config.gogoanime_url + "category/" + link
             link = query.episode(link)
             kill_subprocess_with_player()
             while True:

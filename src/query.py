@@ -1,12 +1,10 @@
 # local imports 
 from src.colors import colors
+from main import config
 #imports
 import requests
 from bs4 import BeautifulSoup
 import re, sys
-
-base_url = "https://gogoanime.wiki/"
-
 
 
 def pages(url):
@@ -27,7 +25,7 @@ def query(search_input):
     
     #extract links from search url
     links = []
-    search_url = base_url + "/search.html?keyword=" + search_input
+    search_url = config.gogoanime_url + "/search.html?keyword=" + search_input
     
     for i in range(pages(search_url)):
         querys = requests.get(search_url + "&page=" + str(i + 1))
@@ -77,7 +75,7 @@ def query(search_input):
         print(colors.ERROR + "Invalid Input")
         sys.exit()
     
-    link = base_url + link.replace("/", "", 1)
+    link = config.gogoanime_url + link.replace("/", "", 1)
        
     
     return link

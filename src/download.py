@@ -8,15 +8,16 @@ from tqdm import tqdm
 from src import query, url
 from src.colors import colors
 import main
+from main import config
 
 
 base_url = "https://gogoanime.wiki/"
-downlaod_folder = str(pathlib.Path(__file__).parent.absolute()).replace("src", "download/")
 
 def download(video_url, embed_url, fname):
     resp = requests.get(video_url, headers={'referer': embed_url}, stream=True)
     total = int(resp.headers.get('content-length', 0))
-    with open(downlaod_folder + fname + ".mp4", 'wb') as file, tqdm(
+    file_path = config.download_folder_path / f"{fname}.mp4"
+    with file_path.open('wb') as file, tqdm(
         desc=fname,
         total=total,
         unit='iB',
@@ -81,13 +82,14 @@ def episode_selection(url):
     return episode_urls
 
 def main_activity():
+    # Make the download folder if it doesn't exist already
     try:
-        os.mkdir(downlaod_folder)
-    except:
-        pass
+        config.download_folder_path.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        print(colors.ERROR + "You don't have the permissions to write to the download folder.")
 
     print(colors.GREEN + "***Download Mode***"+ colors.END)
-    print(colors.GREEN + "Downloads are stored in: " +  colors.END + downlaod_folder)
+    print(colors.GREEN + "Downloads are stored in: " +  colors.END + str(config.download_folder_path))
     search = input("Search for Anime: " + colors.CYAN)
     link = query.query(search)
     episode_urls = episode_selection(link)
