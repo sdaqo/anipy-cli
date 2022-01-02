@@ -1,16 +1,12 @@
 import requests
 import sys
 import re
-import pathlib
-import os
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from src import query, url
 from src.colors import colors
 import main
 from main import config
-
-base_url = "https://gogoanime.wiki/"
 
 
 def download(video_url, embed_url, fname):
@@ -101,7 +97,7 @@ def main_activity():
     print("Getting emebed-urls")
     names = []
     for i in episode_urls:
-        names.append(i.replace(base_url, ""))
+        names.append(i.replace(config.gogoanime_url, ""))
 
     embeded_urls = []
     for j in episode_urls:
