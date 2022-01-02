@@ -33,7 +33,7 @@ def get_default_browser():
             return browser_path_tuple[0].split('"')[1]
     elif platform.system() in ('Darwin'):
         """ needs implementation """
-        return ""
+        raise NotImplementedError()
     elif platform.system() in ('Linux'):
         program_name = "xdg-mime"
         arguments = ["query", "default"]
