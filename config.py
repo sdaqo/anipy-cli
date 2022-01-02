@@ -9,5 +9,5 @@ history_file_path = history_folder_path / "history.txt"
 
 gogoanime_url = "https://gogoanime.wiki/"
 
-video_player_command = "mpv"
-extra_player_commandline_options = ""
+mpv_path = "mpv"
+mpv_commandline_options = ""
