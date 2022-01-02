@@ -1,7 +1,9 @@
 from pathlib import Path
 
-anipy_cli_folder = Path(Path(__file__).parent) # This will have to be changed if this file is moved
-download_folder_path =  anipy_cli_folder / "download"
+# This will have to be changed if this file is moved
+anipy_cli_folder = Path(Path(__file__).parent)
+
+download_folder_path = anipy_cli_folder / "download"
 history_folder_path = anipy_cli_folder / "history"
 history_file_path = history_folder_path / "history.txt"
 
