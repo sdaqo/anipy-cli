@@ -2,6 +2,7 @@
 # local imports 
 from src import query, play, history, menu, download, url
 from src.colors import colors
+import config
 # imports
 import argparse, sys
 from threading import Thread
@@ -17,7 +18,7 @@ args = my_parser.parse_args()
 
 if args.delete == True:
     try:
-        history.history_file_path.open('w').close()
+        history.config.history_file_path.open('w').close()
         print(colors.RED + "Done" + colors.END)
         
     except FileNotFoundError:
