@@ -18,7 +18,7 @@ args = my_parser.parse_args()
 
 if args.delete == True:
     try:
-        history.config.history_file_path.open('w').close()
+        config.history_file_path.open('w').close()
         print(colors.RED + "Done" + colors.END)
         
     except FileNotFoundError:
@@ -30,8 +30,6 @@ if args.delete == True:
 if args.download == True:
     download.main_activity()
     
-else:
-    pass
 
 def main():
     
