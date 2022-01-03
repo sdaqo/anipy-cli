@@ -6,6 +6,7 @@
 
 ### New: 
 - Download functionality
+- Config File
 
 TODO:
 - [x] 📺 Search gogoanime and extract video url to play anime 
@@ -13,7 +14,7 @@ TODO:
 - [x] ❇️Video-quality selection 
 - [x] 🗒️Menu that pops up after starting episode 
 - [x] 📥Download-function
-- [ ] ⚙ Config file for download-path and more
+- [x] ⚙ Config file for download-path and more
 - [ ] 🚀Deploy to PyPI
 
 [Still in development]
