@@ -1,6 +1,6 @@
-> ### Script working again, yeah, and quality selection as well. The workaround is done with Selenium and is pretty bad (inconvenient), I am going to try and make it better sometime.
 
-# anipy-cli
+![waving](https://capsule-render.vercel.app/api?type=waving&height=200&text=sdaqo/anipy-cli&fontAlign=65&fontAlignY=40&color=021224&fontColor=b0b8b2&animation=fadeIn)
+
 ### Little tool written in python to watch anime from the terminal (the better way to watch anime)
 ### Scrapes: https://gogoanime.wiki
 
