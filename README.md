@@ -8,6 +8,10 @@
 - Download functionality
 - Config File
 
+### Other versions:
+- Ulauncher extension by @Dankni95: 
+https://github.com/Dankni95/ulauncher-anime 
+
 TODO:
 - [x] 📺 Search gogoanime and extract video url to play anime 
 - [x] ⌚History & resume playback 
