@@ -107,5 +107,6 @@ def episode(url):
             print(colors.ERROR + "Invalid Input")
 
     video_url = url.replace("/category", "") + "-episode-" + which_episode
-
-    return video_url
+    video_url2 = url.replace('/category', '') + '-' + which_episode
+    
+    return video_url, video_url2
