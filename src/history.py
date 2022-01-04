@@ -12,6 +12,7 @@ done_writing_queue = queue.Queue()
 def write_history(link, is_history, is_on_web=False):
     # Make the history file if it doesn't exist already
     try:
+        config.history_file_path.parent.mkdir(parents=True, exist_ok=True)
         config.history_file_path.touch(exist_ok=True)
     except PermissionError:
         print(
