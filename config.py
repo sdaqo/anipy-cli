@@ -12,8 +12,7 @@ anipy_cli_folder = Path(Path(__file__).parent)
 # Ex. ~/Downloads/anipy would be Path('~/Downloads/anipy')
 
 download_folder_path = anipy_cli_folder / "download"
-history_folder_path = anipy_cli_folder / "history"
-history_file_path = history_folder_path / "history.txt"
+history_file_path = anipy_cli_folder / "history" / "history.txt"
 
 gogoanime_url = "https://gogoanime.wiki/"
 
