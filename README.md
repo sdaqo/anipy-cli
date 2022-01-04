@@ -89,10 +89,12 @@ This will drop you in the download mode, from ther you can search an anime and d
 
 This will let you pick one of your anime-episodes that you previously watched and resumes playback at the time you exited the video player.
 
-
 ### Delete History
 
 `main.py -D` or `anipy-cli -D`
+
+### Config File
+Change `config.py` if you want any of the options given there changed.
 
 # Features
 ### Resume Playback
