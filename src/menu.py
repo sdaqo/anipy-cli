@@ -1,7 +1,7 @@
 #local imports
 from src import play, query, url, history
 import main
-from main import config
+import config
 from src.colors import colors
 #imports
 import re, os, time, signal, sys

@@ -4,7 +4,7 @@ from pathlib import Path
 # local imports
 from src import play
 from src.colors import colors
-from main import config
+import config
 
 done_writing_queue = queue.Queue()
 

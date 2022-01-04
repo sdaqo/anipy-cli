@@ -1,6 +1,6 @@
 # local imports
 from src.colors import colors
-from main import config
+import config
 #imports
 import requests
 from bs4 import BeautifulSoup

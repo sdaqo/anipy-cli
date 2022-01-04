@@ -1,4 +1,11 @@
 #!/usr/bin/python3
+
+# This code adds the base directory to the import path
+# this allows us to import config.py directly
+import sys
+
+sys.path.insert(0, ".")
+
 # local imports
 import config
 from src import query, play, history, menu, download, url
