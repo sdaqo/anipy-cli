@@ -22,7 +22,6 @@ def play(embed_url, video_url, link, is_history, start_at="0"):
     + config.mpv_commandline_options + f" '{video_url}'"
     ]
 
-    print(video_player_command)
     Thread(target=write_history, args=(link, is_history)).start()
     if os.name in ('nt', 'dos'):
         sub_proc = sp.Popen(video_player_command)
