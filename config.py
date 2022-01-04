@@ -3,6 +3,14 @@ from pathlib import Path
 # This will have to be changed if this file is moved
 anipy_cli_folder = Path(Path(__file__).parent)
 
+# These are the paths used by anipy-cli to store data
+# They are all pathlib.Path objects
+
+# In order to specify a relative path, use the / operator
+# Ex. ~/Downloads/anipy would be Path.home() / 'Downloads' / 'anipy'
+# You could also just use a regular path string and turn it into a Path object
+# Ex. ~/Downloads/anipy would be Path('~/Downloads/anipy')
+
 download_folder_path = anipy_cli_folder / "download"
 history_folder_path = anipy_cli_folder / "history"
 history_file_path = history_folder_path / "history.txt"
