@@ -10,14 +10,15 @@ done_writing_queue = queue.Queue()
 
 
 def write_history(link, is_history, is_on_web=False):
-    # Make the history folder and file if they doesn't exist
+    # Make the history file if it doesn't exist already
     try:
-        config.history_folder_path.mkdir(parents=True, exist_ok=True)
+        config.history_file_path.parent.mkdir(parents=True, exist_ok=True)
         config.history_file_path.touch(exist_ok=True)
     except PermissionError:
         print(
             "Unable to write/read to where history file is suposed to be due to permissions."
         )
+        sys.exit(1)
 
     with config.history_file_path.open('r') as history_file:
         data = history_file.readlines()

@@ -3,3 +3,4 @@ src/__pycache__/
 history/
 geckodriver.log
 download/
+history.txt
