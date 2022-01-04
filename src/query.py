@@ -8,7 +8,7 @@ import re, sys
 
 
 def pages(url):
-
+    
     pages = []
 
     querys = requests.get(url)

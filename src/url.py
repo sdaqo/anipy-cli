@@ -57,17 +57,25 @@ def get_default_browser():
 
 
 def get_embed_url(url):
+    time.sleep(4)
     try:
-        r = requests.get(url[0])
-        soup = BeautifulSoup(r.content, "html.parser")
-        link = soup.find("a", {"href": "#", "rel": "100"})
-        return f'https:{link["data-video"]}'
+        try:
+            r = requests.get(url[0])
+            soup = BeautifulSoup(r.content, "html.parser")
+            link = soup.find("a", {"href": "#", "rel": "100"})
+            return f'https:{link["data-video"]}', url[0]
+        except:
+        
+            r = requests.get(url[1])
+            soup = BeautifulSoup(r.content, "html.parser")
+            link = soup.find("a", {"href": "#", "rel": "100"})
+            return f'https:{link["data-video"]}', url[1]
     except:
         
-        r = requests.get(url[1])
-        soup = BeautifulSoup(r.content, "html.parser")
-        link = soup.find("a", {"href": "#", "rel": "100"})
-        return f'https:{link["data-video"]}'
+            r = requests.get(url)
+            soup = BeautifulSoup(r.content, "html.parser")
+            link = soup.find("a", {"href": "#", "rel": "100"})
+            return f'https:{link["data-video"]}', url
 
 def get_video_url(embed_url, link_with_episode, user_quality):
     print("Getting video url")

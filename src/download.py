@@ -60,16 +60,23 @@ def episode_selection(url):
             sys.exit()
 
         for i in list(range(start, end + 1)):
-            episode_urls.append(
-                url.replace("/category", "") + "-episode-" + str(i))
+            url_with_episode = [
+                url.replace("/category", "") + "-episode-" + str(i),
+                url.replace('/category', '') + '-' + str(i)
+                ]
+
+            episode_urls.append(url_with_episode)
 
     elif len(list_of_episodes) == 1:
 
         if int(which_episode) in list(range(1, int(ep_count[-1]) + 1)):
             which_episode = which_episode
-            episode_urls.append(
-                url.replace("/category", "") + "-episode-" + which_episode)
+            url = [
+                url.replace("/category", "") + "-episode-" + which_episode,
+                url.replace('/category', '') + '-' + which_episode]
 
+            episode_urls.append(url)
+ 
         else:
             print(colors.ERROR + "Invalid input.")
             sys.exit()
@@ -97,16 +104,17 @@ def main_activity():
     print("Getting emebed-urls")
     names = []
     for i in episode_urls:
-        names.append(i.replace(config.gogoanime_url, ""))
+        names.append(i[0].replace(config.gogoanime_url, ""))
 
     embeded_urls = []
     for j in episode_urls:
         embeded_urls.append(url.get_embed_url(j))
+    
 
     video_urls = []
-    for x, o in zip(embeded_urls, episode_urls):
-        video_urls.append(url.get_video_url(x, o, main.args.quality))
+    for x in embeded_urls:
+        video_urls.append(url.get_video_url(x[0], x[1], main.args.quality))
 
     for k, l, p in zip(video_urls, embeded_urls, names):
-        download(k, l, p)
+        download(k, l[0], p)
     sys.exit()

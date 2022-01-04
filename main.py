@@ -72,28 +72,28 @@ def main():
         link_with_episode = picked_history[0]
 
     embed_url = url.get_embed_url(link_with_episode)
-    video_url = url.get_video_url(embed_url, link_with_episode, args.quality)
+    video_url = url.get_video_url(embed_url[0], embed_url[1], args.quality)
     if args.history == False:
         t1 = Thread(target=play.play,
                     args=(
-                        embed_url,
+                        embed_url[0],
                         video_url,
-                        link_with_episode,
+                        embed_url[1],
                         args.history,
                     ))
         t1.start()
     else:
         t1 = Thread(target=play.play,
                     args=(
-                        embed_url,
+                        embed_url[0],
                         video_url,
-                        link_with_episode,
+                        embed_url[1],
                         args.history,
                         picked_history[1],
                     ))
         t1.start()
 
-    menu.main_menu(link_with_episode)
+    menu.main_menu(embed_url[1])
 
 
 if __name__ == "__main__":

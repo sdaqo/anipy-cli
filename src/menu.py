@@ -4,7 +4,12 @@ import main
 import config
 from src.colors import colors
 #imports
-import re, os, time, signal, sys
+import re
+import os
+import time
+import signal
+import sys
+import requests
 from threading import Thread
 
 options = [
@@ -37,6 +42,14 @@ def kill_subprocess_with_player():
 
 
 def main_menu(link):
+    if type(link) is tuple:
+        try:
+            requests.get(link[0])
+            link = link[0]
+        except:
+            link = link[1]
+    else:
+        pass
     clear_console()
     print(colors.GREEN + "Playing: " + colors.RED +
           link.replace(config.gogoanime_url, ""))
@@ -54,17 +67,42 @@ def main_menu(link):
                 if check == True:
                     break
                 time.sleep(0.3)
+            
             episode = re.search(r"episode-[0-9]*", link)
-            episode = episode.group(0).replace("episode-", "")
-            link = link.replace(episode, str(int(episode) + 1))
+            if episode == None:
+                episode = link[-1]
+                
+                if episode.isdigit() == True:
+                    pass
+                else:
+                    episode = link[-1] + link[-2]    
+
+            else:
+                episode = episode.group(0).replace("episode-", "")
+
+            episode_in_string_index = link.rfind(episode)
+            link = link[:episode_in_string_index] + str(int(episode) + 1)
+
             start_episode(link)
             main_menu(link)
 
         elif which_option == "p":  # previous episode
             episode = re.search(r"episode-[0-9]*", link)
-            episode = episode.group(0).replace("episode-", "")
+            if episode == None:
+                episode = link[-1]
+                
+                if episode.isdigit() == True:
+                    pass
+                else:
+                    episode = link[-1] + link[-2]    
+
+            else:
+                episode = episode.group(0).replace("episode-", "")
+            
+
             if episode == "1":
-                print(colors.ERROR + "There is no episode before that." +
+                print(colors.ERROR 
+                      + "There is no episode before that." +
                       colors.END)
                 pass
             else:
@@ -74,7 +112,10 @@ def main_menu(link):
                     if check == True:
                         break
                     time.sleep(0.3)
-                link = link.replace(episode, str(int(episode) - 1))
+                
+                episode_in_string_index = link.rfind(episode)
+                link = link[:episode_in_string_index] + str(int(episode) - 1)
+                
                 start_episode(link)
                 main_menu(link)
 
@@ -90,11 +131,27 @@ def main_menu(link):
 
         elif which_option == "s":  # select episode
             episode = re.search(r"episode-[0-9]*", link)
-            episode = episode.group(0).replace("episode-", "")
-            link = link.replace(config.gogoanime_url,
+            if episode == None:
+                episode = link[-1]
+                
+                if episode.isdigit() == True:
+                    pass
+                else:
+                    episode = link[-1] + link[-2]    
+                    
+
+                link = link.replace(config.gogoanime_url,
+                         "").replace("-" + episode, "")
+            else:
+                episode = episode.group(0).replace("episode-", "")
+            
+                link = link.replace(config.gogoanime_url,
                                 "").replace("-episode-" + episode, "")
+            
             link = config.gogoanime_url + "category/" + link
             link = query.episode(link)
+            print(link)
+            time.sleep(5)
             kill_subprocess_with_player()
             while True:
                 check = history.done_writing_queue.get()
@@ -102,7 +159,7 @@ def main_menu(link):
                     break
                 time.sleep(0.3)
             start_episode(link)
-            main_menu(link)
+            main_menu(link[0])
 
         elif which_option == "h":  # History selection
             kill_subprocess_with_player()
@@ -143,25 +200,23 @@ def main_menu(link):
 
 
 def start_episode(link, resume_seconds=0, is_history=False):
-
     embed_url = url.get_embed_url(link)
-    video_url = url.get_video_url(embed_url, link, main.args.quality)
-
+    video_url = url.get_video_url(embed_url[0], link, main.args.quality)
     if is_history == False:
         t1 = Thread(target=play.play,
                     args=(
-                        embed_url,
+                        embed_url[0],
                         video_url,
-                        link,
+                        embed_url[1],
                         is_history,
                     ))
         t1.start()
     else:
         t1 = Thread(target=play.play,
                     args=(
-                        embed_url,
+                        embed_url[0],
                         video_url,
-                        link,
+                        embed_url[1],
                         is_history,
                         resume_seconds,
                     ))
