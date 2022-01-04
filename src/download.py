@@ -6,7 +6,7 @@ from tqdm import tqdm
 from src import query, url
 from src.colors import colors
 import main
-from main import config
+import config
 
 
 def download(video_url, embed_url, fname):

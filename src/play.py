@@ -1,6 +1,6 @@
 # local imports
 from src.history import write_history
-from main import config
+import config
 #imports
 from threading import Thread
 import subprocess as sp
