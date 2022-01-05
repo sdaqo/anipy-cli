@@ -18,7 +18,7 @@ def play(embed_url, video_url, link, is_history, start_at="0"):
     config.mpv_path 
     + f" --force-media-title={link.replace(config.gogoanime_url, '')} " 
     + f"{'--start=+' + str(start_at)  if config.mpv_resume_episode else ''}"  
-    + f'--http-header-fields="Referer: {embed_url}" ' 
+    + f' --http-header-fields="Referer: {embed_url}" ' 
     + config.mpv_commandline_options + f" '{video_url}'"
     ]
 
