@@ -2,10 +2,9 @@ import requests
 import sys
 import re
 from bs4 import BeautifulSoup
-from src import query, url, play, history
+from src import query, url, play
 from src.colors import colors
 import main
-import config
 from threading import Thread
 import time
 
@@ -29,7 +28,7 @@ def episode_selection(url):
         try:
             first_number = int(list_of_episodes[0])
             second_number = int(list_of_episodes[1])
-        except:
+        except ValueError:
             print(colors.ERROR + "Invalid Input")
 
         if first_number in list(range(1, int(ep_count[-1]) + 1)):
@@ -105,8 +104,8 @@ def main_activity():
 
     for k, l in zip(video_urls, embeded_urls):
 
-        while play.stop == False:
-            "do nothing"
+        while play.stop is False:
+            pass
         t1 = Thread(
             target=play.play,
             args=(
