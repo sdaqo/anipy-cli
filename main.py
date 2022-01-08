@@ -8,7 +8,7 @@ sys.path.insert(0, ".")
 
 # local imports
 import config
-from src import query, play, history, menu, download, url
+from src import query, play, history, menu, download, url, binge
 from src.colors import colors
 # imports
 import argparse, sys
@@ -21,21 +21,18 @@ my_parser.add_argument('-q',
                        action='store',
                        required=False,
                        help='Pick quality. 1080, 720, 480 etc. / best,worst')
-my_parser.add_argument(
-    '-H',
-    '--history',
-    required=False,
-    dest="history",
-    action='store_true',
-    help='Play History. History is stored in history/history.txt')
-my_parser.add_argument(
-    '-d',
-    '--download',
-    required=False,
-    dest='download',
-    action='store_true',
-    help=
-    'Download mode. Download multiple episodes like so: first_numer-second_number (e.g. 1-3)'
+my_parser.add_argument('-H',
+                        '--history',
+                        required=False,
+                        dest="history",
+                        action='store_true',
+                        help='Play History. History is stored in history/history.txt')
+my_parser.add_argument('-d',
+                        '--download',
+                        required=False,
+                        dest='download',
+                        action='store_true',
+                        help='Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)'
 )
 my_parser.add_argument('-D',
                        '--delete-history',
@@ -43,6 +40,13 @@ my_parser.add_argument('-D',
                        dest='delete',
                        action='store_true',
                        help='Delete your History.')
+my_parser.add_argument("-b",
+                        "--binge",
+                        required=False,
+                        dest="binge",
+                        action="store_true",
+                        help="Binge mode. Binge multiple episodes like so: first number-second_number (e.g. 1-3)",
+)
 # TODO: add argument so `python main.py <Some Anime>` is possible
 args = my_parser.parse_args()
 
@@ -59,6 +63,8 @@ if args.delete == True:
 if args.download == True:
     download.main_activity()
 
+if args.binge == True:
+    binge.main_activity()
 
 def main():
 
