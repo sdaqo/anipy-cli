@@ -6,15 +6,15 @@ from src import query, url, play
 from src.colors import colors
 import main
 from threading import Thread
-import time
+import os
+import signal
 
 
 def episode_selection(url):
     ep_count = []
     querys = requests.get(url)
     soup = BeautifulSoup(querys.content, "html.parser")
-    for link in soup.find_all('a',
-                              attrs={'ep_end': re.compile("^ *\d[\d ]*$")}):
+    for link in soup.find_all('a', attrs={'ep_end': re.compile("^ *\d[\d ]*$")}):
         ep_count.append(link.get('ep_end'))
 
     episode_urls = []
@@ -70,51 +70,87 @@ def episode_selection(url):
     return episode_urls
 
 
+embeded_urls = []
+
+
 def main_activity():
 
     print(colors.GREEN + "***Binge Mode***" + colors.END)
     search = input("Search for Anime: " + colors.CYAN)
     link = query.query(search)
     episode_urls = episode_selection(link)
+    global embeded_urls
 
-    embeded_urls = []
     count = 1
     for j in episode_urls:
         if count == 1:
+            print("Getting first video link")
             first_embed_url = url.get_embed_url(j[0])
-            first_video_url = url.get_video_url(first_embed_url[0], first_embed_url[1], main.args.quality)
+            first_video_url = url.get_video_url(
+                first_embed_url[0], first_embed_url[1], main.args.quality)
 
-            t1 = Thread(
+            Thread(
                 target=play.play,
                 args=(
                     first_embed_url[0],
                     first_video_url,
                     first_embed_url[1],
-                    None,
+                    main.args.history,
                 ),
-            )
-            t1.start()
+            ).start()
         else:
+            print("Queueing video links")
             embeded_urls.append(url.get_embed_url(j))
         count += 1
+    Thread(target=fetch_videos, ).start()
+    prompt_quit()
 
+
+def fetch_videos():
     video_urls = []
     for x in embeded_urls:
         video_urls.append(url.get_video_url(x[0], x[1], main.args.quality))
 
     for k, l in zip(video_urls, embeded_urls):
-
         while play.stop is False:
             pass
-        t1 = Thread(
+
+        Thread(
             target=play.play,
             args=(
                 l[0],
                 k,
                 l[1],
-                None,
+                main.args.history,
             ),
-        )
-        t1.start()
-        time.sleep(7) # guessed player is open by then
-    sys.exit()
+        ).start()
+
+
+def prompt_quit():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Done fetching all links, quitting here will terminate all players")
+
+    print(colors.GREEN + "[q] " + colors.END + "Quit")
+    which_option = input("Enter option: " + colors.CYAN)
+    if which_option == "q":  # quit
+        kill_subprocess_with_player()
+    else:
+        print(colors.ERROR + "Invalid Input" + colors.END)
+        prompt_quit()
+
+
+def kill_subprocess_with_player():
+    if os.name in ('nt', 'dos'):
+        play.sub_proc.kill()
+        os._exit(1)
+    else:
+        # On linux we cant use .kill(),
+        # we have to kill the shell where the sp is running.
+        # And if the shell is not running anymore (user closed it)
+        # it raises an exception therefore the try/except.
+        try:
+            os.killpg(os.getpgid(play.sub_proc.pid), signal.SIGTERM)
+            os._exit(1)
+        except ValueError as e:
+            print(e)
+            pass

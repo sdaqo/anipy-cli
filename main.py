@@ -77,6 +77,7 @@ def main():
         picked_history = history.pick_history()
         link_with_episode = picked_history[0]
 
+    print("getting video urls")
     embed_url = url.get_embed_url(link_with_episode)
     video_url = url.get_video_url(embed_url[0], embed_url[1], args.quality)
     if args.history == False:

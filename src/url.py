@@ -78,7 +78,6 @@ def get_embed_url(url):
             return f'https:{link["data-video"]}', url
 
 def get_video_url(embed_url, link_with_episode, user_quality):
-    print("Getting video url")
     try:
         try:
             """new code"""
@@ -100,7 +99,6 @@ def get_video_url(embed_url, link_with_episode, user_quality):
                                                service_log_path=os.devnull)
 
                 else:
-                    print("Defaulting to firefox")
                     from webdriver_manager.firefox import GeckoDriverManager
 
                     browser = webdriver.Firefox(
