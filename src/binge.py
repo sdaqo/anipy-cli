@@ -153,4 +153,3 @@ def kill_subprocess_with_player():
             os._exit(1)
         except ValueError as e:
             print(e)
-            pass
