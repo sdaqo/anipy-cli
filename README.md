@@ -7,6 +7,7 @@
 ### New: 
 - Download functionality
 - Config File
+- Binge Mode
 
 ### Other versions:
 - Ulauncher extension by @Dankni95: 
@@ -92,6 +93,12 @@ This will let you pick one of your anime-episodes that you previously watched an
 ### Delete History
 
 `main.py -D` or `anipy-cli -D`
+
+### Binge Mode
+
+`main.py -b` or `anipy-cli -b`
+
+Specify a range of episodes and play them back to back.
 
 ### Config File
 Change `config.py` if you want any of the options given there changed.
