@@ -8,6 +8,7 @@
 - Download functionality
 - Config File
 - Binge Mode
+- Seasonal Anime Mode: Binge-watch or bulk-download the newest episodes of animes
 
 ### Other versions:
 - Ulauncher extension by @Dankni95: 
@@ -94,16 +95,33 @@ This will let you pick one of your anime-episodes that you previously watched an
 
 `main.py -D` or `anipy-cli -D`
 
+You can change your history.txt path in `config.py`
+
 ### Binge Mode
 
 `main.py -b` or `anipy-cli -b`
 
 Specify a range of episodes and play them back to back.
 
+### Seasonal Anime Mode
+
+`main.py -s` or `anipy-cli -s`
+
+Binge-watch or bulk-download the newest episodes of animes.
+
+You can change your seasonals.txt path in `config.py`
+
 ### Config File
 Change `config.py` if you want any of the options given there changed.
 
 # Features
+
+### Big range of Modes
+
+- Download
+- Binge
+- Seasonal
+
 ### Resume Playback
 #### The Resume playback function counts the seconds after the video player is opened and stops when its closed (does not stop when you pause the video). It stores the value and uses it when `-H` is called, not when you just play a episode like normal. When you play a episode from History, it will continue to count and adds it to the existing value.    
 

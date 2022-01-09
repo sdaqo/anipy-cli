@@ -1,6 +1,9 @@
 # local imports
 from src.colors import colors
-from src import history
+try:
+    from src import history
+except ImportError:
+    pass
 # imports
 import sys
 import platform

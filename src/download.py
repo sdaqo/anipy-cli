@@ -1,6 +1,7 @@
 import requests
 import sys
 import re
+import os
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from src import query, url
@@ -13,17 +14,23 @@ def download(video_url, embed_url, fname):
     resp = requests.get(video_url, headers={'referer': embed_url}, stream=True)
     total = int(resp.headers.get('content-length', 0))
     file_path = config.download_folder_path / f"{fname}.mp4"
-    with file_path.open('wb') as file, tqdm(
-            desc=fname,
-            total=total,
-            unit='iB',
-            unit_scale=True,
-            unit_divisor=1024,
-    ) as bar:
-        for data in resp.iter_content(chunk_size=1024):
-            size = file.write(data)
-            bar.update(size)
-
+    try:
+        with file_path.open('wb') as file, tqdm(
+               desc=fname,
+               total=total,
+               unit='iB',
+               unit_scale=True,
+               unit_divisor=1024,
+        ) as bar:
+            for data in resp.iter_content(chunk_size=1024):
+                size = file.write(data)
+                bar.update(size)
+    except KeyboardInterrupt:
+        sys.stdout.flush()
+        sys.stdout.write('\r')
+        sys.stdout.flush()
+        print( colors.ERROR + 'Interrupted, deleting partially downloaded file.' + colors.END)
+        file_path.unlink()
 
 def episode_selection(url):
     ep_count = []
@@ -73,7 +80,8 @@ def episode_selection(url):
             which_episode = which_episode
             url = [
                 url.replace("/category", "") + "-episode-" + which_episode,
-                url.replace('/category', '') + '-' + which_episode]
+                url.replace('/category', '') + '-' + which_episode
+            ]
 
             episode_urls.append(url)
  
@@ -101,20 +109,24 @@ def main_activity():
     search = input("Search for Anime: " + colors.CYAN)
     link = query.query(search)
     episode_urls = episode_selection(link)
-    print("Getting emebed-urls")
+    get_links(episode_urls)    
+    sys.exit()    
+
+def get_links(episode_urls):
     names = []
     for i in episode_urls:
         names.append(i[0].replace(config.gogoanime_url, ""))
-
-    embeded_urls = []
-    for j in episode_urls:
-        embeded_urls.append(url.get_embed_url(j))
     
+    embeded_urls = []
+    for j, k in zip(episode_urls, names):
+        print(colors.GREEN + 'Getting embed url for ' + colors.END + k)
+        embeded_urls.append(url.get_embed_url(j))
 
     video_urls = []
-    for x in embeded_urls:
+    for x, y in zip(embeded_urls, names):
+        print(colors.GREEN + 'Getting video url for ' + colors.END + y)
         video_urls.append(url.get_video_url(x[0], x[1], main.args.quality))
 
     for k, l, p in zip(video_urls, embeded_urls, names):
         download(k, l[0], p)
-    sys.exit()
+    

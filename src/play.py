@@ -10,18 +10,18 @@ import os
 terminate = False
 
 
-def play(embed_url, video_url, link, is_history, start_at="0"):
+def play(embed_url, video_url, link, is_history, start_at="0", mpv_args=''):
     global stop, sub_proc
     stop = False
-
+    
     video_player_command = [
     config.mpv_path 
     + f" --force-media-title={link.replace(config.gogoanime_url, '')} " 
     + f"{'--start=+' + str(start_at)  if config.mpv_resume_episode else ''}"  
     + f' --http-header-fields="Referer: {embed_url}" ' 
-    + config.mpv_commandline_options + f" '{video_url}'"
+    + config.mpv_commandline_options + mpv_args + f" '{video_url}'"
     ]
-
+    
     Thread(target=write_history, args=(link, is_history)).start()
     if os.name in ('nt', 'dos'):
         sub_proc = sp.Popen(video_player_command)

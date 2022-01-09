@@ -8,6 +8,7 @@ import main
 from threading import Thread
 import os
 import signal
+import time
 
 
 def episode_selection(url):
@@ -80,11 +81,12 @@ def main_activity():
     link = query.query(search)
     episode_urls = episode_selection(link)
 
-    
+    start_watching(episode_urls)
+
+def start_watching(episode_urls):
     t1 = Thread(target=fetch_videos, args=(episode_urls, ))
     t1.start()
     prompt_quit()
-
 
 def fetch_videos(episode_urls):
     embeded_urls = []
@@ -103,6 +105,8 @@ def fetch_videos(episode_urls):
                     first_video_url,
                     first_embed_url[1],
                     main.args.history,
+                    0,
+                    ' --keep-open=no',
                 ),
             ).start()
         else:
@@ -115,6 +119,7 @@ def fetch_videos(episode_urls):
     for k, l in zip(video_urls, embeded_urls):
         while play.stop is False:
             pass
+            time.sleep(0.1)
 
         Thread(
             target=play.play,
@@ -123,6 +128,8 @@ def fetch_videos(episode_urls):
                 k,
                 l[1],
                 main.args.history,
+                0,
+                ' --keep-open=no',
             ),
         ).start()
 

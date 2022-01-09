@@ -8,7 +8,7 @@ sys.path.insert(0, ".")
 
 # local imports
 import config
-from src import query, play, history, menu, download, url, binge
+from src import query, play, history, menu, download, url, binge, seasonal
 from src.colors import colors
 # imports
 import argparse, sys
@@ -47,6 +47,13 @@ my_parser.add_argument("-b",
                         action="store_true",
                         help="Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)",
 )
+my_parser.add_argument("-s",
+                        "--seasonal",
+                        required=False,
+                        dest="seasonal",
+                        action="store_true",
+                        help="Seasonal Anime mode. Bulk download or binge watch newest episodes.",
+)
 # TODO: add argument so `python main.py <Some Anime>` is possible
 args = my_parser.parse_args()
 
@@ -65,6 +72,9 @@ if args.download == True:
 
 if args.binge == True:
     binge.main_activity()
+
+if args.seasonal == True:
+    seasonal.main_activity()
 
 def main():
 
