@@ -70,7 +70,7 @@ def episode_selection(url):
     return episode_urls
 
 
-embeded_urls = []
+
 
 
 def main_activity():
@@ -79,12 +79,19 @@ def main_activity():
     search = input("Search for Anime: " + colors.CYAN)
     link = query.query(search)
     episode_urls = episode_selection(link)
-    global embeded_urls
+
+    
+    t1 = Thread(target=fetch_videos, args=(episode_urls, ))
+    t1.start()
+    prompt_quit()
+
+
+def fetch_videos(episode_urls):
+    embeded_urls = []
 
     count = 1
     for j in episode_urls:
         if count == 1:
-            print("Getting first video link")
             first_embed_url = url.get_embed_url(j[0])
             first_video_url = url.get_video_url(
                 first_embed_url[0], first_embed_url[1], main.args.quality)
@@ -99,14 +106,8 @@ def main_activity():
                 ),
             ).start()
         else:
-            print("Queueing video links")
             embeded_urls.append(url.get_embed_url(j))
         count += 1
-    Thread(target=fetch_videos, ).start()
-    prompt_quit()
-
-
-def fetch_videos():
     video_urls = []
     for x in embeded_urls:
         video_urls.append(url.get_video_url(x[0], x[1], main.args.quality))
@@ -128,7 +129,7 @@ def fetch_videos():
 
 def prompt_quit():
     os.system('cls' if os.name == 'nt' else 'clear')
-    print("Done fetching all links, quitting here will terminate all players")
+    print("Videos being queued in the background, quitting here will terminate all players and queues")
 
     print(colors.GREEN + "[q] " + colors.END + "Quit")
     which_option = input("Enter option: " + colors.CYAN)
