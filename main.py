@@ -45,7 +45,7 @@ my_parser.add_argument("-b",
                         required=False,
                         dest="binge",
                         action="store_true",
-                        help="Binge mode. Binge multiple episodes like so: first number-second_number (e.g. 1-3)",
+                        help="Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)",
 )
 # TODO: add argument so `python main.py <Some Anime>` is possible
 args = my_parser.parse_args()
