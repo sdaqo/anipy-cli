@@ -7,7 +7,7 @@ dependencies:
 
 install:
 	echo "#!/bin/sh" > $(PREFIX)/bin/anipy-cli
-	echo 'python3 $(CURDIR)/main.py $$1 $$2 $$3' >> $(PREFIX)/bin/anipy-cli
+	echo 'python3 "$(CURDIR)/main.py" $$1 $$2 $$3' >> $(PREFIX)/bin/anipy-cli
 	chmod 0755 $(DESTDIR)$(PREFIX)/bin/anipy-cli
 
 uninstall:
