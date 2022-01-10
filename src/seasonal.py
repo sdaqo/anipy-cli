@@ -51,9 +51,13 @@ def add_to_seasonals(link):
 def delete_seasonal():
     clear_console()
     
-    with config.seasonal_file_path.open('r') as seasonal_file:
-        links = seasonal_file.readlines()
-
+    try:
+        with config.seasonal_file_path.open('r') as seasonal_file:
+            links = seasonal_file.readlines()
+    except FileNotFoundError as e:
+        print(e)
+        print('Seasonals.txt not created yet, add animes to create one')
+        menu()
 
     list_index = 1
 
@@ -177,6 +181,11 @@ def start_action(is_watching: bool):
         
         if confirm_exclude == 'y' or confirm_exclude == 'Y':
             episode_urls = episode_urls_original[1]
+            if not episode_urls:
+                clear_console()
+                print(f'Nothing to {"watch" if is_watching else "download"}.')
+                menu()
+            
         else:
             if not episode_urls_original[1]:
                 episode_urls = episode_urls_original[0]
