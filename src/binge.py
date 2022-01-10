@@ -149,7 +149,8 @@ def prompt_quit():
 
 def kill_subprocess_with_player():
     if os.name in ('nt', 'dos'):
-        play.sub_proc.kill()
+        if hasattr(play, 'sub_proc'):
+            play.sub_proc.kill()
         os._exit(1)
     else:
         # On linux we cant use .kill(),
@@ -157,7 +158,8 @@ def kill_subprocess_with_player():
         # And if the shell is not running anymore (user closed it)
         # it raises an exception therefore the try/except.
         try:
-            os.killpg(os.getpgid(play.sub_proc.pid), signal.SIGTERM)
+            if hasattr(play, 'sub_proc'):
+                os.killpg(os.getpgid(play.sub_proc.pid), signal.SIGTERM)
             os._exit(1)
         except ValueError as e:
             print(e)
