@@ -95,9 +95,9 @@ To start `anipy-cli` do:
 
 `python3 main.py`
 
-or, if you are on Linux and did `sudo make all` or `sudo make install` do:
+or
 
-`anipy-cli` from everywhere on your system.
+`anipy-cli`
 
 
 ## Options
