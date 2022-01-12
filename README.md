@@ -47,8 +47,36 @@ TODO:
 
 ## Install Dependencies
 
-#### [Note] If you are on Linux you can skip step 1. Just do `sudo make all` to install dependencies and be able execute the script everywhere. To uninstall just do `sudo make uninstall`
- 
+### Installers
+All installers will install the python-libs so you can skip step 1. 
+
+When you installed `anipy-cli` trough one of the installers you can execute `anipy-cli` from everywhere on your system.
+
+Linux:
+
+- `sudo make all` to install dependencies and anipy-cli
+- `sudo make install` to install anipy-cli
+- `sudo make uninstall` to uninstall anipy-cli
+
+To run just do `anipy-cli` 
+
+Windows: 
+
+The windows installer is somewhat unstable so please open an issue when errors occur.
+
+To install:
+- Start a CMD session as administrator
+- CD in the win folder of anipy-cli
+- Type `win-installer.bat`
+- It will now install python libs, create a bin folder in the root directory of anipy-cli that contains a anipy-cli.bat file and set a entry to the system path variable.
+- Now open a new cmd (if you want color support get windows terminal from microsoft store) and type `anipy-cli`
+
+To uninstall:
+- Start a CMD session as administrator
+- CD in the win folder of anipy-cli
+- Type `win-uninstaller.bat`
+- It will now delete the bin folder, but it will NOT delte the entry to the path variable, you should delete that yourself.
+
 ### 1. Python-Libs
 To install `bs4`, `selenium`, `requests`, `webdriver-manager`, and `tqdm` open a terminal in the root-folder and execute `pip install -r requirements.txt`
 
