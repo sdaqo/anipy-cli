@@ -195,7 +195,7 @@ def start_action(is_watching: bool):
         + f'Do you want to {"watch" if is_watching else "download"} these/this episode(s)?' 
         + colors.RED + ' (y/N): ' + colors.CYAN)
     
-    if confirm != 'n' or confirm != 'N':
+    if confirm.lower() != 'n':
         if is_watching == False:
             download.get_links(episode_urls[0])
             
