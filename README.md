@@ -5,10 +5,10 @@
 ### Scrapes: https://gogoanime.wiki
 
 ### New: 
-- Download functionality
 - Config File
 - Binge Mode
 - Seasonal Anime Mode: Binge-watch or bulk-download the newest episodes of animes
+- Windows Installer
 
 ### Other versions:
 - Ulauncher extension by @Dankni95: 
@@ -28,17 +28,17 @@ TODO:
 # Dependencies:
 - `Python 3.0`
 
+- `Firefox/Chrome/Chromium`
+
+- `mpv`
+
 - `BeautifulSoup`
 
 - `requests`
 
 - `selenium`
 
-- `Firefox/Chrome/Chromium`
 
-- `cURL`
-
-- `mpv`
 
 - `tqdm`
  
@@ -95,9 +95,9 @@ To start `anipy-cli` do:
 
 `python3 main.py`
 
-or, if you are on Linux and did `sudo make all` or `sudo make install` do:
+or
 
-`anipy-cli` from everywhere on your system.
+`anipy-cli` (if anipy-cli was installed trough an installer)
 
 
 ## Options
