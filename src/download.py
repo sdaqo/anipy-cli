@@ -1,7 +1,6 @@
 import requests
 import sys
 import re
-import os
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from src import query, url
@@ -14,6 +13,7 @@ def download(video_url, embed_url, fname):
     resp = requests.get(video_url, headers={'referer': embed_url}, stream=True)
     total = int(resp.headers.get('content-length', 0))
     file_path = config.download_folder_path / f"{fname}.mp4"
+    print(colors.CYAN, end='\r') # make bar cyan colored
     try:
         with file_path.open('wb') as file, tqdm(
                desc=fname,
@@ -26,9 +26,6 @@ def download(video_url, embed_url, fname):
                 size = file.write(data)
                 bar.update(size)
     except KeyboardInterrupt:
-        sys.stdout.flush()
-        sys.stdout.write('\r')
-        sys.stdout.flush()
         print( colors.ERROR + 'Interrupted, deleting partially downloaded file.' + colors.END)
         file_path.unlink()
 
@@ -95,14 +92,6 @@ def episode_selection(url):
 
 
 def main_activity():
-    # Make the download folder if it doesn't exist already
-    try:
-        config.download_folder_path.mkdir(parents=True, exist_ok=True)
-    except PermissionError:
-        print(
-            colors.ERROR +
-            "You don't have the permissions to write to the download folder.")
-
     print(colors.GREEN + "***Download Mode***" + colors.END)
     print(colors.GREEN + "Downloads are stored in: " + colors.END +
           str(config.download_folder_path))
@@ -113,6 +102,14 @@ def main_activity():
     sys.exit()    
 
 def get_links(episode_urls):
+    # Make the download folder if it doesn't exist already
+    try:
+        config.download_folder_path.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        print(
+            colors.ERROR +
+            "You don't have the permissions to write to the download folder.")
+    
     names = []
     for i in episode_urls:
         names.append(i[0].replace(config.gogoanime_url, ""))

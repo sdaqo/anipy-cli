@@ -19,7 +19,7 @@ options = [
 def clear_console():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def add_to_seasonals(link):
+def add_to_seasonals(link, ep_link):
 
     try:
         config.history_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -30,23 +30,18 @@ def add_to_seasonals(link):
         )
         sys.exit(1)
     
-    with config.seasonal_file_path.open('r') as seasonal_file:
-        data = seasonal_file.readlines()
     
-    in_data = False 
-
-    for i in data:
-      if link in i:
-         in_data = True
-         break
-      else:
-         pass
-    
-    if in_data == False:
-        with open(config.seasonal_file_path, 'a') as f:
-            f.write(link + '\n')
+    if link in read_seasonal()[0]:
+        clear_console()
+        print(colors.ERROR + 'Anime already added.' + colors.END)
+        menu()
     else:
-        print(colors.ERROR + 'Anime already in seasonal.txt file')
+        with open(config.seasonal_file_path, 'a') as f:
+            f.write(link + '#' + ep_link + '\n')
+    
+        clear_console()
+        print(colors.GREEN + 'Added anime.' + colors.END)
+        menu()
 
 def delete_seasonal():
     clear_console()
@@ -124,7 +119,7 @@ def read_seasonal():
 
 
 
-def get_new_episodes(url):
+def get_newest_episodes(url):
     ep_count = []
     querys = requests.get(url)
     soup = BeautifulSoup(querys.content, "html.parser")
@@ -133,67 +128,69 @@ def get_new_episodes(url):
         ep_count.append(link.get('ep_end'))
     
     newest_ep = ep_count[-1]
-    
+        
+    return newest_ep
+
+def episode_link_gen(category_url: str, episode: int):
+
     episode_urls = [
-    url.replace("/category", "") + "-episode-" + newest_ep,
-    url.replace('/category', '') + '-' + newest_ep
+    category_url.replace("/category", "") + "-episode-" + str(episode),
+    category_url.replace('/category', '') + '-' + str(episode)
     ]
     
     episode_urls[0] = episode_urls[0].replace('\n', '')
     episode_urls[1] = episode_urls[1].replace('\n', '')
 
     return episode_urls
-   
+
 def compare():
     seasonal_file = read_seasonal()    
-
-    ep_urls = []
-    for i in seasonal_file[0]:
-        i = get_new_episodes(i)
-        ep_urls.append(i)
+    category_urls = seasonal_file[0]
     
-    already_watched = []
-    not_watched = []
+    # get episode from string
+    old_eps = []
+    for j in seasonal_file[1]:
+        episode = ''
+        for i in range(4):
+            if j[-(i + 1)].isdigit():             
+                episode += j[-(i + 1)]
+                print(j[-(i + 1)])
+            else:
+                pass
+        # reverse string since it reads from behind
+        old_eps.append(episode[::-1])
+    
+    new_eps = []
+    for i in seasonal_file[0]:
+        i = get_newest_episodes(i) 
+        new_eps.append(i)
+   
+    print(old_eps, '|', new_eps)
+    ep_urls = []
+    for i, j, y in zip(old_eps, new_eps, category_urls):
+        range_list = list(range(int(i), int(j)))
+        # increase every elemnt by 1
+        range_list = [x+1 for x in range_list]    
+        
+        for k in range_list:
+            ep_urls.append(episode_link_gen(y, k))
 
-    for i, u in zip(seasonal_file[1], ep_urls):
-        if i == u[0]:
-            already_watched.append(u)
-        else:
-            not_watched.append(u)
+    print(ep_urls)
 
-    return already_watched, not_watched
+
+    return ep_urls, new_eps, category_urls
 
 
 def start_action(is_watching: bool):
-    episode_urls_original = compare()
-    if not episode_urls_original[0]:
-        episode_urls = episode_urls_original[1]
-        pass
-    else:
-        print(colors.GREEN + 'Already downloaded or watched: ' + colors.END)
-        for i in episode_urls_original[0]:
-            print('-> ' + i[0].replace(config.gogoanime_url, ''))
+    episode_urls = compare()
     
-        confirm_exclude = input(
-            colors.GREEN 
-            + f'Do you want to exclude these from {"watching" if is_watching else "downloading"}?' 
-            + colors.RED + ' (y/N): ' + colors.CYAN)
-        
-        if confirm_exclude == 'y' or confirm_exclude == 'Y':
-            episode_urls = episode_urls_original[1]
-            if not episode_urls:
-                clear_console()
-                print(f'Nothing to {"watch" if is_watching else "download"}.')
-                menu()
-            
-        else:
-            if not episode_urls_original[1]:
-                episode_urls = episode_urls_original[0]
-            else:
-                episode_urls = episode_urls_original[0] + episode_urls_original[1]
+    if not episode_urls[0]:
+        clear_console()
+        print(colors.ERROR + f'No episodes to {"watch" if is_watching else "download"}.')
+        menu()
 
     print(colors.GREEN + f'{"Watching" if is_watching else "Downloading"}: ' + colors.END)
-    for i in episode_urls:
+    for i in episode_urls[0]:
         print('-> ' + i[0].replace(config.gogoanime_url, ''))
     
     confirm = input(
@@ -203,18 +200,17 @@ def start_action(is_watching: bool):
     
     if confirm == 'y' or confirm == 'Y':
         if is_watching == False:
-            download.get_links(episode_urls)
+            download.get_links(episode_urls[0])
             
             with config.seasonal_file_path.open('r') as seasonal_file:
                 data = seasonal_file.readlines()
-        
-            if not episode_urls_original[1]:
-                pass
-            else:
-                episode_urls = episode_urls_original[0] + episode_urls_original[1]
-        
+            
+            last_downlaoded_urls = []
+            for x, i in zip(episode_urls[2] ,episode_urls[1]):
+                last_downlaoded_urls.append(episode_link_gen(x,i))
+
             temp_data = []
-            for i, u in zip(data, episode_urls):
+            for i, u in zip(data, last_downlaoded_urls):
                 i = i.split('#')    
                 temp_data.append(
                     i[0].replace('\n', '') + '#' + u[0] + '\n')
@@ -228,24 +224,54 @@ def start_action(is_watching: bool):
             with config.seasonal_file_path.open('r') as seasonal_file:
                 data = seasonal_file.readlines()
         
-            if not episode_urls_original[1]:
-                episode_urls2 = episode_urls
-            else:
-                episode_urls2 = episode_urls_original[0] + episode_urls_original[1]
-        
+            last_downlaoded_urls = []
+            for x, i in zip(episode_urls[2] ,episode_urls[1]):
+                last_downlaoded_urls.append(episode_link_gen(x,i))
+
             temp_data = []
-            for i, u in zip(data, episode_urls2):
+            for i, u in zip(data, last_downlaoded_urls):
                 i = i.split('#')    
                 temp_data.append(
                     i[0].replace('\n', '') + '#' + u[0] + '\n')
+            
             with config.seasonal_file_path.open('w') as seasonal_file:
                 for i in temp_data:
                     seasonal_file.write(i)
             
-            binge.start_watching(episode_urls)
+            binge.start_watching(episode_urls[0])
     else:
         print(colors.GREEN + 'Ok exiting now')
         sys.exit()
+
+def ep_selection(url):
+    ep_count = []
+
+    querys = requests.get(url)
+    soup = BeautifulSoup(querys.content, "html.parser")
+    for link in soup.find_all('a',
+                              attrs={'ep_end': re.compile("^ *\d[\d ]*$")}):
+        ep_count.append(link.get('ep_end'))
+
+    while True:
+        which_episode = input(colors.END + "Last episode you watched (0 to start from the start) " + colors.GREEN + "[1-" +
+                              ep_count[-1] + "]" + colors.END + ": " +
+                              colors.CYAN)
+        try:
+            int(which_episode)
+        except:
+            print(colors.ERROR + 'Only numbers')
+
+        if int(which_episode) < int(ep_count[-1]) and int(which_episode) >= 0:
+            break
+        elif url in read_seasonal()[0]:
+            print(colors.ERROR + '')
+
+        else:
+            print(colors.ERROR + 'Invalid number')
+
+    ep_url = url.replace("/category", "") + "-episode-" + which_episode
+    
+    return ep_url
 
 def menu():
     
@@ -260,10 +286,9 @@ def menu():
         if which_option == 'a': # add anime to seasonals
             search_input = input('Search Anime: ')    
             link = query.query(search_input)
-            add_to_seasonals(link)
-            clear_console()
-            print(colors.GREEN + 'Added anime.' + colors.END)
-            menu()
+            episode = ep_selection(link)
+            add_to_seasonals(link, episode)
+
     
 
         elif which_option == 'e': # delete one anime from seasonals 
