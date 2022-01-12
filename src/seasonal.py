@@ -155,7 +155,7 @@ def compare():
             if j[-(i + 1)].isdigit():             
                 episode += j[-(i + 1)]
             else:
-                pass
+                break
         # reverse string since it reads from behind
         old_eps.append(episode[::-1])
     

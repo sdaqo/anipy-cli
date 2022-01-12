@@ -1,5 +1,5 @@
 #local imports
-from src import play, query, url, history
+from src import play, query, url, history, seasonal
 import main
 import config
 from src.colors import colors
@@ -61,45 +61,40 @@ def main_menu(link):
         which_option = input("Enter option: " + colors.CYAN)
 
         if which_option == "n":  # next episode
-            kill_subprocess_with_player()
-            while True:
-                check = history.done_writing_queue.get()
-                if check == True:
-                    break
-                time.sleep(0.3)
-            
-            episode = re.search(r"episode-[0-9]*", link)
-            if episode == None:
-                episode = link[-1]
-                
-                if episode.isdigit() == True:
-                    pass
+            episode = ''
+            for i in range(4):
+                if link[-(i + 1)].isdigit():             
+                    episode += link[-(i + 1)]
                 else:
-                    episode = link[-1] + link[-2]    
+                    break
+            episode = episode[::-1]
 
+            if episode == seasonal.get_newest_episodes(link):
+                print(colors.ERROR + 'No episode after that' + colors.END)
             else:
-                episode = episode.group(0).replace("episode-", "")
+                kill_subprocess_with_player()
+                while True:
+                    check = history.done_writing_queue.get()
+                    if check == True:
+                        break
+                    time.sleep(0.3)
+                
 
-            episode_in_string_index = link.rfind(episode)
-            link = link[:episode_in_string_index] + str(int(episode) + 1)
-
-            start_episode(link)
-            main_menu(link)
+                episode_in_string_index = link.rfind(episode)
+                link = link[:episode_in_string_index] + str(int(episode) + 1)
+    
+                start_episode(link)
+                main_menu(link)
 
         elif which_option == "p":  # previous episode
-            episode = re.search(r"episode-[0-9]*", link)
-            if episode == None:
-                episode = link[-1]
-                
-                if episode.isdigit() == True:
-                    pass
+            episode = ''
+            for i in range(4):
+                if link[-(i + 1)].isdigit():             
+                    episode += link[-(i + 1)]
                 else:
-                    episode = link[-1] + link[-2]    
-
-            else:
-                episode = episode.group(0).replace("episode-", "")
+                    break
+            episode = episode[::-1]
             
-
             if episode == "1":
                 print(colors.ERROR 
                       + "There is no episode before that." +
@@ -132,25 +127,26 @@ def main_menu(link):
         elif which_option == "s":  # select episode
             episode = re.search(r"episode-[0-9]*", link)
             if episode == None:
-                episode = link[-1]
+                episode = ''
+                for i in range(4):
+                    if link[-(i + 1)].isdigit():             
+                        episode += link[-(i + 1)]
+                    else:
+                        break
+                episode = episode[::-1]  
                 
-                if episode.isdigit() == True:
-                    pass
-                else:
-                    episode = link[-1] + link[-2]    
-                    
-
                 link = link.replace(config.gogoanime_url,
                          "").replace("-" + episode, "")
+                link = config.gogoanime_url + "category/" + link
+                link = query.episode(link)[1]
             else:
                 episode = episode.group(0).replace("episode-", "")
             
                 link = link.replace(config.gogoanime_url,
                                 "").replace("-episode-" + episode, "")
-            
-            link = config.gogoanime_url + "category/" + link
-            link = query.episode(link)
-            print(link)
+                link = config.gogoanime_url + "category/" + link
+                link = query.episode(link)[0]
+        
             time.sleep(5)
             kill_subprocess_with_player()
             while True:
@@ -159,7 +155,7 @@ def main_menu(link):
                     break
                 time.sleep(0.3)
             start_episode(link)
-            main_menu(link[0])
+            main_menu(link)
 
         elif which_option == "h":  # History selection
             kill_subprocess_with_player()
@@ -179,7 +175,6 @@ def main_menu(link):
                     break
                 time.sleep(0.3)
 
-            clear_console()
             search = input(colors.END + "Search for Anime: " + colors.CYAN)
             search_link = query.query(search)
             search_link_with_episode = query.episode(search_link)
@@ -200,7 +195,10 @@ def main_menu(link):
 
 
 def start_episode(link, resume_seconds=0, is_history=False):
+    name = link.replace(config.gogoanime_url, '')
+    print(colors.GREEN + 'Getting embed url for ' + colors.END + name)
     embed_url = url.get_embed_url(link)
+    print(colors.GREEN + 'Getting video url for ' + colors.END + name)
     video_url = url.get_video_url(embed_url[0], link, main.args.quality)
     if is_history == False:
         t1 = Thread(target=play.play,

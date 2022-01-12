@@ -55,26 +55,8 @@ my_parser.add_argument("-s",
                         help="Seasonal Anime mode. Bulk download or binge watch newest episodes.",
 )
 # TODO: add argument so `python main.py <Some Anime>` is possible
+
 args = my_parser.parse_args()
-
-if args.delete == True:
-    try:
-        config.history_file_path.open('w').close()
-        print(colors.RED + "Done" + colors.END)
-
-    except FileNotFoundError:
-        print(colors.END + "There is no History-File.")
-
-    sys.exit()
-
-if args.download == True:
-    download.main_activity()
-
-if args.binge == True:
-    binge.main_activity()
-
-if args.seasonal == True:
-    seasonal.main_activity()
 
 def main():
 
@@ -82,13 +64,17 @@ def main():
         search = input("Search for Anime: " + colors.CYAN)
         link = query.query(search)
         link_with_episode = query.episode(link)
+        name = link_with_episode[0].replace(config.gogoanime_url, '')
     else:
         history.done_writing_queue.put(True)
         picked_history = history.pick_history()
         link_with_episode = picked_history[0]
+        name = link_with_episode.replace(config.gogoanime_url, '')
 
-    print("getting video urls")
+    
+    print(colors.GREEN + 'Getting embed url for ' + colors.END + name)
     embed_url = url.get_embed_url(link_with_episode)
+    print(colors.GREEN + 'Getting video url for ' + colors.END + name)
     video_url = url.get_video_url(embed_url[0], embed_url[1], args.quality)
     if args.history == False:
         t1 = Thread(target=play.play,
@@ -114,4 +100,24 @@ def main():
 
 
 if __name__ == "__main__":
+
+
+    if args.delete == True:
+        try:
+            config.history_file_path.open('w').close()
+            print(colors.RED + "Done" + colors.END)
+
+        except FileNotFoundError:
+            print(colors.END + "There is no History-File.")
+
+        sys.exit()
+
+    if args.download == True:
+        download.main_activity()
+
+    if args.binge == True:
+        binge.main_activity()
+
+    if args.seasonal == True:
+        seasonal.main_activity()
     main()
