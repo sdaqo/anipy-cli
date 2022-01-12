@@ -5,10 +5,10 @@
 ### Scrapes: https://gogoanime.wiki
 
 ### New: 
-- Download functionality
 - Config File
 - Binge Mode
 - Seasonal Anime Mode: Binge-watch or bulk-download the newest episodes of animes
+- Windows Installer
 
 ### Other versions:
 - Ulauncher extension by @Dankni95: 
