@@ -165,7 +165,7 @@ def compare():
         i = get_newest_episodes(i) 
         new_eps.append(i)
    
-    print(old_eps, '|', new_eps)
+
     ep_urls = []
     for i, j, y in zip(old_eps, new_eps, category_urls):
         range_list = list(range(int(i), int(j)))
@@ -174,8 +174,6 @@ def compare():
         
         for k in range_list:
             ep_urls.append(episode_link_gen(y, k))
-
-    print(ep_urls)
 
 
     return ep_urls, new_eps, category_urls
@@ -198,7 +196,7 @@ def start_action(is_watching: bool):
         + f'Do you want to {"watch" if is_watching else "download"} these/this episode(s)?' 
         + colors.RED + ' (y/N): ' + colors.CYAN)
     
-    if confirm != 'y' or confirm != 'Y':
+    if confirm != 'n' or confirm != 'N':
         if is_watching == False:
             download.get_links(episode_urls[0])
             
