@@ -28,17 +28,17 @@ TODO:
 # Dependencies:
 - `Python 3.0`
 
+- `Firefox/Chrome/Chromium`
+
+- `mpv`
+
 - `BeautifulSoup`
 
 - `requests`
 
 - `selenium`
 
-- `Firefox/Chrome/Chromium`
 
-- `cURL`
-
-- `mpv`
 
 - `tqdm`
  
@@ -97,7 +97,7 @@ To start `anipy-cli` do:
 
 or
 
-`anipy-cli`
+`anipy-cli` (if anipy-cli was installed trough an installer)
 
 
 ## Options
