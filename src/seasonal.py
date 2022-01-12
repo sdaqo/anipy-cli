@@ -154,7 +154,6 @@ def compare():
         for i in range(4):
             if j[-(i + 1)].isdigit():             
                 episode += j[-(i + 1)]
-                print(j[-(i + 1)])
             else:
                 pass
         # reverse string since it reads from behind
@@ -251,7 +250,7 @@ def ep_selection(url):
         ep_count.append(link.get('ep_end'))
 
     while True:
-        which_episode = input(colors.END + "Last episode you watched (0 to start from the start) " + colors.GREEN + "[1-" +
+        which_episode = input(colors.END + "Last episode you watched (0 to start from the beginning) " + colors.GREEN + "[1-" +
                               ep_count[-1] + "]" + colors.END + ": " +
                               colors.CYAN)
         try:
@@ -286,8 +285,6 @@ def menu():
             link = query.query(search_input)
             episode = ep_selection(link)
             add_to_seasonals(link, episode)
-
-    
 
         elif which_option == 'e': # delete one anime from seasonals 
             delete_seasonal()
