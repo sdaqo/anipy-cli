@@ -88,18 +88,24 @@ def get_video_url(embed_url, link_with_episode, user_quality):
             try:
                 if "chrome" in get_default_browser():
                     from webdriver_manager.chrome import ChromeDriverManager
-
+                    from selenium.webdriver.chrome.options import Options
+                    chrome_options =  Options()
+                    chrome_options.add_argument("--headless")
                     browser = webdriver.Chrome(
                         executable_path=ChromeDriverManager().install(),
-                        service_log_path=os.devnull)
+                        service_log_path=os.devnull,
+                        options=chrome_options)
 
                 elif "chromium" in get_default_browser():
                     from webdriver_manager.chrome import ChromeDriverManager
                     from webdriver_manager.utils import ChromeType
-
+                    from selenium.webdriver.chrome.options import Options
+                    chrome_options = Options()
+                    chrome_options.add_argument("--headless")
                     browser = webdriver.Chrome(ChromeDriverManager(
                         chrome_type=ChromeType.CHROMIUM).install(),
-                                               service_log_path=os.devnull)
+                                            options=chrome_options,
+                                            service_log_path=os.devnull)
 
                 else:
                     from webdriver_manager.firefox import GeckoDriverManager
@@ -108,7 +114,8 @@ def get_video_url(embed_url, link_with_episode, user_quality):
                         executable_path=GeckoDriverManager().install(),
                         service_log_path=os.devnull)
 
-            except:
+            except Exception as e:
+                print(e)
                 print(
                     "Webdriver could not start, supported browsers are Firefox, Chrome and Chromium, please refer to https://github.com/sdaqo/anipy-cli/blob/master/README.md for install-instructions."
                 )
