@@ -258,7 +258,7 @@ def ep_selection(url):
         except:
             print(colors.ERROR + 'Only numbers')
 
-        if int(which_episode) < int(ep_count[-1]) and int(which_episode) >= 0:
+        if int(which_episode) =< int(ep_count[-1]) and int(which_episode) >= 0:
             break
         elif url in read_seasonal()[0]:
             print(colors.ERROR + '')
