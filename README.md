@@ -69,6 +69,7 @@ To install:
 - CD in the win folder of anipy-cli
 - Type `win-installer.bat`
 - It will now install python libs, create a bin folder in the root directory of anipy-cli that contains a anipy-cli.bat file and set a entry to the system path variable.
+- You may have to reboot your before going to the next step.
 - Now open a new cmd (if you want color support get windows terminal from microsoft store) and type `anipy-cli`
 
 To uninstall:
