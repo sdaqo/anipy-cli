@@ -195,7 +195,10 @@ def main_menu(link):
 
 
 def start_episode(link, resume_seconds=0, is_history=False):
-    name = link.replace(config.gogoanime_url, '')
+    try:
+        name = link.replace(config.gogoanime_url, '')
+    except:
+        name = link[0].replace(config.gogoanime_url, '')
     print(colors.GREEN + 'Getting embed url for ' + colors.END + name)
     embed_url = url.get_embed_url(link)
     print(colors.GREEN + 'Getting video url for ' + colors.END + name)
