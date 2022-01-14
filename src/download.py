@@ -114,16 +114,12 @@ def get_links(episode_urls):
     for i in episode_urls:
         names.append(i[0].replace(config.gogoanime_url, ""))
     
-    embeded_urls = []
-    for j, k in zip(episode_urls, names):
-        print(colors.GREEN + 'Getting embed url for ' + colors.END + k)
-        embeded_urls.append(url.get_embed_url(j))
 
-    video_urls = []
-    for x, y in zip(embeded_urls, names):
-        print(colors.GREEN + 'Getting video url for ' + colors.END + y)
-        video_urls.append(url.get_video_url(x[0], x[1], main.args.quality))
-
-    for k, l, p in zip(video_urls, embeded_urls, names):
-        download(k, l[0], p)
-    
+    for p, j in zip(names, episode_urls):
+        print(colors.GREEN + 'Getting embed url for ' + colors.END + p)
+        embed_url = url.get_embed_url(j) 
+        
+        print(colors.GREEN + 'Getting video url for ' + colors.END + p)
+        video_url = url.get_video_url(embed_url[0], embed_url[1], main.args.quality)
+        
+        download(video_url, embed_url[0], p)
