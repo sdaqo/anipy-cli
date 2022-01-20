@@ -9,10 +9,10 @@ import main
 import config
 
 
-def download(video_url, embed_url, fname):
+def download(video_url, embed_url, fname, folder_path):
     resp = requests.get(video_url, headers={'referer': embed_url}, stream=True)
     total = int(resp.headers.get('content-length', 0))
-    file_path = config.download_folder_path / f"{fname}.mp4"
+    file_path = folder_path / f"{fname}.mp4"
     print(colors.CYAN, end='\r') # make bar cyan colored
     try:
         with file_path.open('wb') as file, tqdm(
@@ -25,8 +25,8 @@ def download(video_url, embed_url, fname):
             for data in resp.iter_content(chunk_size=1024):
                 size = file.write(data)
                 bar.update(size)
-    except KeyboardInterrupt:
-        print( colors.ERROR + 'Interrupted, deleting partially downloaded file.' + colors.END)
+    except KeyboardInterrupt: 
+        print(colors.ERROR + 'Interrupted, deleting partially downloaded file.' + colors.END)
         file_path.unlink()
 
 def episode_selection(url):
@@ -92,19 +92,21 @@ def episode_selection(url):
 
 
 def main_activity():
+    # Make the download folder if it doesn't exist already
+    
     print(colors.GREEN + "***Download Mode***" + colors.END)
     print(colors.GREEN + "Downloads are stored in: " + colors.END +
           str(config.download_folder_path))
     search = input("Search for Anime: " + colors.CYAN)
     link = query.query(search)
     episode_urls = episode_selection(link)
-    get_links(episode_urls)    
+    get_links(episode_urls, config.download_folder_path)    
     sys.exit()    
 
-def get_links(episode_urls):
-    # Make the download folder if it doesn't exist already
+def get_links(episode_urls, folder_path): 
     try:
         config.download_folder_path.mkdir(parents=True, exist_ok=True)
+        folder_path.mkdir(parents=True, exist_ok=True)
     except PermissionError:
         print(
             colors.ERROR +
@@ -122,4 +124,4 @@ def get_links(episode_urls):
         print(colors.GREEN + 'Getting video url for ' + colors.END + p)
         video_url = url.get_video_url(embed_url[0], embed_url[1], main.args.quality)
         
-        download(video_url, embed_url[0], p)
+        download(video_url, embed_url[0], p, folder_path)

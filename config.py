@@ -12,6 +12,7 @@ anipy_cli_folder = Path(Path(__file__).parent)
 # Ex. ~/Downloads/anipy would be Path('~/Downloads/anipy')
 
 download_folder_path = anipy_cli_folder / "download"
+seasonals_dl_path = download_folder_path / "seasonals"
 history_file_path = anipy_cli_folder / "user_files" / "history.txt"
 seasonal_file_path = anipy_cli_folder / "user_files" / "seasonals.txt"
 

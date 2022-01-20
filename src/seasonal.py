@@ -197,7 +197,7 @@ def start_action(is_watching: bool):
     
     if confirm.lower() != 'n':
         if is_watching == False:
-            download.get_links(episode_urls[0])
+            download.get_links(episode_urls[0], config.seasonals_dl_path)
             
             with config.seasonal_file_path.open('r') as seasonal_file:
                 data = seasonal_file.readlines()
