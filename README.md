@@ -23,7 +23,7 @@ TODO:
 - [x] ⚙ Config file for download-path and more
 - [ ] 🚀Deploy to PyPI
 
-[Still in development]
+[This repo is going to be updated if someting breaks, otherwise there won't be any updates for now]
 
 # Dependencies:
 - `Python 3.0`
