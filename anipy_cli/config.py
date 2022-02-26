@@ -13,20 +13,19 @@ anipy_cli_folder = Path(Path(__file__).parent)
 
 download_folder_path = anipy_cli_folder / "download"
 seasonals_dl_path = download_folder_path / "seasonals"
-history_file_path = anipy_cli_folder / "user_files" / "history.txt"
-seasonal_file_path = anipy_cli_folder / "user_files" / "seasonals.txt"
+user_files_path = anipy_cli_folder / "user_files"
+history_file_path = user_files_path / "history.json"
+seasonal_file_path = user_files_path /"seasonals.txt"
 
 gogoanime_url = "https://gogoanime.film/"
 
 
 mpv_path = "mpv"
 
-# Leave at 'True' if you want integrated 
-# playback resume, set to 'False' if you dont.  
-mpv_resume_episode = True
-
-# Specify mpv options like "--cache", 
+# Specify mpv options like "--cache",
 # you will need to leave a space between
 # each command. Look here for various
-# commands: https://github.com/mpv-player/mpv/blob/master/DOCS/man/options.rst 
+# commands: https://github.com/mpv-player/mpv/blob/master/DOCS/man/options.rst
 mpv_commandline_options = ""
+
+

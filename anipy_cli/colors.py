@@ -1,4 +1,7 @@
 class colors():
+    """
+    Just a class for colors
+    """
     GREEN = '\033[92m'
     ERROR = '\033[93m'
     BLUE = '\u001b[34m'

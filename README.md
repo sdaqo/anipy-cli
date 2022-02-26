@@ -1,34 +1,36 @@
 
 ![waving](https://capsule-render.vercel.app/api?type=waving&height=200&text=sdaqo/anipy-cli&fontAlign=60&fontAlignY=40&color=021224&fontColor=b0b8b2&animation=fadeIn)
 
+> ## Anipy-cli now fresh and new: anipy-cli 2.0!
+
 ### Little tool written in python to watch anime from the terminal (the better way to watch anime)
 ### Scrapes: https://gogoanime.wiki
 
-### New: 
-- Config File
-- Binge Mode
-- Seasonal Anime Mode: Binge-watch or bulk-download the newest episodes of animes
-- Windows Installer
+
 
 ### Other versions:
 - Ulauncher extension by @Dankni95: 
 https://github.com/Dankni95/ulauncher-anime 
 
-TODO:
-- [x] 📺 Search gogoanime and extract video url to play anime 
-- [x] ⌚History & resume playback 
-- [x] ❇️Video-quality selection 
-- [x] 🗒️Menu that pops up after starting episode 
-- [x] 📥Download-function
-- [x] ⚙ Config file for download-path and more
-- [ ] 🚀Deploy to PyPI
+# 2.0 Updates
+- Complete rewrite
+- Can now also be used as libary
+- Way Faster
+- Less dependencies
+- Seasonal and binge mode are
+  not yet implemented
+- No more Spagehtti code
 
-[This repo is going to be updated if someting breaks, otherwise there won't be any updates for now]
+### Notes:
+For now some (not a lot) shows's stream url is  not able
+to be fetched because they are played
+from the streamsb server (e.g. sangatsu no lion)
+which has dirty javascript to avoid scraping.
+No patch for this is implemented yet.
+
 
 # Dependencies:
-- `Python 3.0`
-
-- `Firefox/Chrome/Chromium`
+- `Python 3.10`
 
 - `mpv`
 
@@ -36,23 +38,12 @@ TODO:
 
 - `requests`
 
-- `selenium`
 
+# Installation
 
+### For normal usage
 
-- `tqdm`
- 
-
-# Usage
-
-## Install Dependencies
-
-### Installers
-All installers will install the python-libs so you can skip step 1. 
-
-When you installed `anipy-cli` trough one of the installers you can execute `anipy-cli` from everywhere on your system.
-
-Linux:
+#### Linux:
 
 - `sudo make all` to install dependencies and anipy-cli
 - `sudo make install` to install anipy-cli
@@ -60,7 +51,7 @@ Linux:
 
 To run just do `anipy-cli` 
 
-Windows: 
+#### Windows:
 
 The windows installer is somewhat unstable so please open an issue when errors occur.
 
@@ -78,23 +69,20 @@ To uninstall:
 - Type `win-uninstaller.bat`
 - It will now delete the bin folder, but it will NOT delte the entry to the path variable, you should delete that yourself.
 
-### 1. Python-Libs
-To install `bs4`, `selenium`, `requests`, `webdriver-manager`, and `tqdm` open a terminal in the root-folder and execute `pip install -r requirements.txt`
+### For libary usage
 
-### 2. Other dependencies
+For "documentation", in the docs folder is a `anipycli_as_lib.py` file. You can also directly look at the source code, most function have comments.
+- In the root directory do `python setup.py bdist_wheel`
+- A dist folder with a wheel file got created, go into it.
+- In the dist folder run `pip install file.whl`
 
-Get Python from: https://www.python.org/downloads/
+#### Important:
+To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
-Firefox, it's needed for Selenium, you can get it here: https://www.mozilla.org/firefox/new or with the package manager of your linux Distro.
-
-Get mpv from: https://mpv.io/installation/
-
-Curl should be preinstalled on Windows, Linux and macOS if not get it from here: https://curl.se/download.html
-
-## Start up 
+# Usage
 To start `anipy-cli` do:
 
-`python3 main.py`
+`python3 anipy-cli.py` (Note that all options down below have to also be run with this command)
 
 or
 
@@ -103,7 +91,7 @@ or
 
 ## Options
 ### Set video quality
-`main.py -q "Your desired quality"`  or `anipy-cli -q "Your desired quality"` 
+`anipy-cli -q "Your desired quality"` or `anipy-cli -q "Your desired quality"`
 
 By default `ani-py-cli` tries to get the best quality avalible. You can spify a quality like so: `360/720/1080...` (without the "p" at the end)
 
@@ -111,30 +99,30 @@ You can also use  `best` or ` worst`.
 
 ### Download
 
-`main.py -d` or `anipy-cli -d`
+`anipy-cli -d`
 
 This will drop you in the download mode, from ther you can search an anime and download it. You can specify a range of episodes like so `1-4` or `4-20` etc.
 
 ### History
-`main.py -H` or `anipy-cli -H`
+`anipy-cli -H`
 
 This will let you pick one of your anime-episodes that you previously watched and resumes playback at the time you exited the video player.
 
 ### Delete History
 
-`main.py -D` or `anipy-cli -D`
+`anipy-cli -D`
 
 You can change your history.txt path in `config.py`
 
-### Binge Mode
+### Binge Mode (not implemented look at 2.0 Updates)
 
-`main.py -b` or `anipy-cli -b`
+`anipy-cli -b`
 
 Specify a range of episodes and play them back to back.
 
-### Seasonal Anime Mode
+### Seasonal Anime Mode (not implemented look at 2.0 Updates)
 
-`main.py -s` or `anipy-cli -s`
+`anipy-cli -s`
 
 Binge-watch or bulk-download the newest episodes of animes.
 
@@ -148,11 +136,11 @@ Change `config.py` if you want any of the options given there changed.
 ### Big range of Modes
 
 - Download
-- Binge
-- Seasonal
+- Binge (not implemented look at 2.0 Updates)
+- Seasonal (not implemented look at 2.0 Updates)
 
 ### Resume Playback
-#### The Resume playback function counts the seconds after the video player is opened and stops when its closed (does not stop when you pause the video). It stores the value and uses it when `-H` is called, not when you just play a episode like normal. When you play a episode from History, it will continue to count and adds it to the existing value.    
+Resume playback is deprecated. Use https://github.com/AN3223/dotfiles/blob/master/.config/mpv/scripts/auto-save-state.lua (from https://github.com/mpv-player/mpv/wiki/User-Scripts) for mpv, this is way more reliable than the old function.
 
 ### Menu
 #### Has a menu that pops up after you picked an episode to play, there yopu can either play next episode, play previous episode, replay episode, open history selection, search for another anime or quit.

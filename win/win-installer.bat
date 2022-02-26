@@ -20,8 +20,8 @@ set bin_folder=%cd%\bin
 set bat_file=%cd%\bin\anipy-cli.bat
 
 :: Get main.py location
-set anipy_path=%cd%\main.py
-if not exist "%anipy_path%" echo "main.py not found"
+set anipy_path=%cd%\anipy-cli.py
+if not exist "%anipy_path%" echo "anipy-cli.py not found"
 echo Found %anipy_path%
 
 :: create bin folder 
