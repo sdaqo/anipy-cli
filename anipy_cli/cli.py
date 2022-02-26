@@ -156,23 +156,22 @@ class menu():
     def take_input(self):
         while True:
             picked = input(colors.END + "Enter option: ")
-            match picked:
-                case 'n':
-                    self.next_ep()
-                case 'p':
-                    self.prev_ep()
-                case 'r':
-                    self.repl_ep()
-                case 's':
-                    self.selec_ep()
-                case 'h':
-                    self.hist()
-                case 'a':
-                    self.search()
-                case 'q':
-                    self.quit()
-                case _:
-                    error("invalid option")
+            if picked == 'n':
+                self.next_ep()
+            elif picked == 'p':
+                self.prev_ep()
+            elif picked == 'r':
+                self.repl_ep()
+            elif picked == 's':
+                self.selec_ep()
+            elif picked == 'h':
+                self.hist()
+            elif picked == 'a':
+                self.search()
+            elif picked == 'q':
+                self.quit()
+            else:
+                error('invalid input')
     
     def next_ep(self):
         self.kill_player()
