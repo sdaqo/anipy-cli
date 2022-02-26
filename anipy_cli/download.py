@@ -1,4 +1,6 @@
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -37,7 +39,7 @@ class download():
         self.link_count = len(self.ts_links)
          
     def download_ts(self, ts_link, fname):
-        r = requests.get(ts_link, headers=self.headers)
+        r = self.session.get(ts_link, headers=self.headers)
         response_err(r, ts_link)
         file_path = self.temp_folder / fname
         print(f'{colors.CYAN}Downloading Parts: {colors.RED}({self.counter}/{self.link_count}) {colors.END}' ,end='\r')
@@ -63,6 +65,12 @@ class download():
         self.show_folder.mkdir(exist_ok=True)
         self.temp_folder.mkdir(exist_ok=True) 
         self.counter = 0
+        self.session = requests.Session()
+        retry = Retry(connect=3, backoff_factor=0.5)
+        adapter = HTTPAdapter(max_retries=retry)
+        self.session.mount('http://', adapter)
+        self.session.mount('https://', adapter)
+
         if self.cli:
             print('-'*20)
             print(f'{colors.CYAN}Downloading: {colors.RED} {self.entry.show_name} EP: {self.entry.ep} {colors.END}')

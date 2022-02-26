@@ -87,28 +87,26 @@ class epHandler():
             
            which_episode = which_episode.split('-')
            
-           match len(which_episode):
-                case 1:
-                    try:
-                        if int(which_episode[0])in list(range(1, self.entry.latest_ep + 1)):
-                            return which_episode
-                    except:
-                        error('invalid input')
-                case 2:
-                    
-                    try: 
-                        ep_list = list(range(int(which_episode[0]), int(which_episode[1]) + 1))
-                        if not ep_list:
-                            error('invlid input')
-                        else:
-                            if ep_list[-1] > self.entry.latest_ep:
-                                error('invalid input')
-                            else:
-                                return ep_list
-                    except:
-                        error('invalid input')
-                case _:
+           if len(which_episode) == 1:
+                try:
+                    if int(which_episode[0])in list(range(1, self.entry.latest_ep + 1)):
+                        return which_episode
+                except:
                     error('invalid input')
+           elif len(which_episode) == 2:     
+                try: 
+                    ep_list = list(range(int(which_episode[0]), int(which_episode[1]) + 1))
+                    if not ep_list:
+                        error('invlid input')
+                    else:
+                        if ep_list[-1] > self.entry.latest_ep:
+                            error('invalid input')
+                        else:
+                            return ep_list
+                except:
+                    error('invalid input')
+           else:
+                error('invalid input')
 
      
    def gen_eplink(self):

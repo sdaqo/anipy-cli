@@ -1,6 +1,7 @@
 __pycache__/
 anipy_cli/__pycache__/
 anipy_cli/user_files/
+anipy_cli/download/
 dist/
 build/
 anipy_cli.egg-info/
