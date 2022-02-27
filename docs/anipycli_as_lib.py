@@ -76,7 +76,8 @@ entry = url_class.get_entry()
 # to print the status or not with the
 # cli option.
 dl_class = download.download(entry, cli=False)
-dl_class.multithread_dl()
+# downloads a m3u8 or a mp4 link
+dl_class.download()
 
 """PLAYER"""
 
