@@ -207,7 +207,7 @@ class videourl():
         m3u8 playlist, and change
         the m3u8 url to quality.
         """
-        print(json_data)
+
         qualitys = []
         quality_links = []
         for i in json_data: 
@@ -230,4 +230,3 @@ class videourl():
             q = quality_links[-1]
         
         self.entry.stream_url = q
-        print(q)
