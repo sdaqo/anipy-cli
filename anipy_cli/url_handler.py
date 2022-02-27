@@ -166,10 +166,9 @@ class videourl():
     def decrypt_link(self):    
         splt_url = urlsplit(self.entry.embed_url)
         video_id = parse_qs(splt_url.query)['id'][0]
-        # no permanent solution, I was just lazy
+        # no permanent solution
         cmd = f'printf \"{video_id}\" | openssl enc -aes-256-cbc -nosalt -e -K \"{self.key}\" -iv \"{self.iv}\" -a'
         return sp.getoutput(cmd)
-        # return json
         
         # the code where I gave up, leaving this here for the future
 
@@ -204,8 +203,10 @@ class videourl():
     def quality(self, json_data):
         """
         Get quality options from
-        m3u8 playlist, and change
-        the m3u8 url to quality.
+        JSON repons and change
+        stream url to the either 
+        the quality option that was picked,
+        or the best one avalible.
         """
         if 'peliscdn' in json_data[0]['file']:
             r = self.session.get(json_data[0]['file'], headers={'referer': self.entry.embed_url})
