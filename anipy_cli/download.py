@@ -61,7 +61,7 @@ class download():
             ) as bar:
                 for data in r.iter_content(chunk_size=1024):
                     size = out_file.write(data)
-                    bar.update(size)
+                    #bar.update(size)
         except KeyboardInterrupt:
             error('interrupted deleting partially downloaded file')
             fname.unlink()
@@ -77,7 +77,6 @@ class download():
         properly.
         """
         r = requests.get(self.entry.stream_url, headers=self.headers)
-        print(r.text)
         self.ts_link_names = [x for x in r.text.split('\n')]
         self.ts_link_names = [x for x in self.ts_link_names if not x.startswith('#')]
         
@@ -91,8 +90,10 @@ class download():
         self.link_count = len(self.ts_links)
          
     def download_ts(self, ts_link, fname):
-        r = self.session.get(ts_link, headers=self.headers)
-        response_err(r, ts_link)
+        try:
+            r = self.session.get(ts_link, headers=self.headers)
+        except:
+            pass
         file_path = self.temp_folder / fname
         if self.cli:
             print(f'{colors.CYAN}Downloading Parts: {colors.RED}({self.counter}/{self.link_count}) {colors.END}' ,end='\r')
@@ -117,7 +118,7 @@ class download():
         self.counter = 0
 
         try:
-            with ThreadPoolExecutor(self.link_count) as pool:
+            with ThreadPoolExecutor(self.link_count / 2) as pool:
                 pool.map(self.download_ts, self.ts_links, self.ts_link_names)
         except KeyboardInterrupt:
             shutil.rmtree(self.temp_folder)
