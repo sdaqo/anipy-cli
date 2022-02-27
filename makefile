@@ -25,12 +25,13 @@ sys-install:
 	# old shell script was still there.
 	$(RM) $(PREFIX)/bin/anipy-cli
 	# Make a symlink to anipy-cli that is on the path
-	ln -s "$(PREFIX)/lib/anipy-cli.py" "$(PREFIX)/bin/anipy-cli"
+	ln -s "$(PREFIX)/lib/anipy-cli/anipy-cli.py" "$(PREFIX)/bin/anipy-cli"
 
 	# Now install the program to lib
-	cp -r anipy_cli "$(PREFIX)/lib"
-	cp anipy-cli.py "$(PREFIX)/lib"
-	chmod 775 "$(PREFIX)/lib/anipy-cli.py"
+	cp -r $(CURDIR) "$(PREFIX)/lib"
+
+	# Make it writable, so that the current default config works	
+	chmod -R 777 $(PREFIX)/lib/anipy-cli
 
 uninstall:
 	# Get rid of the symlink
