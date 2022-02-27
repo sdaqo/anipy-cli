@@ -207,17 +207,25 @@ class videourl():
         m3u8 playlist, and change
         the m3u8 url to quality.
         """
+        if 'peliscdn' in json_data[0]['file']:
+            r = self.session.get(json_data[0]['file'], headers={'referer': self.entry.embed_url})
+            qualitys = re.findall(r'(?<=\d\d\dx)\d+', r.text)
+            quality_links = [x for x in r.text.split('\n')]
+            quality_links = [x for x in quality_links if not x.startswith('#')]
+            qualitys.reverse()
+            quality_links.reverse()
 
-        qualitys = []
-        quality_links = []
-        for i in json_data: 
-            if i['label'] == 'Auto':
-                pass
-            else:
-                qualitys.append(i['label'])
-                quality_links.append(i['file'])
-        
-        qualitys = [x.replace(' P', '') for x in qualitys]
+        else:
+            qualitys = []
+            quality_links = []
+            for i in json_data: 
+                if i['label'] == 'Auto':
+                    pass
+                else:
+                    qualitys.append(i['label'])
+                    quality_links.append(i['file'])
+            
+            qualitys = [x.replace(' P', '') for x in qualitys]
 
         if self.qual in qualitys:
             q = quality_links[qualitys.index(self.qual)]
@@ -229,4 +237,7 @@ class videourl():
             error("quality not avalible, using default")
             q = quality_links[-1]
         
-        self.entry.stream_url = q
+        if 'peliscdn' in json_data[0]['file']:
+            self.entry.stream_url = json_data[0]['file'].replace('playlist.m3u8', '') + q
+        else:
+            self.entry.stream_url = q

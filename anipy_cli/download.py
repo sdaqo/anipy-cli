@@ -5,7 +5,7 @@ from tqdm import tqdm
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from concurrent.futures import ThreadPoolExecutor
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
 
 from .misc import response_err, error, keyboard_inter
@@ -40,8 +40,8 @@ class download():
             print(f'{colors.CYAN}Downloading:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} {colors.END}')
 
         if 'm3u8' in self.entry.stream_url:
-            self.multithread_m3u8_dl()
             print(f'{colors.CYAN}Type:{colors.RED} m3u8')
+            self.multithread_m3u8_dl()
         elif 'mp4' in self.entry.stream_url:
             print(f'{colors.CYAN}Type:{colors.RED} mp4')
             self.mp4_dl(self.entry.stream_url)
@@ -77,10 +77,17 @@ class download():
         properly.
         """
         r = requests.get(self.entry.stream_url, headers=self.headers)
+        print(r.text)
         self.ts_link_names = [x for x in r.text.split('\n')]
         self.ts_link_names = [x for x in self.ts_link_names if not x.startswith('#')]
-        self.ts_links = [urljoin(self.entry.stream_url, x.strip()) for x in self.ts_link_names]
-        self.link_count = len(self.ts_links)
+        
+        if 'peliscdn' in self.entry.stream_url:
+            self.ts_links = self.ts_link_names    
+            self.ts_link_names = [urlsplit(x).path for x in self.ts_link_names]
+            self.ts_link_names = [x.split('/')[-1] for x in self.ts_link_names]
+        else:
+            self.ts_links = [urljoin(self.entry.stream_url, x.strip()) for x in self.ts_link_names]
+
         self.link_count = len(self.ts_links)
          
     def download_ts(self, ts_link, fname):
