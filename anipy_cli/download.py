@@ -1,8 +1,9 @@
 import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 import shutil
 import sys
+from tqdm import tqdm
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin
 
@@ -24,6 +25,49 @@ class download():
         self.headers = {"referer": self.entry.embed_url}
         self.cli = cli
 
+    def download(self):
+        self.show_folder = config.download_folder_path / f'{self.entry.show_name}'
+        config.download_folder_path.mkdir(exist_ok=True)
+        self.show_folder.mkdir(exist_ok=True)
+        self.session = requests.Session()
+        retry = Retry(connect=3, backoff_factor=0.5)
+        adapter = HTTPAdapter(max_retries=retry)
+        self.session.mount('http://', adapter)
+        self.session.mount('https://', adapter)
+        
+        if self.cli:
+            print('-'*20)
+            print(f'{colors.CYAN}Downloading:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} {colors.END}')
+
+        if 'm3u8' in self.entry.stream_url:
+            self.multithread_m3u8_dl()
+            print(f'{colors.CYAN}Type:{colors.RED} m3u8')
+        elif 'mp4' in self.entry.stream_url:
+            print(f'{colors.CYAN}Type:{colors.RED} mp4')
+            self.mp4_dl(self.entry.stream_url)
+
+    def mp4_dl(self, dl_link):
+        r = self.session.get(dl_link, headers=self.headers, stream=True)
+        response_err(r, dl_link)
+        total = int(r.headers.get('content-length', 0))
+        fname = self.show_folder / f'{self.entry.show_name}_{self.entry.ep}.mp4'
+        try:
+            with fname.open('wb') as out_file, tqdm(
+                   desc=self.entry.show_name,
+                   total=total,
+                   unit='iB',
+                   unit_scale=True,
+                   unit_divisor=1024,
+            ) as bar:
+                for data in r.iter_content(chunk_size=1024):
+                    size = out_file.write(data)
+                    bar.update(size)
+        except KeyboardInterrupt:
+            error('interrupted deleting partially downloaded file')
+            fname.unlink()
+
+        print(f"{colors.CYAN}Download finished.")
+    
     def get_ts_links(self):
         """ 
         Gets all ts links
@@ -37,21 +81,23 @@ class download():
         self.ts_link_names = [x for x in self.ts_link_names if not x.startswith('#')]
         self.ts_links = [urljoin(self.entry.stream_url, x.strip()) for x in self.ts_link_names]
         self.link_count = len(self.ts_links)
+        self.link_count = len(self.ts_links)
          
     def download_ts(self, ts_link, fname):
         r = self.session.get(ts_link, headers=self.headers)
         response_err(r, ts_link)
         file_path = self.temp_folder / fname
-        print(f'{colors.CYAN}Downloading Parts: {colors.RED}({self.counter}/{self.link_count}) {colors.END}' ,end='\r')
+        if self.cli:
+            print(f'{colors.CYAN}Downloading Parts: {colors.RED}({self.counter}/{self.link_count}) {colors.END}' ,end='\r')
         with open(file_path, 'wb') as file:
             for data in r.iter_content(chunk_size=1024):
                 file.write(data)
         self.counter += 1 
         
-    def multithread_dl(self):
+    def multithread_m3u8_dl(self):
         """
         Multithread download 
-        function for ts links.
+        function for m3u8 links.
         - Creates show and temp folder
         - Starts ThreadPoolExecutor instance
           and downloads all ts links
@@ -59,21 +105,9 @@ class download():
         - Delets temp folder
         """
         self.get_ts_links()
-        self.show_folder = config.download_folder_path / f'{self.entry.show_name}'
         self.temp_folder = self.show_folder / f'{self.entry.ep}_temp'
-        config.download_folder_path.mkdir(exist_ok=True)
-        self.show_folder.mkdir(exist_ok=True)
         self.temp_folder.mkdir(exist_ok=True) 
         self.counter = 0
-        self.session = requests.Session()
-        retry = Retry(connect=3, backoff_factor=0.5)
-        adapter = HTTPAdapter(max_retries=retry)
-        self.session.mount('http://', adapter)
-        self.session.mount('https://', adapter)
-
-        if self.cli:
-            print('-'*20)
-            print(f'{colors.CYAN}Downloading: {colors.RED} {self.entry.show_name} EP: {self.entry.ep} {colors.END}')
 
         try:
             with ThreadPoolExecutor(self.link_count) as pool:

@@ -21,11 +21,10 @@ https://github.com/Dankni95/ulauncher-anime
 - No more Spagehtti code
 
 ### Notes:
-For now some (not a lot) shows's stream url is not able to be fetched because they are played from the streamsb server (e.g. sangatsu no lion) which has dirty javascript to avoid scraping. No patch for this is implemented yet.
-
+Some episodes (not a lot) are not able to be downloaded (they can be watched), because they have weird links, that I could get working but I won't bother for now because the amount of episodes that are effected is pretty low. (example: leadale ep 8)
 
 # Dependencies:
-- `Python 3.10`
+- `Python 3`
 
 - `mpv`
 
@@ -33,6 +32,7 @@ For now some (not a lot) shows's stream url is not able to be fetched because th
 
 - `requests`
 
+- `openssl`
 
 # Installation
 
@@ -96,6 +96,16 @@ For "documentation", in the docs folder is a `anipycli_as_lib.py` file. You can 
 #### Important:
 To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
+### Other Dependencies
+
+#### MPV
+For mpv installation look here: https://mpv.io/installation/
+
+#### OpenSSL
+- On linux openssl should be preinstalled, on most of the disros, if not you can probably download it from your package manager
+- On Windows you can install it via [chocolatey](https://chocolatey.org/install#install-step1) with the command `choco install openssl`
+
+    
 # Usage
 To start `anipy-cli` do:
 

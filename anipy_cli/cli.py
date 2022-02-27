@@ -55,7 +55,7 @@ def download_cli(quality):
         url_class = videourl(show_entry, quality)
         url_class.stream_url()
         show_entry = url_class.get_entry()
-        download(show_entry).multithread_dl()
+        download(show_entry).download()
 
 def history_cli(quality):
     """

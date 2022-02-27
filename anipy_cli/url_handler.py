@@ -1,7 +1,15 @@
+import time
 import sys
+import json
 import requests
+from urllib.parse import urlsplit, parse_qs
+from requests import Request
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import re
+import os
 from bs4 import BeautifulSoup
+import subprocess as sp
 
 from .misc import response_err, error, loc_err
 from .colors import colors
@@ -129,8 +137,16 @@ class videourl():
     stream url. 
     """
     def __init__(self, entry, quality) -> None:
-       self.entry = entry 
-       self.qual = quality
+        self.entry = entry 
+        self.qual = quality
+        self.session = requests.Session()
+        retry = Retry(connect=3, backoff_factor=0.5)
+        adapter = HTTPAdapter(max_retries=retry)
+        self.session.mount('http://', adapter)
+        self.session.mount('https://', adapter)
+        self.ajax_url = "https://gogoplay.io/encrypt-ajax.php"
+        self.key = '3235373436353338353932393338333936373634363632383739383333323838'
+        self.iv = '34323036393133333738303038313335'
     
     def get_entry(self):
         """
@@ -140,50 +156,78 @@ class videourl():
         return self.entry
 
     def embed_url(self):    
-        r = requests.get(self.entry.ep_url)
+        r = self.session.get(self.entry.ep_url)
         response_err(r, self.entry.ep_url)
         soup = BeautifulSoup(r.content, "html.parser")
         link = soup.find("a", {"href": "#", "rel": "100"})
         loc_err(link, self.entry.ep_url, "embed-url")
         self.entry.embed_url = f'https:{link["data-video"]}'
     
+    def decrypt_link(self):    
+        splt_url = urlsplit(self.entry.embed_url)
+        video_id = parse_qs(splt_url.query)['id'][0]
+        # no permanent solution, I was just lazy
+        cmd = f'printf \"{video_id}\" | openssl enc -aes-256-cbc -nosalt -e -K \"{self.key}\" -iv \"{self.iv}\" -a'
+        return sp.getoutput(cmd)
+        # return json
+        
+        # the code where I gave up, leaving this here for the future
+
+        #BLOCK_SIZE = 16
+        #pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
+        #
+        #private_key = hashlib.sha256(self.key.encode("utf-8")).digest()
+        #iv = binascii.unhexlify(self.iv) 
+        #video_id = pad(video_id).encode('utf-8')
+        #cipher = AES.new(private_key, AES.MODE_CBC, iv)
+        #print(base64.b64encode(cipher.encrypt(video_id)))
+        #ajax = base64.b64encode(iv + cipher.encrypt(video_id))
+
     def stream_url(self):
         """ 
         Fetches stream url and executes
         quality function.
-        For now some shows's stream url is  not able
-        to be fetched because they are played
-        from the streamsb server (e.g. sangatsu no lion)
-        which has dirty javascript to avoid scraping.
         """
         if not self.entry.embed_url:
             self.embed_url()
-            
-        r = requests.get(self.entry.embed_url)
+        
+        ajax = self.decrypt_link()
+        headers = {'x-requested-with': 'XMLHttpRequest'}
+        data = {'id': ajax, 'time': '69420691337800813569'}
+        r = self.session.post(self.ajax_url, headers=headers, data=data)
         response_err(r, self.entry.embed_url)
-        self.entry.stream_url = re.search(r"(?<=file:\s\')https:.*(m3u8)|(mp4)", r.text)
-        loc_err(self.entry.stream_url, self.entry.embed_url, 'stream-url')
-        self.entry.stream_url = self.entry.stream_url.group()
-        self.quality()
+        r = r.text.replace('\\', '')
+        json_resp = json.loads(r)
+        source_data = [x for x in json_resp['source']]
+        self.quality(source_data)
 
-    def quality(self):
+    def quality(self, json_data):
         """
         Get quality options from
         m3u8 playlist, and change
         the m3u8 url to quality.
         """
-        r = requests.get(self.entry.stream_url, headers={"referer": self.entry.embed_url })
-        response_err(r, self.entry.stream_url) 
-        qualitys = re.findall(r'(?<=NAME=")(.+?(?=p))', r.text)
+        print(json_data)
+        qualitys = []
+        quality_links = []
+        for i in json_data: 
+            if i['label'] == 'Auto':
+                pass
+            else:
+                qualitys.append(i['label'])
+                quality_links.append(i['file'])
         
+        qualitys = [x.replace(' P', '') for x in qualitys]
+
         if self.qual in qualitys:
-            q = qualitys[qualitys.index(self.qual)]
+            q = quality_links[qualitys.index(self.qual)]
         elif self.qual == 'best' or self.qual == None:
-            q = qualitys[-1]
+            q = quality_links[-1]
         elif self.qual == 'worst':
-            q = qualitys[0]
+            q = quality_links[0]
         else:
             error("quality not avalible, using default")
-            return None
+            q = quality_links[-1]
         
-        self.entry.stream_url = self.entry.stream_url.replace('m3u8', f'{q}.m3u8') 
+        self.entry.stream_url = q
+        print(q)

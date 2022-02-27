@@ -66,11 +66,6 @@ url_class = url_handler.videourl(entry, 'best')
 url_class.stream_url()
 # get your entry back filled with stream and embed url fields
 entry = url_class.get_entry()
-# Note:  For now some shows's stream url is  not able
-#        to be fetched because they are played
-#        from the streamsb server (e.g. sangatsu no lion)
-#        which has dirty javascript to avoid scraping.
-
 
 """DOWNLOAD"""
 
