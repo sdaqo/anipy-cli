@@ -5,3 +5,4 @@ anipy_cli/download/
 dist/
 build/
 anipy_cli.egg-info/
+user_files/

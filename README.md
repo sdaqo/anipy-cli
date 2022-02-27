@@ -1,11 +1,10 @@
 
 ![waving](https://capsule-render.vercel.app/api?type=waving&height=200&text=sdaqo/anipy-cli&fontAlign=60&fontAlignY=40&color=021224&fontColor=b0b8b2&animation=fadeIn)
 
-> ## Anipy-cli now fresh and new: anipy-cli 2.0!
+> ## Anipy-cli now new and improved: anipy-cli 2.0!
 
 ### Little tool written in python to watch anime from the terminal (the better way to watch anime)
 ### Scrapes: https://gogoanime.wiki
-
 
 
 ### Other versions:
@@ -22,11 +21,7 @@ https://github.com/Dankni95/ulauncher-anime
 - No more Spagehtti code
 
 ### Notes:
-For now some (not a lot) shows's stream url is  not able
-to be fetched because they are played
-from the streamsb server (e.g. sangatsu no lion)
-which has dirty javascript to avoid scraping.
-No patch for this is implemented yet.
+For now some (not a lot) shows's stream url is not able to be fetched because they are played from the streamsb server (e.g. sangatsu no lion) which has dirty javascript to avoid scraping. No patch for this is implemented yet.
 
 
 # Dependencies:
@@ -45,11 +40,33 @@ No patch for this is implemented yet.
 
 #### Linux:
 
-- `sudo make all` to install dependencies and anipy-cli
-- `sudo make install` to install anipy-cli
-- `sudo make uninstall` to uninstall anipy-cli
+First, run `make` to install the dependencies. After that, chose an installation method below. 
 
-To run just do `anipy-cli` 
+##### Normal Install
+
+This is the default and recommended method. 
+
+Pros:
+    - Works well with default config settings
+    - Will not need to reinstall to have changes in config or other code applied
+Cons:
+    - Requires keeping and not moving this repo folder after install
+
+To install via this method, run `sudo make install`.
+If you would ever like to uninstall, run `sudo make uninstall`.
+
+##### Persistent Install
+
+This method does still work and will allow for viewing anime with ease via the commandline, however it is new and this project does not support it as well.
+
+Pros:
+    - Allows this folder to deleted or moved after install if you do not want it
+Cons:
+    - The default downloads path causes downloads to be in `/usr/local/lib/anipy-cli/downloads` 
+    - If the config.py file is edited from the cloned repo (this folder) you will need to reinstall it
+
+To install via this method, run `sudo make sys-install`.
+If you would ever like to uninstall, run `sudo make uninstall`.
 
 #### Windows:
 
@@ -67,7 +84,7 @@ To uninstall:
 - Start a CMD session as administrator
 - CD in the win folder of anipy-cli
 - Type `win-uninstaller.bat`
-- It will now delete the bin folder, but it will NOT delte the entry to the path variable, you should delete that yourself.
+- It will now delete the bin folder, but it will NOT delete the entry to the path variable, you should delete that yourself.
 
 ### For libary usage
 
@@ -93,17 +110,18 @@ or
 ### Set video quality
 `anipy-cli -q "Your desired quality"` or `anipy-cli -q "Your desired quality"`
 
-By default `ani-py-cli` tries to get the best quality avalible. You can spify a quality like so: `360/720/1080...` (without the "p" at the end)
+By default `anipy-cli` tries to get the best quality avalible. You can specify a quality like so: `360/720/1080...` (without the "p" at the end)
 
-You can also use  `best` or ` worst`.
+You can also use `best` or ` worst`.
 
 ### Download
 
 `anipy-cli -d`
 
-This will drop you in the download mode, from ther you can search an anime and download it. You can specify a range of episodes like so `1-4` or `4-20` etc.
+This will drop you in the download mode, from there you can search for an anime and download it. You can specify a range of episodes like so `1-4` or `4-20` etc.
 
 ### History
+
 `anipy-cli -H`
 
 This will let you pick one of your anime-episodes that you previously watched and resumes playback at the time you exited the video player.
@@ -147,4 +165,4 @@ Resume playback is deprecated. Use https://github.com/AN3223/dotfiles/blob/maste
 
 # Credits
 #### Heavily inspired by https://github.com/pystardust/ani-cli/
-#### Migueldeoleiros for the makefile 
+#### [Migueldeoleiros](https://github.com/migueldeoleiros) and [Dabbing-Guy](https://github.com/Dabbing-Guy) for the makefile 
