@@ -61,7 +61,7 @@ class download():
             ) as bar:
                 for data in r.iter_content(chunk_size=1024):
                     size = out_file.write(data)
-                    #bar.update(size)
+                    bar.update(size)
         except KeyboardInterrupt:
             error('interrupted deleting partially downloaded file')
             fname.unlink()
