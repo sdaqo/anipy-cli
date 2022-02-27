@@ -11,7 +11,7 @@ install:
 	# old shell script was still there.
 	$(RM) $(PREFIX)/bin/anipy-cli
 	# Make a symlink to anipy-cli that is on the path
-	ln -s "anipy-cli.py" "$(PREFIX)/bin/anipy-cli"
+	ln -s "$(CURDIR)/anipy-cli.py" "$(PREFIX)/bin/anipy-cli"
 	# Make sure that anipy-cli.py is executable
 	chmod +x "anipy-cli.py"
 
