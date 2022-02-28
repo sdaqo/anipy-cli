@@ -19,9 +19,10 @@ def mpv(entry):
                             f'{config.mpv_path}', 
                             f'--force-media-title={media_title}',
                             f'--http-header-fields=Referer: {entry.embed_url}',
-                            f'{config.mpv_commandline_options}',
                             f'{entry.stream_url}'
                          ]
+    for x in config.mpv_commandline_options: 
+        mpv_player_command.insert(3, x)
 
     if os.name in ('nt', 'dos'):
         sub_proc = sp.Popen(mpv_player_command)
