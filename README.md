@@ -28,7 +28,7 @@ https://github.com/Dankni95/ulauncher-anime
 - `BeautifulSoup`
 
 - `requests`
-`
+
 
 # Installation
 
