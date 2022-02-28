@@ -172,3 +172,4 @@ Resume playback is deprecated. Use https://github.com/AN3223/dotfiles/blob/maste
 # Credits
 #### Heavily inspired by https://github.com/pystardust/ani-cli/
 #### [Migueldeoleiros](https://github.com/migueldeoleiros) and [Dabbing-Guy](https://github.com/Dabbing-Guy) for the makefile 
+#### All contributors for contibuting
