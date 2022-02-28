@@ -20,9 +20,6 @@ https://github.com/Dankni95/ulauncher-anime
   not yet implemented
 - No more Spagehtti code
 
-### Notes:
-Some episodes (not a lot) are not able to be downloaded (they can be watched), because they have weird links, that I could get working but I won't bother for now because the amount of episodes that are effected is pretty low. (example: leadale ep 8)
-
 # Dependencies:
 - `Python 3`
 
@@ -31,8 +28,7 @@ Some episodes (not a lot) are not able to be downloaded (they can be watched), b
 - `BeautifulSoup`
 
 - `requests`
-
-- `openssl`
+`
 
 # Installation
 
