@@ -57,8 +57,8 @@ class epHandler():
         Cli function to pick a episode from 1 to
         the latest avalible.
         """
-        if self.entry.latest_ep == 0:
-            self.get_latest()
+       
+        self.get_latest()
 
         while True:
             which_episode = input(colors.END + "Episode " + colors.GREEN + f"[1-{self.entry.latest_ep}]"
