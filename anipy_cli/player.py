@@ -2,6 +2,7 @@ import os
 import subprocess as sp 
 
 from .history import history
+from . import config
 
 def mpv(entry):
     """
@@ -12,14 +13,16 @@ def mpv(entry):
     sub_proc.kill()
     """
     
-    media_titel = entry.show_name + " - EP: " + str(entry.ep)
+    media_title = entry.show_name + " - EP: " + str(entry.ep)
                          
     mpv_player_command = [
-                            "mpv", 
-                            f'--force-media-title={media_titel}',
+                            f'{config.mpv_path}', 
+                            f'--force-media-title={media_title}',
                             f'--http-header-fields=Referer: {entry.embed_url}',
                             f'{entry.stream_url}'
                          ]
+    for x in config.mpv_commandline_options: 
+        mpv_player_command.insert(3, x)
 
     if os.name in ('nt', 'dos'):
         sub_proc = sp.Popen(mpv_player_command)
