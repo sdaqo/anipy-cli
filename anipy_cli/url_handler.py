@@ -183,10 +183,10 @@ class videourl():
             bytearray(self.pad(video_id+"\n"), "utf-8"))
         ajax = base64.b64encode(encrypted)
 
-        return ajax.decode('utf-8')
+        return str(ajax).replace("'", "")[1:]
 
     def stream_url(self):
-        """
+        """ 
         Fetches stream url and executes
         quality function.
         """
@@ -227,20 +227,18 @@ class videourl():
             quality_links = [x for x in quality_links if not x.startswith('#')]
             qualitys.reverse()
             quality_links.reverse()
-            quality_links = list(filter(None, quality_links))
 
 
-        else:
-            qualitys = []
-            quality_links = []
-            for i in json_data:
-                if i['label'] == 'Auto':
-                    pass
-                else:
-                    qualitys.append(i['label'])
-                    quality_links.append(i['file'])
+        qualitys = []
+        quality_links = []
+        for i in json_data:
+            if i['label'] == 'auto':
+                pass
+            else:
+                qualitys.append(i['label'])
+                quality_links.append(i['file'])
 
-            qualitys = [x.replace(' P', '') for x in qualitys]
+        qualitys = [x.replace(' P', '') for x in qualitys]
 
 
         if self.qual in qualitys:
@@ -253,20 +251,4 @@ class videourl():
             error("quality not avalible, using default")
             q = quality_links[-1]
 
-
-
-        if 'peliscdn' in json_data[0]['file']:
-            self.entry.stream_url = json_data[0]['file'].replace(
-                'playlist.m3u8', '') + q
-        else:
-            self.entry.stream_url = q
-
-
-        chosen_quality = q.split("/")
-        
-        for _qual in chosen_quality:
-
-            if "EP" in _qual:
-                self.entry.quality = _qual.split(".")[4]
-
-        if not self.entry.quality: self.entry.quality = str(qualitys[quality_links.index(q)] + "p")
+        self.entry.stream_url = q
