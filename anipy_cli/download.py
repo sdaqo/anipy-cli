@@ -37,7 +37,7 @@ class download():
         
         if self.cli:
             print('-'*20)
-            print(f'{colors.CYAN}Downloading:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}')
+            print(f'{colors.CYAN}Downloading:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} {colors.END}')
 
         if 'm3u8' in self.entry.stream_url:
             print(f'{colors.CYAN}Type:{colors.RED} m3u8')

@@ -30,7 +30,6 @@ class entry:
     stream_url: str = ""
     ep: int = 0
     latest_ep: int = 0
-    quality: str = ""
 
 def clear_console():
     os.system('cls' if os.name == 'nt' else 'clear')
