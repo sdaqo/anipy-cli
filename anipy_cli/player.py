@@ -12,7 +12,8 @@ def mpv(entry):
     sub_proc.kill()
     """
     
-    media_titel = entry.show_name + " - EP: " + str(entry.ep)
+    media_titel = entry.show_name + " - EP: " + str(entry.ep) + " - " + str(entry.quality)
+
                          
     mpv_player_command = [
                             "mpv", 
