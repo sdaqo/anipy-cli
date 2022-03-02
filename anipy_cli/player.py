@@ -13,7 +13,8 @@ def mpv(entry):
     sub_proc.kill()
     """
     
-    media_title = entry.show_name + " - EP: " + str(entry.ep)
+    media_title = entry.show_name + " - EP: " + str(entry.ep) + " - " + str(entry.quality)
+
                          
     mpv_player_command = [
                             f'{config.mpv_path}', 

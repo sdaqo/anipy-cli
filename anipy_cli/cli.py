@@ -134,7 +134,7 @@ class menu():
         clear_console()
         print(
             colors.GREEN + 
-            f"Playing: {self.entry.show_name} | " + 
+            f"Playing: {self.entry.show_name} {self.entry.quality} | " + 
             colors.RED + 
             f"{self.entry.ep}/{self.entry.latest_ep}")
 
