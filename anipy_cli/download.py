@@ -2,8 +2,7 @@ import requests
 import shutil
 import sys
 from tqdm import tqdm
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter, Retry
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin, urlsplit
 
@@ -37,7 +36,7 @@ class download():
         
         if self.cli:
             print('-'*20)
-            print(f'{colors.CYAN}Downloading:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} {colors.END}')
+            print(f'{colors.CYAN}Downloading:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}')
 
         if 'm3u8' in self.entry.stream_url:
             print(f'{colors.CYAN}Type:{colors.RED} m3u8')

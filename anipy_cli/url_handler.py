@@ -2,8 +2,7 @@ import sys
 import json
 import requests
 from urllib.parse import urlsplit, parse_qs
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter, Retry
 import re
 from bs4 import BeautifulSoup
 import binascii
@@ -183,10 +182,10 @@ class videourl():
             bytearray(self.pad(video_id+"\n"), "utf-8"))
         ajax = base64.b64encode(encrypted)
 
-        return str(ajax).replace("'", "")[1:]
+        return ajax.decode('utf-8')
 
     def stream_url(self):
-        """ 
+        """
         Fetches stream url and executes
         quality function.
         """
@@ -194,7 +193,7 @@ class videourl():
             self.embed_url()
 
         ajax = self.decrypt_link()
-        headers = {'x-requested-with': 'XMLHttpRequest'}
+        headers = {'x-requested-with': 'XMLHttpRequest', "referer": "https://gogoanime.film/"}
         data = {'id': ajax, 'time': '69420691337800813569'}
         r = self.session.post(self.ajax_url, headers=headers, data=data)
 
@@ -214,25 +213,33 @@ class videourl():
         the quality option that was picked,
         or the best one avalible.
         """
+
+        self.entry.quality = ""
         if 'peliscdn' in json_data[0]['file']:
             r = self.session.get(json_data[0]['file'], headers={
                                  'referer': self.entry.embed_url})
+
+
             qualitys = re.findall(r'(?<=\d\d\dx)\d+', r.text)
             quality_links = [x for x in r.text.split('\n')]
             quality_links = [x for x in quality_links if not x.startswith('#')]
             qualitys.reverse()
             quality_links.reverse()
+            quality_links = list(filter(None, quality_links))
 
-        qualitys = []
-        quality_links = []
-        for i in json_data:
-            if i['label'] == 'auto':
-                pass
-            else:
-                qualitys.append(i['label'])
-                quality_links.append(i['file'])
 
-        qualitys = [x.replace(' P', '') for x in qualitys]
+        else:
+            qualitys = []
+            quality_links = []
+            for i in json_data:
+                if i['label'] == 'Auto':
+                    pass
+                else:
+                    qualitys.append(i['label'])
+                    quality_links.append(i['file'])
+
+            qualitys = [x.replace(' P', '') for x in qualitys]
+
 
         if self.qual in qualitys:
             q = quality_links[qualitys.index(self.qual)]
@@ -244,8 +251,20 @@ class videourl():
             error("quality not avalible, using default")
             q = quality_links[-1]
 
+
+
         if 'peliscdn' in json_data[0]['file']:
             self.entry.stream_url = json_data[0]['file'].replace(
                 'playlist.m3u8', '') + q
         else:
             self.entry.stream_url = q
+
+
+        chosen_quality = q.split("/")
+        
+        for _qual in chosen_quality:
+
+            if "EP" in _qual:
+                self.entry.quality = _qual.split(".")[4]
+
+        if not self.entry.quality: self.entry.quality = str(qualitys[quality_links.index(q)] + "p")
