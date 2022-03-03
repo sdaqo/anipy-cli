@@ -147,15 +147,16 @@ class videourl():
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount('http://', adapter)
         self.session.mount('https://', adapter)
-        self.ajax_url = "https://gogoplay.io/encrypt-ajax.php"
+        self.ajax_url = "https://gogoplay4.com/encrypt-ajax.php"
 
         self.mode = AES.MODE_CBC
         self.size = AES.block_size
         self.padder = "\x08\x0e\x03\x08\t\x03\x04\t"
         self.pad = lambda s: s + self.padder[(len(self.padder) - len(s) % 16) :]
-        self.iv = b"1285672985238393"
-        self.key = b"25716538522938396164662278833288"
-
+        self.iv = binascii.unhexlify(
+            bytes('31323835363732393835323338333933'.encode("utf-8")))
+        self.key = binascii.unhexlify(bytes(
+            "3235373136353338353232393338333936313634363632323738383333323838".encode("utf-8")))
     def get_entry(self):
         """
         Returns the entry with stream and emebed url fields filled
@@ -167,7 +168,7 @@ class videourl():
         r = self.session.get(self.entry.ep_url)
         response_err(r, self.entry.ep_url)
         soup = BeautifulSoup(r.content, "html.parser")
-        link = soup.find("a", {"href": "#", "rel": "100"})
+        link = soup.find("a", {"class": "active", "rel": "1"})
         loc_err(link, self.entry.ep_url, "embed-url")
         self.entry.embed_url = f'https:{link["data-video"]}'
 
@@ -178,13 +179,16 @@ class videourl():
             )
         )
 
-    def decrypt_link(self, data):
-        cryptor = AES.new(self.key, self.mode, self.iv)
-        encrypted = cryptor.decrypt(
-                base64.b64decode(data))
-        ajax = base64.b64encode(encrypted)
+    def aes_decrypt(self, data):
+        return AES.new(self.key, self.mode, iv=self.iv).decrypt(
+            base64.b64decode(data)
+        )
 
-        return ajax
+    def get_crypto(self):
+        r = self.session.get(self.entry.embed_url)
+        soup = BeautifulSoup(r.text, "html.parser")
+        crypto = soup.find("script", {"data-name": "crypto"})
+        return crypto["data-value"]
 
     def stream_url(self):
         """
@@ -194,21 +198,21 @@ class videourl():
         if not self.entry.embed_url:
             self.embed_url()
 
-        splt_url = urlsplit(self.entry.embed_url)
-        video_id = parse_qs(splt_url.query)['id'][0]
 
-        ajax = self.decrypt_link(video_id)
-        ajax = ajax.decode()
-        print(ajax)
+        crypto = self.get_crypto()
+        id = self.aes_decrypt(crypto)
+        id = id[: id.index(b"&")].decode()
+        id = self.aes_encrypt(id).decode()
+        
         headers = {'x-requested-with': 'XMLHttpRequest', "referer": "https://gogoanime.film/"}
-        data = {'id': self.aes_encrypt(ajax).decode()}
+        data = {'id': id}
         r = self.session.post(self.ajax_url, headers=headers, data=data)
         response_err(r, self.entry.embed_url)
         r = r.text
         print(r)
         json_resp = json.loads(r)
         json_resp = json.loads(
-             self.decrypt_link(json_resp['data'])
+             self.aes_decrypt(json_resp['data'])
             .replace(b'o"<P{#meme":', b'e":[{"file":')
             .decode("utf-8")
             .strip("\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10")
