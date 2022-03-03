@@ -209,7 +209,6 @@ class videourl():
         r = self.session.post(self.ajax_url, headers=headers, data=data)
         response_err(r, self.entry.embed_url)
         r = r.text
-        print(r)
         json_resp = json.loads(r)
         json_resp = json.loads(
              self.aes_decrypt(json_resp['data'])
