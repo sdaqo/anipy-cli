@@ -34,15 +34,15 @@ https://github.com/Dankni95/ulauncher-anime
 
 Recommended installation:
 
-`python3 -m pip install git+https://github.com/sdaqo/anipy-cli`
+`python3 -m pip install anipy-cli`
 
 Other methodes can be found in [docs/install.md](https://github.com/sdaqo/anipy-cli/blob/master/docs/install.md)
 
-## For libary usage
+### For libary usage
 
 Use the recommended installation
 
-### Important:
+#### Important:
 To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
 
