@@ -32,7 +32,7 @@ https://github.com/Dankni95/ulauncher-anime
 
 # Installation
 
-## Recommended installation
+Recommended installation:
 
 `python3 -m pip install git+https://github.com/sdaqo/anipy-cli`
 
