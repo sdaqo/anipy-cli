@@ -151,12 +151,10 @@ class videourl():
 
         self.mode = AES.MODE_CBC
         self.size = AES.block_size
-        self.pad = lambda s: s + (self.size - len(s) %
-                                  self.size) * chr(self.size - len(s) % self.size)
-        self.iv = binascii.unhexlify(
-            bytes('34323036393133333738303038313335'.encode("utf-8")))
-        self.key = binascii.unhexlify(bytes(
-            "3235373436353338353932393338333936373634363632383739383333323838".encode("utf-8")))
+        self.padder = "\x08\x0e\x03\x08\t\x03\x04\t"
+        self.pad = lambda s: s + self.padder[(len(self.padder) - len(s) % 16) :]
+        self.iv = b"1285672985238393"
+        self.key = b"25716538522938396164662278833288"
 
     def get_entry(self):
         """
@@ -173,16 +171,20 @@ class videourl():
         loc_err(link, self.entry.ep_url, "embed-url")
         self.entry.embed_url = f'https:{link["data-video"]}'
 
-    def decrypt_link(self):
-        splt_url = urlsplit(self.entry.embed_url)
-        video_id = parse_qs(splt_url.query)['id'][0]
+    def aes_encrypt(self, data):
+        return base64.b64encode(
+            AES.new(self.key, self.mode, iv=self.iv).encrypt(
+                self.pad(data).encode()
+            )
+        )
 
+    def decrypt_link(self, data):
         cryptor = AES.new(self.key, self.mode, self.iv)
-        encrypted = cryptor.encrypt(
-            bytearray(self.pad(video_id+"\n"), "utf-8"))
+        encrypted = cryptor.decrypt(
+                base64.b64decode(data))
         ajax = base64.b64encode(encrypted)
 
-        return ajax.decode('utf-8')
+        return ajax
 
     def stream_url(self):
         """
@@ -192,15 +194,26 @@ class videourl():
         if not self.entry.embed_url:
             self.embed_url()
 
-        ajax = self.decrypt_link()
+        splt_url = urlsplit(self.entry.embed_url)
+        video_id = parse_qs(splt_url.query)['id'][0]
+
+        ajax = self.decrypt_link(video_id)
+        ajax = ajax.decode()
+        print(ajax)
         headers = {'x-requested-with': 'XMLHttpRequest', "referer": "https://gogoanime.film/"}
-        data = {'id': ajax, 'time': '69420691337800813569'}
+        data = {'id': self.aes_encrypt(ajax).decode()}
         r = self.session.post(self.ajax_url, headers=headers, data=data)
-
         response_err(r, self.entry.embed_url)
-        r = r.text.replace('\\', '')
-
+        r = r.text
+        print(r)
         json_resp = json.loads(r)
+        json_resp = json.loads(
+             self.decrypt_link(json_resp['data'])
+            .replace(b'o"<P{#meme":', b'e":[{"file":')
+            .decode("utf-8")
+            .strip("\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10")
+
+        )
 
         source_data = [x for x in json_resp['source']]
         self.quality(source_data)

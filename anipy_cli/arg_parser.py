@@ -43,5 +43,12 @@ def parse_args():
                             help="Seasonal Anime mode. Bulk download or binge watch newest episodes.",
     )
 
+    parser.add_argument("-c",
+                        "--config",
+                        required=False,
+                        dest="config",
+                        action="store_true",
+                        help="Print path to the config",
     
+    )   
     return parser.parse_args()

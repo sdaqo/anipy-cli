@@ -32,91 +32,32 @@ https://github.com/Dankni95/ulauncher-anime
 
 # Installation
 
-### For normal usage
+## Recommended installation
 
-#### Linux:
+`python3 -m pip install git+https://github.com/sdaqo/anipy-cli`
 
-First, run `make` to install the dependencies. After that, chose an installation method below. 
+Other methodes can be found in docs/install.md
 
-##### Normal Install
+## For libary usage
 
-This is the default and recommended method. 
+Use the recommended installation
 
-Pros:
-- Works well with default config settings
-- Will not need to reinstall to have changes in config or other code applied
-
-Cons:
-- Requires keeping and not moving this repo folder after install
-
-To install via this method, run `sudo make install`.
-If you would ever like to uninstall, run `sudo make uninstall`.
-
-##### Persistent Install
-
-This method does still work and will allow for viewing anime with ease via the commandline, however it is new and this project does not support it as well.
-
-Pros:
-- Allows this folder to deleted or moved after install if you do not want it
-
-Cons:
-- The default downloads path causes downloads to be in `/usr/local/lib/anipy-cli/downloads` 
-- If the config.py file is edited from the cloned repo (this folder) you will need to reinstall it
-
-To install via this method, run `sudo make sys-install`.
-If you would ever like to uninstall, run `sudo make uninstall`.
-
-#### Windows:
-
-The windows installer is somewhat unstable so please open an issue when errors occur.
-
-To install:
-- Start a CMD session as administrator
-- CD in the win folder of anipy-cli
-- Type `win-installer.bat`
-- It will now install python libs, create a bin folder in the root directory of anipy-cli that contains a anipy-cli.bat file and set a entry to the system path variable.
-- You may have to reboot your PC before going to the next step.
-- Now open a new cmd (if you want color support get windows terminal from microsoft store) and type `anipy-cli`
-
-To uninstall:
-- Start a CMD session as administrator
-- CD in the win folder of anipy-cli
-- Type `win-uninstaller.bat`
-- It will now delete the bin folder, but it will NOT delete the entry to the path variable, you should delete that yourself.
-
-### For libary usage
-
-For "documentation", in the docs folder is a `anipycli_as_lib.py` file. You can also directly look at the source code, most function have comments.
-- In the root directory do `python setup.py bdist_wheel`
-- A dist folder with a wheel file got created, go into it.
-- In the dist folder run `pip install file.whl`
-
-#### Important:
+### Important:
 To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
-### Other Dependencies
+
+
+## Other Dependencies
 
 #### MPV
 For mpv installation look here: https://mpv.io/installation/
 
-#### OpenSSL
-- On linux openssl should be preinstalled, on most of the disros, if not you can probably download it from your package manager
-- On Windows you can install it via [chocolatey](https://chocolatey.org/install#install-step1) with the command `choco install openssl`
 
     
 # Usage
-To start `anipy-cli` do:
 
-`python3 anipy-cli.py` (Note that all options down below have to also be run with this command)
-
-or
-
-`anipy-cli` (if anipy-cli was installed trough an installer)
-
-
-## Options
 ### Set video quality
-`anipy-cli -q "Your desired quality"` or `anipy-cli -q "Your desired quality"`
+`anipy-cli -q "Your desired quality"`
 
 By default `anipy-cli` tries to get the best quality avalible. You can specify a quality like so: `360/720/1080...` (without the "p" at the end)
 
@@ -155,6 +96,9 @@ Binge-watch or bulk-download the newest episodes of animes.
 You can change your seasonals.txt path in `config.py`
 
 ### Config File
+
+You can get the path to your config file with `anipy-cli -c`
+
 Change `config.py` if you want any of the options given there changed.
 
 # Features

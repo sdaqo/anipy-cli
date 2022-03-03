@@ -1,3 +1,4 @@
+import os
 import sys
 
 from .url_handler import epHandler, videourl
@@ -254,7 +255,9 @@ def main():
 
     elif args.history == True:
         history_cli(args.quality)
-       
+    
+    elif args.config == True:
+        print(os.path.realpath(__file__).replace('cli.py', 'config.py'))
     else:
         default_cli(args.quality)
 
