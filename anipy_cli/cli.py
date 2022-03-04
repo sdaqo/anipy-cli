@@ -1,3 +1,4 @@
+import time
 import os
 import sys
 
@@ -110,6 +111,46 @@ def history_cli(quality):
     sub_proc = mpv(show_entry)
     menu(show_entry, options, sub_proc, quality).print_and_input()
 
+def binge_cli(quality):
+    """
+    Cli function for the
+    -b flag.
+    """
+    print(colors.GREEN + "***Binge Mode***" + colors.END)
+
+    show_entry = entry()
+    query_class = query(input("Search: "), show_entry)
+    query_class.get_pages()
+    if query_class.get_links() == 0:
+        sys.exit()
+    show_entry = query_class.pick_show()
+    ep_class = epHandler(show_entry)
+    ep_list = ep_class.pick_range()
+    print(f'{colors.RED}To quit press CTRL+C')
+    try:
+        for i in ep_list:
+            show_entry.ep = int(i)
+            show_entry.embed_url = ""
+            ep_class = epHandler(show_entry)
+            show_entry = ep_class.gen_eplink()
+            print(
+                f'{colors.GREEN}Fetching links for: {colors.END}{show_entry.show_name}{colors.RED} | EP: {show_entry.ep}/{show_entry.latest_ep}')
+            url_class = videourl(show_entry, quality)
+            url_class.stream_url()
+            show_entry = url_class.get_entry()
+            sub_proc = mpv(show_entry)
+            while True:
+                poll = sub_proc.poll()
+                if poll is not None:
+                    break
+                time.sleep(0.2)
+
+    except KeyboardInterrupt:
+        try:
+            sub_proc.kill()
+        except:
+            pass
+        sys.exit()
 
 class menu():
     """
@@ -248,7 +289,7 @@ def main():
         download_cli(args.quality)         
 
     elif args.binge == True:
-        raise NotImplementedError
+        binge_cli(args.quality)
 
     elif args.seasonal == True:
         raise NotImplementedError
@@ -258,6 +299,7 @@ def main():
     
     elif args.config == True:
         print(os.path.realpath(__file__).replace('cli.py', 'config.py'))
+
     else:
         default_cli(args.quality)
 

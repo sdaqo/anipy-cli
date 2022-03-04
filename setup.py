@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name='anipy_cli',
     packages=find_packages(include=['anipy_cli']),
-    version='2.0.2',
+    version='2.1.0',
     description='Little tool in python to watch anime from the terminal (the better way to watch anime)',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -15,6 +15,5 @@ setup(
     url='https://github.com/sdaqo/anipy-cli',
     license='GPL-3.0',
     install_requires=['bs4', 'requests', 'tqdm', 'pycryptodomex'],
-    entry_points="[console_scripts]\nanipy-cli=anipy_cli.cli:main",
+    entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )
-

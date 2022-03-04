@@ -1,12 +1,11 @@
 import sys
 import json
 import requests
-from urllib.parse import urlsplit, parse_qs
-from requests.adapters import HTTPAdapter, Retry
 import re
-from bs4 import BeautifulSoup
 import binascii
 import base64
+from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
 
 from .misc import response_err, error, loc_err
@@ -157,6 +156,7 @@ class videourl():
             bytes('31323835363732393835323338333933'.encode("utf-8")))
         self.key = binascii.unhexlify(bytes(
             "3235373136353338353232393338333936313634363632323738383333323838".encode("utf-8")))
+
     def get_entry(self):
         """
         Returns the entry with stream and emebed url fields filled
@@ -188,6 +188,7 @@ class videourl():
         r = self.session.get(self.entry.embed_url)
         soup = BeautifulSoup(r.text, "html.parser")
         crypto = soup.find("script", {"data-name": "crypto"})
+        loc_err(crypto, self.entry.embed_url, "crypto")
         return crypto["data-value"]
 
     def stream_url(self):

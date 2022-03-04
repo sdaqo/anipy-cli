@@ -22,6 +22,7 @@ from anipy_cli import misc, history, query, download, url_handler, player, confi
 #        stream_url: str = "" # m3u8 link of embed_url
 #        ep: int = 0 # episode currently played/downloaded or whatever
 #        latest_ep: int = 0 # latest episode of the show
+#        quality: str = "" # current quality
 entry = misc.entry()
 
 
@@ -69,7 +70,7 @@ entry = url_class.get_entry()
 
 """DOWNLOAD"""
 
-# Download a .m3u8 link:
+# Download a m3u8/mp4 link:
 # this class requires all 
 # fields of entry to be filled.
 # You can specify if you want the class 
@@ -89,6 +90,8 @@ dl_class.download()
 sub_process = player.mpv(entry)
 # kill the player:
 sub_process.kill()
+# see if the player is still open
+if sub_process.poll() is None: print('player is running')
 # This function also automaticlly writes
 # to the history file after the player is opened.
 
