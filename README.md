@@ -16,9 +16,10 @@ https://github.com/Dankni95/ulauncher-anime
 - Can now also be used as libary
 - Way Faster
 - Less dependencies
-- Seasonal and binge mode are
-  not yet implemented
+- Seasonal mode is not yet implemented
 - No more Spagehtti code
+### Updates
+- Added binge mode
 
 # Dependencies:
 - `Python 3`
