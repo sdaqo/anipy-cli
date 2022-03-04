@@ -36,6 +36,10 @@ Recommended installation:
 
 `python3 -m pip install anipy-cli`
 
+Directly from the repo (may be newer):
+
+`python3 -m pip install git+https://github.com/sdaqo/anipy-cli`
+
 Other methodes can be found in [docs/install.md](https://github.com/sdaqo/anipy-cli/blob/master/docs/install.md)
 
 ### For libary usage
