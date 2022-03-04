@@ -1,4 +1,4 @@
 bs4 
 requests
-pycryptodome
+pycryptodomex
 tqdm
