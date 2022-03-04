@@ -7,7 +7,7 @@ import re
 from bs4 import BeautifulSoup
 import binascii
 import base64
-from Crypto.Cipher import AES
+from Cryptodome.Cipher import AES
 
 from .misc import response_err, error, loc_err
 from .colors import colors
