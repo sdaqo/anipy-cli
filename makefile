@@ -33,6 +33,17 @@ sys-install:
 	# Make it writable, so that the current default config works	
 	chmod -R 777 $(PREFIX)/lib/anipy_cli
 
+lib-install:
+	# This uses pip to install anipy-cli as a library
+	python3 setup.py bdist_wheel
+	pip3 install dist/anipy_cli-2.1.0-py3-none-any.whl
+
+clean:
+	# This gets rid of files generated from building via lib-install
+	$(RM) -r build
+	$(RM) -r dist
+	$(RM) -r anipy_cli.egg-info
+
 uninstall:
 	# Get rid of the symlink
 	$(RM) "$(PREFIX)/bin/anipy-cli"
@@ -44,7 +55,6 @@ uninstall:
 	# Get rid of program data from the newer sys-install 
 	$(RM) -r "$(PREFIX)/lib/anipy_cli"
 
-
 all: dependencies install
 
-.PHONY: all dependencies install sys-install uninstall
+.PHONY: all dependencies install sys-install uninstall lib-install clean
