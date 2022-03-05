@@ -11,9 +11,9 @@ install:
 	# old shell script was still there.
 	$(RM) $(PREFIX)/bin/anipy-cli
 	# Make a symlink to anipy-cli that is on the path
-	ln -s "$(CURDIR)/anipy-cli.py" "$(PREFIX)/bin/anipy-cli"
+	ln -s "$(CURDIR)/anipy_cli/run_anipy_cli.py" "$(PREFIX)/bin/anipy-cli"
 	# Make sure that anipy-cli.py is executable
-	chmod +x "anipy-cli.py"
+	chmod +x "$(CURDIR)/anipy_cli/run_anipy_cli.py"
 
 sys-install:
 	# This method does not require the user to keep this git repo folder
@@ -25,20 +25,25 @@ sys-install:
 	# old shell script was still there.
 	$(RM) $(PREFIX)/bin/anipy-cli
 	# Make a symlink to anipy-cli that is on the path
-	ln -s "$(PREFIX)/lib/anipy-cli/anipy-cli.py" "$(PREFIX)/bin/anipy-cli"
+	ln -s "$(PREFIX)/lib/anipy_cli/run_anipy_cli.py" "$(PREFIX)/bin/anipy-cli"
 
 	# Now install the program to lib
-	cp -r $(CURDIR) "$(PREFIX)/lib"
+	cp -r "$(CURDIR)/anipy_cli" "$(PREFIX)/lib"
 
 	# Make it writable, so that the current default config works	
-	chmod -R 777 $(PREFIX)/lib/anipy-cli
+	chmod -R 777 $(PREFIX)/lib/anipy_cli
 
 uninstall:
 	# Get rid of the symlink
 	$(RM) "$(PREFIX)/bin/anipy-cli"
-	# Get rid of program data
+	
+	# Get rid of program data from older sys-install
 	$(RM) "$(PREFIX)/lib/anipy-cli.py"
+	$(RM) -r "$(PREFIX)/lib/anipy-cli"
+
+	# Get rid of program data from the newer sys-install 
 	$(RM) -r "$(PREFIX)/lib/anipy_cli"
+
 
 all: dependencies install
 
