@@ -1,7 +1,9 @@
 import os
 import sys
+import json
 from dataclasses import dataclass
 
+from . import config
 from .colors import colors
 
 options = [
@@ -14,6 +16,15 @@ options = [
     colors.GREEN + "[q] " + colors.END + "Quit"
 ]
 
+
+seasonal_options = [
+    colors.GREEN + "[a] " + colors.END + "Add Anime",
+    colors.GREEN + "[e] " + colors.END + "Delete one anime from seasonals",
+    colors.GREEN + "[l] " + colors.END + "List animes in seasonals file",
+    colors.GREEN + "[d] " + colors.END + "Download newest episodes",
+    colors.GREEN + "[w] " + colors.END + "Binge watch newest episodes",
+    colors.GREEN + "[q] " + colors.END + "Quit"
+]
 
 @dataclass
 class entry:
@@ -66,3 +77,47 @@ def loc_err(soup, link: str, element: str) -> None:
 def keyboard_inter() -> None:
     print(colors.ERROR + "\nanipy-cli: error: interrupted")
     sys.exit()
+
+def read_json(path):
+    """
+    Read a json file, if
+    it doesn't exist create it, 
+    along with user_files folder.
+    """
+    while True:
+        try:
+            with open(path, 'r') as data:
+                json_data = json.load(data)
+            break
+
+        except FileNotFoundError:
+            try:
+                config.user_files_path.mkdir(exist_ok=True)
+                path.touch(exist_ok=True)
+                # avoids error on empty json file
+                with path.open('a') as f:
+                    f.write('{}')
+                continue
+            
+            except PermissionError:
+                error(f"Unable to create {path} due to permissions.")
+                sys.exit()
+    
+    return json_data
+
+def print_names(names):
+    """
+    Cli function that takes a
+    list oof names and prints
+    them to the terminal.
+    """
+    for number, value in enumerate(names, 1):
+        color = ''
+        if number % 2 == 0:
+            color = colors.YELLOW
+
+        print(colors.GREEN 
+              + f"[{number}]" 
+              + colors.END 
+              + f"{color} {value}" 
+              + colors.END)

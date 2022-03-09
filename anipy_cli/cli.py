@@ -1,10 +1,21 @@
+"""
+Collection of 
+all cli functions.
+"""
+
 import time
 import os
 import sys
 
+from .seasonal import Seasonal
 from .url_handler import epHandler, videourl
 from .history import history
-from .misc import error, entry, options,  clear_console
+from .misc import (error,
+                   entry,
+                   options,
+                   clear_console,
+                   print_names,
+                   seasonal_options)
 from .player import mpv
 from .query import query
 from .arg_parser import parse_args
@@ -67,8 +78,8 @@ def history_cli(quality):
     show_entry = entry()
     hist_class = history(show_entry)
     json = hist_class.read_save_data()
-    
-    if json == False:
+
+    if not json:
         error('no history')
         return
 
@@ -126,31 +137,155 @@ def binge_cli(quality):
     show_entry = query_class.pick_show()
     ep_class = epHandler(show_entry)
     ep_list = ep_class.pick_range()
-    print(f'{colors.RED}To quit press CTRL+C')
-    try:
-        for i in ep_list:
-            show_entry.ep = int(i)
-            show_entry.embed_url = ""
-            ep_class = epHandler(show_entry)
-            show_entry = ep_class.gen_eplink()
-            print(
-                f'{colors.GREEN}Fetching links for: {colors.END}{show_entry.show_name}{colors.RED} | EP: {show_entry.ep}/{show_entry.latest_ep}')
-            url_class = videourl(show_entry, quality)
-            url_class.stream_url()
-            show_entry = url_class.get_entry()
-            sub_proc = mpv(show_entry)
-            while True:
-                poll = sub_proc.poll()
-                if poll is not None:
-                    break
-                time.sleep(0.2)
 
-    except KeyboardInterrupt:
-        try:
-            sub_proc.kill()
-        except:
-            pass
-        sys.exit()
+    ep_urls = []
+    for i in ep_list:
+        ent = entry()
+        ent.ep = int(i)
+        ent.category_url = show_entry.category_url
+        ep_class = epHandler(ent)
+        ent = ep_class.gen_eplink()
+        ep_urls.append(ent.ep_url)
+
+    ep_list = {show_entry.show_name: {
+        'ep_urls': ep_urls,
+        'eps': ep_list,
+        'category_url': show_entry.category_url
+    }}
+    
+    binge(ep_list, quality)
+
+def seasonal_cli(quality):
+    s = seasonalCli(quality)
+    s.print_opts()
+    s.take_input()
+
+class seasonalCli():
+    def __init__(self, quality):
+        self.entry = entry()
+        self.quality = quality
+        self.s_class = Seasonal()
+
+    def print_opts(self):
+        for i in seasonal_options: 
+            print(i)
+
+    def take_input(self):
+        while True:
+            picked = input(colors.END + "Enter option: ")
+            if picked == 'a':
+                self.add_anime()
+            elif picked == 'e':
+                self.del_anime() 
+            elif picked == 'l':
+                self.list_animes()
+            elif picked == 'd':
+                self.download_latest()
+            elif picked == 'w':
+                self.binge_latest()
+            elif picked == 'q':
+                self.quit()
+            else:
+                error('invalid input')
+
+    def add_anime(self):
+        show_entry = entry()
+        query_class = query(input('Search: '), show_entry)
+        query_class.get_pages()
+        if query_class.get_links() == 0:
+            sys.exit()
+        show_entry = query_class.pick_show()
+        picked_ep = epHandler(show_entry).pick_ep().ep
+        Seasonal().add_show(
+            show_entry.show_name,
+            show_entry.category_url,
+            picked_ep
+        )
+        clear_console()
+        self.print_opts()
+        
+    
+    def del_anime(self):
+        seasonals = Seasonal().list_seasonals()
+        seasonals = [x[0] for x in seasonals]
+        print_names(seasonals)
+        while True:
+            inp = input("Enter Number: " + colors.CYAN)
+            try:
+                picked = seasonals[int(inp) - 1]
+                break
+            except:
+                error("Invalid Input")
+        
+        Seasonal().del_show(picked)
+        clear_console()
+        self.print_opts()
+
+    def list_animes(self):
+        for i in Seasonal().list_seasonals():
+            print(f'- EP: {i[1]} | {i[0]}')
+
+    def download_latest(self):
+        latest_urls = Seasonal().latest_eps()
+
+        if not latest_urls:
+            error('Nothing to download')
+            return
+
+        for i in latest_urls:
+            print(f'Downloading newest urls for {i}')
+            show_entry = entry()
+            show_entry.show_name = i
+            for j in latest_urls[i]['ep_list']:
+                show_entry.embed_url = ""
+                show_entry.ep = j[0]
+                show_entry.ep_url = j[1]
+                url_class = videourl(show_entry, self.quality)
+                url_class.stream_url()
+                show_entry = url_class.get_entry()
+                download(show_entry).download()
+    
+        clear_console()
+        self.print_opts()
+
+        for i in latest_urls:
+            Seasonal().update_show(
+                i,
+                latest_urls[i]['category_url']
+            )
+
+    def binge_latest(self):
+        latest_eps = Seasonal().latest_eps()
+        ep_list = []
+        ep_urls = []
+        ep_dic  = {}
+        for i in latest_eps:
+            for j in latest_eps[i]['ep_list']:
+                ep_list.append(j[0])
+                ep_urls.append(j[1])
+
+
+            ep_dic.update({i: {
+                'ep_urls': [x for x in ep_urls],
+                'eps': [x for x in ep_list],
+                'category_url': latest_eps[i]['category_url']
+            }})
+            ep_list.clear()
+            ep_urls.clear()
+        
+        binge(ep_dic, self.quality)
+        
+        for i in latest_eps:
+            Seasonal().update_show(
+                i,
+                latest_eps[i]['category_url']
+            )
+
+        clear_console()
+        self.print_opts()
+
+    def quit(self):
+        sys.exit(0)
 
 class menu():
     """
@@ -274,6 +409,57 @@ class menu():
         self.kill_player()
         sys.exit(0)
 
+def binge(ep_list, quality):    
+    """
+    Accepts ep_list like so:
+        {"name" {'ep_urls': [], 'eps': [], 'category_url': }, "next_anime"...}
+    """
+    print(f'{colors.RED}To quit press CTRL+C')
+    try:
+        for i in ep_list:
+            show_entry = entry()
+            show_entry.show_name = i
+            show_entry.category_url = ep_list[i]['category_url']
+            show_entry.latest_ep = epHandler(show_entry).get_latest()
+            for url, ep in zip(
+                    ep_list[i]['ep_urls'],
+                    ep_list[i]['eps']
+            ):
+                
+                show_entry.ep = ep
+                show_entry.embed_url = ""
+                show_entry.ep_url = url
+                print(f'''{
+                        colors.GREEN
+                    }Fetching links for: {
+                        colors.END
+                    }{
+                        show_entry.show_name
+                    }{
+                        colors.RED
+                    } | EP: {
+                        show_entry.ep
+                    }/{
+                        show_entry.latest_ep
+                    }''')
+                url_class = videourl(show_entry, quality)
+                url_class.stream_url()
+                show_entry = url_class.get_entry()
+                sub_proc = mpv(show_entry)
+                while True:
+                    poll = sub_proc.poll()
+                    if poll is not None:
+                        break
+                    time.sleep(0.2)
+
+    except KeyboardInterrupt:
+        try:
+            sub_proc.kill()
+        except:
+            pass
+        sys.exit()
+
+    return
 
 def main():
     args = parse_args()
@@ -292,7 +478,7 @@ def main():
         binge_cli(args.quality)
 
     elif args.seasonal == True:
-        raise NotImplementedError
+        seasonal_cli(args.quality)
 
     elif args.history == True:
         history_cli(args.quality)
@@ -302,5 +488,6 @@ def main():
 
     else:
         default_cli(args.quality)
-
+    
     return
+

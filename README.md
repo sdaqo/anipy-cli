@@ -16,10 +16,11 @@ https://github.com/Dankni95/ulauncher-anime
 - Can now also be used as libary
 - Way Faster
 - Less dependencies
-- Seasonal mode is not yet implemented
 - No more Spagehtti code
+
 ### Updates
 - Added binge mode
+- Added seasonal mode
 
 # Dependencies:
 - `Python 3`
@@ -86,13 +87,13 @@ This will let you pick one of your anime-episodes that you previously watched an
 
 You can change your history.txt path in `config.py`
 
-### Binge Mode (not implemented look at 2.0 Updates)
+### Binge Mode
 
 `anipy-cli -b`
 
 Specify a range of episodes and play them back to back.
 
-### Seasonal Anime Mode (not implemented look at 2.0 Updates)
+### Seasonal Anime Mode 
 
 `anipy-cli -s`
 
@@ -111,8 +112,8 @@ Change `config.py` if you want any of the options given there changed.
 ### Big range of Modes
 
 - Download
-- Binge (not implemented look at 2.0 Updates)
-- Seasonal (not implemented look at 2.0 Updates)
+- Binge 
+- Seasonal
 
 ### Resume Playback
 Resume playback is deprecated. Use https://github.com/AN3223/dotfiles/blob/master/.config/mpv/scripts/auto-save-state.lua (from https://github.com/mpv-player/mpv/wiki/User-Scripts) for mpv, this is way more reliable than the old function.

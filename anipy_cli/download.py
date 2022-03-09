@@ -93,9 +93,12 @@ class download():
             r = self.session.get(ts_link, headers=self.headers)
         except:
             pass
+        
         file_path = self.temp_folder / fname
+
         if self.cli:
             print(f'{colors.CYAN}Downloading Parts: {colors.RED}({self.counter}/{self.link_count}) {colors.END}' ,end='\r')
+
         with open(file_path, 'wb') as file:
             for data in r.iter_content(chunk_size=1024):
                 file.write(data)

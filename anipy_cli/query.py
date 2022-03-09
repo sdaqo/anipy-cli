@@ -2,7 +2,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 
-from .misc import loc_err, response_err, error
+from .misc import loc_err, response_err, error, print_names
 from .colors import colors
 from . import config
 
@@ -60,23 +60,6 @@ class query():
         else:
             return self.links, self.names
 
-    def print_names(self):
-        """
-        Cli function that prints
-        all names of self.names
-        to the terminal.
-        """
-        for number, value in enumerate(self.names, 1):
-            color = ''
-            if number % 2 == 0:
-                color = colors.YELLOW
-
-            print(colors.GREEN 
-                  + f"[{number}]" 
-                  + colors.END 
-                  + f"{color} {value}" 
-                  + colors.END)
-
     def pick_show(self):
         """
         Cli Function that 
@@ -84,7 +67,7 @@ class query():
         yout query, filles the category_url
         field from the entry and returns it.
         """
-        self.print_names()
+        print_names(self.names)
         while True:
             inp = input("Enter Number: " + colors.CYAN)
             try:

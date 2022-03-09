@@ -15,7 +15,7 @@ download_folder_path = anipy_cli_folder / "download"
 seasonals_dl_path = download_folder_path / "seasonals"
 user_files_path = anipy_cli_folder / "user_files"
 history_file_path = user_files_path / "history.json"
-seasonal_file_path = user_files_path /"seasonals.txt"
+seasonal_file_path = user_files_path /"seasonals.json"
 
 gogoanime_url = "https://gogoanime.film/"
 
