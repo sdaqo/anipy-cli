@@ -8,6 +8,7 @@
 
 
 ### Other versions:
+- Dmenu script by @Dabbing-Guy: https://github.com/Dabbing-Guy/anipy-dmenu
 - Ulauncher extension by @Dankni95: 
 https://github.com/Dankni95/ulauncher-anime 
 
