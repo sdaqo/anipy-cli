@@ -92,8 +92,9 @@ class download():
         try:
             r = self.session.get(ts_link, headers=self.headers)
         except:
-            pass
-        
+            self.counter += 1
+            return 
+
         file_path = self.temp_folder / fname
 
         if self.cli:
@@ -120,7 +121,7 @@ class download():
         self.counter = 0
 
         try:
-            with ThreadPoolExecutor(self.link_count / 2) as pool:
+            with ThreadPoolExecutor(60) as pool:
                 pool.map(self.download_ts, self.ts_links, self.ts_link_names)
         except KeyboardInterrupt:
             shutil.rmtree(self.temp_folder)
