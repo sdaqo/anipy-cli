@@ -223,7 +223,13 @@ class seasonalCli():
 
     def list_animes(self):
         for i in Seasonal().list_seasonals():
-            print(f'- EP: {i[1]} | {i[0]}')
+            print(f'==> EP: {i[1]} | {i[0]}')
+    
+    def list_possible(self, latest_urls):
+        for i in latest_urls:
+            print(f"{colors.RED}{i}:")
+            for j in latest_urls[i]['ep_list']:
+                print(f"{colors.CYAN}==> EP: {j[0]}")
 
     def download_latest(self):
         latest_urls = Seasonal().latest_eps()
@@ -231,6 +237,10 @@ class seasonalCli():
         if not latest_urls:
             error('Nothing to download')
             return
+        
+        print("Stuff to be downloaded:")
+        self.list_possible(latest_urls)
+        input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
 
         for i in latest_urls:
             print(f'Downloading newest urls for {i}')
@@ -256,6 +266,9 @@ class seasonalCli():
 
     def binge_latest(self):
         latest_eps = Seasonal().latest_eps()
+        print("Stuff to be watched:")
+        self.list_possible(latest_eps)
+        input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
         ep_list = []
         ep_urls = []
         ep_dic  = {}
