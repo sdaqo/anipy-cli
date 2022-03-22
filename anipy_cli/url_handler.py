@@ -232,11 +232,10 @@ class videourl():
         """
 
         self.entry.quality = ""
-        if 'peliscdn' in json_data[0]['file']:
+        if 'fc24fc6eef71638a72a9b19699526dcb' in json_data[0]['file']:
             r = self.session.get(json_data[0]['file'], headers={
                                  'referer': self.entry.embed_url})
-
-
+            
             qualitys = re.findall(r'(?<=\d\d\dx)\d+', r.text)
             quality_links = [x for x in r.text.split('\n')]
             quality_links = [x for x in quality_links if not x.startswith('#')]
@@ -270,7 +269,7 @@ class videourl():
 
 
 
-        if 'peliscdn' in json_data[0]['file']:
+        if 'fc24fc6eef71638a72a9b19699526dcb.com' in json_data[0]['file']:
             self.entry.stream_url = json_data[0]['file'].replace(
                 'playlist.m3u8', '') + q
         else:

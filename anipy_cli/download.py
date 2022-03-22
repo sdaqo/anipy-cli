@@ -79,7 +79,7 @@ class download():
         self.ts_link_names = [x for x in r.text.split('\n')]
         self.ts_link_names = [x for x in self.ts_link_names if not x.startswith('#')]
         
-        if 'peliscdn' in self.entry.stream_url:
+        if 'fc24fc6eef71638a72a9b19699526dcb' in self.entry.stream_url:
             self.ts_links = self.ts_link_names    
             self.ts_link_names = [urlsplit(x).path for x in self.ts_link_names]
             self.ts_link_names = [x.split('/')[-1] for x in self.ts_link_names]
