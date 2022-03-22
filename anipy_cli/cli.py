@@ -77,12 +77,13 @@ def history_cli(quality):
     """
     show_entry = entry()
     hist_class = history(show_entry)
-    json = hist_class.read_save_data()
 
+    json = hist_class.read_save_data()
+    
     if not json:
         error('no history')
         return
-
+    
     shows = [x for x in json]
 
     for num, val in enumerate(shows, 1):

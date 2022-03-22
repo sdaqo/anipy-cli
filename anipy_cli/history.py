@@ -19,6 +19,8 @@ class history():
     
     def read_save_data(self):
         self.json = read_json(config.history_file_path)
+        
+        return self.json
 
     def check_duplicate(self):
         """
