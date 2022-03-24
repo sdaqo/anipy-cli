@@ -25,7 +25,7 @@ class download():
         self.show_folder = config.download_folder_path / f'{self.entry.show_name}'
         config.download_folder_path.mkdir(exist_ok=True)
         self.show_folder.mkdir(exist_ok=True)
-        self.session = quests.Session()
+        self.session = requests.Session()
         retry = Retry(connect=3, backoff_factor=0.5)
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount('http://', adapter)
