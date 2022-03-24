@@ -14,29 +14,26 @@ from . import config
 class download():
     """
     Download Class.
-    For all but the 
-    download_cli() function
-    a entry with all fields is required.
+    A entry with all fields is required.
     If cli is False it wont print to stdout
     """
-    def __init__(self, entry, cli=True) -> None:
+    def __init__(self, entry) -> None:
         self.entry = entry
         self.headers = {"referer": self.entry.embed_url}
-        self.cli = cli
 
     def download(self):
         self.show_folder = config.download_folder_path / f'{self.entry.show_name}'
         config.download_folder_path.mkdir(exist_ok=True)
         self.show_folder.mkdir(exist_ok=True)
-        self.session = requests.Session()
+        self.session = quests.Session()
         retry = Retry(connect=3, backoff_factor=0.5)
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount('http://', adapter)
         self.session.mount('https://', adapter)
         
-        if self.cli:
-            print('-'*20)
-            print(f'{colors.CYAN}Downloading:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}')
+
+        print('-'*20)
+        print(f'{colors.CYAN}Downloading:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}')
 
         if 'm3u8' in self.entry.stream_url:
             print(f'{colors.CYAN}Type:{colors.RED} m3u8')
@@ -97,8 +94,7 @@ class download():
 
         file_path = self.temp_folder / fname
 
-        if self.cli:
-            print(f'{colors.CYAN}Downloading Parts: {colors.RED}({self.counter}/{self.link_count}) {colors.END}' ,end='\r')
+        print(f'{colors.CYAN}Downloading Parts: {colors.RED}({self.counter}/{self.link_count}) {colors.END}' ,end='\r')
 
         with open(file_path, 'wb') as file:
             for data in r.iter_content(chunk_size=1024):
@@ -127,11 +123,10 @@ class download():
             shutil.rmtree(self.temp_folder)
             keyboard_inter()
             sys.exit()
-        if self.cli:
-            print(f'\n{colors.CYAN}Parts Downloaded')
+            
+        print(f'\n{colors.CYAN}Parts Downloaded')
         self.merge_files()
-        if self.cli:
-            print(f'\n{colors.CYAN}Parts Merged')
+        print(f'\n{colors.CYAN}Parts Merged')
         shutil.rmtree(self.temp_folder)
 
     def merge_files(self):
@@ -144,8 +139,7 @@ class download():
             with open(out_file, 'wb') as f:
                 self.counter = 1
                 for i in self.ts_link_names:
-                    if self.cli:
-                        print(f'{colors.CYAN}Merging Parts: {colors.RED} ({self.counter}/{self.link_count}) {colors.END}', end='\r')
+                    print(f'{colors.CYAN}Merging Parts: {colors.RED} ({self.counter}/{self.link_count}) {colors.END}', end='\r')
                     try:
                         if i != '':
                             with open(self.temp_folder / i, 'rb') as t:
