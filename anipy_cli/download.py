@@ -132,9 +132,9 @@ class download():
     def merge_files(self):
         """ 
         Merge downloded ts files
-        into one mp4.
+        into one ts file.
         """
-        out_file = self.show_folder / f'{self.entry.show_name}_{self.entry.ep}.mp4'
+        out_file = self.show_folder / f'{self.entry.show_name}_{self.entry.ep}.ts'
         try:
             with open(out_file, 'wb') as f:
                 self.counter = 1
