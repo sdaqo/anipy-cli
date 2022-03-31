@@ -151,11 +151,11 @@ class videourl():
         self.mode = AES.MODE_CBC
         self.size = AES.block_size
         self.padder = "\x08\x0e\x03\x08\t\x03\x04\t"
-        self.pad = lambda s: s + self.padder[(len(self.padder) - len(s) % 16) :]
+        self.pad = lambda s: s + chr(len(s) % 16) * (16 - len(s) % 16) 
         self.iv = binascii.unhexlify(
-            bytes('31323835363732393835323338333933'.encode("utf-8")))
+            bytes('34373730343738393639343138323637'.encode("utf-8")))
         self.key = binascii.unhexlify(bytes(
-            "3235373136353338353232393338333936313634363632323738383333323838".encode("utf-8")))
+            "3633393736383832383733353539383139363339393838303830383230393037".encode("utf-8")))
 
     def get_entry(self):
         """
@@ -187,7 +187,7 @@ class videourl():
     def get_crypto(self):
         r = self.session.get(self.entry.embed_url)
         soup = BeautifulSoup(r.text, "html.parser")
-        crypto = soup.find("script", {"data-name": "crypto"})
+        crypto = soup.find("script", {"data-name": "episode"})
         loc_err(crypto, self.entry.embed_url, "crypto")
         return crypto["data-value"]
 
