@@ -17,7 +17,7 @@ user_files_path = anipy_cli_folder / "user_files"
 history_file_path = user_files_path / "history.json"
 seasonal_file_path = user_files_path /"seasonals.json"
 
-gogoanime_url = "https://gogoanime.film/"
+gogoanime_url = "https://gogoanime.gg/"
 
 
 mpv_path = "mpv"
