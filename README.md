@@ -73,5 +73,4 @@ https://github.com/Dankni95/ulauncher-anime
 
 # Credits
 #### Heavily inspired by https://github.com/pystardust/ani-cli/
-#### [Migueldeoleiros](https://github.com/migueldeoleiros) and [Dabbing-Guy](https://github.com/Dabbing-Guy) for the makefile 
 #### All contributors for contributing
