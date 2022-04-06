@@ -12,11 +12,12 @@ https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-
 ### Little tool written in python to watch anime from the terminal (the better way to watch anime)
 ### Scrapes: https://gogoanime.wiki
 
+# Contents
 
 - [Installation](#Installation)
-- [Using this as a libary](#Libary usage)
+- [Libary](#libary-usage)
 - [Usage](#Usage)
-- [Other Versions](#Other versions)
+- [Other Versions](#other-versions)
 - [Credits](#Credits)
 
 
@@ -34,7 +35,7 @@ Other methodes can be found in [docs/install.md](https://github.com/sdaqo/anipy-
 
 For Videoplayback mpv is needed get it here: https://mpv.io/installation/
 
-# Libary usage
+# Libary
 
 Documentation can be found in docs/anipycli_as_lib.py
 
