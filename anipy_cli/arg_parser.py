@@ -8,13 +8,13 @@ def parse_args():
                            '--quality',
                            action='store',
                            required=False,
-                           help='Pick quality. 1080, 720, 480 etc. / best,worst')
+                           help='Change the quality of the video, accepts: best, worst or 360, 480, 720 etc.  Default: best')
     parser.add_argument('-H',
                             '--history',
                             required=False,
                             dest="history",
                             action='store_true',
-                            help='Play History. History is stored in history/history.txt')
+                            help='Show your history of watched anime')
     parser.add_argument('-d',
                             '--download',
                             required=False,
@@ -48,7 +48,7 @@ def parse_args():
                         required=False,
                         dest="config",
                         action="store_true",
-                        help="Print path to the config",
+                        help="Print path to the config file.",
     
     )   
     return parser.parse_args()
