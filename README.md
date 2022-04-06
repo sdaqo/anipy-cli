@@ -15,8 +15,8 @@ https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-
 # Contents
 
 - [Installation](#Installation)
-- [Libary Usage](#libary-usage)
 - [Usage](#Usage)
+- [Libary Usage](#libary-usage)
 - [Other Versions](#other-versions)
 - [Credits](#Credits)
 
@@ -35,12 +35,8 @@ Other methodes can be found in [docs/install.md](https://github.com/sdaqo/anipy-
 
 For Videoplayback mpv is needed get it here: https://mpv.io/installation/
 
-# Libary
 
-Documentation can be found in docs/anipycli_as_lib.py
 
-#### Important:
-To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
 
 # Usage  
@@ -61,6 +57,13 @@ options:
   -c, --config          Print path to the config file.
 
 ```
+
+# Libary Usage
+
+Documentation can be found in docs/anipycli_as_lib.py
+
+#### Important:
+To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
 # Other versions
 - Dmenu script by @Dabbing-Guy: https://github.com/Dabbing-Guy/anipy-dmenu 
