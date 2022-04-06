@@ -15,7 +15,7 @@ https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-
 # Contents
 
 - [Installation](#Installation)
-- [Libary](#libary-usage)
+- [Libary Usage](#libary-usage)
 - [Usage](#Usage)
 - [Other Versions](#other-versions)
 - [Credits](#Credits)
