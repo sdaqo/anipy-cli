@@ -36,9 +36,6 @@ Other methodes can be found in [docs/install.md](https://github.com/sdaqo/anipy-
 For Videoplayback mpv is needed get it here: https://mpv.io/installation/
 
 
-
-
-
 # Usage  
 ```
 usage: anipy-cli [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-c]

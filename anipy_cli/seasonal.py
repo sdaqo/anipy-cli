@@ -5,7 +5,7 @@ from . import config
 from .url_handler import epHandler
 from .misc import entry, error, read_json
 
-class Seasonal:
+class Seasonal():
     def __init__(self):
         self.entry = entry()
 
