@@ -19,7 +19,7 @@ import anipy_cli
 #        category_url: str = "" # category url of show
 #        ep_url: str = "" # ep url with episode corresponding to ep
 #        embed_url: str = "" # embed url of ep_url
-#        stream_url: str = "" # m3u8 link of embed_url
+#        stream_url: str = "" # m3u8/mp4 link of embed_url
 #        ep: int = 0 # episode currently played/downloaded or whatever
 #        latest_ep: int = 0 # latest episode of the show
 #        quality: str = "" # current quality
