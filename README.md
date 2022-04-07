@@ -57,7 +57,7 @@ options:
 
 # Libary Usage
 
-Documentation can be found in docs/anipycli_as_lib.py
+Documentation can be found [here](https://github.com/sdaqo/anipy-cli/blob/master/docs/anipycli_as_lib.py)
 
 #### Important:
 To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
