@@ -28,8 +28,8 @@ entry = anipy_cli.entry()
 
 """QUERY"""
 
-# Get results from a query
-# query class: query.query(search_param, entry)
+# Get results from a query, it takes
+# a search parameter and a empty entry. 
 query_class = anipy_cli.query("naruto", entry)
 # query.get_links() returns a tuple with a 
 # list of links and names: (self.links, self.names)
