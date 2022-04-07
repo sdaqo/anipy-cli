@@ -41,7 +41,7 @@ For Videoplayback mpv is needed get it here: https://mpv.io/installation/
 
 # Usage  
 ```
-usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-c]
+usage: anipy-cli [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-c]
 
 Watch and Download Animes from gogoanime from the terminal.
 
