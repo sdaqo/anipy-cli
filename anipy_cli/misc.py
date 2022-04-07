@@ -1,6 +1,8 @@
 import os
+import requests
 import sys
 import json
+from bs4 import BeautifulSoup
 from dataclasses import dataclass
 
 from . import config
@@ -121,3 +123,23 @@ def print_names(names):
               + colors.END 
               + f"{color} {value}" 
               + colors.END)
+
+def get_anime_info(category_url: str) -> dict:
+    """
+    Get metadata about an anime.
+    """
+    r = requests.get(category_url)
+    soup = BeautifulSoup(r.text, 'html.parser')
+    info_body = soup.find('div', {'class': 'anime_info_body_bg'})
+    image_url = info_body.find('img')['src']
+    other_info = info_body.find_all('p', {'class': 'type'})
+    info_dict = {
+        'image_url': image_url,
+        'type': other_info[0].text.replace("\n", "").replace("Type: ", ""),
+        'synopsis': other_info[1].text.replace("\n", ""),
+        'genres': [x['title'] for x in BeautifulSoup(str(other_info[2]), 'html.parser').find_all('a')],
+        'release_year':other_info[3].text.replace("Released: ", ""),
+        'status': other_info[4].text.replace("\n", "").replace("Status: ", ""),
+    }
+
+    return info_dict

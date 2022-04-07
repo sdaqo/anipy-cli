@@ -106,6 +106,16 @@ save_data = history_class.read_save_data()
 #        - ep
 history_class.write_hist()
 
+"""ANIME-INFO"""
+
+# Get some metadata about an anime, 
+# it takes a category url 
+anipy_cli.get_anime_info("https://gogoanime.gg/category/hyouka")
+# It returns a dict with the image-url,
+# type of the anime, the synopsis,
+# a list with the genres, the release year and
+# the status of the anime.
+
 """CONFIG"""
 
 # The config file can be 
