@@ -9,7 +9,7 @@ https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-
 
 
 
-### Little tool written in python to watch anime from the terminal (the better way to watch anime)
+### Little tool written in python to watch and download anime from the terminal (the better way to watch anime)
 ### Scrapes: https://gogoanime.wiki
 
 # Contents
@@ -43,7 +43,7 @@ For Videoplayback mpv is needed get it here: https://mpv.io/installation/
 ```
 usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-c]
 
-Play Animes from gogoanime in local video-player.
+Watch and Download Animes from gogoanime from the terminal.
 
 options:
   -h, --help            show this help message and exit
