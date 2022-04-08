@@ -366,29 +366,19 @@ class menu():
     
     def next_ep(self):
         self.kill_player()
-        if self.entry.ep + 1 > self.entry.latest_ep:
-            error("no ep after that")
-            return
-        else:
-            self.entry.ep += 1
-            ep_class = epHandler(self.entry)
-            self.entry = ep_class.gen_eplink()
-            self.print_status()
-            self.start_ep()
-            self.print_opts()
+        ep_class = epHandler(self.entry)
+        self.entry = ep_class.next_ep()
+        self.print_status()
+        self.start_ep()
+        self.print_opts()
 
     def prev_ep(self):
         self.kill_player()
-        if self.entry.ep - 1 <= 0:
-            error("no ep before that")
-            return
-        else:
-            self.entry.ep -= 1
-            ep_class = epHandler(self.entry)
-            self.entry = ep_class.gen_eplink()
-            self.start_ep()
-            self.print_status()
-            self.print_opts()
+        ep_class = epHandler(self.entry)
+        self.entry = ep_class.prev_ep()
+        self.start_ep()
+        self.print_status()
+        self.print_opts()
 
     def repl_ep(self):
         self.kill_player()

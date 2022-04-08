@@ -50,6 +50,31 @@ class epHandler():
 
         return self.entry.latest_ep
 
+    def next_ep(self):
+        """
+        Increment ep and return the entry.
+        """
+        self.get_latest()
+        if self.entry.ep == self.entry.latest_ep:
+            error("no more episodes")
+            return self.entry
+        else:
+            self.entry.ep += 1
+            self.gen_eplink()
+            return self.entry
+
+    def prev_ep(self):
+        """
+        Decrement ep and return the entry.
+        """
+        if self.entry.ep == 1:
+            error("no more episodes")
+            return self.entry
+        else:
+            self.entry.ep -= 1
+            self.gen_eplink()
+            return self.entry
+
     def pick_ep(self):
         """
         Cli function to pick a episode from 1 to

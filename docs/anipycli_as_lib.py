@@ -43,7 +43,8 @@ print(links_and_names[1]) # prints names
 
 # Episode Handling is done with
 # epHandler, it can get the latest 
-# episode, and generate episode links
+# episode, generate episode links,
+# get next episode and previos episode.
 # it requires the fields category_url,
 # and ep.
 ep_class = anipy_cli.epHandler(entry)
@@ -51,6 +52,10 @@ ep_class = anipy_cli.epHandler(entry)
 latest_ep = ep_class.get_latest()
 # generate ep link, returns a entry
 entry = ep_class.gen_eplink()
+# get next episode, returns a entry
+next_ep = ep_class.next_ep()
+# get prev episode, returns a entry
+prev_ep = ep_class.prev_ep()
 # get your entry back
 entry = ep_class.get_entry()
 
