@@ -359,6 +359,8 @@ class menu():
                 self.hist()
             elif picked == 'a':
                 self.search()
+            elif picked == 'i':
+                self.video_info()
             elif picked == 'q':
                 self.quit()
             else:
@@ -409,7 +411,17 @@ class menu():
             self.print_status()
             self.print_opts()
         
+    def video_info(self):
+        print(f"Show Name: {self.entry.show_name}")
+        print(f"Category Url: {self.entry.category_url}")
+        print(f"Epiode Url: {self.entry.ep_url}")
+        print(f"Episode: {self.entry.ep}")
+        print(f"Embed Url: {self.entry.embed_url}")
+        print(f"Stream Url: {self.entry.stream_url}")
+        print(f"Quality: {self.entry.quality}")
+
     def quit(self):
+
         self.kill_player()
         sys.exit(0)
 

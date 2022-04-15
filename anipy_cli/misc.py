@@ -15,6 +15,7 @@ options = [
     colors.GREEN + "[s] " + colors.END + "Select episode",
     colors.GREEN + "[h] " + colors.END + "History selection",
     colors.GREEN + "[a] " + colors.END + "Search for Anime",
+    colors.GREEN + "[i] " + colors.END + "Print Video Info",
     colors.GREEN + "[q] " + colors.END + "Quit"
 ]
 

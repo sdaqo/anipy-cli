@@ -4,6 +4,8 @@ import requests
 import re
 import binascii
 import base64
+import functools
+from urllib.parse import urlparse, parse_qs
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
@@ -171,16 +173,16 @@ class videourl():
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount('http://', adapter)
         self.session.mount('https://', adapter)
-        self.ajax_url = "https://gogoplay4.com/encrypt-ajax.php"
-
+        self.ajax_url = "/encrypt-ajax.php"
+        self.enc_key_api = "https://raw.githubusercontent.com/justfoolingaround/animdl-provider-benchmarks/master/api/gogoanime.json"
         self.mode = AES.MODE_CBC
         self.size = AES.block_size
         self.padder = "\x08\x0e\x03\x08\t\x03\x04\t"
         self.pad = lambda s: s + chr(len(s) % 16) * (16 - len(s) % 16) 
-        self.iv = binascii.unhexlify(
-            bytes('34373730343738393639343138323637'.encode("utf-8")))
-        self.key = binascii.unhexlify(bytes(
-            "3633393736383832383733353539383139363339393838303830383230393037".encode("utf-8")))
+        keys = self.get_encryption_keys()
+        self.iv = keys['iv']
+        self.key = keys['key']
+        self.decrypt_key = keys['second_key']
 
     def get_entry(self):
         """
@@ -196,7 +198,11 @@ class videourl():
         link = soup.find("a", {"class": "active", "rel": "1"})
         loc_err(link, self.entry.ep_url, "embed-url")
         self.entry.embed_url = f'https:{link["data-video"]}'
-
+    
+    @functools.lru_cache()
+    def get_encryption_keys(self):
+        return {_: __.encode() for _, __ in self.session.get(self.enc_key_api).json().items()}
+    
     def aes_encrypt(self, data):
         return base64.b64encode(
             AES.new(self.key, self.mode, iv=self.iv).encrypt(
@@ -205,7 +211,7 @@ class videourl():
         )
 
     def aes_decrypt(self, data):
-        return AES.new(self.key, self.mode, iv=self.iv).decrypt(
+        return AES.new(self.decrypt_key, self.mode, iv=self.iv).decrypt(
             base64.b64decode(data)
         )
 
@@ -223,27 +229,23 @@ class videourl():
         """
         if not self.entry.embed_url:
             self.embed_url()
-
-
-        crypto = self.get_crypto()
-        id = self.aes_decrypt(crypto)
-        id = id[: id.index(b"&")].decode()
-        id = self.aes_encrypt(id).decode()
+        parsed = urlparse(self.entry.embed_url)
+        self.ajax_url = parsed.scheme + "://" + parsed.netloc + self.ajax_url
         
-        headers = {'x-requested-with': 'XMLHttpRequest', "referer": "https://gogoanime.film/"}
-        data = {'id': id}
-        r = self.session.post(self.ajax_url, headers=headers, data=data)
+        id = urlparse(self.entry.embed_url).query
+        id = parse_qs(id)['id'][0]
+        enc_id = self.aes_encrypt(id).decode()
+        
+        headers = {'x-requested-with': 'XMLHttpRequest', 'referer': self.entry.embed_url}
+        r = self.session.post(self.ajax_url, headers=headers, params={'id': enc_id, 'alias': id})
         response_err(r, self.entry.embed_url)
-        r = r.text
-        json_resp = json.loads(r)
+        
         json_resp = json.loads(
-             self.aes_decrypt(json_resp['data'])
-            .replace(b'o"<P{#meme":', b'e":[{"file":')
-            .decode("utf-8")
-            .strip("\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10")
-
+             self.aes_decrypt(r.json().get("data")).strip(
+                 b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10") 
         )
 
+        print(json_resp)
         source_data = [x for x in json_resp['source']]
         self.quality(source_data)
 
@@ -260,6 +262,7 @@ class videourl():
         if 'fc24fc6eef71638a72a9b19699526dcb' in json_data[0]['file'] or 'm3u8' in json_data[0]['file']:
             r = self.session.get(json_data[0]['file'], headers={
                                  'referer': self.entry.embed_url})
+
             qualitys = re.findall(r'(?<=\d\d\dx)\d+', r.text)
             quality_links = [x for x in r.text.split('\n')]
             quality_links = [x for x in quality_links if not x.startswith('#')]
