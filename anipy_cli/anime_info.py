@@ -65,6 +65,7 @@ class AnimeInfo:
         loop.close()
 
         search_results.sort(key=lambda x: (x.average_rating or 0.0), reverse=True)
+
         return search_results
 
     def main(self):
