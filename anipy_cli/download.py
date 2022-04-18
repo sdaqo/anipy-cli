@@ -85,6 +85,13 @@ class download:
             fname.unlink()
 
     def mp4_dl(self, dl_link):
+        """
+
+        :param dl_link:
+        :type dl_link:
+        :return:
+        :rtype:
+        """
         r = self.session.get(dl_link, headers=self.headers, stream=True)
         response_err(r, dl_link)
         total = int(r.headers.get("content-length", 0))
@@ -113,6 +120,9 @@ class download:
         M3u8 link must have gone trough
         videourl().quality() to work
         properly.
+
+        :return:
+        :rtype:
         """
         r = requests.get(self.entry.stream_url, headers=self.headers)
         self.ts_link_names = [x for x in r.text.split("\n")]
@@ -130,6 +140,15 @@ class download:
         self.link_count = len(self.ts_links)
 
     def download_ts(self, ts_link, fname):
+        """
+
+        :param ts_link:
+        :type ts_link:
+        :param fname:
+        :type fname:
+        :return:
+        :rtype:
+        """
         try:
             r = self.session.get(ts_link, headers=self.headers)
         except:
@@ -157,6 +176,9 @@ class download:
           and downloads all ts links
         - Merges ts files
         - Delets temp folder
+
+        :return:
+        :rtype:
         """
         self.get_ts_links()
         self.temp_folder = self.show_folder / f"{self.entry.ep}_temp"
@@ -180,6 +202,9 @@ class download:
         """
         Merge downloded ts files
         into one ts file.
+
+        :return:
+        :rtype:
         """
         out_file = self.show_folder / f"{self.entry.show_name}_{self.entry.ep}.ts"
         try:
