@@ -182,7 +182,6 @@ class videourl():
         keys = self.get_encryption_keys()
         self.iv = keys['iv']
         self.key = keys['key']
-        self.decrypt_key = keys['second_key']
 
     def get_entry(self):
         """
@@ -203,15 +202,15 @@ class videourl():
     def get_encryption_keys(self):
         return {_: __.encode() for _, __ in self.session.get(self.enc_key_api).json().items()}
     
-    def aes_encrypt(self, data):
+    def aes_encrypt(self, data, key):
         return base64.b64encode(
-            AES.new(self.key, self.mode, iv=self.iv).encrypt(
+            AES.new(key, self.mode, iv=self.iv).encrypt(
                 self.pad(data).encode()
             )
         )
 
-    def aes_decrypt(self, data):
-        return AES.new(self.decrypt_key, self.mode, iv=self.iv).decrypt(
+    def aes_decrypt(self, data, key):
+        return AES.new(key, self.mode, iv=self.iv).decrypt(
             base64.b64decode(data)
         )
 
@@ -234,14 +233,21 @@ class videourl():
         
         id = urlparse(self.entry.embed_url).query
         id = parse_qs(id)['id'][0]
-        enc_id = self.aes_encrypt(id).decode()
-        
+        id_enc_key = binascii.hexlify(base64.b64decode(id) + self.iv)[:32]
+        enc_id = self.aes_encrypt(id, id_enc_key)
+
         headers = {'x-requested-with': 'XMLHttpRequest', 'referer': self.entry.embed_url}
-        r = self.session.post(self.ajax_url, headers=headers, params={'id': enc_id, 'alias': id})
+        
+        r = self.session.post(
+            self.ajax_url,
+            headers=headers,
+            params={'id': enc_id, 'alias': id}
+        )
+
         response_err(r, self.entry.embed_url)
         
         json_resp = json.loads(
-             self.aes_decrypt(r.json().get("data")).strip(
+             self.aes_decrypt(r.json().get("data"), id_enc_key).strip(
                  b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10") 
         )
 
