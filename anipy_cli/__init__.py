@@ -6,4 +6,5 @@ from .player import mpv
 from .misc import entry, get_anime_info
 from .seasonal import Seasonal
 from .history import history
+from .anime_info import AnimeInfo
 from .import cli

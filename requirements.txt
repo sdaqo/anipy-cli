@@ -2,3 +2,4 @@ bs4
 requests
 pycryptodomex
 tqdm
+git+https://github.com/dymattic/kitsu.py.git
