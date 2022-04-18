@@ -10,7 +10,7 @@ import anipy_cli
 
 """ENTRY"""
 
-# A class that saves metadata, it is 
+# A class that saves metadata, it is
 # needed for almost every function.
 # It is like a struct from C.
 # It looks like this:
@@ -29,20 +29,20 @@ entry = anipy_cli.entry()
 """QUERY"""
 
 # Get results from a query, it takes
-# a search parameter and a empty entry. 
+# a search parameter and a empty entry.
 query_class = anipy_cli.query("naruto", entry)
-# query.get_links() returns a tuple with a 
+# query.get_links() returns a tuple with a
 # list of links and names: (self.links, self.names)
 # The links are not complete (/category/naruto),
 # you will have to prepend the gogoanime url to it.
 links_and_names = query_class.get_links()
-print(links_and_names[0]) # prints links
-print(links_and_names[1]) # prints names
+print(links_and_names[0])  # prints links
+print(links_and_names[1])  # prints names
 
 """EPISODE HANDLING"""
 
 # Episode Handling is done with
-# epHandler, it can get the latest 
+# epHandler, it can get the latest
 # episode, generate episode links,
 # get next episode and previos episode.
 # it requires the fields category_url,
@@ -65,8 +65,8 @@ entry = ep_class.get_entry()
 # done with the videourl class, it takes an entry
 # that has to at least have ep_url filled.
 # It also takes a quality argument which can have
-# the standart qualitys (1080, 720 etc.) or worst/best as value. 
-url_class = anipy_cli.videourl(entry, 'best')
+# the standart qualitys (1080, 720 etc.) or worst/best as value.
+url_class = anipy_cli.videourl(entry, "best")
 # generate stream url (this also, automaticlly generates the embed url)
 url_class.stream_url()
 # get your entry back filled with stream and embed url fields
@@ -75,14 +75,14 @@ entry = url_class.get_entry()
 """DOWNLOAD"""
 
 # Download a m3u8/mp4 link:
-# this class requires all 
+# this class requires all
 # fields of entry to be filled.
 # You can also enable ffmpeg download
-# for m3u8 playlists with `ffmpeg=True`, 
-# though this is not recommended, only 
+# for m3u8 playlists with `ffmpeg=True`,
+# though this is not recommended, only
 # use it when internal downloader fails,
 #  also note that there is an option in
-# config.py for it. 
+# config.py for it.
 dl_class = anipy_cli.download(entry, ffmpeg=True)
 # downloads a m3u8 or a mp4 link
 dl_class.download()
@@ -98,7 +98,8 @@ sub_process = anipy_cli.mpv(entry)
 # kill the player:
 sub_process.kill()
 # see if the player is still open
-if sub_process.poll() is None: print('player is running')
+if sub_process.poll() is None:
+    print("player is running")
 # This function also automaticlly writes
 # to the history file after the player is opened.
 
@@ -109,7 +110,7 @@ if sub_process.poll() is None: print('player is running')
 history_class = anipy_cli.history(entry)
 save_data = history_class.read_save_data()
 # Writing to history file:
-# Following entry fields are required 
+# Following entry fields are required
 # for writing to history file:
 #        - show_name
 #        - category_url
@@ -119,8 +120,8 @@ history_class.write_hist()
 
 """ANIME-INFO"""
 
-# Get some metadata about an anime, 
-# it takes a category url 
+# Get some metadata about an anime,
+# it takes a category url
 anipy_cli.get_anime_info("https://gogoanime.gg/category/hyouka")
 # It returns a dict with the image-url,
 # type of the anime, the synopsis,
@@ -129,8 +130,8 @@ anipy_cli.get_anime_info("https://gogoanime.gg/category/hyouka")
 
 """CONFIG"""
 
-# The config file can be 
-# easily used, it just saves 
+# The config file can be
+# easily used, it just saves
 # some variables, that can be used.
 # Examples:
 dl_folder = anipy_cli.config.download_folder_path
@@ -140,13 +141,13 @@ mpv_cmd_opts = anipy_cli.config.mpv_commandline_options
 """Seasonal"""
 
 # The seasonal Class can fetch latest episodes
-# from animes specified in the user_data/seasonals.json 
+# from animes specified in the user_data/seasonals.json
 # file (or the file specified in the config).
-# You can also add, delete or update a show in 
-# seasonals.json, listing all shows is also 
+# You can also add, delete or update a show in
+# seasonals.json, listing all shows is also
 # possible.
 
-# Create the class 
+# Create the class
 seasonal_class = anipy_cli.Seasonal()
 # Fetch latest episodes, this function returns
 # a dictonary with the episodes, it looks like
@@ -154,7 +155,7 @@ seasonal_class = anipy_cli.Seasonal()
 #           {"name": {
 #               "ep_list": [[ep, ep-link], [], ...],
 #               "category_url": "https://..."
-#               }, 
+#               },
 #            "another anime": {
 #                ...
 #               },
@@ -163,19 +164,15 @@ seasonal_class.latest_eps()
 # Add a show to seasonals.json, this
 # takes a name, a category_url and the
 # start episode as parameter
-seasonal_class.add_show(
-          "Hyouka",
-          "https://gogoanime.gg/category/hyouka",
-          "3")
+seasonal_class.add_show("Hyouka", "https://gogoanime.gg/category/hyouka", "3")
 # Delete a show from seasonals.json,
 # this takes the name of the show as parameter
 seasonal_class.del_show("Hyouka")
-# List all shows in seasonals.json, 
+# List all shows in seasonals.json,
 # with their respective episodes.
 seasonal_class.list_seasonals()
-# Returns a 2D list like this: 
+# Returns a 2D list like this:
 # [["Hyouka", "3"], ["Another Anime", "2"]]
-
 
 
 # This is it for now, maybe this will be extended.

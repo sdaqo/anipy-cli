@@ -12,12 +12,12 @@ class AnimeInfo:
 
     def __init__(self):
         self.client = kitsu.Client()
-        assert self.client is not None, 'Failed to initialize kitsu client.'
-        self.season_names = {'spring', 'summer', 'fall', 'winter'}
+        assert self.client is not None, "Failed to initialize kitsu client."
+        self.season_names = {"spring", "summer", "fall", "winter"}
 
         pass
 
-    def get_anime_by_season(self, season_year=date.today().year, season_name='spring'):
+    def get_anime_by_season(self, season_year=date.today().year, season_name="spring"):
         """
         Returns all anime of given season
 
@@ -29,14 +29,15 @@ class AnimeInfo:
         :rtype: list
         """
 
-        assert season_name in self.season_names, \
-            'Unknown season name. Only lower-case season names supported. eg: "spring"'
+        assert (
+            season_name in self.season_names
+        ), 'Unknown season name. Only lower-case season names supported. eg: "spring"'
 
         search_results = self.search_anime(season=season_name, season_year=season_year)
 
         return search_results
 
-    def search_anime(self, *, anime_search_string: str = '', **filters) -> list:
+    def search_anime(self, *, anime_search_string: str = "", **filters) -> list:
         """
         Wrapper method for searching anime to get around result limit of 20
 
@@ -53,7 +54,9 @@ class AnimeInfo:
         loop = asyncio.get_event_loop()
         while search_result:
             search_result = loop.run_until_complete(
-                self.client.search_anime(query=anime_search_string, limit=20, offset=offset, **filters)
+                self.client.search_anime(
+                    query=anime_search_string, limit=20, offset=offset, **filters
+                )
             )
             if search_result:
                 search_results += search_result

@@ -60,23 +60,25 @@ def download_cli(quality, ffmpeg):
     show_entry = entry()
     searches = []
     show_entries = []
-    if input('Search Kitsu for anime in Season? (y|n): \n>> ') == 'y':
+    if input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y":
         searches = get_searches_from_kitsu()
 
     else:
-        another = 'y'
-        while another == 'y':
-            searches.append(input('Search: '))
-            another = input('Add another search: (y|n)\n')
+        another = "y"
+        while another == "y":
+            searches.append(input("Search: "))
+            another = input("Add another search: (y|n)\n")
 
     for search in searches:
         links = 0
         query_class = None
         if isinstance(search, Anime):
-            links, query_class = find_selected_from_kitsu(links, query_class, search, show_entry)
+            links, query_class = find_selected_from_kitsu(
+                links, query_class, search, show_entry
+            )
 
         else:
-            print('\nCurrent: ', search)
+            print("\nCurrent: ", search)
             query_class = query(search, show_entry)
             query_class.get_pages()
             links = query_class.get_links()
@@ -86,11 +88,13 @@ def download_cli(quality, ffmpeg):
         show_entry = query_class.pick_show()
         ep_class = epHandler(show_entry)
         ep_list = ep_class.pick_range()
-        show_entries.append({'show_entry': deepcopy(show_entry), 'ep_list': deepcopy(ep_list)})
+        show_entries.append(
+            {"show_entry": deepcopy(show_entry), "ep_list": deepcopy(ep_list)}
+        )
 
     for ent in show_entries:
-        show_entry = ent['show_entry']
-        ep_list = ent['ep_list']
+        show_entry = ent["show_entry"]
+        ep_list = ent["ep_list"]
         for i in ep_list:
             show_entry.ep = int(i)
             show_entry.embed_url = ""
@@ -100,6 +104,7 @@ def download_cli(quality, ffmpeg):
             url_class.stream_url()
             show_entry = url_class.get_entry()
             download(show_entry, ffmpeg).download()
+
 
 def history_cli(quality):
     """
@@ -232,7 +237,7 @@ class seasonalCli:
     def add_anime(self):
         show_entry = entry()
         searches = []
-        if input('Search Kitsu for anime in Season? (y|n): \n>> ') == 'y':
+        if input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y":
             searches = get_searches_from_kitsu()
 
         else:
@@ -242,10 +247,12 @@ class seasonalCli:
             links = 0
             query_class = None
             if isinstance(search, Anime):
-                links, query_class = find_selected_from_kitsu(links, query_class, search, show_entry)
+                links, query_class = find_selected_from_kitsu(
+                    links, query_class, search, show_entry
+                )
 
             else:
-                print('\nCurrent: ', search)
+                print("\nCurrent: ", search)
                 query_class = query(search, show_entry)
                 query_class.get_pages()
                 links = query_class.get_links()
@@ -256,9 +263,7 @@ class seasonalCli:
             show_entry = query_class.pick_show()
             picked_ep = epHandler(show_entry).pick_ep().ep
             Seasonal().add_show(
-                show_entry.show_name,
-                show_entry.category_url,
-                picked_ep
+                show_entry.show_name, show_entry.category_url, picked_ep
             )
         clear_console()
         self.print_opts()
@@ -539,23 +544,23 @@ def find_selected_from_kitsu(links, query_class, search, show_entry):
     title_options = [search.canonical_title, search.title]
     title_options += search.abbreviated_titles
     i = 0
-    print('Trying all titles:\n')
+    print("Trying all titles:\n")
     while links == 0 and i < len(title_options):
-        print('\n-- {} --'.format(title_options[i]))
+        print("\n-- {} --".format(title_options[i]))
         query_class = query(title_options[i], show_entry)
         query_class.get_pages()
         links = query_class.get_links()
         i += 1
     if links == 0:
-        print('\nCould not find anime.')
-        print('Keep Trying by removing parts of name: (y|n)\n')
-        try_stripping = input('>> ')
-        if try_stripping == 'y':
-            canon_title_parts = title_options[0].split(' ')
+        print("\nCould not find anime.")
+        print("Keep Trying by removing parts of name: (y|n)\n")
+        try_stripping = input(">> ")
+        if try_stripping == "y":
+            canon_title_parts = title_options[0].split(" ")
             while links == 0 and len(canon_title_parts) > 1:
                 canon_title_parts.pop()
-                shorter_title = ' '.join(canon_title_parts)
-                print('-- {} --'.format(shorter_title))
+                shorter_title = " ".join(canon_title_parts)
+                print("-- {} --".format(shorter_title))
                 query_class = query(shorter_title, show_entry)
                 query_class.get_pages()
                 links = query_class.get_links()
@@ -567,22 +572,24 @@ def get_searches_from_kitsu():
     kitsu = AnimeInfo()
     searches = []
     selected = []
-    season_year = int(input('Season Year: '))
-    season_name = input('Season Name (spring|summer|fall|winter): ')
-    anime_in_season = kitsu.get_anime_by_season(season_year=season_year, season_name=season_name)
-    print('Anime found in {} {} Season: '.format(season_year, season_name))
+    season_year = int(input("Season Year: "))
+    season_name = input("Season Name (spring|summer|fall|winter): ")
+    anime_in_season = kitsu.get_anime_by_season(
+        season_year=season_year, season_name=season_name
+    )
+    print("Anime found in {} {} Season: ".format(season_year, season_name))
     anime_names = []
     for anime in anime_in_season:
         anime_names.append(anime.canonical_title)
     print_names(anime_names)
-    selection = input('Selection: (e.g. 1, 1  3 or 1-3) \n>> ')
-    if selection.__contains__('-'):
-        selection_range = selection.strip(' ').split('-')
+    selection = input("Selection: (e.g. 1, 1  3 or 1-3) \n>> ")
+    if selection.__contains__("-"):
+        selection_range = selection.strip(" ").split("-")
         for i in range(int(selection_range[0]) - 1, int(selection_range[1]) - 1, 1):
             selected.append(i)
 
     else:
-        for i in selection.lstrip(' ').split(' '):
+        for i in selection.lstrip(" ").split(" "):
             selected.append(int(i) - 1)
 
     for value in selected:
