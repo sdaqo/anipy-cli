@@ -25,7 +25,7 @@ https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-
 
 Recommended installation:
 
-`python3 -m pip install anipy-cli`
+`python3 -m pip install anipy-cli --upgrade`
 
 Directly from the repo (may be newer):
 
