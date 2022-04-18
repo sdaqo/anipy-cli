@@ -1,5 +1,3 @@
-import sys
-from ctypes import Union
 from datetime import date
 from pprint import pprint
 import asyncio
@@ -67,6 +65,3 @@ class AnimeInfo:
         search_results.sort(key=lambda x: (x.average_rating or 0.0), reverse=True)
 
         return search_results
-
-    def main(self):
-        pprint(self.get_anime_by_season(season_year=2022, season_name='spring'))
