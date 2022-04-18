@@ -20,6 +20,7 @@ def mpv(entry):
                             f'{config.mpv_path}', 
                             f'--force-media-title={media_title}',
                             f'--http-header-fields=Referer: {entry.embed_url}',
+                            '--force-window=immediate',
                             f'{entry.stream_url}'
                          ]
     for x in config.mpv_commandline_options: 

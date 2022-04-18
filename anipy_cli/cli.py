@@ -47,7 +47,7 @@ def default_cli(quality):
     sub_proc = mpv(show_entry)
     menu(show_entry, options, sub_proc, quality).print_and_input()
 
-def download_cli(quality):
+def download_cli(quality, ffmpeg):
     """
     Cli function for the
     -d flag.
@@ -90,7 +90,7 @@ def download_cli(quality):
             url_class = videourl(show_entry, quality)
             url_class.stream_url()
             show_entry = url_class.get_entry()
-            download(show_entry).download()
+            download(show_entry, ffmpeg).download()
 
 def history_cli(quality):
     """
@@ -576,26 +576,29 @@ def get_searches_from_kitsu():
 def main():
     args = parse_args()
 
-    if args.delete == True:
+    if args.delete:
         try:
             config.history_file_path.unlink()
             print(colors.RED + "Done")
         except FileNotFoundError:
             error("no history file found")
 
-    elif args.download == True:
-        download_cli(args.quality)         
+    elif args.download and args.ffmpeg:
+        download_cli(args.quality, True)
 
-    elif args.binge == True:
+    elif args.download:
+        download_cli(args.quality, False)
+
+    elif args.binge:
         binge_cli(args.quality)
 
-    elif args.seasonal == True:
+    elif args.seasonal:
         seasonal_cli(args.quality)
 
-    elif args.history == True:
+    elif args.history:
         history_cli(args.quality)
     
-    elif args.config == True:
+    elif args.config:
         print(os.path.realpath(__file__).replace('cli.py', 'config.py'))
 
     else:
