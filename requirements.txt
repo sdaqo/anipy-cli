@@ -3,3 +3,4 @@ requests
 pycryptodomex
 tqdm
 better-ffmpeg-progress
+git+https://github.com/dymattic/kitsu.py.git
