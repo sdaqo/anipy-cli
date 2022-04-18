@@ -182,6 +182,7 @@ class videourl():
         keys = self.get_encryption_keys()
         self.iv = keys['iv']
         self.key = keys['key']
+        self.second_key = keys['second_key']
 
     def get_entry(self):
         """
@@ -200,7 +201,7 @@ class videourl():
     
     @functools.lru_cache()
     def get_encryption_keys(self):
-        return {_: __.encode() for _, __ in self.session.get(self.enc_key_api).json().items()}
+        return {_: binascii.unhexlify(__.encode()) for _, __ in self.session.get(self.enc_key_api).json().items()}
     
     def aes_encrypt(self, data, key):
         return base64.b64encode(
@@ -233,8 +234,7 @@ class videourl():
         
         id = urlparse(self.entry.embed_url).query
         id = parse_qs(id)['id'][0]
-        id_enc_key = binascii.hexlify(base64.b64decode(id) + self.iv)[:32]
-        enc_id = self.aes_encrypt(id, id_enc_key)
+        enc_id = self.aes_encrypt(id, self.key).decode()
 
         headers = {'x-requested-with': 'XMLHttpRequest', 'referer': self.entry.embed_url}
         
@@ -247,7 +247,7 @@ class videourl():
         response_err(r, self.entry.embed_url)
         
         json_resp = json.loads(
-             self.aes_decrypt(r.json().get("data"), id_enc_key).strip(
+             self.aes_decrypt(r.json().get("data"), self.second_key).strip(
                  b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10") 
         )
 
