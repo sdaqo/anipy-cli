@@ -265,7 +265,7 @@ class videourl():
         """
 
         self.entry.quality = ""
-        if 'fc24fc6eef71638a72a9b19699526dcb' in json_data[0]['file'] or 'm3u8' in json_data[0]['file']:
+        if 'fc24fc6eef71638a72a9b19699526dcb' in json_data[0]['file']:
             r = self.session.get(json_data[0]['file'], headers={
                                  'referer': self.entry.embed_url})
 
@@ -304,7 +304,7 @@ class videourl():
 
 
 
-        if 'fc24fc6eef71638a72a9b19699526dcb.com' in json_data[0]['file'] or 'm3u8' in json_data[0]['file']:
+        if 'fc24fc6eef71638a72a9b19699526dcb.com' in json_data[0]['file']:
             self.entry.stream_url = json_data[0]['file'].rsplit(
                 '/', 1)[0] + "/" + q
         else:
