@@ -2,7 +2,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(
-                description='Play Animes from gogoanime in local video-player.')
+                description='Play Animes from gogoanime in local video-player or Download them.')
 
     parser.add_argument('-q',
                            '--quality',
@@ -43,6 +43,14 @@ def parse_args():
                             help="Seasonal Anime mode. Bulk download or binge watch newest episodes.",
     )
 
+    parser.add_argument("-f",
+                        "--ffmpeg",
+                        required=False,
+                        dest="ffmpeg",
+                        action="store_true",
+                        help="Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader",
+    
+    )  
     parser.add_argument("-c",
                         "--config",
                         required=False,

@@ -15,19 +15,25 @@ download_folder_path = anipy_cli_folder / "download"
 seasonals_dl_path = download_folder_path / "seasonals"
 user_files_path = anipy_cli_folder / "user_files"
 history_file_path = user_files_path / "history.json"
-seasonal_file_path = user_files_path /"seasonals.json"
+seasonal_file_path = user_files_path / "seasonals.json"
 
 gogoanime_url = "https://gogoanime.gg/"
 
 
 mpv_path = "mpv"
 
-# Specify additional mpv options 
+# Specify additional mpv options
 # you will need to leave a comma (,) between
-# each command and every command should 
+# each command and every command should
 # be wrappedd in quotes (").
 # Example: ["--fs", "--cache"]
 # Look here for various commands: https://github.com/mpv-player/mpv/blob/master/DOCS/man/options.rst
 mpv_commandline_options = []
 
-
+# Always use ffmpeg to download hls streams, you can
+# also activate this temprarly using the -f flag when
+# downloading something.
+# Default: False
+ffmpeg_hls = False
+# The log of the ffmpeg process, when its used
+ffmpeg_log_path = user_files_path / "ffmpeg_log"

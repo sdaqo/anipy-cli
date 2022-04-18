@@ -2,3 +2,4 @@ bs4
 requests
 pycryptodomex
 tqdm
+better-ffmpeg-progress

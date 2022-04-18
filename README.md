@@ -35,12 +35,13 @@ Other methodes can be found in [docs/install.md](https://github.com/sdaqo/anipy-
 
 For Videoplayback mpv is needed get it here: https://mpv.io/installation/
 
+Optionally you can install [ffmpeg](https://ffmpeg.org/download.html) to download m3u8 playlists instead of the internal downloader. Use it with the -f flag. This is something you only want to enable when the internal downlaoder fails, since its pretty slow.
 
 # Usage  
 ```
-usage: anipy-cli [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-c]
+usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-f] [-c]
 
-Watch and Download Animes from gogoanime from the terminal.
+Play Animes from gogoanime in local video-player or Download them.
 
 options:
   -h, --help            show this help message and exit
@@ -51,6 +52,7 @@ options:
   -D, --delete-history  Delete your History.
   -b, --binge           Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)
   -s, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
+  -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
   -c, --config          Print path to the config file.
 
 ```
