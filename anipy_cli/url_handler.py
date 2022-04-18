@@ -251,7 +251,7 @@ class videourl():
                  b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10") 
         )
 
-        print(json_resp)
+        
         source_data = [x for x in json_resp['source']]
         self.quality(source_data)
 
