@@ -6,6 +6,7 @@ all cli functions.
 import time
 import os
 import sys
+from copy import deepcopy
 from pprint import pprint
 
 from kitsu import Anime
@@ -57,13 +58,16 @@ def download_cli(quality, ffmpeg):
           str(config.download_folder_path))
 
     show_entry = entry()
-    query_class = None
     searches = []
+    show_entries = []
     if input('Search Kitsu for anime in Season? (y|n): \n>> ') == 'y':
         searches = get_searches_from_kitsu()
 
     else:
-        searches.append(input('Search: '))
+        another = 'y'
+        while another == 'y':
+            searches.append(input('Search: '))
+            another = input('Add another search: (y|n)\n')
 
     for search in searches:
         links = 0
@@ -82,6 +86,11 @@ def download_cli(quality, ffmpeg):
         show_entry = query_class.pick_show()
         ep_class = epHandler(show_entry)
         ep_list = ep_class.pick_range()
+        show_entries.append({'show_entry': deepcopy(show_entry), 'ep_list': deepcopy(ep_list)})
+
+    for ent in show_entries:
+        show_entry = ent['show_entry']
+        ep_list = ent['ep_list']
         for i in ep_list:
             show_entry.ep = int(i)
             show_entry.embed_url = ""
