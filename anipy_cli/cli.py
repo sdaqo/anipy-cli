@@ -7,7 +7,6 @@ import time
 import os
 import sys
 from copy import deepcopy
-from pprint import pprint
 
 from kitsu import Anime
 
@@ -44,7 +43,7 @@ def default_cli(quality):
     menu(show_entry, options, sub_proc, quality).print_and_input()
 
 
-def download_cli(quality, ffmpeg):
+def download_cli(quality, ffmpeg, no_kitsu):
     """
     Cli function for the
     -d flag.
@@ -60,7 +59,7 @@ def download_cli(quality, ffmpeg):
     show_entry = entry()
     searches = []
     show_entries = []
-    if input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y":
+    if not no_kitsu and input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y":
         searches = get_searches_from_kitsu()
 
     else:
@@ -200,16 +199,17 @@ def binge_cli(quality):
     binge(ep_list, quality)
 
 
-def seasonal_cli(quality):
-    s = seasonalCli(quality)
+def seasonal_cli(quality, no_kitsu):
+    s = seasonalCli(quality, no_kitsu)
     s.print_opts()
     s.take_input()
 
 
 class seasonalCli:
-    def __init__(self, quality):
+    def __init__(self, quality, no_kitsu):
         self.entry = entry()
         self.quality = quality
+        self.no_kitsu = no_kitsu
         self.s_class = Seasonal()
 
     def print_opts(self):
@@ -237,7 +237,7 @@ class seasonalCli:
     def add_anime(self):
         show_entry = entry()
         searches = []
-        if input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y":
+        if not self.no_kitsu and input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y":
             searches = get_searches_from_kitsu()
 
         else:
@@ -608,16 +608,16 @@ def main():
             error("no history file found")
 
     elif args.download and args.ffmpeg:
-        download_cli(args.quality, True)
+        download_cli(args.quality, True, args.no_kitsu)
 
     elif args.download:
-        download_cli(args.quality, False)
+        download_cli(args.quality, False, args.no_kitsu)
 
     elif args.binge:
         binge_cli(args.quality)
 
     elif args.seasonal:
-        seasonal_cli(args.quality)
+        seasonal_cli(args.quality, args.no_kitsu)
 
     elif args.history:
         history_cli(args.quality)
