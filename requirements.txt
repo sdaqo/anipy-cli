@@ -5,3 +5,5 @@ kitsu.py @ git+https://github.com/dymattic/kitsu.py.git@a1df9865f761fa88f75efd1d
 pip-chill
 pycryptodomex
 requests
+python-dateutil
+aiohttp
