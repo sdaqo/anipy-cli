@@ -70,4 +70,12 @@ def parse_args():
         action="store_true",
         help="Print path to the config file.",
     )
+    parser.add_argument(
+        "-o",
+        "--no-kitsu",
+        required=False,
+        dest="no_kitsu",
+        action="store_true",
+        help="Turn off search in season. Disables prompting if kitsu is to be searched for anime in specific season.",
+    )
     return parser.parse_args()

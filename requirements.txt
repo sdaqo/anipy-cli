@@ -1,5 +1,9 @@
-bs4 
-requests
-pycryptodomex
-tqdm
 better-ffmpeg-progress
+black
+bs4
+kitsu.py @ git+https://github.com/dymattic/kitsu.py.git@a1df9865f761fa88f75efd1da62d2d3bfe66d4c5
+pip-chill
+pycryptodomex
+requests
+python-dateutil
+aiohttp
