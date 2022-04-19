@@ -1,5 +1,4 @@
 from datetime import date
-from pprint import pprint
 import asyncio
 import kitsu
 
