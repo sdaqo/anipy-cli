@@ -21,7 +21,7 @@ setup(
         "tqdm",
         "pycryptodomex",
         "better-ffmpeg-progress",
-        "kitsu.py @ git+https://github.com/dymattic/kitsu.py.git@a1df9865f761fa88f75efd1da62d2d3bfe66d4c5"
+        "kitsu.py-extended",
     ],
     entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )

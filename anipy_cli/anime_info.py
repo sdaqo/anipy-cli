@@ -1,6 +1,6 @@
 from datetime import date
 import asyncio
-import kitsu
+import kitsu_extended
 
 
 class AnimeInfo:
@@ -10,7 +10,7 @@ class AnimeInfo:
     """
 
     def __init__(self):
-        self.client = kitsu.Client()
+        self.client = kitsu_extended.Client()
         assert self.client is not None, "Failed to initialize kitsu client."
         self.season_names = {"spring", "summer", "fall", "winter"}
 
