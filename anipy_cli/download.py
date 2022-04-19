@@ -52,6 +52,7 @@ class download:
             self.mp4_dl(self.entry.stream_url)
 
     def ffmpeg_dl(self):
+        config.user_files_path.mkdir(exist_ok=True)
         config.ffmpeg_log_path.mkdir(exist_ok=True)
         fname = f"{self.entry.show_name}_{self.entry.ep}.mp4"
         dl_path = self.show_folder / fname

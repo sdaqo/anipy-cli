@@ -199,18 +199,19 @@ def binge_cli(quality):
     binge(ep_list, quality)
 
 
-def seasonal_cli(quality, no_kitsu):
-    s = seasonalCli(quality, no_kitsu)
+def seasonal_cli(quality, no_kitsu, ffmpeg):
+    s = seasonalCli(quality, no_kitsu, ffmpeg)
     s.print_opts()
     s.take_input()
 
 
 class seasonalCli:
-    def __init__(self, quality, no_kitsu):
+    def __init__(self, quality, no_kitsu, ffmpeg=False):
         self.entry = entry()
         self.quality = quality
         self.no_kitsu = no_kitsu
         self.s_class = Seasonal()
+        self.ffmpeg = ffmpeg
 
     def print_opts(self):
         for i in seasonal_options:
@@ -319,7 +320,7 @@ class seasonalCli:
                 url_class = videourl(show_entry, self.quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
-                download(show_entry).download()
+                download(show_entry, self.ffmpeg).download()
 
         clear_console()
         self.print_opts()
@@ -610,17 +611,14 @@ def main():
         except FileNotFoundError:
             error("no history file found")
 
-    elif args.download and args.ffmpeg:
-        download_cli(args.quality, True, args.no_kitsu)
-
     elif args.download:
-        download_cli(args.quality, False, args.no_kitsu)
+        download_cli(args.quality, args.ffmpeg, args.no_kitsu)
 
     elif args.binge:
         binge_cli(args.quality)
 
     elif args.seasonal:
-        seasonal_cli(args.quality, args.no_kitsu)
+        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg)
 
     elif args.history:
         history_cli(args.quality)
