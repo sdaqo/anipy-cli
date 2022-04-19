@@ -8,7 +8,7 @@ import os
 import sys
 from copy import deepcopy
 
-from kitsu import Anime
+from kitsu_extended import Anime
 
 from .seasonal import Seasonal
 from .url_handler import epHandler, videourl
