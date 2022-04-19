@@ -74,7 +74,7 @@ def parse_args():
         "-o",
         "--no-kitsu",
         required=False,
-        dest='no_kitsu',
+        dest="no_kitsu",
         action="store_true",
         help="Turn off search in season. Disables prompting if kitsu is to be searched for anime in specific season.",
     )

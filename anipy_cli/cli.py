@@ -237,7 +237,10 @@ class seasonalCli:
     def add_anime(self):
         show_entry = entry()
         searches = []
-        if not self.no_kitsu and input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y":
+        if (
+            not self.no_kitsu
+            and input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y"
+        ):
             searches = get_searches_from_kitsu()
 
         else:
