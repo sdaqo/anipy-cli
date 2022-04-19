@@ -214,7 +214,7 @@ class videourl:
     @functools.lru_cache()
     def get_encryption_keys(self):
         return {
-            _: binascii.unhexlify(__.encode())
+            _: __.encode()
             for _, __ in self.session.get(self.enc_key_api).json().items()
         }
 
