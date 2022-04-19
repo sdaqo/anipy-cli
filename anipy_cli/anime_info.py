@@ -28,9 +28,11 @@ class AnimeInfo:
         :rtype: list
         """
 
+        season_name = season_name.lower()
+        
         assert (
             season_name in self.season_names
-        ), 'Unknown season name. Only lower-case season names supported. eg: "spring"'
+        ), f"Unknown season name. Supported: {', '.join(list(self.season_names))}"
 
         search_results = self.search_anime(season=season_name, season_year=season_year)
 
