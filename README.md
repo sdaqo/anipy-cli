@@ -41,7 +41,7 @@ Optionally you can install [ffmpeg](https://ffmpeg.org/download.html) to downloa
 
 # Usage  
 ```
-usage: anipy-cli [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-f] [-c] [-o]
+usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-f] [-c] [-o] [-a]
 
 Play Animes from gogoanime in local video-player or Download them.
 
@@ -57,7 +57,7 @@ options:
   -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
   -c, --config          Print path to the config file.
   -o, --no-kitsu        Turn off search in season. Disables prompting if kitsu is to be searched for anime in specific season.
-
+  -a, --auto-update     Automatically update and download all Anime in seasonals list from start EP to newest.
 ```
 # What it can do
 
