@@ -107,6 +107,37 @@ class epHandler:
 
         return self.entry
 
+    def pick_ep_seasonal(self):
+        """
+        Cli function to pick a episode from 0 to
+        the latest avalible.
+        """
+
+        self.get_latest()
+
+        while True:
+            which_episode = input(
+                colors.END
+                + "Last Episode you watched (put 0 to start at the beginning) "
+                + colors.GREEN
+                + f"[0-{self.entry.latest_ep}]"
+                + colors.END
+                + ": \n>> "
+                + colors.CYAN
+            )
+            try:
+                if int(which_episode) in list(range(0, self.entry.latest_ep + 1)):
+                    self.entry.ep = int(which_episode)
+                    self.gen_eplink()
+                    break
+                else:
+                    error("Number out of range.")
+
+            except:
+                error("Invalid Input")
+
+        return self.entry
+
     def pick_range(self):
         """
         Accept a range of episodes

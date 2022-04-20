@@ -276,7 +276,7 @@ class seasonalCli:
                 sys.exit()
 
             show_entry = query_class.pick_show()
-            picked_ep = epHandler(show_entry).pick_ep().ep
+            picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
             Seasonal().add_show(
                 show_entry.show_name, show_entry.category_url, picked_ep
             )
