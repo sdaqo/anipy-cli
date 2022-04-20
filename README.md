@@ -61,16 +61,16 @@ options:
 ```
 # What it can do
 
-- Query gogoanime without opening your browser
+- Faster than watching in the browser.
 - Play Animes in Your Local video player
 - Select a quality in which the video will be played/downloaded.
 - Download Animes  
 - History of watched Episodes
 - Binge Mode to watch a range of episodes back-to-back.
 - Seasonal Mode to bulk download or binge watch the latest episodes of animes you pick
-- (Optional) Search [Kitsu](https://www.kitsu.io/) for animes in specific seasons. Avalible for the dwonload cli and the seasonal mode. Turn it off with -o flag.
-- (Optional) Discord Presence for the anime you currently watch. This is off by default, activate it in the config (-c)
-- (Optional) Ffmpeg to download m3u8 playlists, may be more stable but is slower than internal downloader.
+- (**Optional**) Search [Kitsu](https://www.kitsu.io/) for animes in specific seasons. Avalible for the dwonload cli and the seasonal mode. Turn it off with -o flag.
+- (**Optional**) Discord Presence for the anime you currently watch. This is off by default, activate it in the config (-c)
+- (**Optional**) Ffmpeg to download m3u8 playlists, may be more stable but is slower than internal downloader.
 
 
 # Libary Usage
