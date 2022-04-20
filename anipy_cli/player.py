@@ -40,7 +40,10 @@ def mpv(entry, rpc_client=None):
     hist_class.write_hist()
 
     if config.dc_presence:
-        dc_presence(media_title, entry.category_url, rpc_client)
+        dc_media_title = (
+            f"{entry.show_name} - {entry.quality} | {entry.ep}/{entry.latest_ep}"
+        )
+        dc_presence(dc_media_title, entry.category_url, rpc_client)
 
     return sub_proc
 
@@ -58,5 +61,6 @@ def dc_presence(media_title, category_url, rpc_client):
         details="Watching anime via anipy-cli",
         state=media_title,
         large_image=info["image_url"],
+        small_image="https://github.com/Dankni95/ulauncher-anime/raw/master/images/icon.png",
         start=int(time.time()),
     )
