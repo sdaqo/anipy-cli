@@ -180,6 +180,7 @@ class download:
 
         :return:
         :rtype:
+        TODO: Update this downloader
         """
         self.get_ts_links()
         self.temp_folder = self.show_folder / f"{self.entry.ep}_temp"
