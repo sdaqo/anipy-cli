@@ -22,6 +22,8 @@ setup(
         "pycryptodomex",
         "better-ffmpeg-progress",
         "kitsu.py-extended",
+        "pypresence",
+        "python-dateutil",
     ],
     entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )
