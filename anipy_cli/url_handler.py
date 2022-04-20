@@ -2,10 +2,9 @@ import sys
 import json
 import requests
 import re
-import binascii
 import base64
 import functools
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qsl
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
@@ -224,13 +223,17 @@ class videourl:
         )
 
     def aes_decrypt(self, data, key):
-        return AES.new(key, self.mode, iv=self.iv).decrypt(base64.b64decode(data))
+        return (
+            AES.new(key, self.mode, iv=self.iv)
+            .decrypt(base64.b64decode(data))
+            .strip(b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10")
+        )
 
-    def get_crypto(self):
+    def get_data(self):
         r = self.session.get(self.entry.embed_url)
-        soup = BeautifulSoup(r.text, "html.parser")
+        soup = BeautifulSoup(r.content, "html.parser")
         crypto = soup.find("script", {"data-name": "episode"})
-        loc_err(crypto, self.entry.embed_url, "crypto")
+        loc_err(crypto, self.entry.embed_url, "token")
         return crypto["data-value"]
 
     def stream_url(self):
@@ -240,12 +243,17 @@ class videourl:
         """
         if not self.entry.embed_url:
             self.embed_url()
+
         parsed = urlparse(self.entry.embed_url)
         self.ajax_url = parsed.scheme + "://" + parsed.netloc + self.ajax_url
 
+        data = self.aes_decrypt(self.get_data(), self.key).decode()
+        data = dict(parse_qsl(data))
+
         id = urlparse(self.entry.embed_url).query
-        id = parse_qs(id)["id"][0]
+        id = dict(parse_qsl(id))["id"]
         enc_id = self.aes_encrypt(id, self.key).decode()
+        data.update(id=enc_id, alias=id)
 
         headers = {
             "x-requested-with": "XMLHttpRequest",
@@ -253,16 +261,14 @@ class videourl:
         }
 
         r = self.session.post(
-            self.ajax_url, headers=headers, params={"id": enc_id, "alias": id}
+            self.ajax_url,
+            headers=headers,
+            params=data,
         )
 
-        response_err(r, self.entry.embed_url)
+        response_err(r, r.url)
 
-        json_resp = json.loads(
-            self.aes_decrypt(r.json().get("data"), self.second_key).strip(
-                b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10"
-            )
-        )
+        json_resp = json.loads(self.aes_decrypt(r.json().get("data"), self.second_key))
 
         source_data = [x for x in json_resp["source"]]
         self.quality(source_data)
