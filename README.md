@@ -61,8 +61,8 @@ options:
 ```
 # What it can do
 
-- Query gogoanime without opening yout browser
-- Play Animes in Your Local Videplayer
+- Query gogoanime without opening your browser
+- Play Animes in Your Local video player
 - Select a quality in which the video will be played/downloaded.
 - Download Animes  
 - History of watched Episodes
