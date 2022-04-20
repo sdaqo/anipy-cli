@@ -7,7 +7,6 @@ import time
 import os
 import sys
 from copy import deepcopy
-from pprint import pprint
 
 from kitsu_extended import Anime
 
@@ -312,7 +311,6 @@ class seasonalCli:
 
     def download_latest(self):
         latest_urls = Seasonal().latest_eps()
-        pprint(latest_urls)
 
         if not latest_urls:
             error("Nothing to download")
