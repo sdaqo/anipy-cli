@@ -64,7 +64,6 @@ class AnimeInfo:
 
             offset += 20
         loop.run_until_complete(self.client.close())
-        loop.close()
 
         search_results.sort(key=lambda x: (x.average_rating or 0.0), reverse=True)
 
