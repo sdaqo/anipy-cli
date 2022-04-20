@@ -4,7 +4,7 @@ import requests
 import re
 import base64
 import functools
-from urllib.parse import urlparse, parse_qsl
+from urllib.parse import urlparse, parse_qsl, urlencode
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
@@ -184,7 +184,7 @@ class videourl:
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
-        self.ajax_url = "/encrypt-ajax.php"
+        self.ajax_url = "/encrypt-ajax.php?"
         self.enc_key_api = "https://raw.githubusercontent.com/justfoolingaround/animdl-provider-benchmarks/master/api/gogoanime.json"
         self.mode = AES.MODE_CBC
         self.size = AES.block_size
@@ -253,7 +253,7 @@ class videourl:
         id = urlparse(self.entry.embed_url).query
         id = dict(parse_qsl(id))["id"]
         enc_id = self.aes_encrypt(id, self.key).decode()
-        data.update(id=enc_id, alias=id)
+        data.update(id=enc_id)
 
         headers = {
             "x-requested-with": "XMLHttpRequest",
@@ -261,9 +261,8 @@ class videourl:
         }
 
         r = self.session.post(
-            self.ajax_url,
+            self.ajax_url + urlencode(data) + f"&alias={id}",
             headers=headers,
-            params=data,
         )
 
         response_err(r, r.url)
