@@ -36,7 +36,7 @@ class Seasonal:
             self.entry.category_url = i
             ep_class = epHandler(self.entry)
             latest = ep_class.get_latest()
-            eps_range = list(range(e, latest + 1))
+            eps_range = list(range(e + 1, latest + 1))
             ep_urls = []
             for j in eps_range:
                 self.entry.ep = j
