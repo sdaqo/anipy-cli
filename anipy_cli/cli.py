@@ -15,13 +15,18 @@ from .seasonal import Seasonal
 from .url_handler import epHandler, videourl
 from .history import history
 from .misc import error, entry, options, clear_console, print_names, seasonal_options
-from .player import mpv
+from .player import mpv, dc_presence_connect
 from .query import query
 from .arg_parser import parse_args
 from .colors import colors
 from .download import download
 from .anime_info import AnimeInfo
 from . import config
+
+rpc_client = None
+if config.dc_presence:
+    rpc_client = dc_presence_connect()
+    print(colors.GREEN + "Initalized Discord Presence Client" + colors.END)
 
 
 def default_cli(quality):
@@ -40,7 +45,8 @@ def default_cli(quality):
     url_class = videourl(show_entry, quality)
     url_class.stream_url()
     show_entry = url_class.get_entry()
-    sub_proc = mpv(show_entry)
+
+    sub_proc = mpv(show_entry, rpc_client)
     menu(show_entry, options, sub_proc, quality).print_and_input()
 
 
@@ -160,7 +166,7 @@ def history_cli(quality):
     url_class = videourl(show_entry, quality)
     url_class.stream_url()
     show_entry = url_class.get_entry()
-    sub_proc = mpv(show_entry)
+    sub_proc = mpv(show_entry, rpc_client)
     menu(show_entry, options, sub_proc, quality).print_and_input()
 
 
@@ -410,7 +416,7 @@ class menu:
         url_class = videourl(self.entry, self.quality)
         url_class.stream_url()
         self.entry = url_class.get_entry()
-        self.sub_proc = mpv(self.entry)
+        self.sub_proc = mpv(self.entry, rpc_client)
 
     def take_input(self):
         while True:
@@ -529,7 +535,7 @@ def binge(ep_list, quality):
                 url_class = videourl(show_entry, quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
-                sub_proc = mpv(show_entry)
+                sub_proc = mpv(show_entry, rpc_client)
                 while True:
                     poll = sub_proc.poll()
                     if poll is not None:
@@ -605,7 +611,6 @@ def get_searches_from_kitsu():
 
 def main():
     args = parse_args()
-
     if args.delete:
         try:
             config.history_file_path.unlink()

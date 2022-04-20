@@ -17,8 +17,10 @@ https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-
 - [Installation](#Installation)
 - [Usage](#Usage)
 - [Libary Usage](#libary-usage)
+- [What it can do](#what-it-can-do)
 - [Other Versions](#other-versions)
 - [Credits](#Credits)
+
 
 
 # Installation
@@ -39,7 +41,7 @@ Optionally you can install [ffmpeg](https://ffmpeg.org/download.html) to downloa
 
 # Usage  
 ```
-usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-f] [-c]
+usage: anipy-cli [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-f] [-c] [-o]
 
 Play Animes from gogoanime in local video-player or Download them.
 
@@ -54,8 +56,22 @@ options:
   -s, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
   -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
   -c, --config          Print path to the config file.
+  -o, --no-kitsu        Turn off search in season. Disables prompting if kitsu is to be searched for anime in specific season.
 
 ```
+# What it can do
+
+- Query gogoanime without opening your browser
+- Play Animes in Your Local video player
+- Select a quality in which the video will be played/downloaded.
+- Download Animes  
+- History of watched Episodes
+- Binge Mode to watch a range of episodes back-to-back.
+- Seasonal Mode to bulk download or binge watch the latest episodes of animes you pick
+- (Optional) Search [Kitsu](https://www.kitsu.io/) for animes in specific seasons. Avalible for the default cli and the seasonal mode. Turn it off with -o flag.
+- (Optional) Discord Presence for the anime you currently watch. This is off by default, activate it in the config (-c)
+- (Optional) Ffmpeg to download m3u8 playlists, may be more stable but is slower than internal downloader.
+
 
 # Libary Usage
 

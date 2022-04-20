@@ -37,3 +37,9 @@ mpv_commandline_options = []
 ffmpeg_hls = False
 # The log of the ffmpeg process, when its used
 ffmpeg_log_path = user_files_path / "ffmpeg_log"
+
+
+# Discord Presence:
+# Show what you are watching on discord
+# Default: False
+dc_presence = False

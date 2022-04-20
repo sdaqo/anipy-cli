@@ -1,9 +1,7 @@
 better-ffmpeg-progress
-black
 bs4
 kitsu.py-extended>=1.0.4
-pip-chill
 pycryptodomex
 requests
 python-dateutil
-aiohttp
+pypresence
