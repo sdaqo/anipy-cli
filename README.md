@@ -25,6 +25,8 @@ https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-
 
 # Installation
 
+<a href="https://pypi.org/project/anipy-cli/">![PyPI](https://img.shields.io/pypi/v/anipy-cli?style=for-the-badge)</a>
+
 Recommended installation:
 
 `python3 -m pip install anipy-cli --upgrade`
