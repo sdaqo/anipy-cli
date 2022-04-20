@@ -7,6 +7,7 @@ import time
 import os
 import sys
 from copy import deepcopy
+from pprint import pprint
 
 from kitsu_extended import Anime
 
@@ -199,7 +200,7 @@ def binge_cli(quality):
     binge(ep_list, quality)
 
 
-def seasonal_cli(quality, no_kitsu, ffmpeg):
+def seasonal_cli(quality, no_kitsu, ffmpeg, update_all):
     s = seasonalCli(quality, no_kitsu, ffmpeg)
     s.print_opts()
     s.take_input()
@@ -300,6 +301,7 @@ class seasonalCli:
 
     def download_latest(self):
         latest_urls = Seasonal().latest_eps()
+        pprint(latest_urls)
 
         if not latest_urls:
             error("Nothing to download")
@@ -618,7 +620,10 @@ def main():
         binge_cli(args.quality)
 
     elif args.seasonal:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg)
+        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.update_all)
+
+    elif args.update_all:
+        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.update_all)
 
     elif args.history:
         history_cli(args.quality)
