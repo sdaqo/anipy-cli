@@ -78,4 +78,13 @@ def parse_args():
         action="store_true",
         help="Turn off search in season. Disables prompting if kitsu is to be searched for anime in specific season.",
     )
+    parser.add_argument(
+        "-a",
+        "--auto-update",
+        required=False,
+        dest="auto_update",
+        action="store_true",
+        help="Automatically update and download all Anime in seasonals list from start EP to newest.",
+    )
+
     return parser.parse_args()

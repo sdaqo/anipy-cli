@@ -29,7 +29,7 @@ class AnimeInfo:
         """
 
         season_name = season_name.lower()
-        
+
         assert (
             season_name in self.season_names
         ), f"Unknown season name. Supported: {', '.join(list(self.season_names))}"
