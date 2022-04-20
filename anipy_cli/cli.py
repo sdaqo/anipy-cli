@@ -206,19 +206,24 @@ def binge_cli(quality):
     binge(ep_list, quality)
 
 
-def seasonal_cli(quality, no_kitsu, ffmpeg, update_all):
-    s = seasonalCli(quality, no_kitsu, ffmpeg)
-    s.print_opts()
-    s.take_input()
+def seasonal_cli(quality, no_kitsu, ffmpeg, auto_update):
+    s = seasonalCli(quality, no_kitsu, ffmpeg, auto_update)
+    if auto_update:
+        s.download_latest()
+
+    else:
+        s.print_opts()
+        s.take_input()
 
 
 class seasonalCli:
-    def __init__(self, quality, no_kitsu, ffmpeg=False):
+    def __init__(self, quality, no_kitsu, ffmpeg=False, auto=False):
         self.entry = entry()
         self.quality = quality
         self.no_kitsu = no_kitsu
         self.s_class = Seasonal()
         self.ffmpeg = ffmpeg
+        self.auto = auto
 
     def print_opts(self):
         for i in seasonal_options:
@@ -315,7 +320,8 @@ class seasonalCli:
 
         print("Stuff to be downloaded:")
         self.list_possible(latest_urls)
-        input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
+        if not self.auto:
+            input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
 
         for i in latest_urls:
             print(f"Downloading newest urls for {i}")
@@ -330,8 +336,9 @@ class seasonalCli:
                 show_entry = url_class.get_entry()
                 download(show_entry, self.ffmpeg).download()
 
-        clear_console()
-        self.print_opts()
+        if not self.auto:
+            clear_console()
+            self.print_opts()
 
         for i in latest_urls:
             Seasonal().update_show(i, latest_urls[i]["category_url"])
@@ -625,10 +632,10 @@ def main():
         binge_cli(args.quality)
 
     elif args.seasonal:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.update_all)
+        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update)
 
-    elif args.update_all:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.update_all)
+    elif args.auto_update:
+        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update)
 
     elif args.history:
         history_cli(args.quality)
