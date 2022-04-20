@@ -69,7 +69,8 @@ class download:
                 "copy",
                 "-scodec",
                 "mov_text",
-                "-y",
+                "-c",
+                "copy",
                 str(dl_path),
             ]
         )
