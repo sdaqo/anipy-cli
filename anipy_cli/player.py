@@ -41,7 +41,7 @@ def mpv(entry, rpc_client=None):
 
     if config.dc_presence:
         dc_media_title = (
-            f"{entry.show_name} - {entry.quality} | {entry.ep}/{entry.latest_ep}"
+            f"{entry.show_name} | {entry.ep}/{entry.latest_ep}"
         )
         dc_presence(dc_media_title, entry.category_url, rpc_client)
 
