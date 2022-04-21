@@ -1,0 +1,3 @@
+[submodule "anipy_cli/submodules/m3u8-downloader"]
+	path = anipy_cli/submodules/m3u8-downloader
+	url = https://github.com/ChenTanyi/m3u8-downloader.git

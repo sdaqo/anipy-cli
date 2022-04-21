@@ -1,3 +1,10 @@
+import json
+import re
+import urllib
+from pathlib import Path
+from pprint import pprint
+
+import m3u8
 import requests
 import shutil
 import sys
@@ -19,6 +26,8 @@ class download:
     """
 
     def __init__(self, entry, ffmpeg=False) -> None:
+        self._m3u8_content = None
+        self.session = None
         self.entry = entry
         self.ffmpeg = ffmpeg
         self.headers = {"referer": self.entry.embed_url}
@@ -32,6 +41,16 @@ class download:
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
+        self.session.headers.update(self.headers)
+
+        fname = f"{self.entry.show_name}_{self.entry.ep}.mp4"
+        dl_path = self.show_folder / fname
+
+        if dl_path.is_file():
+            print("-" * 20)
+            print(
+                f"{colors.GREEN}Skipping Already Existing:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}")
+            return
 
         print("-" * 20)
         print(
@@ -55,7 +74,9 @@ class download:
         config.user_files_path.mkdir(exist_ok=True)
         config.ffmpeg_log_path.mkdir(exist_ok=True)
         fname = f"{self.entry.show_name}_{self.entry.ep}.mp4"
+
         dl_path = self.show_folder / fname
+
         ffmpeg_process = FfmpegProcess(
             [
                 "ffmpeg",
@@ -85,6 +106,42 @@ class download:
             error("interrupted deleting partially downloaded file")
             fname.unlink()
 
+    def ffmpeg_merge(self, input_file):
+        config.user_files_path.mkdir(exist_ok=True)
+        config.ffmpeg_log_path.mkdir(exist_ok=True)
+        fname = f"{self.entry.show_name}_{self.entry.ep}.mp4"
+
+        dl_path = self.show_folder / fname
+
+        ffmpeg_process = FfmpegProcess(
+            [
+                "ffmpeg",
+                "-i",
+                str(input_file),
+                "-vcodec",
+                "copy",
+                "-acodec",
+                "copy",
+                "-scodec",
+                "mov_text",
+                "-c",
+                "copy",
+                str(dl_path),
+            ]
+        )
+
+        try:
+            print(f"{colors.CYAN}Merging Parts using ffmpeg...")
+            ffmpeg_process.run(
+                ffmpeg_output_file=str(
+                    config.ffmpeg_log_path / fname.replace("mp4", "log")
+                )
+            )
+            print(f"{colors.CYAN}Merge finished.")
+        except KeyboardInterrupt:
+            error("interrupted deleting partially downloaded file")
+            fname.unlink()
+
     def mp4_dl(self, dl_link):
         """
 
@@ -99,11 +156,11 @@ class download:
         fname = self.show_folder / f"{self.entry.show_name}_{self.entry.ep}.mp4"
         try:
             with fname.open("wb") as out_file, tqdm(
-                desc=self.entry.show_name,
-                total=total,
-                unit="iB",
-                unit_scale=True,
-                unit_divisor=1024,
+                    desc=self.entry.show_name,
+                    total=total,
+                    unit="iB",
+                    unit_scale=True,
+                    unit_divisor=1024,
             ) as bar:
                 for data in r.iter_content(chunk_size=1024):
                     size = out_file.write(data)
@@ -114,59 +171,35 @@ class download:
 
         print(f"{colors.CYAN}Download finished.")
 
-    def get_ts_links(self):
-        """
-        Gets all ts links
-        from a m3u8 playlist.
-        M3u8 link must have gone trough
-        videourl().quality() to work
-        properly.
-
-        :return:
-        :rtype:
-        """
-        r = requests.get(self.entry.stream_url, headers=self.headers)
-        self.ts_link_names = [x for x in r.text.split("\n")]
-        self.ts_link_names = [x for x in self.ts_link_names if not x.startswith("#")]
-
-        if "fc24fc6eef71638a72a9b19699526dcb" in self.entry.stream_url:
-            self.ts_links = self.ts_link_names
-            self.ts_link_names = [urlsplit(x).path for x in self.ts_link_names]
-            self.ts_link_names = [x.split("/")[-1] for x in self.ts_link_names]
-        else:
-            self.ts_links = [
-                urljoin(self.entry.stream_url, x.strip()) for x in self.ts_link_names
-            ]
-
-        self.link_count = len(self.ts_links)
-
-    def download_ts(self, ts_link, fname):
-        """
-
-        :param ts_link:
-        :type ts_link:
-        :param fname:
-        :type fname:
-        :return:
-        :rtype:
-        """
-        try:
-            r = self.session.get(ts_link, headers=self.headers)
-        except:
-            self.counter += 1
+    def download_ts(self, m3u8_segments):
+        self.counter += 1
+        uri = urllib.parse.urljoin(m3u8_segments.base_uri, m3u8_segments.uri)
+        if not self._is_url(uri):
             return
 
-        file_path = self.temp_folder / fname
+        filename = self._get_filename(uri, self.temp_folder)
+        headers = self.headers
 
-        print(
-            f"{colors.CYAN}Downloading Parts: {colors.RED}({self.counter}/{self.link_count}) {colors.END}",
-            end="\r",
-        )
+        print(f"{colors.CYAN}Downloading Part: {self.counter}/{self.segment_count}", end="")
+        print('\r', end="")
 
-        with open(file_path, "wb") as file:
-            for data in r.iter_content(chunk_size=1024):
-                file.write(data)
-        self.counter += 1
+        try:
+            with self.session.get(
+                    uri,
+                    timeout=10,
+                    headers=headers,
+                    stream=False) as response:
+
+                if response.status_code == 416:
+                    return
+
+                response.raise_for_status()
+
+                with open(filename, 'wb') as fout:
+                    fout.write(response.content)
+
+        except Exception as e:
+            exit(e.__str__())
 
     def multithread_m3u8_dl(self):
         """
@@ -180,53 +213,101 @@ class download:
 
         :return:
         :rtype:
-        TODO: Update this downloader
         """
-        self.get_ts_links()
+
         self.temp_folder = self.show_folder / f"{self.entry.ep}_temp"
         self.temp_folder.mkdir(exist_ok=True)
         self.counter = 0
 
+        self._m3u8_content = self._download_m3u8(self.entry.stream_url, 10,
+                                                 self.headers)
+        assert (self._m3u8_content.is_variant is False)
+        self.segment_count = len(self._m3u8_content.segments)
         try:
             with ThreadPoolExecutor(60) as pool:
-                pool.map(self.download_ts, self.ts_links, self.ts_link_names)
+                pool.map(self.download_ts, self._m3u8_content.segments)
+            self._download_key()
+
         except KeyboardInterrupt:
             shutil.rmtree(self.temp_folder)
             keyboard_inter()
             sys.exit()
+        input_file = self._dump_m3u8()
 
         print(f"\n{colors.CYAN}Parts Downloaded")
-        self.merge_files()
+        self.ffmpeg_merge(input_file)
         print(f"\n{colors.CYAN}Parts Merged")
         shutil.rmtree(self.temp_folder)
 
-    def merge_files(self):
-        """
-        Merge downloded ts files
-        into one ts file.
+    def _download_m3u8(self, uri, timeout, headers):
+        if self._is_url(uri):
+            resp = self.session.get(
+                uri, timeout=timeout, headers=self.headers)
+            resp.raise_for_status()
+            raw_content = resp.content.decode(resp.encoding or 'utf-8')
+            base_uri = urllib.parse.urljoin(uri, '.')
+        else:
+            with open(uri) as fin:
+                raw_content = fin.read()
+                base_uri = Path(uri)
+        content = m3u8.M3U8(raw_content, base_uri=base_uri)
 
-        :return:
-        :rtype:
-        """
-        out_file = self.show_folder / f"{self.entry.show_name}_{self.entry.ep}.ts"
-        try:
-            with open(out_file, "wb") as f:
-                self.counter = 1
-                for i in self.ts_link_names:
-                    print(
-                        f"{colors.CYAN}Merging Parts: {colors.RED} ({self.counter}/{self.link_count}) {colors.END}",
-                        end="\r",
-                    )
+        #sort
+        sorted_content_playlist = sorted(content.playlists, key=lambda x: x.stream_info.bandwidth, reverse=True)
+
+        if content.is_variant:
+            for index, playlist in enumerate(sorted_content_playlist):
+                print("Selected Quality: {}\n"
+                      "Playlist Index: {}\n"
+                      "Resolution at this index: {}\n\n"
+                      .format(self.entry.quality, index, playlist.stream_info.resolution)
+                      )
+                if ("auto" in self.entry.quality and index == 0) \
+                        or self.entry.quality in playlist.stream_info.resolution:
                     try:
-                        if i != "":
-                            with open(self.temp_folder / i, "rb") as t:
-                                f.write(t.read())
-                        else:
-                            pass
-                    except FileNotFoundError:
-                        pass
+                        chosen_uri = content.playlists[index].uri
+                        if not self._is_url(chosen_uri):
+                            chosen_uri = urllib.parse.urljoin(
+                                content.base_uri, chosen_uri)
+                        return self._download_m3u8(chosen_uri, timeout, headers)
 
-                    self.counter += 1
+                    except (ValueError, IndexError):
+                        exit('Failed to get stream for chosen quality')
 
-        except PermissionError:
-            error(f"could not create file due to permissions: {out_file}")
+        return content
+
+    def _dump_m3u8(self):
+        for index, segment in enumerate(self._m3u8_content.segments):
+            self._m3u8_content.segments[index].uri = self._get_filename(
+                segment.uri, self.temp_folder)
+
+        filename = self._get_filename("master.m3u8", self.temp_folder)
+        print("File Name for local m3u8 file: {}\n\n".format(filename))
+        self._m3u8_content.dump(filename)
+        return filename
+
+    def _download_key(self):
+        for key in self._m3u8_content.keys:
+            if key:
+                uri = key.absolute_uri
+                filename = self._get_filename(uri, self.show_folder)
+
+                with self.session.get(
+                        uri,
+                        timeout=10,
+                        headers=self.headers) as response:
+                    response.raise_for_status()
+                    with open(filename, 'wb') as fout:
+                        fout.write(response.content)
+
+                key.uri = filename.__str__().replace('\\', '/')  # ffmpeg error when using \\ in windows
+
+    @staticmethod
+    def _is_url(uri):
+        return re.match(r'https?://', uri) is not None
+
+    @staticmethod
+    def _get_filename(uri, directory):
+        basename = urllib.parse.urlparse(uri).path.split('/')[-1]
+        filename = Path("{}/{}".format(directory, basename)).__str__()
+        return filename
