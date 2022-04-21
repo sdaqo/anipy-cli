@@ -2,17 +2,16 @@ import re
 import urllib
 from pathlib import Path
 
-import ffmpeg
 import m3u8
 import requests
 import shutil
-import sys
 
 from tqdm import tqdm
 from requests.adapters import HTTPAdapter, Retry
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin, urlsplit
 from better_ffmpeg_progress import FfmpegProcess
+from moviepy.editor import *
 
 from .misc import response_err, error, keyboard_inter
 from .colors import colors
@@ -122,24 +121,22 @@ class download:
         dl_path = self.show_folder / fname
 
         merged_video_ts = self.merge_ts_files(input_file)
-        ffmpeg_p = ffmpeg
-        ffmpeg_p
-        input_streams = [ffmpeg.input(merged_video_ts)]
+        merged_audio_ts = None
         if audio_input_file:
             merged_audio_ts = self.merge_ts_files(audio_input_file, "_audio")
-            input_streams.append(ffmpeg.input(merged_audio_ts))
-        try:
-            print(f"{colors.CYAN}Merging Parts using ffmpeg...")
-            ffmpeg_p.output(
-                *input_streams,
-                str(dl_path),
-                vcodec="copy",
-                acodec="copy",
-                scodec="mov_text",
-                c="copy",
-                loglevel="error",
-            ).run()
 
+        try:
+            print(f"{colors.CYAN}Merging Parts using Movie.py...")
+            if audio_input_file:
+                ffmpeg_tools.ffmpeg_merge_video_audio(
+                    merged_video_ts,
+                    merged_audio_ts,
+                    str(dl_path),
+                    vcodec="copy",
+                    acodec="copy",
+                    ffmpeg_output=False,
+                    logger="bar",
+                )
             print(f"{colors.CYAN}Merge finished.")
         except KeyboardInterrupt:
             error("interrupted deleting partially downloaded file")
