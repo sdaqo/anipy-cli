@@ -2,7 +2,6 @@ import json
 import re
 import urllib
 from pathlib import Path
-from pprint import pprint
 
 import m3u8
 import requests
@@ -49,7 +48,8 @@ class download:
         if dl_path.is_file():
             print("-" * 20)
             print(
-                f"{colors.GREEN}Skipping Already Existing:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}")
+                f"{colors.GREEN}Skipping Already Existing:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}"
+            )
             return
 
         print("-" * 20)
@@ -156,11 +156,11 @@ class download:
         fname = self.show_folder / f"{self.entry.show_name}_{self.entry.ep}.mp4"
         try:
             with fname.open("wb") as out_file, tqdm(
-                    desc=self.entry.show_name,
-                    total=total,
-                    unit="iB",
-                    unit_scale=True,
-                    unit_divisor=1024,
+                desc=self.entry.show_name,
+                total=total,
+                unit="iB",
+                unit_scale=True,
+                unit_divisor=1024,
             ) as bar:
                 for data in r.iter_content(chunk_size=1024):
                     size = out_file.write(data)
@@ -180,22 +180,23 @@ class download:
         filename = self._get_filename(uri, self.temp_folder)
         headers = self.headers
 
-        print(f"{colors.CYAN}Downloading Part: {self.counter}/{self.segment_count}", end="")
-        print('\r', end="")
+        print(
+            f"{colors.CYAN}Downloading Part: {self.counter}/{self.segment_count}",
+            end="",
+        )
+        print("\r", end="")
 
         try:
             with self.session.get(
-                    uri,
-                    timeout=10,
-                    headers=headers,
-                    stream=False) as response:
+                uri, timeout=10, headers=headers, stream=False
+            ) as response:
 
                 if response.status_code == 416:
                     return
 
                 response.raise_for_status()
 
-                with open(filename, 'wb') as fout:
+                with open(filename, "wb") as fout:
                     fout.write(response.content)
 
         except Exception as e:
@@ -219,9 +220,10 @@ class download:
         self.temp_folder.mkdir(exist_ok=True)
         self.counter = 0
 
-        self._m3u8_content = self._download_m3u8(self.entry.stream_url, 10,
-                                                 self.headers)
-        assert (self._m3u8_content.is_variant is False)
+        self._m3u8_content = self._download_m3u8(
+            self.entry.stream_url, 10, self.headers
+        )
+        assert self._m3u8_content.is_variant is False
         self.segment_count = len(self._m3u8_content.segments)
         try:
             with ThreadPoolExecutor(60) as pool:
@@ -241,45 +243,51 @@ class download:
 
     def _download_m3u8(self, uri, timeout, headers):
         if self._is_url(uri):
-            resp = self.session.get(
-                uri, timeout=timeout, headers=self.headers)
+            resp = self.session.get(uri, timeout=timeout, headers=self.headers)
             resp.raise_for_status()
-            raw_content = resp.content.decode(resp.encoding or 'utf-8')
-            base_uri = urllib.parse.urljoin(uri, '.')
+            raw_content = resp.content.decode(resp.encoding or "utf-8")
+            base_uri = urllib.parse.urljoin(uri, ".")
         else:
             with open(uri) as fin:
                 raw_content = fin.read()
                 base_uri = Path(uri)
         content = m3u8.M3U8(raw_content, base_uri=base_uri)
 
-        #sort
-        sorted_content_playlist = sorted(content.playlists, key=lambda x: x.stream_info.bandwidth, reverse=True)
+        # sort
+        sorted_content_playlist = sorted(
+            content.playlists, key=lambda x: x.stream_info.bandwidth, reverse=True
+        )
 
         if content.is_variant:
             for index, playlist in enumerate(sorted_content_playlist):
-                print("Selected Quality: {}\n"
-                      "Playlist Index: {}\n"
-                      "Resolution at this index: {}\n\n"
-                      .format(self.entry.quality, index, playlist.stream_info.resolution)
-                      )
-                if ("auto" in self.entry.quality and index == 0) \
-                        or self.entry.quality in playlist.stream_info.resolution:
+                print(
+                    "Selected Quality: {}\n"
+                    "Playlist Index: {}\n"
+                    "Resolution at this index: {}\n\n".format(
+                        self.entry.quality, index, playlist.stream_info.resolution
+                    )
+                )
+                if (
+                    "auto" in self.entry.quality and index == 0
+                ) or self.entry.quality in playlist.stream_info.resolution:
                     try:
                         chosen_uri = content.playlists[index].uri
                         if not self._is_url(chosen_uri):
                             chosen_uri = urllib.parse.urljoin(
-                                content.base_uri, chosen_uri)
+                                content.base_uri, chosen_uri
+                            )
                         return self._download_m3u8(chosen_uri, timeout, headers)
 
                     except (ValueError, IndexError):
-                        exit('Failed to get stream for chosen quality')
+                        exit("Failed to get stream for chosen quality")
 
         return content
 
     def _dump_m3u8(self):
         for index, segment in enumerate(self._m3u8_content.segments):
             self._m3u8_content.segments[index].uri = self._get_filename(
-                segment.uri, self.temp_folder)
+                segment.uri, self.temp_folder
+            )
 
         filename = self._get_filename("master.m3u8", self.temp_folder)
         print("File Name for local m3u8 file: {}\n\n".format(filename))
@@ -293,21 +301,22 @@ class download:
                 filename = self._get_filename(uri, self.show_folder)
 
                 with self.session.get(
-                        uri,
-                        timeout=10,
-                        headers=self.headers) as response:
+                    uri, timeout=10, headers=self.headers
+                ) as response:
                     response.raise_for_status()
-                    with open(filename, 'wb') as fout:
+                    with open(filename, "wb") as fout:
                         fout.write(response.content)
 
-                key.uri = filename.__str__().replace('\\', '/')  # ffmpeg error when using \\ in windows
+                key.uri = filename.__str__().replace(
+                    "\\", "/"
+                )  # ffmpeg error when using \\ in windows
 
     @staticmethod
     def _is_url(uri):
-        return re.match(r'https?://', uri) is not None
+        return re.match(r"https?://", uri) is not None
 
     @staticmethod
     def _get_filename(uri, directory):
-        basename = urllib.parse.urlparse(uri).path.split('/')[-1]
+        basename = urllib.parse.urlparse(uri).path.split("/")[-1]
         filename = Path("{}/{}".format(directory, basename)).__str__()
         return filename
