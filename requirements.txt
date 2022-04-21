@@ -5,3 +5,8 @@ pycryptodomex
 requests
 python-dateutil
 pypresence
+m3u8
+setuptools
+beautifulsoup4
+tqdm
+moviepy
