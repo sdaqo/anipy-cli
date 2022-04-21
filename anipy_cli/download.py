@@ -126,7 +126,7 @@ class download:
         ffmpeg_p
         input_streams = [ffmpeg.input(merged_video_ts)]
         if audio_input_file:
-            merged_audio_ts = self.merge_ts_files(audio_input_file,"_audio")
+            merged_audio_ts = self.merge_ts_files(audio_input_file, "_audio")
             input_streams.append(ffmpeg.input(merged_audio_ts))
         try:
             print(f"{colors.CYAN}Merging Parts using ffmpeg...")
@@ -138,7 +138,6 @@ class download:
                 scodec="mov_text",
                 c="copy",
                 loglevel="error",
-
             ).run()
 
             print(f"{colors.CYAN}Merge finished.")
@@ -151,12 +150,12 @@ class download:
         # Parse playlist for filenames with ending .ts and put them into the list ts_filenames
         with open(input_file, "r") as playlist:
             ts_filenames = [
-                line.rstrip()+f"{suffix}" for line in playlist if line.rstrip().endswith(".ts")
+                line.rstrip() + f"{suffix}"
+                for line in playlist
+                if line.rstrip().endswith(".ts")
             ]
         # open one ts_file from the list after another and append them to merged.ts
-        with open(
-                filename, "wb"
-        ) as merged:
+        with open(filename, "wb") as merged:
             for ts_file in ts_filenames:
                 with open(ts_file, "rb") as mergefile:
                     shutil.copyfileobj(mergefile, merged)
@@ -213,7 +212,7 @@ class download:
 
             try:
                 with self.session.get(
-                        uri, timeout=10, headers=headers, stream=False
+                    uri, timeout=10, headers=headers, stream=False
                 ) as response:
 
                     if response.status_code == 416:
@@ -295,7 +294,7 @@ class download:
                 content.add_media(media=self.content_audio_media)
 
             # sort
-            content.playlists.sort( key=lambda x: x.stream_info.bandwidth, reverse=True)
+            content.playlists.sort(key=lambda x: x.stream_info.bandwidth, reverse=True)
             for index, playlist in enumerate(content.playlists):
                 print(
                     "Selected Quality: {}\n"
@@ -319,8 +318,9 @@ class download:
                             )
                         if self.content_audio_media is not None:
                             media_uri = self.content_audio_media.uri
-                            self.content_audio_media = self._download_m3u8(media_uri, timeout,
-                                                                           headers, True)
+                            self.content_audio_media = self._download_m3u8(
+                                media_uri, timeout, headers, True
+                            )
                         return self._download_m3u8(chosen_uri, timeout, headers)
 
                     except (ValueError, IndexError):

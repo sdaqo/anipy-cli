@@ -26,6 +26,7 @@ setup(
         "python-dateutil",
         "m3u8",
         "tqdm",
+        "ffmpeg",
     ],
     entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )
