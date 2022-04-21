@@ -9,9 +9,8 @@ import shutil
 from tqdm import tqdm
 from requests.adapters import HTTPAdapter, Retry
 from concurrent.futures import ThreadPoolExecutor
-from urllib.parse import urljoin, urlsplit
 from better_ffmpeg_progress import FfmpegProcess
-from moviepy.editor import *
+from moviepy.editor import ffmpeg_tools
 
 from .misc import response_err, error, keyboard_inter
 from .colors import colors
