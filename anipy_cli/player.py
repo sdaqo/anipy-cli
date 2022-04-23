@@ -1,10 +1,11 @@
 import os
 import subprocess as sp
 import time
-from pypresence import Presence
+from pypresence import Presence, DiscordNotFound
 
 from .history import history
 from .misc import get_anime_info
+from .colors import colors
 from . import config
 
 
@@ -47,9 +48,24 @@ def mpv(entry, rpc_client=None):
 
 
 def dc_presence_connect():
-    CLIENT_ID = "966365883691855942"
+    CLIENT_ID = 966365883691855942
     rpc_client = Presence(CLIENT_ID)
-    rpc_client.connect()
+    try:
+        rpc_client.connect()
+        print(colors.GREEN + "Initalized Discord Presence Client" + colors.END)
+    except DiscordNotFound:
+        print(
+            colors.RED
+            + "Discord is not open, can't initialize Discord Presence"
+            + colors.END
+        )
+    except ConnectionRefusedError:
+        print(
+            colors.RED
+            + "Couldn't initalized Discord Presence, Connection Refused"
+            + colors.END
+        )
+
     return rpc_client
 
 

@@ -25,7 +25,6 @@ from . import config
 rpc_client = None
 if config.dc_presence:
     rpc_client = dc_presence_connect()
-    print(colors.GREEN + "Initalized Discord Presence Client" + colors.END)
 
 
 def default_cli(quality):
