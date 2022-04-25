@@ -134,8 +134,8 @@ anipy_cli.get_anime_info("https://gogoanime.gg/category/hyouka")
 # easily used, it just saves
 # some variables, that can be used.
 # Examples:
-dl_folder = anipy_cli.config.download_folder_path
-mpv_cmd_opts = anipy_cli.config.mpv_commandline_options
+dl_folder = anipy_cli.config.config.download_folder_path
+mpv_cmd_opts = anipy_cli.config.config.mpv_commandline_options
 # More can be found in config.py directly
 
 """Seasonal"""
