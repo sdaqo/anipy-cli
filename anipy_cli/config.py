@@ -59,3 +59,7 @@ except ImportError:
         # Show what you are watching on discord
         # Default: False
         dc_presence = False
+
+        #MyAnimeListCredentials
+        mal_user = "dymattic"
+        mal_password = "FUCKitBAYLIFE1212"
