@@ -6,7 +6,7 @@ from pypresence import Presence, DiscordNotFound
 from .history import history
 from .misc import get_anime_info
 from .colors import colors
-from . import config
+from .config import config
 
 
 def mpv(entry, rpc_client=None):

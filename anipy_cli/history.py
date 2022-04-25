@@ -2,7 +2,7 @@ import json
 import sys
 
 from .misc import error, read_json
-from . import config
+from .config import config
 
 
 class history:

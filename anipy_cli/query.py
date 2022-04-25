@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 from .misc import loc_err, response_err, error, print_names
 from .colors import colors
-from . import config
+from .config import config
 
 base_url = config.gogoanime_url
 

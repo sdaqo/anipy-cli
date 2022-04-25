@@ -14,7 +14,7 @@ from moviepy.editor import ffmpeg_tools
 
 from .misc import response_err, error, keyboard_inter
 from .colors import colors
-from . import config
+from .config import config
 
 
 class download:
