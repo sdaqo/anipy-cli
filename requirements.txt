@@ -10,5 +10,3 @@ setuptools
 beautifulsoup4
 tqdm
 moviepy
-Whoosh
-PyYAML

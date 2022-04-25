@@ -2,9 +2,8 @@ import json
 import sys
 
 from .misc import error, read_json
-from .config import Config
+from . import config
 
-config = Config()
 
 class history:
     """

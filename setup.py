@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="anipy_cli",
     packages=find_packages(include=["anipy_cli"]),
-    version="2.4.10",
+    version="2.4.9",
     python_requires=">3.9",
     description="Little tool in python to watch anime from the terminal (the better way to watch anime)",
     long_description=long_description,
@@ -27,7 +27,6 @@ setup(
         "m3u8",
         "tqdm",
         "moviepy",
-        "PyYAML"
     ],
     entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )

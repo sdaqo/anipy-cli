@@ -1,73 +1,45 @@
-import re
-import sys
 from pathlib import Path
 
-import yaml
+# This will have to be changed if this file is moved
+anipy_cli_folder = Path(Path(__file__).parent)
+
+# These are the paths used by anipy-cli to store data
+# They are all pathlib.Path objects
+
+# In order to specify a relative path, use the / operator
+# Ex. ~/Downloads/anipy would be Path.home() / 'Downloads' / 'anipy'
+# You could also just use a regular path string and turn it into a Path object
+# Ex. ~/Downloads/anipy would be Path('~/Downloads/anipy')
+
+download_folder_path = anipy_cli_folder / "download"
+seasonals_dl_path = download_folder_path / "seasonals"
+user_files_path = anipy_cli_folder / "user_files"
+history_file_path = user_files_path / "history.json"
+seasonal_file_path = user_files_path / "seasonals.json"
+
+gogoanime_url = "https://gogoanime.gg/"
 
 
+mpv_path = "mpv"
+
+# Specify additional mpv options
+# you will need to leave a comma (,) between
+# each command and every command should
+# be wrappedd in quotes (").
+# Example: ["--fs", "--cache"]
+# Look here for various commands: https://github.com/mpv-player/mpv/blob/master/DOCS/man/options.rst
+mpv_commandline_options = []
+
+# Always use ffmpeg to download hls streams, you can
+# also activate this temprarly using the -f flag when
+# downloading something.
+# Default: False
+ffmpeg_hls = False
+# The log of the ffmpeg process, when its used
+ffmpeg_log_path = user_files_path / "ffmpeg_log"
 
 
-class Config:
-    """
-    Configuration Class
-    """
-
-    # Public fields
-    anipy_cli_folder = None
-    download_folder_path = None
-    seasonals_dl_path = None
-    user_files_path = None
-    history_file_path = None
-    seasonal_file_path = None
-    gogoanime_url = None
-    mpv_path = None
-    mpv_commandline_options = None
-    ffmpeg_hls = None
-    ffmpeg_log_path = None
-    dc_presence = None
-
-    def __init__(self):
-        self.anipy_cli_folder = Path(repr(sys.argv[0])).parent / "anipy_cli"
-
-        self.download_folder_path = self.anipy_cli_folder / "download"
-        self.seasonals_dl_path = self.download_folder_path / "seasonals"
-        self.user_files_path = self.anipy_cli_folder / "user_files"
-        self.history_file_path = self.user_files_path / "history.json"
-        self.seasonal_file_path = self.user_files_path / "seasonals.json"
-        self.gogoanime_url = "https://gogoanime.gg/"
-
-        self.mpv_path = "mpv"
-
-        self.mpv_commandline_options = []
-        self.ffmpeg_hls = False
-
-        self.ffmpeg_log_path = self.user_files_path / "ffmpeg_log"
-
-        self.dc_presence = False
-
-        try:
-            user_config = yaml.safe_load(open(self.anipy_cli_folder / "config.yaml"))
-        except:
-            user_config = False
-
-        if user_config:
-            regex = re.compile(r"(\s?[^{]*?)\w?(?=\})\s?}}")
-            from pprint import pprint
-            for key, value in user_config.items():
-                match = regex.findall(str(value))
-                if match:
-                    before = value.split("{{")[0]
-                    after = value.split("}}")[1]
-                    value = "{}{}{}".format(before, str(self.get(str(match[0]).strip(" "))), after)
-
-                if isinstance(self.get(key), Path):
-                    pprint(value)
-                    value = Path(value)
-
-                self.__setattr__(key, value)
-
-    def get(self, field):
-        return self.__getattribute__(field)
-
-
-
+# Discord Presence:
+# Show what you are watching on discord
+# Default: False
+dc_presence = False

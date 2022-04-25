@@ -41,12 +41,6 @@ For Videoplayback mpv is needed get it here: https://mpv.io/installation/
 
 Optionally you can install [ffmpeg](https://ffmpeg.org/download.html) to download m3u8 playlists instead of the internal downloader. Use it with the -f flag. This is something you only want to enable when the internal downlaoder fails, since its pretty slow.
 
-### Config
-
-Rename or copy `config_default.yaml` to `config.yaml` and make your changes there.
-
-Your changes will persist upgrades.
-
 # Usage  
 ```
 usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-f] [-c] [-o] [-a]

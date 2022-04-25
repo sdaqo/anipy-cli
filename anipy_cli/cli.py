@@ -20,9 +20,7 @@ from .arg_parser import parse_args
 from .colors import colors
 from .download import download
 from .anime_info import AnimeInfo
-from .config import Config
-
-config = Config()
+from . import config
 
 rpc_client = None
 if config.dc_presence:

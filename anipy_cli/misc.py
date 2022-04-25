@@ -5,10 +5,8 @@ import json
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 
-from .config import Config
+from . import config
 from .colors import colors
-
-config = Config()
 
 options = [
     colors.GREEN + "[n] " + colors.END + "Next Episode",

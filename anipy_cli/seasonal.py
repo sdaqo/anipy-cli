@@ -1,11 +1,9 @@
 import json
 import sys
 
-from .config import Config
+from . import config
 from .url_handler import epHandler
 from .misc import entry, error, read_json
-
-config = Config()
 
 
 class Seasonal:
