@@ -5,7 +5,7 @@ import json
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 
-from . import config
+from .config import config
 from .colors import colors
 
 options = [

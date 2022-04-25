@@ -1,7 +1,7 @@
 import json
 import sys
 
-from . import config
+from .config import config
 from .url_handler import epHandler
 from .misc import entry, error, read_json
 
