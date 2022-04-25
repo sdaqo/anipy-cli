@@ -6,6 +6,7 @@ from .config import Config
 
 config = Config()
 
+
 class history:
     """
     Class for history.

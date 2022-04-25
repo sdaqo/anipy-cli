@@ -18,6 +18,7 @@ from .config import Config
 
 config = Config()
 
+
 class download:
     """
     Download Class.

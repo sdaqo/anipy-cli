@@ -5,8 +5,6 @@ from pathlib import Path
 import yaml
 
 
-
-
 class Config:
     """
     Configuration Class
@@ -53,12 +51,15 @@ class Config:
         if user_config:
             regex = re.compile(r"(\s?[^{]*?)\w?(?=\})\s?}}")
             from pprint import pprint
+
             for key, value in user_config.items():
                 match = regex.findall(str(value))
                 if match:
                     before = value.split("{{")[0]
                     after = value.split("}}")[1]
-                    value = "{}{}{}".format(before, str(self.get(str(match[0]).strip(" "))), after)
+                    value = "{}{}{}".format(
+                        before, str(self.get(str(match[0]).strip(" "))), after
+                    )
 
                 if isinstance(self.get(key), Path):
                     pprint(value)
@@ -68,6 +69,3 @@ class Config:
 
     def get(self, field):
         return self.__getattribute__(field)
-
-
-

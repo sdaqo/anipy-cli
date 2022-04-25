@@ -20,7 +20,6 @@ def mpv(entry, rpc_client=None):
     sub_proc.kill()
     """
 
-
     media_title = (
         entry.show_name + " - Episode: " + str(entry.ep) + " - " + str(entry.quality)
     )
