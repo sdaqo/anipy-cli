@@ -7,3 +7,4 @@ build/
 anipy_cli.egg-info/
 user_files/
 pypi.sh
+/anipy_cli/config.yaml

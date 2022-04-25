@@ -1,6 +1,6 @@
 from .download import download
 from .url_handler import epHandler, videourl
-from . import config
+from .config import Config
 from .query import query
 from .player import mpv
 from .misc import entry, get_anime_info

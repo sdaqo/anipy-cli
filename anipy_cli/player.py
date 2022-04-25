@@ -6,7 +6,9 @@ from pypresence import Presence, DiscordNotFound
 from .history import history
 from .misc import get_anime_info
 from .colors import colors
-from . import config
+from .config import Config
+
+config = Config()
 
 
 def mpv(entry, rpc_client=None):
@@ -17,6 +19,7 @@ def mpv(entry, rpc_client=None):
     that for example can be killed like this:
     sub_proc.kill()
     """
+
 
     media_title = (
         entry.show_name + " - Episode: " + str(entry.ep) + " - " + str(entry.quality)
