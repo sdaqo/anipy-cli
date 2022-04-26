@@ -8,8 +8,7 @@ import os
 import sys
 from copy import deepcopy
 
-from kitsu_extended import Anime
-
+from .mal import MAL
 from .seasonal import Seasonal
 from .url_handler import epHandler, videourl
 from .history import history
@@ -19,7 +18,6 @@ from .query import query
 from .arg_parser import parse_args
 from .colors import colors
 from .download import download
-from .anime_info import AnimeInfo
 from .config import config
 
 rpc_client = None
@@ -65,7 +63,7 @@ def download_cli(quality, ffmpeg, no_kitsu):
     searches = []
     show_entries = []
     if not no_kitsu and input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y":
-        searches = get_searches_from_kitsu()
+        searches = get_searches_from_mal()
 
     else:
         another = "y"
@@ -76,8 +74,8 @@ def download_cli(quality, ffmpeg, no_kitsu):
     for search in searches:
         links = 0
         query_class = None
-        if isinstance(search, Anime):
-            links, query_class = find_selected_from_kitsu(
+        if isinstance(search, dict):
+            links, query_class = find_selected_from_mal(
                 links, query_class, search, show_entry
             )
 
@@ -252,7 +250,7 @@ class seasonalCli:
             not self.no_kitsu
             and input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y"
         ):
-            searches = get_searches_from_kitsu()
+            searches = get_searches_from_mal()
 
         else:
             searches.append(input("Search: "))
@@ -260,8 +258,8 @@ class seasonalCli:
         for search in searches:
             links = 0
             query_class = None
-            if isinstance(search, Anime):
-                links, query_class = find_selected_from_kitsu(
+            if isinstance(search, dict):
+                links, query_class = find_selected_from_mal(
                     links, query_class, search, show_entry
                 )
 
@@ -556,9 +554,9 @@ def binge(ep_list, quality):
     return
 
 
-def find_selected_from_kitsu(links, query_class, search, show_entry):
-    title_options = [search.canonical_title, search.title]
-    title_options += search.abbreviated_titles
+def find_selected_from_mal(links, query_class, search, show_entry):
+    title_options = [search['title'], search['alternative_titles']['en']]
+    title_options += search['alternative_titles']['synonyms']
     i = 0
     print("Trying all titles:\n")
     while links == 0 and i < len(title_options):
@@ -572,31 +570,31 @@ def find_selected_from_kitsu(links, query_class, search, show_entry):
         print("Keep Trying by removing parts of name: (y|n)\n")
         try_stripping = input(">> ")
         if try_stripping == "y":
-            canon_title_parts = title_options[0].split(" ")
-            while links == 0 and len(canon_title_parts) > 1:
-                canon_title_parts.pop()
-                shorter_title = " ".join(canon_title_parts)
-                print("-- {} --".format(shorter_title))
-                query_class = query(shorter_title, show_entry)
-                query_class.get_pages()
-                links = query_class.get_links()
-                i += 1
+            for title_option in title_options:
+                canon_title_parts = title_option.split(" ")
+                while links == 0 and len(canon_title_parts) > 1:
+                    canon_title_parts.pop()
+                    shorter_title = " ".join(canon_title_parts)
+                    print("-- {} --".format(shorter_title))
+                    query_class = query(shorter_title, show_entry)
+                    query_class.get_pages()
+                    links = query_class.get_links()
     return links, query_class
 
 
-def get_searches_from_kitsu():
-    kitsu = AnimeInfo()
+def get_searches_from_mal():
+    mal = MAL()
     searches = []
     selected = []
     season_year = int(input("Season Year: "))
     season_name = input("Season Name (spring|summer|fall|winter): ")
-    anime_in_season = kitsu.get_anime_by_season(
-        season_year=season_year, season_name=season_name
+    anime_in_season = mal.get_seasonal_anime(
+        year=int(season_year), season=season_name, limit=200
     )
     print("Anime found in {} {} Season: ".format(season_year, season_name))
     anime_names = []
     for anime in anime_in_season:
-        anime_names.append(anime.canonical_title)
+        anime_names.append(anime["node"]["title"])
     print_names(anime_names)
     selection = input("Selection: (e.g. 1, 1  3 or 1-3) \n>> ")
     if selection.__contains__("-"):
@@ -605,11 +603,11 @@ def get_searches_from_kitsu():
             selected.append(i)
 
     else:
-        for i in selection.lstrip(" ").split(" "):
+        for i in selection.lstrip(" ").rstrip(" ").split(" "):
             selected.append(int(i) - 1)
 
     for value in selected:
-        searches.append(anime_in_season[int(value)])
+        searches.append(anime_in_season[int(value)]["node"])
     return searches
 
 

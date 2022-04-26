@@ -6,7 +6,7 @@ from pprint import pprint
 import requests
 from requests.adapters import HTTPAdapter, Retry
 import urllib
-from config import config
+from .config import config
 
 
 class MAL:
@@ -187,11 +187,12 @@ class MAL:
             time.sleep(.5)
 
         pprint(anime_season_list)
+        return anime_season_list
 
 
 
-mal = MAL()
+#mal = MAL()
 #mal.auth()
-my_anime_list = mal.get_anime_list(status_filter="watching")
+#my_anime_list = mal.get_anime_list(status_filter="watching")
 #mal.update_anime_list(my_anime_list[0]["node"]["id"], {"status": "watching", "num_watched_episodes": 4})
-mal.get_seasonal_anime(2022, "spring", 200)
+#mal.get_seasonal_anime(2022, "spring", 200)
