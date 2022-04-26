@@ -11,6 +11,7 @@ from Cryptodome.Cipher import AES
 
 from .misc import response_err, error, loc_err
 from .colors import colors
+from .config import config
 
 
 class epHandler:
@@ -195,8 +196,15 @@ class epHandler:
         to
         https://gogoanime.film/hyouka-episode-1
         """
-        self.entry.ep_url = self.entry.category_url.replace("/category", "")
-        self.entry.ep_url = self.entry.ep_url + f"-episode-{self.entry.ep}"
+        r = requests.get(self.entry.category_url)
+        id = re.search(r'<input.+?value="(\d+)" id="movie_id"', r.text).group(1)
+        ajax_res = requests.get(
+            "https://ajax.gogo-load.com/ajax/load-list-episode",
+            params={"ep_start": self.entry.ep, "ep_end": self.entry.ep, "id": id},
+        )
+        soup = BeautifulSoup(ajax_res.content, "html.parser")
+        a = soup.find("a")
+        self.entry.ep_url = config.gogoanime_url + a["href"].strip()
 
         return self.entry
 

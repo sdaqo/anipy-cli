@@ -8,12 +8,14 @@
 #                                                                                               #
 #################################################################################################
 
-from pathlib import Path
+
 
 try: 
     from .config_personal import config
 
 except ImportError:
+    
+    from pathlib import Path
     
     class config:
         # This will have to be changed if this file is moved
