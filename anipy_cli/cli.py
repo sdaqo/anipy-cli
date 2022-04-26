@@ -12,7 +12,15 @@ from .mal import MAL
 from .seasonal import Seasonal
 from .url_handler import epHandler, videourl
 from .history import history
-from .misc import error, entry, options, clear_console, print_names, seasonal_options, mal_options
+from .misc import (
+    error,
+    entry,
+    options,
+    clear_console,
+    print_names,
+    seasonal_options,
+    mal_options,
+)
 from .player import mpv, dc_presence_connect
 from .query import query
 from .arg_parser import parse_args
@@ -62,7 +70,10 @@ def download_cli(quality, ffmpeg, no_mal):
     show_entry = entry()
     searches = []
     show_entries = []
-    if not no_mal and input("Search MyAnimeList for anime in Season? (y|n): \n>> ") == "y":
+    if (
+        not no_mal
+        and input("Search MyAnimeList for anime in Season? (y|n): \n>> ") == "y"
+    ):
         searches = get_searches_from_mal()
 
     else:
@@ -541,7 +552,9 @@ def binge(ep_list, quality, mode=""):
                         break
                     time.sleep(0.2)
                 if mode == "seasonal":
-                    Seasonal().update_show(show_entry.show_name,show_entry.category_url)
+                    Seasonal().update_show(
+                        show_entry.show_name, show_entry.category_url
+                    )
                 elif mode == "mal":
                     MAL().update_watched(show_entry.show_name, show_entry.ep)
 
@@ -556,8 +569,8 @@ def binge(ep_list, quality, mode=""):
 
 
 def find_selected_from_mal(links, query_class, search, show_entry):
-    title_options = [search['title'], search['alternative_titles']['en']]
-    title_options += search['alternative_titles']['synonyms']
+    title_options = [search["title"], search["alternative_titles"]["en"]]
+    title_options += search["alternative_titles"]["synonyms"]
     i = 0
     print("Trying all titles:\n")
     while links == 0 and i < len(title_options):
@@ -700,10 +713,8 @@ class MALCli:
 
             show_entry = query_class.pick_show()
             picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
-            MAL().add_show(
-                show_entry.show_name, show_entry.category_url, picked_ep
-            )
-        #clear_console()
+            MAL().add_show(show_entry.show_name, show_entry.category_url, picked_ep)
+        # clear_console()
         self.print_opts()
 
     def del_anime(self):
@@ -728,7 +739,7 @@ class MALCli:
             print(
                 "==> Last watched EP: {} | {}".format(
                     i["node"]["my_list_status"]["num_episodes_watched"],
-                    i["node"]["title"]
+                    i["node"]["title"],
                 )
             )
 

@@ -1,5 +1,4 @@
 better-ffmpeg-progress
-kitsu.py-extended>=1.0.4
 pycryptodomex
 requests
 python-dateutil

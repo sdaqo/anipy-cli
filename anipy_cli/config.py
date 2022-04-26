@@ -9,14 +9,13 @@
 #################################################################################################
 
 
-
-try: 
+try:
     from .config_personal import config
 
 except ImportError:
-    
+
     from pathlib import Path
-    
+
     class config:
         # This will have to be changed if this file is moved
         anipy_cli_folder = Path(Path(__file__).parent)
@@ -38,7 +37,6 @@ except ImportError:
 
         gogoanime_url = "https://gogoanime.gg/"
 
-
         mpv_path = "mpv"
 
         # Specify additional mpv options
@@ -57,13 +55,12 @@ except ImportError:
         # The log of the ffmpeg process, when its used
         ffmpeg_log_path = user_files_path / "ffmpeg_log"
 
-
         # Discord Presence:
         # Show what you are watching on discord
         # Default: False
         dc_presence = False
 
-        #MyAnimeListCredentials
+        # MyAnimeListCredentials
         mal_user = ""
         mal_password = ""
 

@@ -72,12 +72,12 @@ def parse_args():
     )
     parser.add_argument(
         "-o",
-        "--no-season-search",
+        "--no-mal-search",
         required=False,
         dest="no_season_search",
         action="store_true",
-        help="Turn off search in season."
-             "Disables prompting if MyAnimeList is to be searched for anime in specific season.",
+        help="Turn off search in season. "
+        "Disables prompting if MyAnimeList is to be searched for anime in specific season.",
     )
     parser.add_argument(
         "-a",
@@ -94,7 +94,7 @@ def parse_args():
         dest="mal",
         action="store_true",
         help="MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList "
-             "(requires MAL account credentials to be set in config).",
+        "(requires MAL account credentials to be set in config).",
     )
 
     return parser.parse_args()
