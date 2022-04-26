@@ -1,5 +1,4 @@
 better-ffmpeg-progress
-bs4
 kitsu.py-extended>=1.0.4
 pycryptodomex
 requests
