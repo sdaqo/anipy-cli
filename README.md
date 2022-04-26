@@ -91,6 +91,7 @@ Documentation can be found [here](https://github.com/sdaqo/anipy-cli/blob/master
 To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
 # Other versions
+- GUI Frontend by me (WIP): https://github.com/sdaqo/anipy-gui
 - Dmenu script by @Dabbing-Guy: https://github.com/Dabbing-Guy/anipy-dmenu 
 - Ulauncher extension by @Dankni95 (not maintained): 
 https://github.com/Dankni95/ulauncher-anime 
