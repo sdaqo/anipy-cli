@@ -61,5 +61,5 @@ except ImportError:
         dc_presence = False
 
         #MyAnimeListCredentials
-        mal_user = "dymattic"
-        mal_password = "FUCKitBAYLIFE1212"
+        mal_user = ""
+        mal_password = ""
