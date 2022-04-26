@@ -11,6 +11,7 @@ https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-
 
 ### Little tool written in python to watch and download anime from the terminal (the better way to watch anime), also applicable as an API.
 ### Scrapes: https://gogoanime.gg
+#### If you dont like to use a cli there is a GUI and other versions [here](#other-versions).
 
 # Contents
 
@@ -93,6 +94,7 @@ Documentation can be found [here](https://github.com/sdaqo/anipy-cli/blob/master
 To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
 # Other versions
+- GUI Frontend by me (WIP): https://github.com/sdaqo/anipy-gui
 - Dmenu script by @Dabbing-Guy: https://github.com/Dabbing-Guy/anipy-dmenu 
 - Ulauncher extension by @Dankni95 (not maintained): 
 https://github.com/Dankni95/ulauncher-anime 
