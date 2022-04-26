@@ -34,6 +34,7 @@ except ImportError:
         user_files_path = anipy_cli_folder / "user_files"
         history_file_path = user_files_path / "history.json"
         seasonal_file_path = user_files_path / "seasonals.json"
+        mal_local_user_list_path = user_files_path / "mal_list.json"
 
         gogoanime_url = "https://gogoanime.gg/"
 
@@ -65,3 +66,5 @@ except ImportError:
         #MyAnimeListCredentials
         mal_user = ""
         mal_password = ""
+
+        anime_types = ["sub", "dub"]

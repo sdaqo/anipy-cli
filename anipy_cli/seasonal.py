@@ -54,7 +54,7 @@ class Seasonal:
     def write_seasonals(self):
         try:
             with config.seasonal_file_path.open("w") as f:
-                json.dump(self.json, f)
+                json.dump(self.json, f, indent=4)
 
         except PermissionError:
             error("Unable to write to history file due permissions.")

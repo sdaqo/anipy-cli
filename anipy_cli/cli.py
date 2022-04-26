@@ -12,7 +12,7 @@ from .mal import MAL
 from .seasonal import Seasonal
 from .url_handler import epHandler, videourl
 from .history import history
-from .misc import error, entry, options, clear_console, print_names, seasonal_options
+from .misc import error, entry, options, clear_console, print_names, seasonal_options, mal_options
 from .player import mpv, dc_presence_connect
 from .query import query
 from .arg_parser import parse_args
@@ -46,7 +46,7 @@ def default_cli(quality):
     menu(show_entry, options, sub_proc, quality).print_and_input()
 
 
-def download_cli(quality, ffmpeg, no_kitsu):
+def download_cli(quality, ffmpeg, no_mal):
     """
     Cli function for the
     -d flag.
@@ -62,7 +62,7 @@ def download_cli(quality, ffmpeg, no_kitsu):
     show_entry = entry()
     searches = []
     show_entries = []
-    if not no_kitsu and input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y":
+    if not no_mal and input("Search MyAnimeList for anime in Season? (y|n): \n>> ") == "y":
         searches = get_searches_from_mal()
 
     else:
@@ -363,10 +363,7 @@ class seasonalCli:
             ep_list.clear()
             ep_urls.clear()
 
-        binge(ep_dic, self.quality)
-
-        for i in latest_eps:
-            Seasonal().update_show(i, latest_eps[i]["category_url"])
+        binge(ep_dic, self.quality, mode="seasonal")
 
         clear_console()
         self.print_opts()
@@ -502,7 +499,7 @@ class menu:
         sys.exit(0)
 
 
-def binge(ep_list, quality):
+def binge(ep_list, quality, mode=""):
     """
     Accepts ep_list like so:
         {"name" {'ep_urls': [], 'eps': [], 'category_url': }, "next_anime"...}
@@ -543,6 +540,10 @@ def binge(ep_list, quality):
                     if poll is not None:
                         break
                     time.sleep(0.2)
+                if mode == "seasonal":
+                    Seasonal().update_show(show_entry.show_name,show_entry.category_url)
+                elif mode == "mal":
+                    MAL().update_watched(show_entry.show_name, show_entry.ep)
 
     except KeyboardInterrupt:
         try:
@@ -586,10 +587,24 @@ def get_searches_from_mal():
     mal = MAL()
     searches = []
     selected = []
-    season_year = int(input("Season Year: "))
-    season_name = input("Season Name (spring|summer|fall|winter): ")
+    season_year = None
+    season_name = None
+    while not season_year:
+        try:
+            season_year = int(input("Season Year: "))
+        except ValueError:
+            print("Please enter a valid year.\n")
+
+    while not season_name:
+        season_name_input = input("Season Name (spring|summer|fall|winter): ")
+        if season_name_input.lower() in ["spring", "summer", "fall", "winter"]:
+            season_name = season_name_input
+
+        else:
+            print("Please enter a valid season name.\n")
+
     anime_in_season = mal.get_seasonal_anime(
-        year=int(season_year), season=season_name, limit=200
+        year=int(season_year), season=season_name, limit=200, automap=False
     )
     print("Anime found in {} {} Season: ".format(season_year, season_name))
     anime_names = []
@@ -611,6 +626,188 @@ def get_searches_from_mal():
     return searches
 
 
+def mal_cli(quality, no_season_search, ffmpeg, auto_update):
+    m = MALCli(quality, no_season_search, ffmpeg, auto_update)
+    if auto_update:
+        m.download(mode="all")
+
+    else:
+        m.print_opts()
+        m.take_input()
+
+
+class MALCli:
+    def __init__(self, quality, no_season_search=False, ffmpeg=False, auto=False):
+        self.entry = entry()
+        self.quality = quality
+        self.m_class = MAL()
+        self.ffmpeg = ffmpeg
+        self.auto = auto
+        self.no_season_search = no_season_search
+
+    def print_opts(self):
+        for i in mal_options:
+            print(i)
+
+    def take_input(self):
+        while True:
+            picked = input(colors.END + "Enter option: ")
+            if picked == "a":
+                self.add_anime()
+            elif picked == "e":
+                self.del_anime()
+            elif picked == "l":
+                self.list_animes()
+            elif picked == "d":
+                self.download(mode="latest")
+            elif picked == "x":
+                self.download(mode="all")
+            elif picked == "w":
+                self.binge_latest()
+            elif picked == "q":
+                self.quit()
+            else:
+                error("invalid input")
+
+    def add_anime(self):
+        show_entry = entry()
+        searches = []
+        if (
+            not self.no_season_search
+            and input("Search MAL for anime in Season? (y|n): \n>> ") == "y"
+        ):
+            searches = get_searches_from_mal()
+
+        else:
+            searches.append(input("Search: "))
+
+        for search in searches:
+            links = 0
+            query_class = None
+            if isinstance(search, dict):
+                links, query_class = find_selected_from_mal(
+                    links, query_class, search, show_entry
+                )
+
+            else:
+                print("\nCurrent: ", search)
+                query_class = query(search, show_entry)
+                query_class.get_pages()
+                links = query_class.get_links()
+
+            if links == 0:
+                sys.exit()
+
+            show_entry = query_class.pick_show()
+            picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
+            MAL().add_show(
+                show_entry.show_name, show_entry.category_url, picked_ep
+            )
+        #clear_console()
+        self.print_opts()
+
+    def del_anime(self):
+        mal_list = MAL().get_anime_list()
+        mal_list = [x for x in mal_list]
+        mal_names = [n["node"]["title"] for n in mal_list]
+        print_names(mal_names)
+        while True:
+            inp = input("Enter Number: " + colors.CYAN)
+            try:
+                picked = mal_list[int(inp) - 1]["node"]["id"]
+                break
+            except:
+                error("Invalid Input")
+
+        MAL().del_show(picked)
+        clear_console()
+        self.print_opts()
+
+    def list_animes(self):
+        for i in MAL().get_anime_list():
+            print(
+                "==> Last watched EP: {} | {}".format(
+                    i["node"]["my_list_status"]["num_episodes_watched"],
+                    i["node"]["title"]
+                )
+            )
+
+    def list_possible(self, latest_urls):
+        for i in latest_urls:
+            print(f"{colors.RED}{i}:")
+            for j in latest_urls[i]["ep_list"]:
+                print(f"{colors.CYAN}==> EP: {j[0]}")
+
+    def download(self, mode="all"):
+        if mode == "latest":
+            urls = MAL().latest_eps()
+
+        else:
+            urls = MAL().latest_eps(all=True)
+
+        if not urls:
+            error("Nothing to download")
+            return
+
+        print("Stuff to be downloaded:")
+        self.list_possible(urls)
+        if not self.auto:
+            input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
+
+        for i in urls:
+            print(f"Downloading newest urls for {i}")
+            show_entry = entry()
+            show_entry.show_name = i
+            for j in urls[i]["ep_list"]:
+                show_entry.embed_url = ""
+                show_entry.ep = j[0]
+                show_entry.ep_url = j[1]
+                url_class = videourl(show_entry, self.quality)
+                url_class.stream_url()
+                show_entry = url_class.get_entry()
+                download(show_entry, self.ffmpeg).download()
+
+        if not self.auto:
+            clear_console()
+            self.print_opts()
+
+    def binge_latest(self):
+        latest_eps = MAL().latest_eps()
+        print("Stuff to be watched:")
+        self.list_possible(latest_eps)
+        input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
+        ep_list = []
+        ep_urls = []
+        ep_dic = {}
+        for i in latest_eps:
+            for j in latest_eps[i]["ep_list"]:
+                ep_list.append(j[0])
+                ep_urls.append(j[1])
+
+            ep_dic.update(
+                {
+                    i: {
+                        "ep_urls": [x for x in ep_urls],
+                        "eps": [x for x in ep_list],
+                        "category_url": latest_eps[i]["category_url"],
+                    }
+                }
+            )
+            ep_list.clear()
+            ep_urls.clear()
+
+        binge(ep_dic, self.quality, mode="mal")
+
+        clear_console()
+        self.print_opts()
+
+    def quit(self):
+        sys.exit(0)
+
+    def sync_mal_lists(self):
+        pass
+
+
 def main():
     args = parse_args()
     if args.delete:
@@ -621,22 +818,25 @@ def main():
             error("no history file found")
 
     elif args.download:
-        download_cli(args.quality, args.ffmpeg, args.no_kitsu)
+        download_cli(args.quality, args.ffmpeg, args.no_season_search)
 
     elif args.binge:
         binge_cli(args.quality)
 
     elif args.seasonal:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update)
+        seasonal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update)
 
     elif args.auto_update:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update)
+        seasonal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update)
 
     elif args.history:
         history_cli(args.quality)
 
     elif args.config:
         print(os.path.realpath(__file__).replace("cli.py", "config.py"))
+
+    elif args.mal:
+        mal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update)
 
     else:
         default_cli(args.quality)

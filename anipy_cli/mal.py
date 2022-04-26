@@ -1,13 +1,32 @@
+import base64
 import datetime
+import json
 import os
+import sys
 import time
-from pprint import pprint
+from copy import deepcopy
 
+import bs4
 import requests
 from requests.adapters import HTTPAdapter, Retry
-import urllib
-from .config import config
 
+from . import epHandler
+from .config import config
+from .misc import read_json, error, entry
+
+
+def _base64_decode(b64: str):
+    return base64.b64decode(b64).decode("ascii")
+
+
+def _base64_encode(string: str):
+    message_bytes = string.encode('ascii')
+    return base64.b64encode(message_bytes).decode("ascii")
+
+#todo: implement syncing seasonals and mal list,
+#todo: implement handling of dubs/susbs
+#todo: implement adding gogo_maps autmatically where exact match when mal_list has been updated externally
+#todo: implement checking of gogo_maps and handling of non exact matches
 
 class MAL:
     """
@@ -16,21 +35,26 @@ class MAL:
 
     def __init__(self):
         # API information taken from here: https://github.com/SuperMarcus/myanimelist-api-specification
+        self.entry = entry()
+        self.local_mal_list_json = None
+        self.read_save_data()
         self.anime_fields = [
             "id",
             "title",
             "main_picture",
             "alternative_titles",
-            "my_list_status",
+            "my_list_status{tags,is_rewatching,num_episodes_watched,score,status,updated_at}",
+            "start_season",
         ]
         self.access_token_expire_time = None
         self.access_token = None
         self.refresh_token = os.environ.get('mal_api_refresh_token')
         self.api_client_id = "6114d00ca681b7701d1e15fe11a4987e"
         self.api_baseurl = "https://api.myanimelist.net/v2/"
-        self.mal_user = config.mal_user if config.mal_user == "" else None
-        self.mal_password = config.mal_password if config.mal_password == "" else None
+        self.mal_user = config.mal_user if config.mal_user != "" else None
+        self.mal_password = config.mal_password if config.mal_password != "" else None
         self.anime_list = None
+        self.gogo_baseurl = config.gogoanime_url
         self.data = {
             "client_id": self.api_client_id,
         }
@@ -65,19 +89,11 @@ class MAL:
     def auth(self, retry: int = 0):
         data = self.data
         time_now = datetime.datetime.now()
-        if retry == 0 and self.refresh_token:
-            if self.access_token and self.access_token_expire_time > time_now:
-                return True
-
-            url = "https://myanimelist.net/v1/oauth2/token"
-            data.update(
-                {
-                    "grant_type": "refresh_token",
-                    "refresh_token": self.refresh_token
-                }
-            )
+        if self.access_token and self.access_token_expire_time > time_now and retry == 0:
+            return True
 
         elif self.mal_user:
+            print("MAL Auth with user and password")
             url = "https://api.myanimelist.net/v2/auth/token"
             data.update(
                 {
@@ -103,8 +119,6 @@ class MAL:
                 self.access_token_expire_time = time_now + datetime.timedelta(0, int(response['expires_in']))
                 self.refresh_token = response['refresh_token']
                 os.environ['mal_api_refresh_token'] = self.refresh_token
-                print("Refresh Token after auth call: {}".format(self.refresh_token))
-                print(str(response))
                 return True
 
             else:
@@ -117,8 +131,7 @@ class MAL:
             else:
                 return None
 
-    def get_anime_list(self, status_filter: str = None):
-        parameters = None
+    def get_anime_list(self, status_filter: str = None, automap: bool = False):
         if status_filter is not None:
             status_filter = status_filter.lower()
 
@@ -130,15 +143,19 @@ class MAL:
             "plan_to_watch",
 
         ]
+        parameters = {}
         if status_filter in allowed_filters:
             parameters = {"status": status_filter}
 
-        parameters.update({"fields": ",".join(self.anime_fields)})
+        parameters.update({"fields": "tags," + ",".join(self.anime_fields)})
         url = f"{self.api_baseurl}users/@me/animelist"
         anime_list = self._make_request(url, "get", query_params=parameters, )
-        pprint(anime_list)
-        if isinstance(anime_list, dict):
-            self.anime_list = anime_list['data'][0]
+        if not isinstance(anime_list, requests.exceptions.RequestException):
+            if automap:
+                self.add_automap_to_anime_list(anime_list['data'][0])
+
+            self.anime_list = anime_list
+            self.write_mal_list()
             return anime_list['data']
 
         else:
@@ -147,7 +164,6 @@ class MAL:
     def get_anime_information(self, anime_id: int):
         url = f"{self.api_baseurl}anime/{anime_id}"
         anime_detail = self._make_request(url, "get")
-        pprint(anime_detail)
         return anime_detail
 
     def update_anime_list(self, anime_id: int, update_data: dict = None):
@@ -155,6 +171,7 @@ class MAL:
         allowed_update_data_keys = [
             "status",
             "num_watched_episodes",
+            "tags"
         ]
         data = {}
         for key, value in update_data.items():
@@ -162,17 +179,42 @@ class MAL:
                 data[key] = value
         if data:
             self._make_request(url, "patch", data)
+            self.get_anime_list(automap=False)
 
-    def get_seasonal_anime(self, year: int, season: str, limit: int = 100):
+    def get_seasonal_anime(self, year: int, season: str, limit: int = 100, automap: bool = True):
         season = season.lower()
         url = f"{self.api_baseurl}anime/season/{year}/{season}"
+
+        anime_season_list = self.get_all_anime_pages(url, limit)
+
+        if automap:
+            self.add_automap_to_anime_list(anime_season_list)
+
+        return anime_season_list
+
+    def get_anime(self, query: str, limit: int = 2, automap: bool = True):
+        url = f"{self.api_baseurl}anime"
+        params = {
+            "q": query,
+            "limit": 3,
+        }
+        anime_found = self._make_request(url, "get", query_params=params)
+
+        if automap:
+            self.add_automap_to_anime_list(anime_found)
+
+        return anime_found
+
+    def get_all_anime_pages(self, url, limit, additional_params: dict = None):
         params = {
             "fields": ",".join(self.anime_fields),
             "limit": limit,
+            "offset": 0,
         }
+        params.update(additional_params)
         next_page = True
         offset = 0
-        anime_season_list = []
+        anime_list = []
         while next_page:
             response = self._make_request(url, "get", query_params=params)
             if response["paging"]:
@@ -181,18 +223,182 @@ class MAL:
             else:
                 next_page = False
 
-            anime_season_list.extend(response['data'])
+            anime_list.extend(response['data'])
+            params["offset"] = offset
 
             # sleep for 0.5 sec to limit rate
             time.sleep(.5)
+        return anime_list
 
-        pprint(anime_season_list)
-        return anime_season_list
+    def add_automap_to_anime_list(self, anime_list):
+        for index, anime in enumerate(anime_list):
+            start_year = ""
+            if "start_season" in anime["node"]:
+                start_year = anime["node"]["start_season"]["year"]
+            gogo_map = self._automap_gogo_anime_urls(anime["node"]["title"], mal_release_year=start_year)
+            if gogo_map:
+                anime["node"].update({"gogo_map": gogo_map})
+
+    def _automap_gogo_anime_urls(self, anime_title: str, mal_release_year: str = "", dub: bool = False):
+        gogo_anime_names_list = []
+        gogo_anime_full_list = []
+        if mal_release_year == "":
+            mal_release_year = None
+
+        gogo_anime_list = requests.get(
+            f"{self.gogo_baseurl}search.html",
+            params={"keyword": anime_title}
+        )
+        soup = bs4.BeautifulSoup(gogo_anime_list.content)
+        anilist_list_items = soup.find("ul", attrs={"class": "items"}).findChildren("li")
+        if not anilist_list_items:
+            return None
+
+        else:
+            for link in anilist_list_items:
+                released = link.find("p", attrs={"class": "released"})
+
+                release_year = released.text
+                if release_year == "":
+                    release_year = None
+
+                link_a = link.find("p", attrs={"class": "name"}).find("a")
+                name = link_a.get("title")
+                if not dub:
+                    if "(dub)" in name.lower():
+                        continue
+                else:
+                    if "(dub)" not in name.lower():
+                        continue
+                if release_year and mal_release_year and str(mal_release_year) not in release_year:
+                    continue
+
+                gogo_anime_names_list.append(name)
+                gogo_anime_full_list.append({"name": name, "link": link_a.get("href")})
+
+        if len(gogo_anime_full_list) == 0:
+            return None
+
+        return deepcopy(gogo_anime_full_list[0])
+
+    def add_show(self, show_name, category_url, picked_ep):
+        search = self.get_anime(show_name, automap=False)
+
+        if isinstance(search, requests.exceptions.RequestException):
+            return None
+
+        else:
+            if search["data"][0]["node"]["title"] == show_name:
+                print("Exact match")
+                self.update_anime_list(
+                    search["data"][0]["node"]["id"],
+                    {
+                        "status": "watching",
+                        "num_watched_episodes": picked_ep,
+                        "tags": "anipy-cli:" + _base64_encode(category_url)
+                    }
+                )
+                show = [
+                    x for x in self.local_mal_list_json['data']
+                    if x["node"]["title"] == search["data"][0]["node"]["title"]
+                ]
+                show[0].update({"gogo_map": {"name": show_name, "link": category_url}})
+                self.write_mal_list()
+            else:
+                return search["data"]
+
+    def read_save_data(self):
+        self.local_mal_list_json = read_json(config.mal_local_user_list_path)
+
+    def write_mal_list(self):
+        for entry in self.anime_list["data"]:
+            show = [
+                x for x in self.local_mal_list_json['data']
+                if x["node"]["title"] == entry["node"]["title"]
+            ]
+            if len(show) > 0:
+                show[0].update(entry)
+
+            else:
+                self.local_mal_list_json["data"].append(entry)
+        try:
+            with config.mal_local_user_list_path.open("w") as f:
+                json.dump(self.local_mal_list_json, f, indent=4)
+
+        except PermissionError:
+            error("Unable to write to local MAL-list file due permissions.")
+            sys.exit()
+
+    def delete_mal_entry(self,anime_id):
+        show = [
+            x for x in self.local_mal_list_json['data']
+            if str(x["node"]["id"]) == str(anime_id)
+        ]
+        show[0] = None
+        self.get_anime_list()
+
+    def del_show(self, anime_id):
+        url = f"{self.api_baseurl}anime/{anime_id}/my_list_status"
+        self._make_request(url, "delete")
+
+        pass
+
+    def latest_eps(self, all: bool = False):
+        """
+        returns a dict like so:
+            {"name": {
+                "ep_list": [[ep, ep-link], [], ...],
+                "category_url": "https://"
+                },
+             "another anime": {
+                 ...
+                },
+            }
+        """
+
+        self.read_save_data()
+        entries = [i for i in self.local_mal_list_json["data"]]
+
+        latest_urls = {}
+        for i in entries:
+            if all:
+                start_ep = 0
+            else:
+                start_ep = i["node"]["my_list_status"]["num_episodes_watched"]
+
+            if "gogo_map" not in i:
+
+                error("MAL entry \"{}\" is missing gogo-map, please re-add to MAL...".format(i["node"]["title"]))
+                continue
+
+            self.entry.category_url = i["gogo_map"]["link"]
+            ep_class = epHandler(self.entry)
+            latest = ep_class.get_latest()
+            eps_range = list(range(start_ep + 1, latest + 1))
+            ep_urls = []
+            for j in eps_range:
+                self.entry.ep = j
+                ep_class = epHandler(self.entry)
+                entry = ep_class.gen_eplink()
+                ep_urls.append([j, entry.ep_url])
+
+            latest_urls.update({i["node"]["title"]: {"ep_list": ep_urls, "category_url": self.entry.category_url}})
+
+        return latest_urls
+
+    def update_watched(self, gogo_show_name, ep):
+        show = [
+            x for x in self.local_mal_list_json['data']
+            if x["gogo_map"]["name"] == gogo_show_name
+        ]
+        if len(show) > 0:
+            anime_id = show[0]["id"]
+            self.update_anime_list(anime_id, {"num_watched_episodes": ep})
 
 
 
-#mal = MAL()
-#mal.auth()
-#my_anime_list = mal.get_anime_list(status_filter="watching")
-#mal.update_anime_list(my_anime_list[0]["node"]["id"], {"status": "watching", "num_watched_episodes": 4})
-#mal.get_seasonal_anime(2022, "spring", 200)
+mal = MAL()
+mal.auth()
+my_anime_list = mal.get_anime_list(automap=False)
+# mal.update_anime_list(my_anime_list[0]["node"]["id"], {"status": "watching", "num_watched_episodes": 4})
+# mal.get_seasonal_anime(2022, "spring", 200)

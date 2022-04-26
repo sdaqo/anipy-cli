@@ -23,8 +23,18 @@ options = [
 seasonal_options = [
     colors.GREEN + "[a] " + colors.END + "Add Anime",
     colors.GREEN + "[e] " + colors.END + "Delete one anime from seasonals",
-    colors.GREEN + "[l] " + colors.END + "List animes in seasonals file",
+    colors.GREEN + "[l] " + colors.END + "List anime in seasonals file",
     colors.GREEN + "[d] " + colors.END + "Download newest episodes",
+    colors.GREEN + "[w] " + colors.END + "Binge watch newest episodes",
+    colors.GREEN + "[q] " + colors.END + "Quit",
+]
+
+mal_options = [
+    colors.GREEN + "[a] " + colors.END + "Add Anime",
+    colors.GREEN + "[e] " + colors.END + "Delete one anime from mal list",
+    colors.GREEN + "[l] " + colors.END + "List anime in mal list",
+    colors.GREEN + "[d] " + colors.END + "Download newest episodes",
+    colors.GREEN + "[x] " + colors.END + "Download all episodes",
     colors.GREEN + "[w] " + colors.END + "Binge watch newest episodes",
     colors.GREEN + "[q] " + colors.END + "Quit",
 ]

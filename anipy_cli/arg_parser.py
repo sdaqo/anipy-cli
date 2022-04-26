@@ -72,11 +72,12 @@ def parse_args():
     )
     parser.add_argument(
         "-o",
-        "--no-kitsu",
+        "--no-season-search",
         required=False,
-        dest="no_kitsu",
+        dest="no_season_search",
         action="store_true",
-        help="Turn off search in season. Disables prompting if kitsu is to be searched for anime in specific season.",
+        help="Turn off search in season."
+             "Disables prompting if MyAnimeList is to be searched for anime in specific season.",
     )
     parser.add_argument(
         "-a",
@@ -85,6 +86,15 @@ def parse_args():
         dest="auto_update",
         action="store_true",
         help="Automatically update and download all Anime in seasonals list from start EP to newest.",
+    )
+    parser.add_argument(
+        "-m",
+        "--my-anime-list",
+        required=False,
+        dest="mal",
+        action="store_true",
+        help="MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList "
+             "(requires MAL account credentials to be set in config).",
     )
 
     return parser.parse_args()
