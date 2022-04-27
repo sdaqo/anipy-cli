@@ -72,7 +72,7 @@ def parse_args():
     )
     parser.add_argument(
         "-o",
-        "--no-mal-search",
+        "--no-seas-search",
         required=False,
         dest="no_season_search",
         action="store_true",

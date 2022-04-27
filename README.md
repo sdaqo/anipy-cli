@@ -67,7 +67,7 @@ options:
   -s, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
   -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
   -c, --config          Print path to the config file.
-  -o, --no-mal-search   Turn off search in season. Disables prompting if MyAnimeList is to be searched for anime in specific season.
+  -o, --no-seas-search  Turn off search in season. Disables prompting if GoGoAnime is to be searched for anime in specific season.
   -a, --auto-update     Automatically update and download all Anime in seasonals list from start EP to newest.
   -m, --my-anime-list   MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList (requires MAL account credentials to be set in config).
 ```
@@ -81,7 +81,7 @@ options:
 - Binge Mode to watch a range of episodes back-to-back.
 - Seasonal Mode to bulk download or binge watch the latest episodes of animes you pick
 - MAL Mode: Like seasonal mode, but uses your anime list at [MyAnimeList.net](https://myanimelist.net/)
-- (**Optional**) Search [MyAnimeList](https://myanimelist.net/) for animes in specific seasons. Available for the download cli, seasonal mode and MAL mode. Turn it off with -o flag.
+- (**Optional**) Search GoGo for animes in specific seasons. Available for the download cli, seasonal mode and MAL mode. Turn it off with -o flag.
 - (**Optional**) Discord Presence for the anime you currently watch. This is off by default, activate it in the config (-c)
 - (**Optional**) Ffmpeg to download m3u8 playlists, may be more stable but is slower than internal downloader.
 
