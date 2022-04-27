@@ -33,6 +33,7 @@ mal_options = [
     colors.GREEN + "[a] " + colors.END + "Add Anime",
     colors.GREEN + "[e] " + colors.END + "Delete one anime from mal list",
     colors.GREEN + "[l] " + colors.END + "List anime in mal list",
+    colors.GREEN + "[s] " + colors.END + "Sync MAl list into seasonals",
     colors.GREEN + "[d] " + colors.END + "Download newest episodes",
     colors.GREEN + "[x] " + colors.END + "Download all episodes",
     colors.GREEN + "[w] " + colors.END + "Binge watch newest episodes",
@@ -173,16 +174,24 @@ def search_in_season_on_gogo(s_year, s_name):
     content = True
     gogo_anime_season_list = []
     while content:
-        r = requests.get(f"{config.gogoanime_url}/sub-category/{s_year}-{s_name}-anime", params={"page": page})
+        r = requests.get(
+            f"{config.gogoanime_url}/sub-category/{s_year}-{s_name}-anime",
+            params={"page": page},
+        )
         soup = BeautifulSoup(r.content, "html.parser")
-        wrapper_div = soup.find("div",attrs={"class": "last_episodes"})
+        wrapper_div = soup.find("div", attrs={"class": "last_episodes"})
         try:
             anime_items = wrapper_div.findAll("li")
             for link in anime_items:
                 link_a = link.find("p", attrs={"class": "name"}).find("a")
                 name = link_a.get("title")
                 gogo_anime_season_list.append(
-                    {"name": name, "category_url": "{}{}".format(config.gogoanime_url,link_a.get("href"))}
+                    {
+                        "name": name,
+                        "category_url": "{}{}".format(
+                            config.gogoanime_url, link_a.get("href")
+                        ),
+                    }
                 )
 
         except AttributeError:
@@ -190,4 +199,3 @@ def search_in_season_on_gogo(s_year, s_name):
 
         page += 1
     return gogo_anime_season_list
-

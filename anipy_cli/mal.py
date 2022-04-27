@@ -92,7 +92,7 @@ class MAL:
             response.raise_for_status()
             return response.json()
 
-        except requests.exceptions.RequestException as error:
+        except requests.exceptions.RequestException as request_error:
             if retry == 0 and not is_auth:
                 self.auth(retry=retry)
                 return self._make_request(
@@ -104,7 +104,15 @@ class MAL:
                     retry=1,
                 )
 
-            print("MyAnimeList Error: {}".format(error.response.json()))
+            if (
+                request_error.response.json()["message"]
+                == "Incorrect username or password."
+            ):
+                error(
+                    "Ivalid username or Password for MyAnimeList. Please check your config..."
+                )
+                sys.exit(1)
+            error("MyAnimeList - {}".format(request_error.response.json()))
             return error
 
     def auth(self, retry: int = 0):
@@ -438,7 +446,8 @@ class MAL:
 
     def update_watched(self, gogo_show_name, ep):
         show = [
-            x for x in self.local_mal_list_json["data"]
+            x
+            for x in self.local_mal_list_json["data"]
             if x["gogo_map"]["name"] == gogo_show_name
         ]
         if len(show) > 0:
@@ -450,23 +459,26 @@ class MAL:
         seasonal = Seasonal()
         seasonal_list = seasonal.list_seasonals()
         for mal_with_gogo_map in self.local_mal_list_json["data"]:
-            if "gogo_map" in mal_with_gogo_map and mal_with_gogo_map["gogo_map"]["link"]:
-                if mal_with_gogo_map["gogo_map"]["catergory_url"] in [x["category_url"] for x in seasonal_list]:
+            if (
+                "gogo_map" in mal_with_gogo_map
+                and mal_with_gogo_map["gogo_map"]["link"]
+            ):
+                if mal_with_gogo_map["gogo_map"]["name"] in [
+                    x[0] for x in seasonal_list
+                ]:
                     seasonal.update_show(
                         mal_with_gogo_map["gogo_map"]["name"],
                         mal_with_gogo_map["gogo_map"]["link"],
-                        mal_with_gogo_map["node"]["my_list_status"]["num_episodes_watched"]
+                        mal_with_gogo_map["node"]["my_list_status"][
+                            "num_episodes_watched"
+                        ],
                     )
-                
+
                 else:
                     seasonal.add_show(
                         mal_with_gogo_map["gogo_map"]["name"],
                         mal_with_gogo_map["gogo_map"]["link"],
-                        mal_with_gogo_map["node"]["my_list_status"]["num_episodes_watched"]
+                        mal_with_gogo_map["node"]["my_list_status"][
+                            "num_episodes_watched"
+                        ],
                     )
-
-
-
-
-
-

@@ -67,7 +67,7 @@ class Seasonal:
             return 0
 
         self.entry.category_url = categ_url
-        if ep:
+        if ep is not None:
             self.json[name]["ep"] = ep
 
         else:

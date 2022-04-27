@@ -19,7 +19,8 @@ from .misc import (
     clear_console,
     print_names,
     seasonal_options,
-    mal_options, search_in_season_on_gogo,
+    mal_options,
+    search_in_season_on_gogo,
 )
 from .player import mpv, dc_presence_connect
 from .query import query
@@ -604,7 +605,7 @@ def get_searches_from_gogo():
         else:
             print("Please enter a valid season name.\n")
 
-    anime_in_season = search_in_season_on_gogo(season_name,season_year)
+    anime_in_season = search_in_season_on_gogo(season_name, season_year)
     print("Anime found in {} {} Season: ".format(season_year, season_name))
     anime_names = []
     for anime in anime_in_season:
@@ -657,6 +658,8 @@ class MALCli:
                 self.del_anime()
             elif picked == "l":
                 self.list_animes()
+            elif picked == "s":
+                self.sync_mal_to_seasonals()
             elif picked == "d":
                 self.download(mode="latest")
             elif picked == "x":
@@ -809,8 +812,8 @@ class MALCli:
     def quit(self):
         sys.exit(0)
 
-    def sync_mal_lists(self):
-        pass
+    def sync_mal_to_seasonals(self):
+        mal.sync_mal_with_seasonal()
 
 
 def main():
