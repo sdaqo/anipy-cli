@@ -342,7 +342,7 @@ class MAL:
         return link_map
 
     def add_show(self, show_name, category_url, picked_ep):
-        search = self.get_anime(show_name, automap=False)
+        search = self.get_anime(show_name, automap=True)
 
         if isinstance(search, requests.exceptions.RequestException):
             return None
@@ -365,14 +365,21 @@ class MAL:
                     for x in self.local_mal_list_json["data"]
                     if x["node"]["title"] == search["data"][0]["node"]["title"]
                 ]
-                if "gogo_map" in show[0]:
-                    show[0]["gogo_map"].update(
-                        self.make_gogo_map(category_url, show_name)
-                    )
+                try:
+                    if "gogo_map" in show[0]:
+                        show[0]["gogo_map"].update(
+                            self.make_gogo_map(category_url, show_name)
+                        )
 
-                else:
-                    show[0].update(
-                        {"gogo_map": self.make_gogo_map(category_url, show_name)}
+                    else:
+                        show[0].update(
+                            {"gogo_map": self.make_gogo_map(category_url, show_name)}
+                        )
+                except IndexError:
+                    error(
+                        "No show found for {}".format(
+                            search["data"][0]["node"]["title"]
+                        )
                     )
 
                 self.write_mal_list()
