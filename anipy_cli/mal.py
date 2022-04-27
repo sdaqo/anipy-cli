@@ -11,6 +11,7 @@ import requests
 from requests.adapters import HTTPAdapter, Retry
 
 from . import epHandler, Seasonal
+from .colors import colors
 from .config import config
 from .misc import read_json, error, entry
 
@@ -517,3 +518,11 @@ class MAL:
                                 "num_episodes_watched"
                             ],
                         )
+
+    def sync_seasonals_with_mal(self):
+        seasonal = Seasonal()
+        seasonal_list = seasonal.export_seasonals()
+        for anime in seasonal_list:
+            print(f"{colors.GREEN}Syncing {anime[0]} into MAL{colors.END} ...")
+            self.add_show(anime[0], anime[1], anime[2])
+            print(f"{colors.GREEN}Done.{colors.END}")

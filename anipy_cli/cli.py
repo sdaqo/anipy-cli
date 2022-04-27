@@ -658,6 +658,8 @@ class MALCli:
                 self.list_animes()
             elif picked == "s":
                 self.sync_mal_to_seasonals()
+            elif picked == "b":
+                self.m_class.sync_seasonals_with_mal()
             elif picked == "d":
                 self.download(mode="latest")
             elif picked == "x":

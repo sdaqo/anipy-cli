@@ -99,3 +99,9 @@ class Seasonal:
         self.read_save_data()
 
         return [[i, self.json[i]["ep"]] for i in self.json]
+
+    def export_seasonals(self):
+        self.read_save_data()
+        return [
+            [i, self.json[i]["category_url"], self.json[i]["ep"]] for i in self.json
+        ]
