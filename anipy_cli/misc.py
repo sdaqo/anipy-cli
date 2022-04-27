@@ -198,4 +198,22 @@ def search_in_season_on_gogo(s_year, s_name):
             content = False
 
         page += 1
-    return gogo_anime_season_list
+    filtered_list = filter_anime_list_dub_sub(gogo_anime_season_list)
+
+    return filtered_list
+
+
+def filter_anime_list_dub_sub(gogo_anime_season_list):
+    if "sub" not in config.anime_types and "dub" in config.anime_types:
+        filtered_list = [
+            x for x in gogo_anime_season_list if "(dub)" in x["name"].lower()
+        ]
+
+    elif "dub" not in config.anime_types and "sub" in config.anime_types:
+        filtered_list = [
+            x for x in gogo_anime_season_list if "(dub)" not in x["name"].lower()
+        ]
+
+    else:
+        filtered_list = gogo_anime_season_list
+    return filtered_list

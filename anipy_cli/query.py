@@ -51,6 +51,13 @@ class query:
             self.soup = BeautifulSoup(r.content, "html.parser")
 
             for link in self.soup.find_all("p", attrs={"class": "name"}):
+                name_lower = link.text.lower()
+                if len(config.anime_types) == 1:
+                    if "sub" in config.anime_types and "(dub)" in name_lower:
+                        continue
+                    elif "dub" in config.anime_types and "(dub)" not in name_lower:
+                        continue
+
                 loc_err(link, req_link, "query results")
                 self.names.append(link.text)
                 a_tag = link.findChildren("a", recursive=False)

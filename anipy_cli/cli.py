@@ -33,8 +33,6 @@ rpc_client = None
 if config.dc_presence:
     rpc_client = dc_presence_connect()
 
-mal = MAL()
-
 
 def default_cli(quality):
     """
@@ -574,7 +572,7 @@ def binge(ep_list, quality, mode=""):
                         show_entry.show_name, show_entry.category_url
                     )
                 elif mode == "mal":
-                    mal.update_watched(show_entry.show_name, show_entry.ep)
+                    MAL().update_watched(show_entry.show_name, show_entry.ep)
 
     except KeyboardInterrupt:
         try:
@@ -640,7 +638,7 @@ class MALCli:
     def __init__(self, quality, no_season_search=False, ffmpeg=False, auto=False):
         self.entry = entry()
         self.quality = quality
-        self.m_class = mal
+        self.m_class = MAL()
         self.ffmpeg = ffmpeg
         self.auto = auto
         self.no_season_search = no_season_search
@@ -709,13 +707,15 @@ class MALCli:
                 show_entry = query_class.pick_show()
 
             picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
-            mal.add_show(show_entry.show_name, show_entry.category_url, picked_ep)
+            self.m_class.add_show(
+                show_entry.show_name, show_entry.category_url, picked_ep
+            )
 
         clear_console()
         self.print_opts()
 
     def del_anime(self):
-        mal_list = mal.get_anime_list()
+        mal_list = self.m_class.get_anime_list()
         mal_list = [x for x in mal_list]
         mal_names = [n["node"]["title"] for n in mal_list]
         print_names(mal_names)
@@ -727,12 +727,12 @@ class MALCli:
             except:
                 error("Invalid Input")
 
-        mal.del_show(picked)
+        self.m_class.del_show(picked)
         clear_console()
         self.print_opts()
 
     def list_animes(self):
-        for i in mal.get_anime_list():
+        for i in self.m_class.get_anime_list():
             print(
                 "==> Last watched EP: {} | {}".format(
                     i["node"]["my_list_status"]["num_episodes_watched"],
@@ -748,10 +748,10 @@ class MALCli:
 
     def download(self, mode="all"):
         if mode == "latest":
-            urls = mal.latest_eps()
+            urls = self.m_class.latest_eps()
 
         else:
-            urls = mal.latest_eps(all=True)
+            urls = self.m_class.latest_eps(all=True)
 
         if not urls:
             error("Nothing to download")
@@ -780,7 +780,7 @@ class MALCli:
             self.print_opts()
 
     def binge_latest(self):
-        latest_eps = mal.latest_eps()
+        latest_eps = self.m_class.latest_eps()
         print("Stuff to be watched:")
         self.list_possible(latest_eps)
         input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
@@ -813,7 +813,7 @@ class MALCli:
         sys.exit(0)
 
     def sync_mal_to_seasonals(self):
-        mal.sync_mal_with_seasonal()
+        self.m_class.sync_mal_with_seasonal()
 
 
 def main():
