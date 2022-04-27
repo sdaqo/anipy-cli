@@ -166,3 +166,28 @@ def get_anime_info(category_url: str) -> dict:
     }
 
     return info_dict
+
+
+def search_in_season_on_gogo(s_year, s_name):
+    page = 1
+    content = True
+    gogo_anime_season_list = []
+    while content:
+        r = requests.get(f"{config.gogoanime_url}/sub-category/{s_year}-{s_name}-anime", params={"page": page})
+        soup = BeautifulSoup(r.content, "html.parser")
+        wrapper_div = soup.find("div",attrs={"class": "last_episodes"})
+        try:
+            anime_items = wrapper_div.findAll("li")
+            for link in anime_items:
+                link_a = link.find("p", attrs={"class": "name"}).find("a")
+                name = link_a.get("title")
+                gogo_anime_season_list.append(
+                    {"name": name, "category_url": "{}{}".format(config.gogoanime_url,link_a.get("href"))}
+                )
+
+        except AttributeError:
+            content = False
+
+        page += 1
+    return gogo_anime_season_list
+

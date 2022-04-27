@@ -64,4 +64,7 @@ except ImportError:
         mal_user = ""
         mal_password = ""
 
+        # sync mal to seasonals file automatically
+        auto_sync_mal_to_seasonals = False
+
         anime_types = ["sub", "dub"]

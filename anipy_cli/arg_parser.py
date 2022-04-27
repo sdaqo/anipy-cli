@@ -77,7 +77,7 @@ def parse_args():
         dest="no_season_search",
         action="store_true",
         help="Turn off search in season. "
-        "Disables prompting if MyAnimeList is to be searched for anime in specific season.",
+        "Disables prompting if GoGoAnime is to be searched for anime in specific season.",
     )
     parser.add_argument(
         "-a",

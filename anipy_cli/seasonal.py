@@ -60,14 +60,19 @@ class Seasonal:
             error("Unable to write to history file due permissions.")
             sys.exit()
 
-    def update_show(self, name, categ_url):
+    def update_show(self, name, categ_url, ep=None):
         self.read_save_data()
 
         if name not in [x for x in self.json]:
             return 0
 
         self.entry.category_url = categ_url
-        self.json[name]["ep"] = epHandler(self.entry).get_latest()
+        if ep:
+            self.json[name]["ep"] = ep
+
+        else:
+
+            self.json[name]["ep"] = epHandler(self.entry).get_latest()
         self.write_seasonals()
 
     def add_show(self, name, categ_url, start_ep):

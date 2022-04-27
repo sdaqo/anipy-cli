@@ -10,7 +10,7 @@ import bs4
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
-from . import epHandler
+from . import epHandler, Seasonal
 from .config import config
 from .misc import read_json, error, entry
 
@@ -24,7 +24,6 @@ def _base64_encode(string: str):
     return base64.b64encode(message_bytes).decode("ascii")
 
 
-# todo: implement syncing seasonals and mal list,
 # todo: implement handling of dubs/susbs
 # todo: implement adding gogo_maps autmatically where exact match when mal_list has been updated externally
 # todo: implement checking of gogo_maps and handling of non exact matches
@@ -72,6 +71,9 @@ class MAL:
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
         self.session.headers.update(self.headers)
+
+        if config.auto_sync_mal_to_seasonals:
+            self.sync_mal_with_seasonal()
 
     def _make_request(
         self,
@@ -204,7 +206,7 @@ class MAL:
             self.get_anime_list(automap=False)
 
     def get_seasonal_anime(
-        self, year: int, season: str, limit: int = 100, automap: bool = True
+        self, year: int, season: str, limit: int = 100, automap: bool = False
     ):
         season = season.lower()
         url = f"{self.api_baseurl}anime/season/{year}/{season}"
@@ -329,7 +331,7 @@ class MAL:
                     {
                         "status": "watching",
                         "num_watched_episodes": picked_ep,
-                        "tags": "anipy-cli:" + _base64_encode(category_url),
+                        "tags": "anipy-cli",
                     },
                 )
                 show = [
@@ -436,10 +438,35 @@ class MAL:
 
     def update_watched(self, gogo_show_name, ep):
         show = [
-            x
-            for x in self.local_mal_list_json["data"]
+            x for x in self.local_mal_list_json["data"]
             if x["gogo_map"]["name"] == gogo_show_name
         ]
         if len(show) > 0:
             anime_id = show[0]["node"]["id"]
             self.update_anime_list(anime_id, {"num_watched_episodes": ep})
+
+    def sync_mal_with_seasonal(self):
+        self.get_anime_list()
+        seasonal = Seasonal()
+        seasonal_list = seasonal.list_seasonals()
+        for mal_with_gogo_map in self.local_mal_list_json["data"]:
+            if "gogo_map" in mal_with_gogo_map and mal_with_gogo_map["gogo_map"]["link"]:
+                if mal_with_gogo_map["gogo_map"]["catergory_url"] in [x["category_url"] for x in seasonal_list]:
+                    seasonal.update_show(
+                        mal_with_gogo_map["gogo_map"]["name"],
+                        mal_with_gogo_map["gogo_map"]["link"],
+                        mal_with_gogo_map["node"]["my_list_status"]["num_episodes_watched"]
+                    )
+                
+                else:
+                    seasonal.add_show(
+                        mal_with_gogo_map["gogo_map"]["name"],
+                        mal_with_gogo_map["gogo_map"]["link"],
+                        mal_with_gogo_map["node"]["my_list_status"]["num_episodes_watched"]
+                    )
+
+
+
+
+
+

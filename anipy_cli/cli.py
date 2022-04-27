@@ -19,7 +19,7 @@ from .misc import (
     clear_console,
     print_names,
     seasonal_options,
-    mal_options,
+    mal_options, search_in_season_on_gogo,
 )
 from .player import mpv, dc_presence_connect
 from .query import query
@@ -56,11 +56,12 @@ def default_cli(quality):
     menu(show_entry, options, sub_proc, quality).print_and_input()
 
 
-def download_cli(quality, ffmpeg, no_mal):
+def download_cli(quality, ffmpeg, no_season_search):
     """
     Cli function for the
     -d flag.
     """
+    is_season_search = False
     print(colors.GREEN + "***Download Mode***" + colors.END)
     print(
         colors.GREEN
@@ -73,10 +74,10 @@ def download_cli(quality, ffmpeg, no_mal):
     searches = []
     show_entries = []
     if (
-        not no_mal
+        not no_season_search
         and input("Search MyAnimeList for anime in Season? (y|n): \n>> ") == "y"
     ):
-        searches = get_searches_from_mal()
+        searches = get_searches_from_gogo()
 
     else:
         another = "y"
@@ -88,9 +89,8 @@ def download_cli(quality, ffmpeg, no_mal):
         links = 0
         query_class = None
         if isinstance(search, dict):
-            links, query_class = find_selected_from_mal(
-                links, query_class, search, show_entry
-            )
+            is_season_search = True
+            links = [search["category_url"]]
 
         else:
             print("\nCurrent: ", search)
@@ -100,7 +100,15 @@ def download_cli(quality, ffmpeg, no_mal):
 
         if links == 0:
             sys.exit()
-        show_entry = query_class.pick_show()
+
+        if is_season_search:
+            show_entry = entry()
+            show_entry.show_name = search["name"]
+            show_entry.category_url = search["category_url"]
+
+        else:
+            show_entry = query_class.pick_show()
+
         ep_class = epHandler(show_entry)
         ep_list = ep_class.pick_range()
         show_entries.append(
@@ -215,8 +223,8 @@ def binge_cli(quality):
     binge(ep_list, quality)
 
 
-def seasonal_cli(quality, no_kitsu, ffmpeg, auto_update):
-    s = seasonalCli(quality, no_kitsu, ffmpeg, auto_update)
+def seasonal_cli(quality, no_season_search, ffmpeg, auto_update):
+    s = seasonalCli(quality, no_season_search, ffmpeg, auto_update)
     if auto_update:
         s.download_latest()
 
@@ -226,10 +234,10 @@ def seasonal_cli(quality, no_kitsu, ffmpeg, auto_update):
 
 
 class seasonalCli:
-    def __init__(self, quality, no_kitsu, ffmpeg=False, auto=False):
+    def __init__(self, quality, no_season_search, ffmpeg=False, auto=False):
         self.entry = entry()
         self.quality = quality
-        self.no_kitsu = no_kitsu
+        self.no_season_search = no_season_search
         self.s_class = Seasonal()
         self.ffmpeg = ffmpeg
         self.auto = auto
@@ -258,12 +266,13 @@ class seasonalCli:
 
     def add_anime(self):
         show_entry = entry()
+        is_season_search = False
         searches = []
         if (
-            not self.no_kitsu
-            and input("Search Kitsu for anime in Season? (y|n): \n>> ") == "y"
+            not self.no_season_search
+            and input("Search for anime in Season? (y|n): \n>> ") == "y"
         ):
-            searches = get_searches_from_mal()
+            searches = get_searches_from_gogo()
 
         else:
             searches.append(input("Search: "))
@@ -272,9 +281,8 @@ class seasonalCli:
             links = 0
             query_class = None
             if isinstance(search, dict):
-                links, query_class = find_selected_from_mal(
-                    links, query_class, search, show_entry
-                )
+                is_season_search = True
+                links = [search["category_url"]]
 
             else:
                 print("\nCurrent: ", search)
@@ -285,7 +293,14 @@ class seasonalCli:
             if links == 0:
                 sys.exit()
 
-            show_entry = query_class.pick_show()
+            if is_season_search:
+                show_entry = entry()
+                show_entry.show_name = search["name"]
+                show_entry.category_url = search["category_url"]
+
+            else:
+                show_entry = query_class.pick_show()
+
             picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
             Seasonal().add_show(
                 show_entry.show_name, show_entry.category_url, picked_ep
@@ -570,35 +585,7 @@ def binge(ep_list, quality, mode=""):
     return
 
 
-def find_selected_from_mal(links, query_class, search, show_entry):
-    title_options = [search["title"], search["alternative_titles"]["en"]]
-    title_options += search["alternative_titles"]["synonyms"]
-    i = 0
-    print("Trying all titles:\n")
-    while links == 0 and i < len(title_options):
-        print("\n-- {} --".format(title_options[i]))
-        query_class = query(title_options[i], show_entry)
-        query_class.get_pages()
-        links = query_class.get_links()
-        i += 1
-    if links == 0:
-        print("\nCould not find anime.")
-        print("Keep Trying by removing parts of name: (y|n)\n")
-        try_stripping = input(">> ")
-        if try_stripping == "y":
-            for title_option in title_options:
-                canon_title_parts = title_option.split(" ")
-                while links == 0 and len(canon_title_parts) > 1:
-                    canon_title_parts.pop()
-                    shorter_title = " ".join(canon_title_parts)
-                    print("-- {} --".format(shorter_title))
-                    query_class = query(shorter_title, show_entry)
-                    query_class.get_pages()
-                    links = query_class.get_links()
-    return links, query_class
-
-
-def get_searches_from_mal():
+def get_searches_from_gogo():
     searches = []
     selected = []
     season_year = None
@@ -617,13 +604,11 @@ def get_searches_from_mal():
         else:
             print("Please enter a valid season name.\n")
 
-    anime_in_season = mal.get_seasonal_anime(
-        year=int(season_year), season=season_name, limit=200, automap=False
-    )
+    anime_in_season = search_in_season_on_gogo(season_name,season_year)
     print("Anime found in {} {} Season: ".format(season_year, season_name))
     anime_names = []
     for anime in anime_in_season:
-        anime_names.append(anime["node"]["title"])
+        anime_names.append(anime["name"])
     print_names(anime_names)
     selection = input("Selection: (e.g. 1, 1  3 or 1-3) \n>> ")
     if selection.__contains__("-"):
@@ -636,7 +621,7 @@ def get_searches_from_mal():
             selected.append(int(i) - 1)
 
     for value in selected:
-        searches.append(anime_in_season[int(value)]["node"])
+        searches.append(anime_in_season[int(value)])
     return searches
 
 
@@ -685,23 +670,23 @@ class MALCli:
 
     def add_anime(self):
         show_entry = entry()
+        is_season_search = False
         searches = []
         if (
             not self.no_season_search
-            and input("Search MAL for anime in Season? (y|n): \n>> ") == "y"
+            and input("Search for anime in Season? (y|n): \n>> ") == "y"
         ):
-            searches = get_searches_from_mal()
+            searches = get_searches_from_gogo()
 
         else:
             searches.append(input("Search: "))
 
+        #
         for search in searches:
-            links = 0
             query_class = None
             if isinstance(search, dict):
-                links, query_class = find_selected_from_mal(
-                    links, query_class, search, show_entry
-                )
+                is_season_search = True
+                links = [search["category_url"]]
 
             else:
                 print("\nCurrent: ", search)
@@ -712,10 +697,18 @@ class MALCli:
             if links == 0:
                 sys.exit()
 
-            show_entry = query_class.pick_show()
+            if is_season_search:
+                show_entry = entry()
+                show_entry.show_name = search["name"]
+                show_entry.category_url = search["category_url"]
+
+            else:
+                show_entry = query_class.pick_show()
+
             picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
             mal.add_show(show_entry.show_name, show_entry.category_url, picked_ep)
-        # clear_console()
+
+        clear_console()
         self.print_opts()
 
     def del_anime(self):
