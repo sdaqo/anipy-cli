@@ -388,6 +388,8 @@ class MAL:
 
     def write_mal_list(self):
         for show_entry in self.anime_list["data"]:
+            if "data" not in self.local_mal_list_json:
+                self.local_mal_list_json = {"data": []}
             show = [
                 x
                 for x in self.local_mal_list_json["data"]
@@ -397,10 +399,8 @@ class MAL:
                 show[0].update(show_entry)
 
             else:
-                try:
-                    self.local_mal_list_json["data"].append(show_entry)
-                except KeyError:
-                    self.local_mal_list_json = {"data": [show_entry]}
+                self.local_mal_list_json["data"].append(show_entry)
+
         without_gogo_map = [
             s for s in self.local_mal_list_json["data"] if "gogo_map" not in s
         ]
@@ -453,7 +453,6 @@ class MAL:
                 start_ep = i["node"]["my_list_status"]["num_episodes_watched"]
 
             if "gogo_map" not in i:
-
                 error(
                     'MAL entry "{}" is missing gogo-map, please re-add to MAL...'.format(
                         i["node"]["title"]
