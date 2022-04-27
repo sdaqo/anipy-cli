@@ -233,7 +233,7 @@ class MAL:
         anime_found = self._make_request(url, "get", query_params=params)
 
         if automap:
-            self.add_automap_to_anime_list(anime_found)
+            self.add_automap_to_anime_list(anime_found["data"])
 
         return anime_found
 
