@@ -235,7 +235,8 @@ class MAL:
             "limit": limit,
             "offset": 0,
         }
-        params.update(additional_params)
+        if additional_params:
+            params.update(additional_params)
         next_page = True
         offset = 0
         anime_list = []
@@ -440,12 +441,5 @@ class MAL:
             if x["gogo_map"]["name"] == gogo_show_name
         ]
         if len(show) > 0:
-            anime_id = show[0]["id"]
+            anime_id = show[0]["node"]["id"]
             self.update_anime_list(anime_id, {"num_watched_episodes": ep})
-
-
-mal = MAL()
-mal.auth()
-my_anime_list = mal.get_anime_list(automap=False)
-# mal.update_anime_list(my_anime_list[0]["node"]["id"], {"status": "watching", "num_watched_episodes": 4})
-# mal.get_seasonal_anime(2022, "spring", 200)
