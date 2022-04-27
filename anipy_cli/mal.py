@@ -397,7 +397,10 @@ class MAL:
                 show[0].update(show_entry)
 
             else:
-                self.local_mal_list_json["data"].append(show_entry)
+                try:
+                    self.local_mal_list_json["data"].append(show_entry)
+                except KeyError:
+                    self.local_mal_list_json = {"data": [show_entry]}
         without_gogo_map = [
             s for s in self.local_mal_list_json["data"] if "gogo_map" not in s
         ]
