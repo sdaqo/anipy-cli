@@ -815,7 +815,9 @@ class MALCli:
         sys.exit(0)
 
     def sync_mal_to_seasonals(self):
-        if not self.auto and input("Try auto mapping MAL to gogo format? (y/n):\n").lower() in ["y", "yes"]:
+        if not self.auto and input(
+            "Try auto mapping MAL to gogo format? (y/n):\n"
+        ).lower() in ["y", "yes"]:
             self.m_class.auto_map_all_without_map()
         failed_to_map = list(self.m_class.auto_map_all_without_map())
         failed_to_map.sort(key=len, reverse=True)
@@ -828,11 +830,13 @@ class MALCli:
             selection = input("Selection: (e.g. 1, 1  3, 1-3 or * [for all] ) \n>> ")
             if selection.__contains__("-"):
                 selection_range = selection.strip(" ").split("-")
-                for i in range(int(selection_range[0]) - 1, int(selection_range[1]) - 1, 1):
+                for i in range(
+                    int(selection_range[0]) - 1, int(selection_range[1]) - 1, 1
+                ):
                     selected.append(i)
 
             elif selection in ["all", "*"]:
-                selected = range(0, len(failed_to_map)-1)
+                selected = range(0, len(failed_to_map) - 1)
 
             else:
                 for i in selection.strip(" ").split(" "):
@@ -843,7 +847,9 @@ class MALCli:
                 done = False
                 search_name = failed_to_map[value]
                 while not done:
-                    print(f"{colors.GREEN}Current:{colors.CYAN} {failed_to_map[value]}{colors.END}\n")
+                    print(
+                        f"{colors.GREEN}Current:{colors.CYAN} {failed_to_map[value]}{colors.END}\n"
+                    )
                     show_entry = entry()
                     query_class = query(search_name, show_entry)
                     links, names = query_class.get_links()
@@ -855,23 +861,34 @@ class MALCli:
                                 failed_to_map[value],
                                 {
                                     "link": show_entry.category_url,
-                                    "name": show_entry.show_name
-                                }
+                                    "name": show_entry.show_name,
+                                },
                             )
 
-                            links.remove("/category/" + show_entry.category_url.split("/category/")[1])
+                            links.remove(
+                                "/category/"
+                                + show_entry.category_url.split("/category/")[1]
+                            )
                             names.remove(show_entry.show_name)
-                            print(f"{colors.GREEN} Added {show_entry.show_name} ...{colors.END}")
-                            if input(f"Add another show map to {failed_to_map[value]}? (y/n):\n").lower() not in ["y", "yes"]:
+                            print(
+                                f"{colors.GREEN} Added {show_entry.show_name} ...{colors.END}"
+                            )
+                            if input(
+                                f"Add another show map to {failed_to_map[value]}? (y/n):\n"
+                            ).lower() not in ["y", "yes"]:
                                 search_another = False
                         done = True
                     else:
                         search_name_parts = search_name.split(" ")
                         if len(search_name_parts) <= 1:
-                            print(f"{colors.YELLOW}Could not find {failed_to_map[value]} on gogo.{colors.END}")
+                            print(
+                                f"{colors.YELLOW}Could not find {failed_to_map[value]} on gogo.{colors.END}"
+                            )
                             done = True
                         else:
-                            print(f"{colors.YELLOW} Nothing found. Trying to shorten name...{colors.END}")
+                            print(
+                                f"{colors.YELLOW} Nothing found. Trying to shorten name...{colors.END}"
+                            )
 
                             search_name_parts.pop()
                             search_name = " ".join(search_name_parts)

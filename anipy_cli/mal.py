@@ -79,14 +79,14 @@ class MAL:
         return self.shows_failed_automap
 
     def _make_request(
-            self,
-            url: str,
-            method: str,
-            data: dict = None,
-            query_params: dict = None,
-            body: dict = None,
-            retry: int = 0,
-            is_auth: bool = False,
+        self,
+        url: str,
+        method: str,
+        data: dict = None,
+        query_params: dict = None,
+        body: dict = None,
+        retry: int = 0,
+        is_auth: bool = False,
     ):
         try:
             response = self.session.request(
@@ -108,8 +108,8 @@ class MAL:
                 )
 
             if (
-                    request_error.response.json()["message"]
-                    == "Incorrect username or password."
+                request_error.response.json()["message"]
+                == "Incorrect username or password."
             ):
                 error(
                     "Ivalid username or Password for MyAnimeList. Please check your config..."
@@ -122,9 +122,9 @@ class MAL:
         data = self.data
         time_now = datetime.datetime.now()
         if (
-                self.access_token
-                and self.access_token_expire_time > time_now
-                and retry == 0
+            self.access_token
+            and self.access_token_expire_time > time_now
+            and retry == 0
         ):
             return True
 
@@ -216,7 +216,7 @@ class MAL:
             self.get_anime_list(automap=False)
 
     def get_seasonal_anime(
-            self, year: int, season: str, limit: int = 100, automap: bool = False
+        self, year: int, season: str, limit: int = 100, automap: bool = False
     ):
         season = season.lower()
         url = f"{self.api_baseurl}anime/season/{year}/{season}"
@@ -262,7 +262,11 @@ class MAL:
         return anime_list
 
     def make_gogo_map(self, link_href, name):
-        link = link_href if len(link_href.split("/category/")[0]) > 3 else config.gogoanime_url + link_href
+        link = (
+            link_href
+            if len(link_href.split("/category/")[0]) > 3
+            else config.gogoanime_url + link_href
+        )
         if "(dub)" in name.lower():
             key = "dub"
 
@@ -278,10 +282,9 @@ class MAL:
             return None
 
         else:
-            if (
-                    search["data"][0]["node"]["title"].lower() ==
-                    show_name.lower().rstrip(" (dub)").strip("(japanese dub)")
-            ):
+            if search["data"][0]["node"]["title"].lower() == show_name.lower().rstrip(
+                " (dub)"
+            ).strip("(japanese dub)"):
                 print("Exact match")
                 self.update_anime_list(
                     search["data"][0]["node"]["id"],
@@ -304,9 +307,7 @@ class MAL:
                     else:
                         new_map = {"gogo_map": []}
                         self.update_gogo_map_list(new_map["gogo_map"], new_item)
-                        show[0].update(
-                            new_map
-                        )
+                        show[0].update(new_map)
                 except IndexError:
                     error(
                         "No show found for {}".format(
@@ -332,8 +333,6 @@ class MAL:
             gogo_map.extend(new_entry)
 
         return True
-
-
 
     def read_save_data(self):
         try:
@@ -453,11 +452,15 @@ class MAL:
         seasonal_list = seasonal.list_seasonals()
         for mal_with_gogo_map in self.local_mal_list_json["data"]:
             if (
-                    "gogo_map" in mal_with_gogo_map
-                    and len(mal_with_gogo_map["gogo_map"]) > 0
+                "gogo_map" in mal_with_gogo_map
+                and len(mal_with_gogo_map["gogo_map"]) > 0
             ):
                 for anime_entry in mal_with_gogo_map["gogo_map"]:
-                    print("{}Syncing {}{}".format(colors.GREEN,anime_entry["name"], colors.END))
+                    print(
+                        "{}Syncing {}{}".format(
+                            colors.GREEN, anime_entry["name"], colors.END
+                        )
+                    )
                     if anime_entry["name"] in [x[0] for x in seasonal_list]:
                         seasonal.update_show(
                             anime_entry["name"],
@@ -487,11 +490,16 @@ class MAL:
     def auto_map_gogo_mal(self, mal_entry):
         if "gogo_map" in mal_entry and len(mal_entry["gogo_map"]) > 0:
             return True
-        print("{} Auto mapping:{} {}".format(colors.GREEN, mal_entry["node"]["title"], colors.END))
+        print(
+            "{} Auto mapping:{} {}".format(
+                colors.GREEN, mal_entry["node"]["title"], colors.END
+            )
+        )
 
-        search_values = [mal_entry["node"]["title"], mal_entry["node"]["alternative_titles"]["en"]] + \
-                        mal_entry["node"]["alternative_titles"]["synonyms"]
-
+        search_values = [
+            mal_entry["node"]["title"],
+            mal_entry["node"]["alternative_titles"]["en"],
+        ] + mal_entry["node"]["alternative_titles"]["synonyms"]
 
         found = {}
         for search in search_values:
@@ -501,15 +509,20 @@ class MAL:
 
             if found["search"] == 0:
                 self.shows_failed_automap.add(mal_entry["node"]["title"])
-                print("{}{}: Failed.{}".format(colors.ERROR, mal_entry["node"]["title"], colors.END))
+                print(
+                    "{}{}: Failed.{}".format(
+                        colors.ERROR, mal_entry["node"]["title"], colors.END
+                    )
+                )
                 continue
             if "gogo_map" not in mal_entry:
                 mal_entry["gogo_map"] = []
             for i, anime in enumerate(found["search"][1]):
                 print(anime.lower().rstrip("(dub)").rstrip("(japanese dub)").strip(" "))
-                if (
-                    any(anime.lower().rstrip("(dub)").rstrip("(japanese dub)").strip(" ")
-                        in show.lower() for show in search_values)
+                if any(
+                    anime.lower().rstrip("(dub)").rstrip("(japanese dub)").strip(" ")
+                    in show.lower()
+                    for show in search_values
                 ):
 
                     gogo_map = mal_entry["gogo_map"]
@@ -520,7 +533,11 @@ class MAL:
         self.write_save_data()
 
     def manual_map_gogo_mal(self, mal_anime_name: str, gogo: dict):
-        mal_entry = [x for x in self.local_mal_list_json["data"] if x["node"]["title"] == mal_anime_name]
+        mal_entry = [
+            x
+            for x in self.local_mal_list_json["data"]
+            if x["node"]["title"] == mal_anime_name
+        ]
         if len(mal_entry) > 0:
             current_mal_entry = mal_entry[0]
 
@@ -531,6 +548,9 @@ class MAL:
             if not isinstance(current_mal_entry["gogo_map"], list):
                 current_mal_entry["gogo_map"] = []
 
-        self.update_gogo_map_list(current_mal_entry["gogo_map"], self.make_gogo_map(gogo["link"], gogo["name"]))
+        self.update_gogo_map_list(
+            current_mal_entry["gogo_map"],
+            self.make_gogo_map(gogo["link"], gogo["name"]),
+        )
         if mal_anime_name in self.shows_failed_automap:
             self.shows_failed_automap.discard(mal_anime_name)
