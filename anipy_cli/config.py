@@ -67,4 +67,7 @@ except ImportError:
         # sync mal to seasonals file automatically
         auto_sync_mal_to_seasonals = False
 
+        # try mapping MAL entries to gogo_format
+        auto_map_mal_to_gogo = False
+
         anime_types = ["sub", "dub"]

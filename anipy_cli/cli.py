@@ -815,6 +815,67 @@ class MALCli:
         sys.exit(0)
 
     def sync_mal_to_seasonals(self):
+        if not self.auto and input("Try auto mapping MAL to gogo format? (y/n):\n").lower() in ["y", "yes"]:
+            self.m_class.auto_map_all_without_map()
+        failed_to_map = list(self.m_class.auto_map_all_without_map())
+        failed_to_map.sort(key=len, reverse=True)
+        if not self.auto and len(failed_to_map) > 0:
+            print("MAL Anime that failed auto-map to gogo:")
+            selected = []
+            searches = []
+
+            print_names(failed_to_map)
+            selection = input("Selection: (e.g. 1, 1  3, 1-3 or * [for all] ) \n>> ")
+            if selection.__contains__("-"):
+                selection_range = selection.strip(" ").split("-")
+                for i in range(int(selection_range[0]) - 1, int(selection_range[1]) - 1, 1):
+                    selected.append(i)
+
+            elif selection in ["all", "*"]:
+                selected = range(0, len(failed_to_map)-1)
+
+            else:
+                for i in selection.strip(" ").split(" "):
+                    selected.append(int(i) - 1)
+
+            for value in selected:
+                show_entries = []
+                done = False
+                search_name = failed_to_map[value]
+                while not done:
+                    print(f"{colors.GREEN}Current:{colors.CYAN} {failed_to_map[value]}{colors.END}\n")
+                    show_entry = entry()
+                    query_class = query(search_name, show_entry)
+                    links, names = query_class.get_links()
+                    if links != 0:
+                        search_another = True
+                        while search_another and len(links) > 0:
+                            show_entries.append(query_class.pick_show())
+                            self.m_class.manual_map_gogo_mal(
+                                failed_to_map[value],
+                                {
+                                    "link": show_entry.category_url,
+                                    "name": show_entry.show_name
+                                }
+                            )
+
+                            links.remove("/category/" + show_entry.category_url.split("/category/")[1])
+                            names.remove(show_entry.show_name)
+                            print(f"{colors.GREEN} Added {show_entry.show_name} ...{colors.END}")
+                            if input(f"Add another show map to {failed_to_map[value]}? (y/n):\n").lower() not in ["y", "yes"]:
+                                search_another = False
+                        done = True
+                    else:
+                        search_name_parts = search_name.split(" ")
+                        if len(search_name_parts) <= 1:
+                            print(f"{colors.YELLOW}Could not find {failed_to_map[value]} on gogo.{colors.END}")
+                            done = True
+                        else:
+                            print(f"{colors.YELLOW} Nothing found. Trying to shorten name...{colors.END}")
+
+                            search_name_parts.pop()
+                            search_name = " ".join(search_name_parts)
+
         self.m_class.sync_mal_with_seasonal()
 
 
