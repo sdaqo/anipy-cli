@@ -1,3 +1,15 @@
+"""
+ █████  ███    ██ ██ ██████  ██    ██       ██████ ██      ██ 
+██   ██ ████   ██ ██ ██   ██  ██  ██       ██      ██      ██ 
+███████ ██ ██  ██ ██ ██████    ████  █████ ██      ██      ██ 
+██   ██ ██  ██ ██ ██ ██         ██         ██      ██      ██ 
+██   ██ ██   ████ ██ ██         ██          ██████ ███████ ██ 
+
+~ The best tool to watch and Download your favourite anime.
+
+https://github.com/sdaqo/anipy-cli
+
+"""
 from .download import download
 from .url_handler import epHandler, videourl
 from . import config
