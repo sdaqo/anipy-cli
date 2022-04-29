@@ -225,7 +225,8 @@ class MAL:
         anime_found = self._make_request(url, "get", query_params=params)
         if (
             isinstance(anime_found, requests.exceptions.RequestException)
-            or not isinstance(anime_found, dict) or len(anime_found["data"]) < 1
+            or not isinstance(anime_found, dict)
+            or len(anime_found["data"]) < 1
         ):
             return []
 
@@ -298,11 +299,7 @@ class MAL:
                         self.update_gogo_map_list(new_map["gogo_map"], new_item)
                         show[0].update(new_map)
                 except IndexError:
-                    error(
-                        "No show found for {}".format(
-                            search[0]["node"]["title"]
-                        )
-                    )
+                    error("No show found for {}".format(search[0]["node"]["title"]))
 
                 self.write_mal_list()
             else:
