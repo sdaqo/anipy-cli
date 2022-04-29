@@ -339,7 +339,11 @@ class MAL:
     def read_save_data(self):
         try:
             self.local_mal_list_json = read_json(config.mal_local_user_list_path)
+
         except json.decoder.JSONDecodeError:
+            pass
+
+        if not isinstance(self.local_mal_list_json, dict) or "data" not in self.local_mal_list_json:
             self.local_mal_list_json = {"data": []}
             self.get_anime_list(automap=True)
 
