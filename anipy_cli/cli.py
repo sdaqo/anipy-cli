@@ -76,7 +76,7 @@ def download_cli(quality, ffmpeg, no_season_search):
         not no_season_search
         and input("Search MyAnimeList for anime in Season? (y|n): \n>> ") == "y"
     ):
-        searches = get_searches_from_gogo()
+        searches = get_season_searches()
 
     else:
         another = "y"
@@ -271,7 +271,7 @@ class seasonalCli:
             not self.no_season_search
             and input("Search for anime in Season? (y|n): \n>> ") == "y"
         ):
-            searches = get_searches_from_gogo()
+            searches = get_season_searches()
 
         else:
             searches.append(input("Search: "))
@@ -584,7 +584,7 @@ def binge(ep_list, quality, mode=""):
     return
 
 
-def get_searches_from_gogo():
+def get_season_searches(gogo=True):
     searches = []
     selected = []
     season_year = None
@@ -603,11 +603,21 @@ def get_searches_from_gogo():
         else:
             print("Please enter a valid season name.\n")
 
-    anime_in_season = search_in_season_on_gogo(season_name, season_year)
+    if gogo:
+        anime_in_season = search_in_season_on_gogo(season_name, season_year)
+
+    else:
+        anime_in_season = MAL().get_seasonal_anime(season_year, season_name)
+
     print("Anime found in {} {} Season: ".format(season_year, season_name))
     anime_names = []
     for anime in anime_in_season:
-        anime_names.append(anime["name"])
+        if gogo:
+            anime_names.append(anime["name"])
+
+        else:
+            anime_names.append(anime["node"]["title"])
+
     print_names(anime_names)
     selection = input("Selection: (e.g. 1, 1  3 or 1-3) \n>> ")
     if selection.__contains__("-"):
@@ -679,39 +689,41 @@ class MALCli:
             not self.no_season_search
             and input("Search for anime in Season? (y|n): \n>> ") == "y"
         ):
-            searches = get_searches_from_gogo()
+            searches = get_season_searches(gogo=False)
 
         else:
             searches.append(input("Search: "))
 
         #
         for search in searches:
-            query_class = None
             if isinstance(search, dict):
                 is_season_search = True
-                links = [search["category_url"]]
+                mal_entry = search
 
             else:
                 print("\nCurrent: ", search)
-                query_class = query(search, show_entry)
-                query_class.get_pages()
-                links = query_class.get_links()
+                temp_search = self.m_class.get_anime(search)
+                names = [item["node"]["title"] for item in temp_search]
+                print_names(names)
+                selected = False
+                skip = False
+                while not selected:
+                    try:
+                        sel_index = input("Select show (Number or c for cancel):\n")
+                        if sel_index == "c":
+                            skip = True
+                            break
+                        selected = int(sel_index)
+                    except ValueError:
+                        print("Please enter a valid number.")
+                if skip:
+                    continue
+                mal_entry = temp_search[selected]
 
-            if links == 0:
-                sys.exit()
-
-            if is_season_search:
-                show_entry = entry()
-                show_entry.show_name = search["name"]
-                show_entry.category_url = search["category_url"]
-
-            else:
-                show_entry = query_class.pick_show()
-
-            picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
-            self.m_class.add_show(
-                show_entry.show_name, show_entry.category_url, picked_ep
+            self.m_class.update_anime_list(
+                mal_entry["node"]["id"], {"status": "watching"}
             )
+            self.create_gogo_maps()
 
         clear_console()
         self.print_opts()
@@ -741,12 +753,14 @@ class MALCli:
                     i["node"]["title"],
                 )
             )
+        self.print_opts()
 
     def list_possible(self, latest_urls):
         for i in latest_urls:
             print(f"{colors.RED}{i}:")
             for j in latest_urls[i]["ep_list"]:
                 print(f"{colors.CYAN}==> EP: {j[0]}")
+        self.print_opts()
 
     def download(self, mode="all"):
         if mode == "latest":
@@ -815,11 +829,16 @@ class MALCli:
         sys.exit(0)
 
     def sync_mal_to_seasonals(self):
+        self.create_gogo_maps()
+
+        self.m_class.sync_mal_with_seasonal()
+
+    def create_gogo_maps(self):
         if not self.auto and input(
             "Try auto mapping MAL to gogo format? (y/n):\n"
         ).lower() in ["y", "yes"]:
             self.m_class.auto_map_all_without_map()
-        failed_to_map = list(self.m_class.auto_map_all_without_map())
+        failed_to_map = list(self.m_class.shows_failed_automap)
         failed_to_map.sort(key=len, reverse=True)
         if not self.auto and len(failed_to_map) > 0:
             print("MAL Anime that failed auto-map to gogo:")
@@ -892,8 +911,8 @@ class MALCli:
 
                             search_name_parts.pop()
                             search_name = " ".join(search_name_parts)
-
-        self.m_class.sync_mal_with_seasonal()
+        self.m_class.write_save_data()
+        self.m_class.write_mal_list()
 
 
 def main():
