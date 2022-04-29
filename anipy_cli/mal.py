@@ -74,8 +74,6 @@ class MAL:
             self.sync_mal_with_seasonal()
 
     def auto_map_all_without_map(self):
-        if "data" not in self.local_mal_list_json():
-            self.local_mal_list_json = {"data": []}
         for mal_entry in self.local_mal_list_json["data"]:
             self.auto_map_gogo_mal(mal_entry)
         return self.shows_failed_automap
