@@ -68,6 +68,8 @@ class MAL:
         self.session.mount("https://", adapter)
         self.session.headers.update(self.headers)
         self.read_save_data()
+        if self.mal_user:
+            self.get_anime_list()
         if config.auto_map_mal_to_gogo:
             self.auto_map_all_without_map()
         if config.auto_sync_mal_to_seasonals:
