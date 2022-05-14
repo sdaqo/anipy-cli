@@ -22,7 +22,7 @@ def parse_args():
         help="Show your history of watched anime",
     )
     parser.add_argument(
-        "-d",
+        "-D",
         "--download",
         required=False,
         dest="download",
@@ -30,7 +30,7 @@ def parse_args():
         help="Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)",
     )
     parser.add_argument(
-        "-D",
+        "-d",
         "--delete-history",
         required=False,
         dest="delete",
@@ -38,7 +38,7 @@ def parse_args():
         help="Delete your History.",
     )
     parser.add_argument(
-        "-b",
+        "-B",
         "--binge",
         required=False,
         dest="binge",
@@ -46,7 +46,7 @@ def parse_args():
         help="Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)",
     )
     parser.add_argument(
-        "-s",
+        "-S",
         "--seasonal",
         required=False,
         dest="seasonal",
@@ -70,6 +70,7 @@ def parse_args():
         action="store_true",
         help="Print path to the config file.",
     )
+
     parser.add_argument(
         "-o",
         "--no-kitsu",
@@ -78,6 +79,7 @@ def parse_args():
         action="store_true",
         help="Turn off search in season. Disables prompting if kitsu is to be searched for anime in specific season.",
     )
+
     parser.add_argument(
         "-a",
         "--auto-update",
@@ -85,6 +87,24 @@ def parse_args():
         dest="auto_update",
         action="store_true",
         help="Automatically update and download all Anime in seasonals list from start EP to newest.",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--syncplay",
+        required=False,
+        dest="syncplay",
+        action="store_true",
+        help="Use Syncplay to watch Anime with your Friends.",
+    )
+
+    parser.add_argument(
+        "-v",
+        "--vlc",
+        required=False,
+        dest="vlc",
+        action="store_true",
+        help="Use VLC instead of mpv as video-player",
     )
 
     return parser.parse_args()

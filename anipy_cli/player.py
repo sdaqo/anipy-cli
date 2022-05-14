@@ -1,15 +1,16 @@
 import os
-import subprocess as sp
 import time
+import sys
+import subprocess as sp
 from pypresence import Presence, DiscordNotFound
 
 from .history import history
-from .misc import get_anime_info
+from .misc import get_anime_info, error
 from .colors import colors
 from .config import config
 
 
-def mpv(entry, rpc_client=None):
+def start_player(entry, rpc_client=None, player=None):
     """
     Play a episode in mpv, a entry
     with all fields is required.
@@ -22,20 +23,43 @@ def mpv(entry, rpc_client=None):
         entry.show_name + " - Episode: " + str(entry.ep) + " - " + str(entry.quality)
     )
 
-    mpv_player_command = [
-        f"{config.mpv_path}",
-        f"--force-media-title={media_title}",
-        f"--http-header-fields=Referer: {entry.embed_url}",
-        "--force-window=immediate",
-        f"{entry.stream_url}",
-    ]
-    for x in config.mpv_commandline_options:
-        mpv_player_command.insert(3, x)
+    if not player:
+        player = config.player_path
+
+    if player in ("mpv", "syncplay"):
+
+        player_command = [
+            f"{player}",
+            f"{entry.stream_url}",
+            "--" if player == "syncplay" else "",
+            f"--force-media-title={media_title}",
+            f"--referrer={entry.embed_url}",
+            "--force-window=immediate",
+        ]
+
+        for x in config.mpv_commandline_options:
+            player_command.insert(3, x)
+
+    elif player == "vlc" or config.player_path == "vlc":
+
+        player_command = [
+            f"{player}",
+            f"--http-referrer='{entry.embed_url}'",
+            f"--meta-title='{media_title}'",
+            f"{entry.stream_url}",
+        ]
+
+        for x in config.vlc_commandline_options:
+            player_command.insert(3, x)
+
+    else:
+        error("Specified player is unknown")
+        sys.exit()
 
     if os.name in ("nt", "dos"):
-        sub_proc = sp.Popen(mpv_player_command)
+        sub_proc = sp.Popen(player_command)
     else:
-        sub_proc = sp.Popen(mpv_player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
+        sub_proc = sp.Popen(player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
 
     hist_class = history(entry)
     hist_class.write_hist()
@@ -78,3 +102,7 @@ def dc_presence(media_title, category_url, rpc_client):
         small_image="https://github.com/Dankni95/ulauncher-anime/raw/master/images/icon.png",
         start=int(time.time()),
     )
+
+
+# backwards-compatability
+mpv = start_player

@@ -89,12 +89,15 @@ dl_class.download()
 
 """PLAYER"""
 
-# Starting a mpv player is done with mpv().
+# Starting a player is done with start_player().
 # A entry with all fields is required.
 # It returns a subprocess instance.
 # For example you can kill the player with it:
 # sub_proc.kill()
-sub_process = anipy_cli.mpv(entry)
+# It takes a option "player", which accepts mpv, vlc
+# and syncplay if empty it defaults to the one specified
+# in the config.
+sub_process = anipy_cli.player.start_player(entry, player="mpv")
 # kill the player:
 sub_process.kill()
 # see if the player is still open
