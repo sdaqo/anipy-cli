@@ -165,7 +165,7 @@ def history_cli(quality, player):
     url_class.stream_url()
     show_entry = url_class.get_entry()
     sub_proc = start_player(show_entry, rpc_client, player)
-    menu(show_entry, options, sub_proc, quality).print_and_input()
+    menu(show_entry, options, sub_proc, quality, player=player).print_and_input()
 
 
 def binge_cli(quality, player):
