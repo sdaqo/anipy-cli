@@ -22,7 +22,7 @@ def parse_args():
         help="Show your history of watched anime",
     )
     parser.add_argument(
-        "-D",
+        "-d",
         "--download",
         required=False,
         dest="download",
@@ -30,7 +30,7 @@ def parse_args():
         help="Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)",
     )
     parser.add_argument(
-        "-d",
+        "-D",
         "--delete-history",
         required=False,
         dest="delete",
