@@ -11,6 +11,7 @@ def parse_args():
         "--quality",
         action="store",
         required=False,
+        default="auto",
         help="Change the quality of the video, accepts: best, worst or 360, 480, 720 etc.  Default: best",
     )
     parser.add_argument(
