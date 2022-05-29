@@ -96,6 +96,15 @@ Documentation can be found [here](https://github.com/sdaqo/anipy-cli/blob/master
 #### Important:
 To import the libary dont import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
+# Usage Examples
+#### Little example of using anipy-cli for automatically keeping anime library up-to-date:
+```
+# Cronjob runs every 2 minutes and checks wether anipy-cli is still running or not 
+# (only run the job if last one is finished)
+
+*/2 *   * * *   username        pidof -x anipy-cli || anipy-cli -ma >> /var/log/anipy-cli.log
+```
+
 # Other versions
 - GUI Frontend by me (WIP): https://github.com/sdaqo/anipy-gui
 - Dmenu script by @Dabbing-Guy: https://github.com/Dabbing-Guy/anipy-dmenu 
