@@ -33,6 +33,7 @@ mal_options = [
     colors.GREEN + "[a] " + colors.END + "Add Anime",
     colors.GREEN + "[e] " + colors.END + "Delete one anime from mal list",
     colors.GREEN + "[l] " + colors.END + "List anime in mal list",
+    colors.GREEN + "[m] " + colors.END + "Manually Map MAL anime to gogo Link",
     colors.GREEN + "[s] " + colors.END + "Sync MAL list into seasonals",
     colors.GREEN + "[b] " + colors.END + "Sync seasonals into MAL list",
     colors.GREEN + "[d] " + colors.END + "Download newest episodes",
@@ -133,7 +134,7 @@ def read_json(path):
 def print_names(names):
     """
     Cli function that takes a
-    list oof names and prints
+    list of names and prints
     them to the terminal.
     """
     for number, value in enumerate(names, 1):

@@ -657,6 +657,12 @@ class MALCli:
         self.ffmpeg = ffmpeg
         self.auto = auto
         self.no_season_search = no_season_search
+        if (
+                not config.mal_user or config.mal_user == "" or
+                not config.mal_password or config.mal_password == ""
+        ):
+            error("MAL Credentials need to be provided in config in order to use MAL CLI. Please check your config.")
+            sys.exit(1)
 
     def print_opts(self):
         for i in mal_options:
@@ -683,12 +689,14 @@ class MALCli:
                 self.binge_latest()
             elif picked == "q":
                 self.quit()
+            elif picked == "m":
+                self.create_gogo_maps()
             else:
                 error("invalid input")
+            self.print_opts()
 
     def add_anime(self):
         show_entry = entry()
-        is_season_search = False
         searches = []
         if (
             not self.no_season_search
@@ -702,7 +710,6 @@ class MALCli:
         #
         for search in searches:
             if isinstance(search, dict):
-                is_season_search = True
                 mal_entry = search
 
             else:
@@ -731,7 +738,6 @@ class MALCli:
             self.create_gogo_maps()
 
         clear_console()
-        self.print_opts()
 
     def del_anime(self):
         mal_list = self.m_class.get_anime_list()
@@ -748,7 +754,6 @@ class MALCli:
 
         self.m_class.del_show(picked)
         clear_console()
-        self.print_opts()
 
     def list_animes(self):
         for i in self.m_class.get_anime_list():
@@ -758,14 +763,12 @@ class MALCli:
                     i["node"]["title"],
                 )
             )
-        self.print_opts()
 
     def list_possible(self, latest_urls):
         for i in latest_urls:
             print(f"{colors.RED}{i}:")
             for j in latest_urls[i]["ep_list"]:
                 print(f"{colors.CYAN}==> EP: {j[0]}")
-        self.print_opts()
 
     def download(self, mode="all"):
         if mode == "latest":
@@ -798,7 +801,6 @@ class MALCli:
 
         if not self.auto:
             clear_console()
-            self.print_opts()
 
     def binge_latest(self):
         latest_eps = self.m_class.latest_eps()
@@ -828,7 +830,6 @@ class MALCli:
         binge(ep_dic, self.quality, mode="mal")
 
         clear_console()
-        self.print_opts()
 
     def quit(self):
         sys.exit(0)
@@ -838,11 +839,16 @@ class MALCli:
 
         self.m_class.sync_mal_with_seasonal()
 
+    def manual_gogomap(self):
+        self.create_gogo_maps()
+
     def create_gogo_maps(self):
         if not self.auto and input(
             "Try auto mapping MAL to gogo format? (y/n):\n"
         ).lower() in ["y", "yes"]:
             self.m_class.auto_map_all_without_map()
+            from pprint import pprint
+            pprint(self.m_class.shows_failed_automap, indent=4)
         failed_to_map = list(self.m_class.shows_failed_automap)
         failed_to_map.sort(key=len, reverse=True)
         if not self.auto and len(failed_to_map) > 0:

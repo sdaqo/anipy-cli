@@ -47,8 +47,8 @@ class MAL:
         self.refresh_token = os.environ.get("mal_api_refresh_token")
         self.api_client_id = "6114d00ca681b7701d1e15fe11a4987e"
         self.api_baseurl = "https://api.myanimelist.net/v2/"
-        self.mal_user = config.mal_user if config.mal_user != "" else None
-        self.mal_password = config.mal_password if config.mal_password != "" else None
+        self.mal_user = config.mal_user if config.mal_user and config.mal_user != "" else False
+        self.mal_password = config.mal_password if config.mal_password and config.mal_password != "" else False
         self.anime_list = None
         self.gogo_baseurl = config.gogoanime_url
         self.data = {
@@ -69,11 +69,14 @@ class MAL:
         self.session.headers.update(self.headers)
         self.read_save_data()
         if self.mal_user:
+            if not self.auth():
+                error("Could not authorize with MyAnimeList. Please check your credentials...")
             self.get_anime_list()
-        if config.auto_map_mal_to_gogo:
-            self.auto_map_all_without_map()
-        if config.auto_sync_mal_to_seasonals:
-            self.sync_mal_with_seasonal()
+            if config.auto_map_mal_to_gogo:
+                self.auto_map_all_without_map()
+            if config.auto_sync_mal_to_seasonals:
+                self.sync_mal_with_seasonal()
+
 
     def auto_map_all_without_map(self):
         for mal_entry in self.local_mal_list_json["data"]:
@@ -109,13 +112,17 @@ class MAL:
                     retry=1,
                 )
 
-            if (
-                request_error.response.json()["message"]
-                == "Incorrect username or password."
-            ):
+            if "message" in request_error.response.json():
                 error(
-                    "Ivalid username or Password for MyAnimeList. Please check your config..."
+                    "MyAnimeList Error: {}".format(request_error.response.json()["message"])
                 )
+                if "hint" in request_error.response.json():
+                    print("{}Hint:{} {}{}".format(
+                        colors.BLUE,
+                        colors.YELLOW,
+                        request_error.response.json()["hint"],
+                        colors.END)
+                    )
                 sys.exit(1)
             error("MyAnimeList - {}".format(request_error.response.json()))
             return error
@@ -548,13 +555,7 @@ class MAL:
                         },
                     )
                 else:
-                    self.shows_failed_automap.update(mal_entry["node"]["title"])
-            if mal_entry["node"]["title"] in self.shows_failed_automap:
-                print(
-                    "{}{}: Failed.{}".format(
-                        colors.ERROR, mal_entry["node"]["title"], colors.END
-                    )
-                )
+                    self.shows_failed_automap.add(mal_entry["node"]["title"])
         self.write_save_data()
 
     def manual_map_gogo_mal(self, mal_anime_name: str, gogo: dict):
