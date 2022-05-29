@@ -136,6 +136,17 @@ class download:
                     ffmpeg_output=False,
                     logger="bar",
                 )
+            else:
+                ffmpeg_tools.ffmpeg_merge_video_audio(
+                    merged_video_ts,
+                    merged_video_ts,
+                    str(dl_path),
+                    vcodec="copy",
+                    acodec="copy",
+                    ffmpeg_output=False,
+                    logger="bar",
+                )
+
             print(f"{colors.CYAN}Merge finished.")
         except KeyboardInterrupt:
             error("interrupted deleting partially downloaded file")
@@ -244,10 +255,11 @@ class download:
         self._m3u8_content = self._download_m3u8(
             self.entry.stream_url, 10, self.headers
         )
+
         assert self._m3u8_content.is_variant is False
 
         try:
-            if not self.content_audio_media.is_variant:
+            if self.content_audio_media and not self.content_audio_media.is_variant:
                 self.segment_count = len(self.content_audio_media.segments)
                 self.is_audio = True
                 with ThreadPoolExecutor(12) as pool_audio:
@@ -261,11 +273,11 @@ class download:
         except KeyboardInterrupt:
             shutil.rmtree(self.temp_folder)
             keyboard_inter()
-            sys.exit()
+            exit()
 
         input_file = self._dump_m3u8(self._m3u8_content)
         audio_input_file = None
-        if not self.content_audio_media.is_variant:
+        if self.content_audio_media and not self.content_audio_media.is_variant:
             self.is_audio = True
             audio_input_file = self._dump_m3u8(self.content_audio_media)
 
@@ -291,36 +303,37 @@ class download:
 
             # sort
             content.playlists.sort(key=lambda x: x.stream_info.bandwidth, reverse=True)
+            selected_index = 0
             for index, playlist in enumerate(content.playlists):
                 print(
-                    "Selected Quality: {}\n"
-                    "Playlist Index: {}\n"
-                    "Resolution at this index: {}\n\n".format(
-                        self.entry.quality, index, playlist.stream_info.resolution
-                    )
+                    f"{colors.GREEN}Playlist Index:{colors.RED} {index}\n"
+                    f"{colors.GREEN}Resolution at this index:{colors.RED} {playlist.stream_info.resolution}\n\n"
                 )
-                if (
-                    "auto" in self.entry.quality and index == 0
-                ) or self.entry.quality in playlist.stream_info.resolution:
-                    try:
-                        for media in content.media:
-                            if playlist.stream_info.audio in str(media):
-                                self.content_audio_media = media
+                if self.entry.quality in playlist.stream_info.resolution:
+                    selected_index = index
 
-                        chosen_uri = content.playlists[index].uri
-                        if not self._is_url(chosen_uri):
-                            chosen_uri = urllib.parse.urljoin(
-                                content.base_uri, chosen_uri
-                            )
-                        if self.content_audio_media is not None:
-                            media_uri = self.content_audio_media.uri
-                            self.content_audio_media = self._download_m3u8(
-                                media_uri, timeout, headers, True
-                            )
-                        return self._download_m3u8(chosen_uri, timeout, headers)
+            try:
+                for media in content.media:
+                    if content.playlists[selected_index].stream_info.audio in str(
+                        media
+                    ):
+                        self.content_audio_media = media
 
-                    except (ValueError, IndexError):
-                        exit("Failed to get stream for chosen quality")
+                chosen_uri = content.playlists[selected_index].uri
+                if not self._is_url(chosen_uri):
+                    chosen_uri = urllib.parse.urljoin(content.base_uri, chosen_uri)
+                if self.content_audio_media is not None:
+                    media_uri = self.content_audio_media.uri
+                    self.content_audio_media = self._download_m3u8(
+                        media_uri, timeout, headers, True
+                    )
+                print(
+                    f"{colors.GREEN}Quality for Download:{colors.YELLOW} {content.playlists[selected_index].stream_info.resolution} {colors.END}"
+                )
+                return self._download_m3u8(chosen_uri, timeout, headers)
+
+            except (ValueError, IndexError):
+                exit("Failed to get stream for chosen quality")
 
         else:
             self._download_key(content)

@@ -217,7 +217,7 @@ class videourl:
 
     def __init__(self, entry, quality) -> None:
         self.entry = entry
-        self.qual = quality
+        self.qual = quality.lower().strip("p")
         self.session = requests.Session()
         retry = Retry(connect=3, backoff_factor=0.5)
         adapter = HTTPAdapter(max_retries=retry)
