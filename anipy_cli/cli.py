@@ -847,8 +847,6 @@ class MALCli:
             "Try auto mapping MAL to gogo format? (y/n):\n"
         ).lower() in ["y", "yes"]:
             self.m_class.auto_map_all_without_map()
-            from pprint import pprint
-            pprint(self.m_class.shows_failed_automap, indent=4)
         failed_to_map = list(self.m_class.shows_failed_automap)
         failed_to_map.sort(key=len, reverse=True)
         if not self.auto and len(failed_to_map) > 0:
