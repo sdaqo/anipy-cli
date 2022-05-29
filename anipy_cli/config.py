@@ -37,15 +37,20 @@ except ImportError:
 
         gogoanime_url = "https://gogoanime.gg/"
 
-        mpv_path = "mpv"
+        # Path to the video-player.
+        # Supported Players are: mpv, vlc, syncplay
+        player_path = "mpv"
 
-        # Specify additional mpv options
-        # you will need to leave a comma (,) between
+        # Specify additional mpv/vlc options (syncplay uses the same options as mpv)
+        # You will need to leave a comma (,) between
         # each command and every command should
         # be wrappedd in quotes (").
-        # Example: ["--fs", "--cache"]
-        # Look here for various commands: https://github.com/mpv-player/mpv/blob/master/DOCS/man/options.rst
+        # Example (for mpv): ["--fs", "--cache"]
+        # Look here for various commands:
+        #   - mpv: https://github.com/mpv-player/mpv/blob/master/DOCS/man/options.rst
+        #   - vlc: https://wiki.videolan.org/VLC_command-line_help/
         mpv_commandline_options = []
+        vlc_commandline_options = []
 
         # Always use ffmpeg to download hls streams, you can
         # also activate this temprarly using the -f flag when

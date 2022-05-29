@@ -23,6 +23,8 @@ from .misc import (
     search_in_season_on_gogo,
 )
 from .player import mpv, dc_presence_connect
+from .misc import error, entry, options, clear_console, print_names, seasonal_options
+from .player import start_player, dc_presence_connect
 from .query import query
 from .arg_parser import parse_args
 from .colors import colors
@@ -34,7 +36,7 @@ if config.dc_presence:
     rpc_client = dc_presence_connect()
 
 
-def default_cli(quality):
+def default_cli(quality, player):
     """
     Default cli(no flags like -H or -d)
     Just prints a search prompt and then
@@ -51,8 +53,8 @@ def default_cli(quality):
     url_class.stream_url()
     show_entry = url_class.get_entry()
 
-    sub_proc = mpv(show_entry, rpc_client)
-    menu(show_entry, options, sub_proc, quality).print_and_input()
+    sub_proc = start_player(show_entry, rpc_client, player)
+    menu(show_entry, options, sub_proc, quality, player).print_and_input()
 
 
 def download_cli(quality, ffmpeg, no_season_search):
@@ -128,7 +130,7 @@ def download_cli(quality, ffmpeg, no_season_search):
             download(show_entry, ffmpeg).download()
 
 
-def history_cli(quality):
+def history_cli(quality, player):
     """
     Cli function for the -H flag, prints all of the history,
     so user is able to pick one and continue watching.
@@ -182,11 +184,11 @@ def history_cli(quality):
     url_class = videourl(show_entry, quality)
     url_class.stream_url()
     show_entry = url_class.get_entry()
-    sub_proc = mpv(show_entry, rpc_client)
-    menu(show_entry, options, sub_proc, quality).print_and_input()
+    sub_proc = start_player(show_entry, rpc_client, player)
+    menu(show_entry, options, sub_proc, quality, player=player).print_and_input()
 
 
-def binge_cli(quality):
+def binge_cli(quality, player):
     """
     Cli function for the
     -b flag.
@@ -219,11 +221,12 @@ def binge_cli(quality):
         }
     }
 
-    binge(ep_list, quality)
+    binge(ep_list, quality, player)
 
 
-def seasonal_cli(quality, no_season_search, ffmpeg, auto_update):
-    s = seasonalCli(quality, no_season_search, ffmpeg, auto_update)
+def seasonal_cli(quality, no_season_search, ffmpeg, auto_update, player):
+    s = seasonalCli(quality, no_season_search, player, ffmpeg, auto_update)
+
     if auto_update:
         s.download_latest()
 
@@ -233,13 +236,14 @@ def seasonal_cli(quality, no_season_search, ffmpeg, auto_update):
 
 
 class seasonalCli:
-    def __init__(self, quality, no_season_search, ffmpeg=False, auto=False):
+    def __init__(self, quality, no_season_search, player, ffmpeg=False, auto=False):
         self.entry = entry()
         self.quality = quality
         self.no_season_search = no_season_search
         self.s_class = Seasonal()
         self.ffmpeg = ffmpeg
         self.auto = auto
+        self.player = player
 
     def print_opts(self):
         for i in seasonal_options:
@@ -390,7 +394,7 @@ class seasonalCli:
             ep_list.clear()
             ep_urls.clear()
 
-        binge(ep_dic, self.quality, mode="seasonal")
+        binge(ep_dic, self.quality, self.player, mode="seasonal")
 
         clear_console()
         self.print_opts()
@@ -407,14 +411,15 @@ class menu:
     a list of options that will be printed
     this is just a thing for flexebilyti.
     A sub_proc is also required this one is
-    a subprocess instance returned by misc.mpv().
+    a subprocess instance returned by misc.start_player().
     """
 
-    def __init__(self, entry, opts, sub_proc, quality) -> None:
+    def __init__(self, entry, opts, sub_proc, quality, player) -> None:
         self.entry = entry
         self.options = opts
         self.sub_proc = sub_proc
         self.quality = quality
+        self.player = player
 
     def print_opts(self):
         for i in self.options:
@@ -442,7 +447,7 @@ class menu:
         url_class = videourl(self.entry, self.quality)
         url_class.stream_url()
         self.entry = url_class.get_entry()
-        self.sub_proc = mpv(self.entry, rpc_client)
+        self.sub_proc = start_player(self.entry, rpc_client, self.player)
 
     def take_input(self):
         while True:
@@ -496,7 +501,7 @@ class menu:
 
     def hist(self):
         self.kill_player()
-        history_cli(self.quality)
+        history_cli(self.quality, self.player)
 
     def search(self):
         query_class = query(input("Search: "), self.entry)
@@ -526,7 +531,7 @@ class menu:
         sys.exit(0)
 
 
-def binge(ep_list, quality, mode=""):
+def binge(ep_list, quality, player, mode=""):
     """
     Accepts ep_list like so:
         {"name" {'ep_urls': [], 'eps': [], 'category_url': }, "next_anime"...}
@@ -561,7 +566,7 @@ def binge(ep_list, quality, mode=""):
                 url_class = videourl(show_entry, quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
-                sub_proc = mpv(show_entry, rpc_client)
+                sub_proc = start_player(show_entry, rpc_client, player)
                 while True:
                     poll = sub_proc.poll()
                     if poll is not None:
@@ -917,6 +922,15 @@ class MALCli:
 
 def main():
     args = parse_args()
+
+    player = None
+
+    if args.syncplay:
+        player = "syncplay"
+
+    if args.vlc:
+        player = "vlc"
+
     if args.delete:
         try:
             config.history_file_path.unlink()
@@ -928,16 +942,16 @@ def main():
         download_cli(args.quality, args.ffmpeg, args.no_season_search)
 
     elif args.binge:
-        binge_cli(args.quality)
+        binge_cli(args.quality, player)
 
     elif args.seasonal:
-        seasonal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update)
+        seasonal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player)
 
     elif args.auto_update:
-        seasonal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update)
+        seasonal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player)
 
     elif args.history:
-        history_cli(args.quality)
+        history_cli(args.quality, player)
 
     elif args.config:
         print(os.path.realpath(__file__).replace("cli.py", "config.py"))
@@ -946,6 +960,6 @@ def main():
         mal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update)
 
     else:
-        default_cli(args.quality)
+        default_cli(args.quality, player)
 
     return

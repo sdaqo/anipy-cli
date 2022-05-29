@@ -52,7 +52,7 @@ Also, don't delete the original `config.py`, it will detect if `config_personal.
 
 # Usage  
 ```
-usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-d] [-D] [-b] [-s] [-f] [-c] [-o] [-a]
+usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-D] [-d] [-B] [-S] [-f] [-c] [-o] [-a] [-s] [-v]
 
 Play Animes from gogoanime in local video-player or Download them.
 
@@ -61,14 +61,16 @@ options:
   -q QUALITY, --quality QUALITY
                         Change the quality of the video, accepts: best, worst or 360, 480, 720 etc. Default: best
   -H, --history         Show your history of watched anime
-  -d, --download        Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)
-  -D, --delete-history  Delete your History.
-  -b, --binge           Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)
-  -s, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
+  -D, --download        Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)
+  -d, --delete-history  Delete your History.
+  -B, --binge           Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)
+  -S, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
   -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
   -c, --config          Print path to the config file.
   -o, --no-seas-search  Turn off search in season. Disables prompting if GoGoAnime is to be searched for anime in specific season.
   -a, --auto-update     Automatically update and download all Anime in seasonals list from start EP to newest.
+  -s, --syncplay        Use Syncplay to watch Anime with your Friends.
+  -v, --vlc             Use VLC instead of mpv as video-player
   -m, --my-anime-list   MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList (requires MAL account credentials to be set in config).
 ```
 # What it can do
@@ -80,7 +82,8 @@ options:
 - History of watched Episodes
 - Binge Mode to watch a range of episodes back-to-back.
 - Seasonal Mode to bulk download or binge watch the latest episodes of animes you pick
-- MAL Mode: Like seasonal mode, but uses your anime list at [MyAnimeList.net](https://myanimelist.net/)
+- Configurable with config
+- (**Optional**) MAL Mode: Like seasonal mode, but uses your anime list at [MyAnimeList.net](https://myanimelist.net/)
 - (**Optional**) Search GoGo for animes in specific seasons. Available for the download cli, seasonal mode and MAL mode. Turn it off with -o flag.
 - (**Optional**) Discord Presence for the anime you currently watch. This is off by default, activate it in the config (-c)
 - (**Optional**) Ffmpeg to download m3u8 playlists, may be more stable but is slower than internal downloader.
