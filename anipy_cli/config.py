@@ -75,4 +75,8 @@ except ImportError:
         # try mapping MAL entries to gogo_format
         auto_map_mal_to_gogo = False
 
+        # This is relevant for auto mapping MyAnimeList to gogo links
+        # - Example Usage -
+        # if you don't want dubbed anime, just remove the "dub" entry like so:
+        # anime_types = ["sub"]
         anime_types = ["sub", "dub"]
