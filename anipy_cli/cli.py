@@ -658,10 +658,14 @@ class MALCli:
         self.auto = auto
         self.no_season_search = no_season_search
         if (
-                not config.mal_user or config.mal_user == "" or
-                not config.mal_password or config.mal_password == ""
+            not config.mal_user
+            or config.mal_user == ""
+            or not config.mal_password
+            or config.mal_password == ""
         ):
-            error("MAL Credentials need to be provided in config in order to use MAL CLI. Please check your config.")
+            error(
+                "MAL Credentials need to be provided in config in order to use MAL CLI. Please check your config."
+            )
             sys.exit(1)
 
     def print_opts(self):
@@ -949,10 +953,14 @@ def main():
         binge_cli(args.quality, player)
 
     elif args.seasonal:
-        seasonal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player)
+        seasonal_cli(
+            args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player
+        )
 
     elif args.auto_update:
-        seasonal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player)
+        seasonal_cli(
+            args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player
+        )
 
     elif args.history:
         history_cli(args.quality, player)

@@ -47,8 +47,14 @@ class MAL:
         self.refresh_token = os.environ.get("mal_api_refresh_token")
         self.api_client_id = "6114d00ca681b7701d1e15fe11a4987e"
         self.api_baseurl = "https://api.myanimelist.net/v2/"
-        self.mal_user = config.mal_user if config.mal_user and config.mal_user != "" else False
-        self.mal_password = config.mal_password if config.mal_password and config.mal_password != "" else False
+        self.mal_user = (
+            config.mal_user if config.mal_user and config.mal_user != "" else False
+        )
+        self.mal_password = (
+            config.mal_password
+            if config.mal_password and config.mal_password != ""
+            else False
+        )
         self.anime_list = None
         self.gogo_baseurl = config.gogoanime_url
         self.data = {
@@ -70,13 +76,14 @@ class MAL:
         self.read_save_data()
         if self.mal_user:
             if not self.auth():
-                error("Could not authorize with MyAnimeList. Please check your credentials...")
+                error(
+                    "Could not authorize with MyAnimeList. Please check your credentials..."
+                )
             self.get_anime_list()
             if config.auto_map_mal_to_gogo:
                 self.auto_map_all_without_map()
             if config.auto_sync_mal_to_seasonals:
                 self.sync_mal_with_seasonal()
-
 
     def auto_map_all_without_map(self):
         for mal_entry in self.local_mal_list_json["data"]:
@@ -114,14 +121,18 @@ class MAL:
 
             if "message" in request_error.response.json():
                 error(
-                    "MyAnimeList Error: {}".format(request_error.response.json()["message"])
+                    "MyAnimeList Error: {}".format(
+                        request_error.response.json()["message"]
+                    )
                 )
                 if "hint" in request_error.response.json():
-                    print("{}Hint:{} {}{}".format(
-                        colors.BLUE,
-                        colors.YELLOW,
-                        request_error.response.json()["hint"],
-                        colors.END)
+                    print(
+                        "{}Hint:{} {}{}".format(
+                            colors.BLUE,
+                            colors.YELLOW,
+                            request_error.response.json()["hint"],
+                            colors.END,
+                        )
                     )
                 sys.exit(1)
             error("MyAnimeList - {}".format(request_error.response.json()))
