@@ -764,9 +764,25 @@ class MALCli:
 
     def list_animes(self):
         for i in self.m_class.get_anime_list():
+            status = i["node"]["my_list_status"]["status"]
+
+            if status == "completed":
+                color = colors.MAGENTA
+            elif status == "on_hold":
+                color = colors.YELLOW
+            elif status == "plan_to_watch":
+                color = colors.BLUE
+            elif status == "dropped":
+                color = colors.ERROR
+            else:
+                color = colors.GREEN
+
             print(
-                "==> Last watched EP: {} | {}".format(
+                "==> Last watched EP: {} | {}({}){} | {}".format(
                     i["node"]["my_list_status"]["num_episodes_watched"],
+                    color,
+                    status,
+                    colors.END,
                     i["node"]["title"],
                 )
             )

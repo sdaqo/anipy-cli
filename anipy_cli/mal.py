@@ -394,7 +394,7 @@ class MAL:
                 if x["node"]["title"] == show_entry["node"]["title"]
             ]
             if len(show) > 0:
-                show[0].update(show_entry)
+                update_dict_recursive(show[0]["node"], show_entry["node"])
 
             else:
                 self.local_mal_list_json["data"].append(show_entry)
@@ -430,7 +430,11 @@ class MAL:
         """
 
         self.read_save_data()
-        entries = [i for i in self.local_mal_list_json["data"]]
+        entries = [
+            i
+            for i in self.local_mal_list_json["data"]
+            if i["node"]["my_list_status"]["status"] in config.mal_status_categories
+        ]
 
         latest_urls = {}
         for i in entries:
@@ -486,7 +490,9 @@ class MAL:
         seasonal_list = seasonal.list_seasonals()
         for mal_with_gogo_map in self.local_mal_list_json["data"]:
             if (
-                "gogo_map" in mal_with_gogo_map
+                mal_with_gogo_map["node"]["my_list_status"]["status"]
+                in config.mal_status_categories
+                and "gogo_map" in mal_with_gogo_map
                 and len(mal_with_gogo_map["gogo_map"]) > 0
             ):
                 for anime_entry in mal_with_gogo_map["gogo_map"]:
@@ -565,7 +571,6 @@ class MAL:
                     self.update_anime_list(
                         mal_entry["node"]["id"],
                         {
-                            "status": "watching",
                             "num_watched_episodes": mal_entry["node"]["my_list_status"][
                                 "num_episodes_watched"
                             ],
@@ -598,3 +603,11 @@ class MAL:
         )
         if mal_anime_name in self.shows_failed_automap:
             self.shows_failed_automap.discard(mal_anime_name)
+
+
+def update_dict_recursive(dct, merge_dct):
+    for k, v in merge_dct.items():
+        if k in dct and isinstance(dct[k], dict) and isinstance(merge_dct[k], dict):
+            update_dict_recursive(dct[k], merge_dct[k])
+        else:
+            dct[k] = merge_dct[k]

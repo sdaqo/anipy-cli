@@ -75,6 +75,11 @@ except ImportError:
         # try mapping MAL entries to gogo_format
         auto_map_mal_to_gogo = False
 
+        # list of status categories that are being considered when binge-watching or downloading
+        # possible statuses are:
+        # ["watching","completed", "on_hold", "dropped", "plan_to_watch"]
+        mal_status_categories = ["watching"]
+
         # This is relevant for auto mapping MyAnimeList to gogo links
         # - Example Usage -
         # if you don't want dubbed anime, just remove the "dub" entry like so:
