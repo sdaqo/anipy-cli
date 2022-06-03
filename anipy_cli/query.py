@@ -70,7 +70,7 @@ class query:
         else:
             return self.links, self.names
 
-    def pick_show(self):
+    def pick_show(self, cancelable=False):
         """
         Cli Function that
         Lets you pick a show from
@@ -78,6 +78,8 @@ class query:
         field from the entry and returns it.
         """
         print_names(self.names)
+        if cancelable:
+            print(f"{colors.GREEN}[C] {colors.YELLOW} Cancel.")
         while True:
             inp = input("Enter Number: " + colors.CYAN)
             try:
@@ -85,6 +87,8 @@ class query:
                 self.entry.show_name = self.names[int(inp) - 1]
                 break
             except:
+                if cancelable and inp.lower() == "c":
+                    return False
                 error("Invalid Input")
 
         return self.entry

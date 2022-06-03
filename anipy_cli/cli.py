@@ -854,7 +854,7 @@ class MALCli:
             "Try auto mapping MAL to gogo format? (y/n):\n"
         ).lower() in ["y", "yes"]:
             self.m_class.auto_map_all_without_map()
-        failed_to_map = list(self.m_class.shows_failed_automap)
+        failed_to_map = list(self.m_class.get_all_without_gogo_map())
         failed_to_map.sort(key=len, reverse=True)
         if not self.auto and len(failed_to_map) > 0:
             print("MAL Anime that failed auto-map to gogo:")
@@ -887,11 +887,49 @@ class MALCli:
                     )
                     show_entry = entry()
                     query_class = query(search_name, show_entry)
-                    links, names = query_class.get_links()
-                    if links != 0:
+                    links_query = query_class.get_links()
+
+                    if not links_query:
+                        skip = False
+                        while not links_query and not skip:
+                            print(
+                                f"{colors.ERROR}No search results for {colors.YELLOW}{failed_to_map[value]}{colors.END}\n"
+                            )
+                            print(
+                                f"{colors.GREEN}Sometimes the names on GoGo are too different from the ones on MAL.\n"
+                            )
+                            print(
+                                f"{colors.CYAN}Try custom name for mapping? (Y/N):{colors.END}\n"
+                            )
+                            if input().lower() == "y":
+                                query_class = query(
+                                    input(
+                                        f"{colors.GREEN}Enter Search String to search on GoGo:\n{colors.END}"
+                                    ),
+                                    show_entry,
+                                )
+                                links_query = query_class.get_links()
+                                if links_query:
+                                    show = query_class.pick_show(cancelable=True)
+                                    if show:
+                                        show_entries.append(
+                                            query_class.pick_show(cancelable=True)
+                                        )
+                                        self.m_class.manual_map_gogo_mal(
+                                            failed_to_map[value],
+                                            {
+                                                "link": show_entry.category_url,
+                                                "name": show_entry.show_name,
+                                            },
+                                        )
+                            else:
+                                skip = True
+                                done = True
+                    elif links_query[0] != 0:
+                        links, names = links_query
                         search_another = True
                         while search_another and len(links) > 0:
-                            show_entries.append(query_class.pick_show())
+                            show_entries.append(query_class.pick_show(cancelable=True))
                             self.m_class.manual_map_gogo_mal(
                                 failed_to_map[value],
                                 {

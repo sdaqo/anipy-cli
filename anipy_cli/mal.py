@@ -90,6 +90,13 @@ class MAL:
             self.auto_map_gogo_mal(mal_entry)
         return self.shows_failed_automap
 
+    def get_all_without_gogo_map(self):
+        shows_with_no_map = set()
+        for mal_entry in self.local_mal_list_json["data"]:
+            if "gogo_map" not in mal_entry or len(mal_entry["gogo_map"]) < 1:
+                shows_with_no_map.add(mal_entry["node"]["title"])
+        return shows_with_no_map
+
     def _make_request(
         self,
         url: str,
