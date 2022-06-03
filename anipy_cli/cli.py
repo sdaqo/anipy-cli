@@ -639,8 +639,8 @@ def get_season_searches(gogo=True):
     return searches
 
 
-def mal_cli(quality, no_season_search, ffmpeg, auto_update):
-    m = MALCli(quality, no_season_search, ffmpeg, auto_update)
+def mal_cli(quality, no_season_search, ffmpeg, auto_update, player):
+    m = MALCli(quality, player, no_season_search, ffmpeg, auto_update)
     if auto_update:
         m.download(mode="all")
 
@@ -650,12 +650,15 @@ def mal_cli(quality, no_season_search, ffmpeg, auto_update):
 
 
 class MALCli:
-    def __init__(self, quality, no_season_search=False, ffmpeg=False, auto=False):
+    def __init__(
+        self, quality, player, no_season_search=False, ffmpeg=False, auto=False
+    ):
         self.entry = entry()
         self.quality = quality
         self.m_class = MAL()
         self.ffmpeg = ffmpeg
         self.auto = auto
+        self.player = player
         self.no_season_search = no_season_search
         if (
             not config.mal_user
@@ -831,7 +834,7 @@ class MALCli:
             ep_list.clear()
             ep_urls.clear()
 
-        binge(ep_dic, self.quality, mode="mal")
+        binge(ep_dic, self.quality, player=self.player, mode="mal")
 
         clear_console()
 
@@ -969,7 +972,9 @@ def main():
         print(os.path.realpath(__file__).replace("cli.py", "config.py"))
 
     elif args.mal:
-        mal_cli(args.quality, args.no_season_search, args.ffmpeg, args.auto_update)
+        mal_cli(
+            args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player
+        )
 
     else:
         default_cli(args.quality, player)
