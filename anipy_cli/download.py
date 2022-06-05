@@ -373,17 +373,22 @@ class download:
     def _get_fname(self) -> str:
         """
         This function returns what the filename for the outputed video should be.
-        
+
         It finds this by using data in self.entry and the config.
 
         Returns a string which should be the filename.
         """
         try:
-            return config.download_name_format.format(show_name=self.entry.show_name, episode_number=self.entry.ep, quality=self.entry.quality)
+            return config.download_name_format.format(
+                show_name=self.entry.show_name,
+                episode_number=self.entry.ep,
+                quality=self.entry.quality,
+            )
         except AttributeError:
-            error("Config Option download_name_format is not set: please update your personal config file to include it")
+            error(
+                "Config Option download_name_format is not set: please update your personal config file to include it"
+            )
             return f"{self.entry.show_name}_{self.entry.ep}.mp4"
-            
 
     @staticmethod
     def _is_url(uri):
