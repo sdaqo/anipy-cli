@@ -59,6 +59,10 @@ except ImportError:
         # The log of the ffmpeg process, when its used
         ffmpeg_log_path = user_files_path / "ffmpeg_log"
 
+        # This determines how downloaded anime will be named
+        # The following variables can be used: show_name, episode_number, quality
+        download_name_format = "{show_name}_{episode_number}.mp4"
+
         # Discord Presence:
         # Show what you are watching on discord
         # Default: False
