@@ -26,7 +26,7 @@ def start_player(entry, rpc_client=None, player=None):
     if not player:
         player = config.player_path
 
-    if player in ("mpv", "syncplay"):
+    if player in ("mpv", "syncplay", "mpvnet"):
 
         player_command = [
             f"{player}",

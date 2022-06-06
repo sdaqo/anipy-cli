@@ -31,6 +31,9 @@ from .colors import colors
 from .download import download
 from .config import config
 
+# Make colors work in windows CMD 
+os.system("")
+
 rpc_client = None
 if config.dc_presence:
     rpc_client = dc_presence_connect()

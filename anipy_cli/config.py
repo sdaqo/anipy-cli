@@ -38,7 +38,7 @@ except ImportError:
         gogoanime_url = "https://gogoanime.gg/"
 
         # Path to the video-player.
-        # Supported Players are: mpv, vlc, syncplay
+        # Supported Players are: mpv, vlc, syncplay, mpvnet
         player_path = "mpv"
 
         # Specify additional mpv/vlc options (syncplay uses the same options as mpv)
