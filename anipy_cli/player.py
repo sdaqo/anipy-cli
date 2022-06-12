@@ -57,13 +57,14 @@ def start_player(entry, rpc_client=None, player=None):
         sys.exit()
 
     try:
-        
         if os.name in ("nt", "dos"):
             sub_proc = sp.Popen(player_command)
         else:
             sub_proc = sp.Popen(player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
     except FileNotFoundError as e:
-        print(colors.END + "Error:", e)
+        print(colors.RED 
+        + "Error:" 
+        + colors.END, e)
         sys.exit()
 
     hist_class = history(entry)
