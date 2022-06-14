@@ -56,10 +56,14 @@ def start_player(entry, rpc_client=None, player=None):
         error("Specified player is unknown")
         sys.exit()
 
-    if os.name in ("nt", "dos"):
-        sub_proc = sp.Popen(player_command)
-    else:
-        sub_proc = sp.Popen(player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
+    try:
+        if os.name in ("nt", "dos"):
+            sub_proc = sp.Popen(player_command)
+        else:
+            sub_proc = sp.Popen(player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
+    except FileNotFoundError as e:
+        print(colors.RED + "Error:", e, colors.END)
+        sys.exit()
 
     hist_class = history(entry)
     hist_class.write_hist()
