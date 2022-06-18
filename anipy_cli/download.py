@@ -5,6 +5,7 @@ from pathlib import Path
 import m3u8
 import requests
 import shutil
+import sys
 
 from tqdm import tqdm
 from requests.adapters import HTTPAdapter, Retry
@@ -378,9 +379,20 @@ class download:
 
         Returns a string which should be the filename.
         """
+
+        show_name = self.entry.show_name
+
+        WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|"]
+
+        if sys.platform is "windows":
+            show_name = "".join(
+                ["" if x in WIN_INVALID_CHARS else x for x in show_name]
+            )
+
+
         try:
             return config.download_name_format.format(
-                show_name=self.entry.show_name,
+                show_name=show_name,
                 episode_number=self.entry.ep,
                 quality=self.entry.quality,
             )
@@ -388,7 +400,7 @@ class download:
             error(
                 "Config Option download_name_format is not set: please update your personal config file to include it"
             )
-            return f"{self.entry.show_name}_{self.entry.ep}.mp4"
+            return f"{show_name}_{self.entry.ep}.mp4"
 
     @staticmethod
     def _is_url(uri):
