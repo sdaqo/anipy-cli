@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
 
-from .misc import response_err, error, loc_err
+from .misc import response_err, error, loc_err, parsenum
 from .colors import colors
 from .config import config
 
@@ -23,6 +23,8 @@ class epHandler:
 
     def __init__(self, entry) -> None:
         self.entry = entry
+        self.movie_id = None
+        self.ep_list = None
 
     def get_entry(self):
         """
@@ -31,26 +33,209 @@ class epHandler:
         """
         return self.entry
 
+    def _load_eps_list(self):
+        if self.ep_list:
+            return self.ep_list
+
+        if not self.movie_id:
+            r = requests.get(self.entry.category_url)
+            self.movie_id = re.search(
+                r'<input.+?value="(\d+)" id="movie_id"', r.text
+            ).group(1)
+
+        res = requests.get(
+            "https://ajax.gogo-load.com/ajax/load-list-episode",
+            params={"ep_start": 0, "ep_end": 0, "id": self.movie_id},
+        )
+
+        response_err(res, res.url)
+        ep_list = [
+            {
+                "ep": re.search(
+                    r"\d+([\.]\d+)?", x.find("div", attrs={"class": "name"}).text
+                ).group(0),
+                "link": config.gogoanime_url + x.find("a")["href"].strip(),
+            }
+            for x in BeautifulSoup(res.text, "html.parser").find_all("li")
+        ]
+
+        ep_list.reverse()
+
+        self.ep_list = ep_list
+
+        return ep_list
+
+    def gen_eplink(self):
+        """
+        Generate episode url
+        from ep and category url will look something like this:
+        https://gogoanime.film/category/hyouka
+        to
+        https://gogoanime.film/hyouka-episode-1
+        """
+        ep_list = self._load_eps_list()
+
+        filtered = list(filter(lambda x: x["ep"] == str(self.entry.ep), ep_list))
+
+        if not filtered:
+            error(f"Episode {self.entry.ep} does not exsist.")
+            sys.exit()
+
+        self.entry.ep_url = filtered[0]["link"]
+
+        return self.entry
+
+    def get_special_list(self):
+        """
+        Get List of Special Episodes (.5)
+        """
+
+        ep_list = self._load_eps_list()
+        return list(filter(lambda x: re.match(r"^-?\d+(?:\.\d+)$", x["ep"]), ep_list))
+
     def get_latest(self):
         """
         Fetch latest episode avalible
         from a show and return it.
         """
-        r = requests.get(self.entry.category_url)
-        response_err(r, self.entry.category_url)
-        soup = BeautifulSoup(r.content, "html.parser")
-        ep_count = [
-            i.get("ep_end")
-            for i in soup.find_all("a", attrs={"ep_end": re.compile(r"^ *\d[\d ]*$")})
-        ]
 
-        if not ep_count:
-            error("could not get latest episode")
-            sys.exit()
+        latest = self._load_eps_list()[-1]["ep"]
+        self.entry.latest_ep = latest
 
-        self.entry.latest_ep = int(ep_count[-1])
+        return latest
 
-        return self.entry.latest_ep
+    def get_first(self):
+        return self._load_eps_list()[0]["ep"]
+
+    def _create_prompt(self, prompt="Episode"):
+        ep_range = f"[{self.get_first()}-{self.get_latest()}]"
+
+        specials = self.get_special_list()
+        if specials:
+            ep_range += " Special Eps: "
+            ep_range += ", ".join([x["ep"] for x in specials])
+
+        return str(
+            colors.END
+            + prompt
+            + colors.GREEN
+            + ep_range
+            + colors.END
+            + "\n>> "
+            + colors.CYAN
+        )
+
+    def _validate_ep(self, ep: str, special=None):
+        """
+        See if Episode is in episode list.
+        Pass a arg to special to accept this
+        charachter even though it is not in the episode list.
+        """
+
+        ep_list = self._load_eps_list()
+        if special and ep == special:
+            return True
+
+        is_in_list = bool(list(filter(lambda x: ep == x["ep"], ep_list)))
+
+        return is_in_list
+
+    def pick_ep(self):
+        """
+        Cli function to pick a episode from 1 to
+        the latest avalible.
+        """
+
+        self.get_latest()
+
+        while True:
+            which_episode = input(self._create_prompt())
+            try:
+                if self._validate_ep(which_episode):
+                    self.entry.ep = parsenum(which_episode)
+                    self.gen_eplink()
+                    break
+                else:
+                    error("Number out of range.")
+
+            except:
+                error("Invalid Input")
+
+        return self.entry
+
+    def pick_ep_seasonal(self):
+        """
+        Cli function to pick a episode from 0 to
+        the latest avalible.
+        """
+
+        self.get_latest()
+
+        while True:
+            which_episode = input(
+                self._create_prompt(
+                    "Last Episode you watched (put 0 to start at the beginning) "
+                )
+            )
+            try:
+                if self._validate_ep(which_episode, special="0"):
+                    self.entry.ep = int(which_episode)
+                    self.gen_eplink()
+                    break
+                else:
+                    error("Number out of range.")
+
+            except:
+                error("Invalid Input")
+
+        return self.entry
+
+    def pick_range(self):
+        """
+        Accept a range of episodes
+        and return it.
+        Input/output would be
+        something like this:
+             3-5 -> [3, 4, 5]
+             3 -> [3]
+        """
+        self.entry.latest_ep = self.get_latest()
+        while True:
+            which_episode = input(
+                self._create_prompt(prompt="Episode (Range with '-')")
+            )
+
+            which_episode = which_episode.split("-")
+
+            if len(which_episode) == 1:
+                try:
+                    if self._validate_ep(which_episode[0]):
+                        return which_episode
+                except:
+                    error("invalid input")
+            elif len(which_episode) == 2:
+                try:
+                    ep_list = self._load_eps_list()
+
+                    first_index = ep_list.index(
+                        list(filter(lambda x: x["ep"] == which_episode[0], ep_list))[0]
+                    )
+
+                    second_index = ep_list.index(
+                        list(filter(lambda x: x["ep"] == which_episode[1], ep_list))[0]
+                    )
+
+                    ep_list = ep_list[first_index : second_index + 1]
+
+                    if not ep_list:
+                        error("invlid input1")
+                    else:
+                        return [x["ep"] for x in ep_list]
+
+                except Exception as e:
+                    error(f"invalid input {e}")
+            else:
+                error("invalid input")
 
     def next_ep(self):
         """
@@ -76,137 +261,6 @@ class epHandler:
             self.entry.ep -= 1
             self.gen_eplink()
             return self.entry
-
-    def pick_ep(self):
-        """
-        Cli function to pick a episode from 1 to
-        the latest avalible.
-        """
-
-        self.get_latest()
-
-        while True:
-            which_episode = input(
-                colors.END
-                + "Episode "
-                + colors.GREEN
-                + f"[1-{self.entry.latest_ep}]"
-                + colors.END
-                + ": "
-                + colors.CYAN
-            )
-            try:
-                if int(which_episode) in list(range(1, self.entry.latest_ep + 1)):
-                    self.entry.ep = int(which_episode)
-                    self.gen_eplink()
-                    break
-                else:
-                    error("Number out of range.")
-
-            except:
-                error("Invalid Input")
-
-        return self.entry
-
-    def pick_ep_seasonal(self):
-        """
-        Cli function to pick a episode from 0 to
-        the latest avalible.
-        """
-
-        self.get_latest()
-
-        while True:
-            which_episode = input(
-                colors.END
-                + "Last Episode you watched (put 0 to start at the beginning) "
-                + colors.GREEN
-                + f"[0-{self.entry.latest_ep}]"
-                + colors.END
-                + ": \n>> "
-                + colors.CYAN
-            )
-            try:
-                if int(which_episode) in list(range(0, self.entry.latest_ep + 1)):
-                    self.entry.ep = int(which_episode)
-                    self.gen_eplink()
-                    break
-                else:
-                    error("Number out of range.")
-
-            except:
-                error("Invalid Input")
-
-        return self.entry
-
-    def pick_range(self):
-        """
-        Accept a range of episodes
-        and return it.
-        Input/output would be
-        something like this:
-             3-5 -> [3, 4, 5]
-             3 -> [3]
-        """
-        self.entry.latest_ep = self.get_latest()
-        while True:
-            which_episode = input(
-                colors.END
-                + "Episode "
-                + colors.GREEN
-                + f"[1-{self.entry.latest_ep}]"
-                + colors.END
-                + ": "
-                + colors.CYAN
-            )
-
-            which_episode = which_episode.split("-")
-
-            if len(which_episode) == 1:
-                try:
-                    if int(which_episode[0]) in list(
-                        range(1, self.entry.latest_ep + 1)
-                    ):
-                        return which_episode
-                except:
-                    error("invalid input")
-            elif len(which_episode) == 2:
-                try:
-                    ep_list = list(
-                        range(int(which_episode[0]), int(which_episode[1]) + 1)
-                    )
-                    if not ep_list:
-                        error("invlid input")
-                    else:
-                        if ep_list[-1] > self.entry.latest_ep:
-                            error("invalid input")
-                        else:
-                            return ep_list
-                except:
-                    error("invalid input")
-            else:
-                error("invalid input")
-
-    def gen_eplink(self):
-        """
-        Generate episode url
-        from ep and category url
-        will look something like this:
-        https://gogoanime.film/category/hyouka
-        to
-        https://gogoanime.film/hyouka-episode-1
-        """
-        r = requests.get(self.entry.category_url)
-        id = re.search(r'<input.+?value="(\d+)" id="movie_id"', r.text).group(1)
-        ajax_res = requests.get(
-            "https://ajax.gogo-load.com/ajax/load-list-episode",
-            params={"ep_start": self.entry.ep, "ep_end": self.entry.ep, "id": id},
-        )
-        soup = BeautifulSoup(ajax_res.content, "html.parser")
-        a = soup.find("a")
-        self.entry.ep_url = config.gogoanime_url + a["href"].strip()
-
-        return self.entry
 
 
 class videourl:

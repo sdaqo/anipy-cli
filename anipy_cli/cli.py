@@ -21,6 +21,7 @@ from .misc import (
     seasonal_options,
     mal_options,
     search_in_season_on_gogo,
+    parsenum
 )
 from .player import mpv, dc_presence_connect
 from .misc import error, entry, options, clear_console, print_names, seasonal_options
@@ -31,7 +32,7 @@ from .colors import colors
 from .download import download
 from .config import config
 
-# Make colors work in windows CMD 
+# Make colors work in windows CMD
 os.system("")
 
 rpc_client = None
@@ -123,7 +124,7 @@ def download_cli(quality, ffmpeg, no_season_search):
         show_entry = ent["show_entry"]
         ep_list = ent["ep_list"]
         for i in ep_list:
-            show_entry.ep = int(i)
+            show_entry.ep = parsenum(i)
             show_entry.embed_url = ""
             ep_class = epHandler(show_entry)
             show_entry = ep_class.gen_eplink()
@@ -989,6 +990,7 @@ class MALCli:
 
 
 def main():
+
     args = parse_args()
 
     player = None
