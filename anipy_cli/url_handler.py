@@ -108,7 +108,7 @@ class epHandler:
         return self._load_eps_list()[0]["ep"]
 
     def _create_prompt(self, prompt="Episode"):
-        ep_range = f"[{self.get_first()}-{self.get_latest()}]"
+        ep_range = f" [{self.get_first()}-{self.get_latest()}]"
 
         specials = self.get_special_list()
         if specials:
