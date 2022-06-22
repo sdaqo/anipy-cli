@@ -389,7 +389,6 @@ class download:
                 ["" if x in WIN_INVALID_CHARS else x for x in show_name]
             )
 
-
         try:
             return config.download_name_format.format(
                 show_name=show_name,

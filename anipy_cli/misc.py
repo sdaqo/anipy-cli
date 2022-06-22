@@ -44,7 +44,7 @@ class entry:
     ep_url: str = ""
     embed_url: str = ""
     stream_url: str = ""
-    ep: int = 0
+    ep: int | float = 0
     latest_ep: int = 0
     quality: str = ""
 
@@ -88,6 +88,18 @@ def loc_err(soup, link: str, element: str) -> None:
 def keyboard_inter() -> None:
     print(colors.ERROR + "\nanipy-cli: error: interrupted")
     sys.exit()
+
+
+def parsenum(n: str):
+    """
+    Parse String to either
+    int or float.
+    """
+
+    try:
+        return int(n)
+    except ValueError:
+        return float(n)
 
 
 def read_json(path):

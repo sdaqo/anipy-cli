@@ -13,7 +13,15 @@ from kitsu_extended import Anime
 from .seasonal import Seasonal
 from .url_handler import epHandler, videourl
 from .history import history
-from .misc import error, entry, options, clear_console, print_names, seasonal_options
+from .misc import (
+    error,
+    entry,
+    options,
+    clear_console,
+    print_names,
+    seasonal_options,
+    parsenum,
+)
 from .player import start_player, dc_presence_connect
 from .query import query
 from .arg_parser import parse_args
@@ -22,12 +30,13 @@ from .download import download
 from .anime_info import AnimeInfo
 from .config import config
 
-# Make colors work in windows CMD 
+# Make colors work in windows CMD
 os.system("")
 
 rpc_client = None
 if config.dc_presence:
     rpc_client = dc_presence_connect()
+
 
 def default_cli(quality, player):
     """
@@ -102,7 +111,7 @@ def download_cli(quality, ffmpeg, no_kitsu):
         show_entry = ent["show_entry"]
         ep_list = ent["ep_list"]
         for i in ep_list:
-            show_entry.ep = int(i)
+            show_entry.ep = parsenum(i)
             show_entry.embed_url = ""
             ep_class = epHandler(show_entry)
             show_entry = ep_class.gen_eplink()
@@ -619,7 +628,7 @@ def get_searches_from_kitsu():
 
 
 def main():
-        
+
     args = parse_args()
 
     player = None
