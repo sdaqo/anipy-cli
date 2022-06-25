@@ -384,7 +384,7 @@ class download:
 
         WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|"]
 
-        if sys.platform == "windows":
+        if sys.platform == "win32":
             show_name = "".join(
                 ["" if x in WIN_INVALID_CHARS else x for x in show_name]
             )
