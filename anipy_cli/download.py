@@ -47,7 +47,7 @@ class download:
                     print(self.show_folder)
         except AttributeError:
             error(
-                "Config Option download_remove_dub_in_title is not set: please update your personal config file to include it"
+                "Config Option download_remove_dub_from_folder_name is not set: please update your personal config file to include it"
             )
 
         config.download_folder_path.mkdir(exist_ok=True)
