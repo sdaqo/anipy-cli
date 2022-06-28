@@ -29,6 +29,7 @@ except ImportError:
         # Ex. ~/Downloads/anipy would be Path('~/Downloads/anipy')
 
         download_folder_path = anipy_cli_folder / "download"
+        download_folder_path = Path.Home() / "anime"
         seasonals_dl_path = download_folder_path / "seasonals"
         user_files_path = anipy_cli_folder / "user_files"
         history_file_path = user_files_path / "history.json"
@@ -62,6 +63,9 @@ except ImportError:
         # This determines how downloaded anime will be named
         # The following variables can be used: show_name, episode_number, quality
         download_name_format = "{show_name}_{episode_number}.mp4"
+
+        # This removes the (Dub) in the anime title when downloading
+        download_remove_dub_from_folder_name = False
 
         # Discord Presence:
         # Show what you are watching on discord
