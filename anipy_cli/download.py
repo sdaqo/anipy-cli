@@ -38,6 +38,18 @@ class download:
 
     def download(self):
         self.show_folder = config.download_folder_path / f"{self.entry.show_name}"
+        try:
+            if config.download_remove_dub_from_folder_name:
+                if self.entry.show_name.endswith(" (Dub)"):
+                    self.show_folder = (
+                        config.download_folder_path / f"{self.entry.show_name[:-6]}"
+                    )
+                    print(self.show_folder)
+        except AttributeError:
+            error(
+                "Config Option download_remove_dub_from_folder_name is not set: please update your personal config file to include it"
+            )
+
         config.download_folder_path.mkdir(exist_ok=True)
         self.show_folder.mkdir(exist_ok=True)
         self.session = requests.Session()
