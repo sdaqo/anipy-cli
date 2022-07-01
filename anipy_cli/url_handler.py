@@ -102,7 +102,7 @@ class epHandler:
         latest = self._load_eps_list()[-1]["ep"]
         self.entry.latest_ep = latest
 
-        return latest
+        return parsenum(latest)
 
     def get_first(self):
         return self._load_eps_list()[0]["ep"]
