@@ -102,13 +102,13 @@ class epHandler:
         latest = self._load_eps_list()[-1]["ep"]
         self.entry.latest_ep = latest
 
-        return latest
+        return parsenum(latest)
 
     def get_first(self):
         return self._load_eps_list()[0]["ep"]
 
     def _create_prompt(self, prompt="Episode"):
-        ep_range = f"[{self.get_first()}-{self.get_latest()}]"
+        ep_range = f" [{self.get_first()}-{self.get_latest()}]"
 
         specials = self.get_special_list()
         if specials:
@@ -125,7 +125,7 @@ class epHandler:
             + colors.CYAN
         )
 
-    def _validate_ep(self, ep: str, special=None):
+    def _validate_ep(self, ep: str):
         """
         See if Episode is in episode list.
         Pass a arg to special to accept this
@@ -133,8 +133,6 @@ class epHandler:
         """
 
         ep_list = self._load_eps_list()
-        if special and ep == special:
-            return True
 
         is_in_list = bool(list(filter(lambda x: ep == x["ep"], ep_list)))
 
@@ -178,9 +176,12 @@ class epHandler:
                 )
             )
             try:
-                if self._validate_ep(which_episode, special="0"):
+                if self._validate_ep(which_episode) or int(which_episode) == 0:
                     self.entry.ep = int(which_episode)
-                    self.gen_eplink()
+                    if int(which_episode) != 0:
+                        self.gen_eplink()
+                    else:
+                        self.entry.ep_url = None
                     break
                 else:
                     error("Number out of range.")

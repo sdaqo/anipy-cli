@@ -64,6 +64,9 @@ except ImportError:
         # The following variables can be used: show_name, episode_number, quality
         download_name_format = "{show_name}_{episode_number}.mp4"
 
+        # This removes the (Dub) in the anime title when downloading
+        download_remove_dub_from_folder_name = False
+
         # Discord Presence:
         # Show what you are watching on discord
         # Default: False
