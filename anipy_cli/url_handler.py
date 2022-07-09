@@ -45,7 +45,7 @@ class epHandler:
 
         res = requests.get(
             "https://ajax.gogo-load.com/ajax/load-list-episode",
-            params={"ep_start": 0, "ep_end": 0, "id": self.movie_id},
+            params={"ep_start": 0, "ep_end": 9999, "id": self.movie_id},
         )
 
         response_err(res, res.url)
