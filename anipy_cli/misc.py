@@ -4,6 +4,7 @@ import sys
 import json
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
+from typing import Union
 
 from .config import config
 from .colors import colors
@@ -44,7 +45,7 @@ class entry:
     ep_url: str = ""
     embed_url: str = ""
     stream_url: str = ""
-    ep: int | float = 0
+    ep: Union[int, float] = 0
     latest_ep: int = 0
     quality: str = ""
 
