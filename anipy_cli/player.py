@@ -2,7 +2,8 @@ import os
 import time
 import sys
 import subprocess as sp
-from pypresence import Presence, DiscordNotFound
+from pypresence import Presence
+from pypresence.exceptions import DiscordNotFound
 
 from .history import history
 from .misc import get_anime_info, error
@@ -77,20 +78,15 @@ def start_player(entry, rpc_client=None, player=None):
 
 def dc_presence_connect():
     CLIENT_ID = 966365883691855942
-    rpc_client = Presence(CLIENT_ID)
+    rpc_client = None
     try:
+        rpc_client = Presence(CLIENT_ID)
         rpc_client.connect()
         print(colors.GREEN + "Initalized Discord Presence Client" + colors.END)
     except DiscordNotFound:
         print(
             colors.RED
-            + "Discord is not open, can't initialize Discord Presence"
-            + colors.END
-        )
-    except ConnectionRefusedError:
-        print(
-            colors.RED
-            + "Couldn't initalized Discord Presence, Connection Refused"
+            + "Discord is not opened, can't initialize Discord Presence"
             + colors.END
         )
 
