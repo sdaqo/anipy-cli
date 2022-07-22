@@ -50,6 +50,12 @@ except ImportError:
         #   - vlc: https://wiki.videolan.org/VLC_command-line_help/
         mpv_commandline_options = []
         vlc_commandline_options = []
+        
+        # Reuse the mpv window instead of closing and reopening.
+        # This uses python-mpv, wich uses libmpv, on linux this is preinstalled
+        # with mpv on windows you have to get the mpv-2.dll file from here:
+        # https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
+        reuse_mpv_window = True
 
         # Always use ffmpeg to download hls streams, you can
         # also activate this temprarly using the -f flag when

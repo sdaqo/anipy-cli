@@ -22,7 +22,7 @@ from .misc import (
     seasonal_options,
     parsenum,
 )
-from .player import start_player, dc_presence_connect
+from .player import start_player, dc_presence_connect, create_mpv_controllable, mpv_start_stream
 from .query import query
 from .arg_parser import parse_args
 from .colors import colors
@@ -54,9 +54,16 @@ def default_cli(quality, player):
     url_class = videourl(show_entry, quality)
     url_class.stream_url()
     show_entry = url_class.get_entry()
-
-    sub_proc = start_player(show_entry, rpc_client, player)
-    menu(show_entry, options, sub_proc, quality, player).print_and_input()
+    
+    mpv = None
+    sub_proc = None
+    if config.reuse_mpv_window:
+        mpv = create_mpv_controllable()
+        mpv = mpv_start_stream(show_entry, mpv, rpc_client)
+    else:
+        sub_proc = start_player(show_entry, rpc_client, player)
+    
+    menu(show_entry, options, sub_proc, quality, player, mpv).print_and_input()
 
 
 def download_cli(quality, ffmpeg, no_kitsu):
@@ -401,12 +408,13 @@ class menu:
     a subprocess instance returned by misc.start_player().
     """
 
-    def __init__(self, entry, opts, sub_proc, quality, player) -> None:
+    def __init__(self, entry, opts, sub_proc, quality, player, mpv=None) -> None:
         self.entry = entry
         self.options = opts
         self.sub_proc = sub_proc
         self.quality = quality
         self.player = player
+        self.mpv = mpv
 
     def print_opts(self):
         for i in self.options:
@@ -427,6 +435,9 @@ class menu:
         self.take_input()
 
     def kill_player(self):
+        if self.mpv:
+            return
+
         self.sub_proc.kill()
 
     def start_ep(self):
@@ -434,7 +445,10 @@ class menu:
         url_class = videourl(self.entry, self.quality)
         url_class.stream_url()
         self.entry = url_class.get_entry()
-        self.sub_proc = start_player(self.entry, rpc_client, self.player)
+        if self.mpv:
+            self.mpv = mpv_start_stream(self.entry, self.mpv, rpc_client)
+        else:
+            self.sub_proc = start_player(self.entry, rpc_client, self.player)
 
     def take_input(self):
         while True:
@@ -513,8 +527,9 @@ class menu:
         print(f"Quality: {self.entry.quality}")
 
     def quit(self):
-
         self.kill_player()
+        if self.mpv:
+            self.mpv.terminate()
         sys.exit(0)
 
 

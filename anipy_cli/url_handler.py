@@ -4,7 +4,9 @@ import requests
 import re
 import base64
 import functools
-from urllib.parse import urlparse, parse_qsl, urlencode
+import m3u8
+from pathlib import Path
+from urllib.parse import urlparse, parse_qsl, urlencode, urljoin
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
@@ -374,55 +376,68 @@ class videourl:
         the quality option that was picked,
         or the best one avalible.
         """
-
         self.entry.quality = ""
-        if "fc24fc6eef71638a72a9b19699526dcb" in json_data[0]["file"]:
-            r = self.session.get(
-                json_data[0]["file"], headers={"referer": self.entry.embed_url}
+
+        streams = []
+        for i in json_data:
+            if 'm3u8' in i['file'] or i['type'] == 'hls':
+                type  = 'hls'
+            else:
+                type = 'mp4'
+
+            quality = i["label"].replace(" P", "").lower()
+
+            streams.append(
+                {
+                    "file": i["file"],
+                    "type": type,
+                    "quality": quality
+                }
             )
 
-            qualitys = re.findall(r"(?<=\d\d\dx)\d+", r.text)
-            quality_links = [x for x in r.text.split("\n")]
-            quality_links = [x for x in quality_links if not x.startswith("#")]
-            if "fc24fc6eef71638a72a9b19699526dcb" in json_data[0]["file"]:
-                qualitys.reverse()
-                quality_links.reverse()
+        if len(streams) == 1:
+            streams = extract_m3u8_streams(
+                streams[0]['file']
+            )
+        
+        filtered_q_user = list(filter(lambda x: x['quality'] == self.qual, streams))
 
-            quality_links = list(filter(None, quality_links))
-
-        else:
-            qualitys = []
-            quality_links = []
-            for i in json_data:
-                if i["label"] == "Auto":
-                    pass
-                else:
-                    qualitys.append(i["label"])
-                    quality_links.append(i["file"])
-
-            qualitys = [x.replace(" P", "") for x in qualitys]
-
-        if self.qual in qualitys:
-            q = quality_links[qualitys.index(self.qual)]
+        if filtered_q_user:
+            stream = list(filtered_q_user)[0]
         elif self.qual == "best" or self.qual == None:
-            q = quality_links[-1]
+            stream = streams[-1]
         elif self.qual == "worst":
-            q = quality_links[0]
+            stream = streams[0]
         else:
             error("quality not avalible, using default")
-            q = quality_links[-1]
+            stream = streams[-1]
 
-        if "fc24fc6eef71638a72a9b19699526dcb.com" in json_data[0]["file"]:
-            self.entry.stream_url = json_data[0]["file"].rsplit("/", 1)[0] + "/" + q
-        else:
-            self.entry.stream_url = q
+        self.entry.quality = stream['quality']
+        self.entry.stream_url = stream['file']
 
-        chosen_quality = q.split("/")
 
-        for _qual in chosen_quality:
+def extract_m3u8_streams(uri):
+    if re.match(r"https?://", uri):
+        resp = requests.get(uri)
+        resp.raise_for_status()
+        raw_content = resp.content.decode(resp.encoding or "utf-8")
+        base_uri = urljoin(uri, ".")
+    else:
+        with open(uri) as fin:
+            raw_content = fin.read()
+            base_uri = Path(uri)
 
-            if "EP" in _qual:
-                self.entry.quality = _qual.split(".")[4]
-
-        if not self.entry.quality:
-            self.entry.quality = str(qualitys[quality_links.index(q)] + "p")
+    content = m3u8.M3U8(raw_content, base_uri=base_uri)
+    content.playlists.sort(key=lambda x: x.stream_info.bandwidth)
+    streams = []
+    for playlist in content.playlists:
+        streams.append(
+            {
+                "file": urljoin(content.base_uri, playlist.uri),
+                "type": "hls",
+                "quality": str(playlist.stream_info.resolution[1])
+                
+            }
+        )
+    
+    return streams

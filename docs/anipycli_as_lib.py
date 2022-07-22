@@ -9,7 +9,6 @@ found by the functions/classes itself.
 import anipy_cli
 
 """ENTRY"""
-
 # A class that saves metadata, it is
 # needed for almost every function.
 # It is like a struct from C.
@@ -105,6 +104,16 @@ if sub_process.poll() is None:
     print("player is running")
 # This function also automaticlly writes
 # to the history file after the player is opened.
+
+# You can also use a controllable mpv client like so:
+mpv_player = anipy_cli.player.create_mpv_controllable()
+# You can play a video like so
+
+# This returns the update player and starts the video
+mpv_player = anipy_cli.player.mpv_start_stream(entry, mpv_player)
+# With this you can play several videos without closing the player
+# between them. Read more about what you can do with it here: 
+# https://github.com/jaseg/python-mpv
 
 """HISTORY"""
 
