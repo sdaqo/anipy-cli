@@ -55,7 +55,7 @@ except ImportError:
         # This uses python-mpv, wich uses libmpv, on linux this is preinstalled
         # with mpv on windows you have to get the mpv-2.dll file from here:
         # https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
-        reuse_mpv_window = True
+        reuse_mpv_window = False
 
         # Always use ffmpeg to download hls streams, you can
         # also activate this temprarly using the -f flag when
