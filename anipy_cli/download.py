@@ -37,12 +37,13 @@ class download:
         }
 
     def download(self):
-        self.show_folder = config.download_folder_path / f"{self.entry.show_name}"
+        show_name = self._get_valid_pathname(self.entry.show_name)
+        self.show_folder = config.download_folder_path / f"{show_name}"
         try:
             if config.download_remove_dub_from_folder_name:
-                if self.entry.show_name.endswith(" (Dub)"):
+                if show_name.endswith(" (Dub)"):
                     self.show_folder = (
-                        config.download_folder_path / f"{self.entry.show_name[:-6]}"
+                        config.download_folder_path / f"{show_name[:-6]}"
                     )
                     print(self.show_folder)
         except AttributeError:
@@ -392,14 +393,7 @@ class download:
         Returns a string which should be the filename.
         """
 
-        show_name = self.entry.show_name
-
-        WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|"]
-
-        if sys.platform == "win32":
-            show_name = "".join(
-                ["" if x in WIN_INVALID_CHARS else x for x in show_name]
-            )
+        show_name = self._get_valid_pathname(self.entry.show_name)
 
         try:
             return config.download_name_format.format(
@@ -412,6 +406,17 @@ class download:
                 "Config Option download_name_format is not set: please update your personal config file to include it"
             )
             return f"{show_name}_{self.entry.ep}.mp4"
+
+    @staticmethod
+    def _get_valid_pathname(name):
+        WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|"]
+
+        if sys.platform == "win32":
+            name = "".join(
+                ["" if x in WIN_INVALID_CHARS else x for x in name]
+            )
+
+        return name
 
     @staticmethod
     def _is_url(uri):
