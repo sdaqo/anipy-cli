@@ -82,6 +82,7 @@ def create_mpv_controllable():
         input_default_bindings=True,
         input_vo_keyboard=True,
         force_window="immediate",
+        osc=True
     )
 
     return player
