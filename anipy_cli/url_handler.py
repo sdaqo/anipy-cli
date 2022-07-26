@@ -395,10 +395,10 @@ class videourl:
                 }
             )
 
-        if len(streams) == 1:
-            streams = extract_m3u8_streams(
-                streams[0]['file']
-            )
+        #if len(streams) == 1:
+        #    streams = extract_m3u8_streams(
+        #        streams[0]['file']
+        #    )
         
         filtered_q_user = list(filter(lambda x: x['quality'] == self.qual, streams))
 
