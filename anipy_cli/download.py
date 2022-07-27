@@ -42,9 +42,7 @@ class download:
         try:
             if config.download_remove_dub_from_folder_name:
                 if show_name.endswith(" (Dub)"):
-                    self.show_folder = (
-                        config.download_folder_path / f"{show_name[:-6]}"
-                    )
+                    self.show_folder = config.download_folder_path / f"{show_name[:-6]}"
                     print(self.show_folder)
         except AttributeError:
             error(
@@ -412,9 +410,7 @@ class download:
         WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|"]
 
         if sys.platform == "win32":
-            name = "".join(
-                ["" if x in WIN_INVALID_CHARS else x for x in name]
-            )
+            name = "".join(["" if x in WIN_INVALID_CHARS else x for x in name])
 
         return name
 

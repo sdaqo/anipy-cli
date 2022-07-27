@@ -75,6 +75,7 @@ class query:
             try:
                 self.entry.category_url = base_url + self.links[int(inp) - 1]
                 self.entry.show_name = self.names[int(inp) - 1]
+                self.entry.show_name = self.entry.show_name.replace("\n", "")
                 break
             except:
                 error("Invalid Input")
