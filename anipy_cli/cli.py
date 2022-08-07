@@ -57,7 +57,7 @@ def default_cli(quality, player):
     
     mpv = None
     sub_proc = None
-    if config.reuse_mpv_window and player == 'mpv':
+    if config.reuse_mpv_window and not player and config.player_path == 'mpv':
         mpv = create_mpv_controllable()
         mpv = mpv_start_stream(show_entry, mpv, rpc_client)
     else:
