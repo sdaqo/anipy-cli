@@ -52,7 +52,7 @@ class query:
 
             for link in self.soup.find_all("p", attrs={"class": "name"}):
                 loc_err(link, req_link, "query results")
-                self.names.append(link.text)
+                self.names.append(link.text.replace("\n", ""))
                 a_tag = link.findChildren("a", recursive=False)
                 self.links.append(a_tag[0].get("href"))
 
@@ -75,7 +75,6 @@ class query:
             try:
                 self.entry.category_url = base_url + self.links[int(inp) - 1]
                 self.entry.show_name = self.names[int(inp) - 1]
-                self.entry.show_name = self.entry.show_name.replace("\n", "")
                 break
             except:
                 error("Invalid Input")
