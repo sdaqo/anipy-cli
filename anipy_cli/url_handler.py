@@ -13,7 +13,7 @@ from Cryptodome.Cipher import AES
 
 from .misc import response_err, error, loc_err, parsenum
 from .colors import colors
-from .config import config
+from .config import Config
 
 
 class epHandler:
@@ -56,7 +56,7 @@ class epHandler:
                 "ep": re.search(
                     r"\d+([\.]\d+)?", x.find("div", attrs={"class": "name"}).text
                 ).group(0),
-                "link": config.gogoanime_url + x.find("a")["href"].strip(),
+                "link": Config().gogoanime_url + x.find("a")["href"].strip(),
             }
             for x in BeautifulSoup(res.text, "html.parser").find_all("li")
         ]

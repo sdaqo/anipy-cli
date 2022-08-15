@@ -15,7 +15,7 @@ from moviepy.editor import ffmpeg_tools
 
 from .misc import response_err, error, keyboard_inter
 from .colors import colors
-from .config import config
+from .config import Config
 
 
 class download:
@@ -38,18 +38,15 @@ class download:
 
     def download(self):
         show_name = self._get_valid_pathname(self.entry.show_name)
-        self.show_folder = config.download_folder_path / f"{show_name}"
-        try:
-            if config.download_remove_dub_from_folder_name:
-                if show_name.endswith(" (Dub)"):
-                    self.show_folder = config.download_folder_path / f"{show_name[:-6]}"
-                    print(self.show_folder)
-        except AttributeError:
-            error(
-                "Config Option download_remove_dub_from_folder_name is not set: please update your personal config file to include it"
-            )
+        self.show_folder = Config().download_folder_path / f"{show_name}"
 
-        config.download_folder_path.mkdir(exist_ok=True)
+        if Config().download_remove_dub_from_folder_name:
+            if show_name.endswith(" (Dub)"):
+                self.show_folder = Config().download_folder_path / f"{show_name[:-6]}"
+                print(self.show_folder)
+
+
+        Config().download_folder_path.mkdir(exist_ok=True)
         self.show_folder.mkdir(exist_ok=True)
         self.session = requests.Session()
         retry = Retry(connect=3, backoff_factor=0.5)
@@ -75,7 +72,7 @@ class download:
 
         if "m3u8" in self.entry.stream_url:
             print(f"{colors.CYAN}Type:{colors.RED} m3u8")
-            if self.ffmpeg or config.ffmpeg_hls:
+            if self.ffmpeg or Config().ffmpeg_hls:
                 print(f"{colors.CYAN}Downloader:{colors.RED} ffmpeg")
                 self.ffmpeg_dl()
                 return
@@ -87,8 +84,8 @@ class download:
             self.mp4_dl(self.entry.stream_url)
 
     def ffmpeg_dl(self):
-        config.user_files_path.mkdir(exist_ok=True)
-        config.ffmpeg_log_path.mkdir(exist_ok=True)
+        Config().user_files_path.mkdir(exist_ok=True)
+        Config().ffmpeg_log_path.mkdir(exist_ok=True)
         fname = self._get_fname()
 
         dl_path = self.show_folder / fname
@@ -115,7 +112,7 @@ class download:
         try:
             ffmpeg_process.run(
                 ffmpeg_output_file=str(
-                    config.ffmpeg_log_path / fname.replace("mp4", "log")
+                    Config().ffmpeg_log_path / fname.replace("mp4", "log")
                 )
             )
             print(f"{colors.CYAN}Download finished.")
@@ -125,8 +122,8 @@ class download:
 
     def ffmpeg_merge(self, input_file, audio_input_file):
 
-        config.user_files_path.mkdir(exist_ok=True)
-        config.ffmpeg_log_path.mkdir(exist_ok=True)
+        Config().user_files_path.mkdir(exist_ok=True)
+        Config().ffmpeg_log_path.mkdir(exist_ok=True)
         fname = self._get_fname()
 
         dl_path = self.show_folder / fname
@@ -386,24 +383,18 @@ class download:
         """
         This function returns what the filename for the outputed video should be.
 
-        It finds this by using data in self.entry and the config.
+        It finds this by using data in self.entry and the Config.
 
         Returns a string which should be the filename.
         """
 
         show_name = self._get_valid_pathname(self.entry.show_name)
 
-        try:
-            return config.download_name_format.format(
-                show_name=show_name,
-                episode_number=self.entry.ep,
-                quality=self.entry.quality,
-            )
-        except AttributeError:
-            error(
-                "Config Option download_name_format is not set: please update your personal config file to include it"
-            )
-            return f"{show_name}_{self.entry.ep}.mp4"
+        return Config().download_name_format.format(
+            show_name=show_name,
+            episode_number=self.entry.ep,
+            quality=self.entry.quality,
+        )
 
     @staticmethod
     def _get_valid_pathname(name):

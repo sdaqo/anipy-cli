@@ -44,11 +44,14 @@ Optionally you can install [ffmpeg](https://ffmpeg.org/download.html) to downloa
 
 ### Config
 
-Copy `config.py` to `config_personal.py` and make your changes there.
+If you start the program for the first time the config file gets created automatically
+ 
+Places of the config:
+- Linux: ~/.config/anipy-cli/config.yaml
+- Windows: %USERPROFILE%/AppData/Local/anipy-cli/config.yaml
+- MacOS: ~/.config/anipy-cli/config.yaml
 
-Your changes will persist upgrades.
-
-Also, don't delete the original `config.py`, it will detect if `config_personal.py` is present.
+[Sampel Config](https://github.com/sdaqo/anipy-cli/blob/master/docs/sample_config.yaml)
 
 # Usage  
 ```

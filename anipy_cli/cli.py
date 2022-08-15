@@ -22,19 +22,24 @@ from .misc import (
     seasonal_options,
     parsenum,
 )
-from .player import start_player, dc_presence_connect, create_mpv_controllable, mpv_start_stream
+from .player import (
+    start_player,
+    dc_presence_connect,
+    create_mpv_controllable,
+    mpv_start_stream,
+)
 from .query import query
 from .arg_parser import parse_args
 from .colors import colors
 from .download import download
 from .anime_info import AnimeInfo
-from .config import config
+from .config import Config
 
 # Make colors work in windows CMD
 os.system("")
 
 rpc_client = None
-if config.dc_presence:
+if Config().dc_presence:
     rpc_client = dc_presence_connect()
 
 
@@ -54,15 +59,15 @@ def default_cli(quality, player):
     url_class = videourl(show_entry, quality)
     url_class.stream_url()
     show_entry = url_class.get_entry()
-    
+
     mpv = None
     sub_proc = None
-    if config.reuse_mpv_window and not player and config.player_path == 'mpv':
+    if Config().reuse_mpv_window and not player and Config().player_path == "mpv":
         mpv = create_mpv_controllable()
         mpv = mpv_start_stream(show_entry, mpv, rpc_client)
     else:
         sub_proc = start_player(show_entry, rpc_client, player)
-    
+
     menu(show_entry, options, sub_proc, quality, player, mpv).print_and_input()
 
 
@@ -76,7 +81,7 @@ def download_cli(quality, ffmpeg, no_kitsu):
         colors.GREEN
         + "Downloads are stored in: "
         + colors.END
-        + str(config.download_folder_path)
+        + str(Config().download_folder_path)
     )
 
     show_entry = entry()
@@ -656,7 +661,7 @@ def main():
 
     if args.delete:
         try:
-            config.history_file_path.unlink()
+            Config().history_file_path.unlink()
             print(colors.RED + "Done")
         except FileNotFoundError:
             error("no history file found")
@@ -677,7 +682,7 @@ def main():
         history_cli(args.quality, player)
 
     elif args.config:
-        print(os.path.realpath(__file__).replace("cli.py", "config.py"))
+        print(Config()._config_file)
 
     else:
         default_cli(args.quality, player)

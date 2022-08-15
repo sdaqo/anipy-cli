@@ -1,7 +1,7 @@
 import json
 import sys
 
-from .config import config
+from .config import Config
 from .url_handler import epHandler
 from .misc import entry, error, read_json
 
@@ -49,11 +49,11 @@ class Seasonal:
         return latest_urls
 
     def read_save_data(self):
-        self.json = read_json(config.seasonal_file_path)
+        self.json = read_json(Config().seasonal_file_path)
 
     def write_seasonals(self):
         try:
-            with config.seasonal_file_path.open("w") as f:
+            with Config().seasonal_file_path.open("w") as f:
                 json.dump(self.json, f)
 
         except PermissionError:

@@ -9,7 +9,7 @@ from pypresence.exceptions import DiscordNotFound
 from .history import history
 from .misc import get_anime_info, error
 from .colors import colors
-from .config import config
+from .config import Config
 
 
 def start_player(entry, rpc_client=None, player=None):
@@ -26,7 +26,7 @@ def start_player(entry, rpc_client=None, player=None):
     )
 
     if not player:
-        player = config.player_path
+        player = Config().player_path
 
     if player in ("mpv", "syncplay", "mpvnet"):
 
@@ -39,10 +39,10 @@ def start_player(entry, rpc_client=None, player=None):
              "--force-window=immediate",
         ]
 
-        for x in config.mpv_commandline_options:
+        for x in Config().mpv_commandline_options:
             player_command.insert(3, x)
 
-    elif player == "vlc" or config.player_path == "vlc":
+    elif player == "vlc" or Config().player_path == "vlc":
 
         player_command = [
             f"{player}",
@@ -51,7 +51,7 @@ def start_player(entry, rpc_client=None, player=None):
             f"{entry.stream_url}",
         ]
 
-        for x in config.vlc_commandline_options:
+        for x in Config().vlc_commandline_options:
             player_command.insert(3, x)
 
     else:
@@ -99,7 +99,7 @@ def mpv_start_stream(entry, player, rpc_client=None):
     hist_class = history(entry)
     hist_class.write_hist()
 
-    if config.dc_presence:
+    if Config().dc_presence:
         dc_media_title = f"{entry.show_name} | {entry.ep}/{entry.latest_ep}"
         dc_presence(dc_media_title, entry.category_url, rpc_client)
 

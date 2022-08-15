@@ -1,78 +1,127 @@
-#################################################################################################
-#                                                                                               #
-#           ANIPY-CLI DEFAULT CONFIGURATION                                                     #
-#                                                                                               #
-#           This file gets overwritten with every update!                                       #
-#                                                                                               #
-#           Copy config.py to config_personal.py and make your changes there!!                  #
-#                                                                                               #
-#################################################################################################
+import yaml
+from pathlib import Path
+from sys import platform
 
 
-try:
-    from .config_personal import config
+class SysNotFoundError(Exception):
+    pass
 
-except ImportError:
 
-    from pathlib import Path
+class Config:
+    def __init__(self):
+        self._config_file = self._get_config_path() / "config.yaml"
 
-    class config:
-        # This will have to be changed if this file is moved
-        anipy_cli_folder = Path(Path(__file__).parent)
+        try:
+            with self._config_file.open("r") as conf:
+                self._yaml_conf = yaml.safe_load(conf)
+        except Exception as e:
+            self._yaml_conf = {}
+            self._create_config()
 
-        # These are the paths used by anipy-cli to store data
-        # They are all pathlib.Path objects
+    @property
+    def anipy_cli_folder(self):
+        return Path(Path(__file__).parent)
 
-        # In order to specify a relative path, use the / operator
-        # Ex. ~/Downloads/anipy would be Path.home() / 'Downloads' / 'anipy'
-        # You could also just use a regular path string and turn it into a Path object
-        # Ex. ~/Downloads/anipy would be Path('~/Downloads/anipy')
+    @property
+    def download_folder_path(self):
+        return self._get_path_value(
+            "download_folder_path", self.anipy_cli_folder / "download"
+        )
 
-        download_folder_path = anipy_cli_folder / "download"
-        seasonals_dl_path = download_folder_path / "seasonals"
-        user_files_path = anipy_cli_folder / "user_files"
-        history_file_path = user_files_path / "history.json"
-        seasonal_file_path = user_files_path / "seasonals.json"
+    @property
+    def seasonals_dl_path(self):
+        return self._get_path_value(
+            "seasonals_dl_path", self.download_folder_path / "seasonals"
+        )
 
-        gogoanime_url = "https://gogoanime.gg/"
+    @property
+    def user_files_path(self):
+        return self._get_path_value(
+            "user_files_path", self.anipy_cli_folder / "user_files"
+        )
 
-        # Path to the video-player.
-        # Supported Players are: mpv, vlc, syncplay, mpvnet
-        player_path = "mpv"
+    @property
+    def history_file_path(self):
+        return self.user_files_path / "history.json"
 
-        # Specify additional mpv/vlc options (syncplay uses the same options as mpv)
-        # You will need to leave a comma (,) between
-        # each command and every command should
-        # be wrappedd in quotes (").
-        # Example (for mpv): ["--fs", "--cache"]
-        # Look here for various commands:
-        #   - mpv: https://github.com/mpv-player/mpv/blob/master/DOCS/man/options.rst
-        #   - vlc: https://wiki.videolan.org/VLC_command-line_help/
-        mpv_commandline_options = []
-        vlc_commandline_options = []
-        
-        # Reuse the mpv window instead of closing and reopening.
-        # This uses python-mpv, wich uses libmpv, on linux this is preinstalled
-        # with mpv on windows you have to get the mpv-2.dll file from here:
-        # https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
-        reuse_mpv_window = False
+    @property
+    def history_file_path(self):
+        return user_files_path / "seasonals.json"
 
-        # Always use ffmpeg to download hls streams, you can
-        # also activate this temprarly using the -f flag when
-        # downloading something.
-        # Default: False
-        ffmpeg_hls = False
-        # The log of the ffmpeg process, when its used
-        ffmpeg_log_path = user_files_path / "ffmpeg_log"
+    @property
+    def gogoanime_url(self):
+        return self._get_value("gogoanime_url", "https://gogoanime.gg/", str)
 
-        # This determines how downloaded anime will be named
-        # The following variables can be used: show_name, episode_number, quality
-        download_name_format = "{show_name}_{episode_number}.mp4"
+    @property
+    def player_path(self):
+        return self._get_value("player_path", "mpv", str)
 
-        # This removes the (Dub) in the anime title when downloading
-        download_remove_dub_from_folder_name = False
+    @property
+    def mpv_commandline_options(self):
+        return self._get_value("mpv_cmd_options", [], list)
 
-        # Discord Presence:
-        # Show what you are watching on discord
-        # Default: False
-        dc_presence = False
+    @property
+    def vlc_commandline_options(self):
+        return self._get_value("vlc_cmd_options", [], list)
+
+    @property
+    def reuse_mpv_window(self):
+        return self._get_value("reuse_mpv_window", False, bool)
+
+    @property
+    def ffmpeg_hls(self):
+        return self._get_value("ffmpeg_hls", False, bool)
+
+    @property
+    def ffmpeg_log_path(self):
+        return self.user_files_path / "ffmpeg_log"
+
+    @property
+    def download_name_format(self):
+        return self._get_value(
+            "download_name_format", "{show_name}_{episode_number}.mp4", str
+        )
+
+    @property
+    def download_remove_dub_from_folder_name(self):
+        return self._get_value("download_remove_dub_from_folder_name", False, bool)
+
+    @property
+    def dc_presence(self):
+        return self._get_value("dc_presence", False, bool)
+
+    def _get_path_value(self, key: str, fallback: Path) -> Path:
+        path = self._get_value(key, fallback, str)
+        try:
+            return Path(path)
+        except:
+            return fallback
+
+    def _get_value(self, key: str, fallback, type: object):
+        value = self._yaml_conf.get(key, fallback)
+        if isinstance(value, type):
+            return value
+
+        return fallback
+
+    def _create_config(self):
+        try:
+            self._get_config_path().mkdir(exist_ok=True, parents=True)
+            (self._get_config_path() / "config.yaml").touch()
+        except PermissionError:
+            pass
+
+    @staticmethod
+    def _get_config_path() -> Path:
+        linux_path = Path().home() / ".config" / "anipy-cli"
+        windows_path = Path().home() / "AppData" / "Local" / "anipy-cli"
+        macos_path = Path().home() / ".config" / "anipy-cli"
+
+        if platform == "linux":
+            return linux_path
+        elif platform == "darwin":
+            return macos_path
+        elif platform == "windows":
+            return windows_path
+        else:
+            raise SysNotFoundError(platform)
