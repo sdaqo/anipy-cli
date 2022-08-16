@@ -15,8 +15,10 @@ class Config:
             with self._config_file.open("r") as conf:
                 self._yaml_conf = yaml.safe_load(conf)
             if self._yaml_conf == None:
+                # The config file is empty 
                 self._yaml_conf = {}
         except FileNotFoundError:
+            # There is no config file, create one
             self._yaml_conf = {}
             self._create_config()
 
