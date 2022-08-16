@@ -23,13 +23,13 @@ class Config:
             self._create_config()
 
     @property
-    def anipy_cli_folder(self):
+    def _anipy_cli_folder(self):
         return Path(Path(__file__).parent)
 
     @property
     def download_folder_path(self):
         return self._get_path_value(
-            "download_folder_path", self.anipy_cli_folder / "download"
+            "download_folder_path", self._anipy_cli_folder / "download"
         )
 
     @property
@@ -41,7 +41,7 @@ class Config:
     @property
     def user_files_path(self):
         return self._get_path_value(
-            "user_files_path", self.anipy_cli_folder / "user_files"
+            "user_files_path", self._anipy_cli_folder / "user_files"
         )
 
     @property
