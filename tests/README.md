@@ -17,6 +17,6 @@ Get documentation for pytest [here](https://docs.pytest.org).
 
 Example: 
 ```
-Exclude tests that are very slow.
+Exclude tests that are marked very slow.
 $ python runtests.py -m "not veryslow"
 ```
