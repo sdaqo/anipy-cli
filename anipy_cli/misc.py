@@ -117,7 +117,7 @@ def read_json(path):
 
         except FileNotFoundError:
             try:
-                Config().user_files_path.mkdir(exist_ok=True)
+                Config().user_files_path.mkdir(exist_ok=True, parents=True)
                 path.touch(exist_ok=True)
                 # avoids error on empty json file
                 with path.open("a") as f:
