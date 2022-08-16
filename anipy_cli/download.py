@@ -46,7 +46,7 @@ class download:
                 print(self.show_folder)
 
 
-        Config().download_folder_path.mkdir(exist_ok=True)
+        Config().download_folder_path.mkdir(exist_ok=True, parents=True)
         self.show_folder.mkdir(exist_ok=True)
         self.session = requests.Session()
         retry = Retry(connect=3, backoff_factor=0.5)
@@ -84,8 +84,8 @@ class download:
             self.mp4_dl(self.entry.stream_url)
 
     def ffmpeg_dl(self):
-        Config().user_files_path.mkdir(exist_ok=True)
-        Config().ffmpeg_log_path.mkdir(exist_ok=True)
+        Config().user_files_path.mkdir(exist_ok=True, parents=True)
+        Config().ffmpeg_log_path.mkdir(exist_ok=True, parents=True)
         fname = self._get_fname()
 
         dl_path = self.show_folder / fname
@@ -122,8 +122,8 @@ class download:
 
     def ffmpeg_merge(self, input_file, audio_input_file):
 
-        Config().user_files_path.mkdir(exist_ok=True)
-        Config().ffmpeg_log_path.mkdir(exist_ok=True)
+        Config().user_files_path.mkdir(exist_ok=True, parents=True)
+        Config().ffmpeg_log_path.mkdir(exist_ok=True, parents=True)
         fname = self._get_fname()
 
         dl_path = self.show_folder / fname
