@@ -14,6 +14,8 @@ class Config:
         try:
             with self._config_file.open("r") as conf:
                 self._yaml_conf = yaml.safe_load(conf)
+            if self._yaml_conf == None:
+                self._yaml_conf = {}
         except Exception as e:
             self._yaml_conf = {}
             self._create_config()
