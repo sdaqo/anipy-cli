@@ -49,8 +49,8 @@ class Config:
         return self.user_files_path / "history.json"
 
     @property
-    def history_file_path(self):
-        return user_files_path / "seasonals.json"
+    def seasonal_file_path(self):
+        return self.user_files_path / "seasonals.json"
 
     @property
     def gogoanime_url(self):
