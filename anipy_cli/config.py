@@ -14,7 +14,11 @@ class Config:
         try:
             with self._config_file.open("r") as conf:
                 self._yaml_conf = yaml.safe_load(conf)
-        except Exception as e:
+            if self._yaml_conf == None:
+                # The config file is empty 
+                self._yaml_conf = {}
+        except FileNotFoundError:
+            # There is no config file, create one
             self._yaml_conf = {}
             self._create_config()
 
@@ -45,8 +49,8 @@ class Config:
         return self.user_files_path / "history.json"
 
     @property
-    def history_file_path(self):
-        return user_files_path / "seasonals.json"
+    def seasonal_file_path(self):
+        return self.user_files_path / "seasonals.json"
 
     @property
     def gogoanime_url(self):
