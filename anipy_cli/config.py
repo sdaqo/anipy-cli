@@ -97,7 +97,7 @@ class Config:
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
         try:
-            return Path(path)
+            return Path(path).expanduser()
         except:
             return fallback
 
