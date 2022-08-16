@@ -46,7 +46,7 @@ class entry:
     embed_url: str = ""
     stream_url: str = ""
     ep: Union[int, float] = 0
-    latest_ep: int = 0
+    latest_ep: Union[int, float] = 0
     quality: str = ""
 
 

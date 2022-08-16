@@ -102,7 +102,7 @@ class epHandler:
         """
 
         latest = self._load_eps_list()[-1]["ep"]
-        self.entry.latest_ep = latest
+        self.entry.latest_ep = parsenum(latest)
 
         return parsenum(latest)
 
@@ -380,27 +380,21 @@ class videourl:
 
         streams = []
         for i in json_data:
-            if 'm3u8' in i['file'] or i['type'] == 'hls':
-                type  = 'hls'
+            if "m3u8" in i["file"] or i["type"] == "hls":
+                type = "hls"
             else:
-                type = 'mp4'
+                type = "mp4"
 
             quality = i["label"].replace(" P", "").lower()
 
-            streams.append(
-                {
-                    "file": i["file"],
-                    "type": type,
-                    "quality": quality
-                }
-            )
+            streams.append({"file": i["file"], "type": type, "quality": quality})
 
-        #if len(streams) == 1:
+        # if len(streams) == 1:
         #    streams = extract_m3u8_streams(
         #        streams[0]['file']
         #    )
-        
-        filtered_q_user = list(filter(lambda x: x['quality'] == self.qual, streams))
+
+        filtered_q_user = list(filter(lambda x: x["quality"] == self.qual, streams))
 
         if filtered_q_user:
             stream = list(filtered_q_user)[0]
@@ -412,8 +406,8 @@ class videourl:
             error("quality not avalible, using default")
             stream = streams[-1]
 
-        self.entry.quality = stream['quality']
-        self.entry.stream_url = stream['file']
+        self.entry.quality = stream["quality"]
+        self.entry.stream_url = stream["file"]
 
 
 def extract_m3u8_streams(uri):
@@ -435,9 +429,8 @@ def extract_m3u8_streams(uri):
             {
                 "file": urljoin(content.base_uri, playlist.uri),
                 "type": "hls",
-                "quality": str(playlist.stream_info.resolution[1])
-                
+                "quality": str(playlist.stream_info.resolution[1]),
             }
         )
-    
+
     return streams
