@@ -101,9 +101,9 @@ class Config:
         except:
             return fallback
 
-    def _get_value(self, key: str, fallback, type: object):
+    def _get_value(self, key: str, fallback, typ: object):
         value = self._yaml_conf.get(key, fallback)
-        if isinstance(value, type):
+        if isinstance(value, typ):
             return value
 
         return fallback
@@ -125,7 +125,7 @@ class Config:
             return linux_path
         elif platform == "darwin":
             return macos_path
-        elif platform == "windows":
+        elif platform == "win32":
             return windows_path
         else:
             raise SysNotFoundError(platform)
