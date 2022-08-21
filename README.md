@@ -51,7 +51,7 @@ Places of the config:
 - Windows: %USERPROFILE%/AppData/Local/anipy-cli/config.yaml
 - MacOS: ~/.config/anipy-cli/config.yaml
 
-[Sampel Config](https://github.com/sdaqo/anipy-cli/blob/master/docs/sample_config.yaml)
+[Sample Config](https://github.com/sdaqo/anipy-cli/blob/master/docs/sample_config.yaml)
 
 # Usage  
 ```
