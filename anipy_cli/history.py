@@ -2,7 +2,7 @@ import json
 import sys
 
 from .misc import error, read_json
-from .config import config
+from .config import Config
 
 
 class history:
@@ -20,7 +20,7 @@ class history:
         self.entry = entry
 
     def read_save_data(self):
-        self.json = read_json(config.history_file_path)
+        self.json = read_json(Config().history_file_path)
 
         return self.json
 
@@ -76,7 +76,7 @@ class history:
         self.prepend_json()
 
         try:
-            with config.history_file_path.open("w") as f:
+            with Config().history_file_path.open("w") as f:
                 json.dump(self.json, f)
         except PermissionError:
             error("Unable to write to history file due permissions.")

@@ -4,14 +4,16 @@ import requests
 import re
 import base64
 import functools
-from urllib.parse import urlparse, parse_qsl, urlencode
+import m3u8
+from pathlib import Path
+from urllib.parse import urlparse, parse_qsl, urlencode, urljoin
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
 
-from .misc import response_err, error, loc_err
+from .misc import response_err, error, loc_err, parsenum
 from .colors import colors
-from .config import config
+from .config import Config
 
 
 class epHandler:
@@ -23,6 +25,8 @@ class epHandler:
 
     def __init__(self, entry) -> None:
         self.entry = entry
+        self.movie_id = None
+        self.ep_list = None
 
     def get_entry(self):
         """
@@ -31,26 +35,210 @@ class epHandler:
         """
         return self.entry
 
+    def _load_eps_list(self):
+        if self.ep_list:
+            return self.ep_list
+
+        if not self.movie_id:
+            r = requests.get(self.entry.category_url)
+            self.movie_id = re.search(
+                r'<input.+?value="(\d+)" id="movie_id"', r.text
+            ).group(1)
+
+        res = requests.get(
+            "https://ajax.gogo-load.com/ajax/load-list-episode",
+            params={"ep_start": 0, "ep_end": 9999, "id": self.movie_id},
+        )
+
+        response_err(res, res.url)
+        ep_list = [
+            {
+                "ep": re.search(
+                    r"\d+([\.]\d+)?", x.find("div", attrs={"class": "name"}).text
+                ).group(0),
+                "link": Config().gogoanime_url + x.find("a")["href"].strip(),
+            }
+            for x in BeautifulSoup(res.text, "html.parser").find_all("li")
+        ]
+
+        ep_list.reverse()
+
+        self.ep_list = ep_list
+
+        return ep_list
+
+    def gen_eplink(self):
+        """
+        Generate episode url
+        from ep and category url will look something like this:
+        https://gogoanime.film/category/hyouka
+        to
+        https://gogoanime.film/hyouka-episode-1
+        """
+        ep_list = self._load_eps_list()
+
+        filtered = list(filter(lambda x: x["ep"] == str(self.entry.ep), ep_list))
+
+        if not filtered:
+            error(f"Episode {self.entry.ep} does not exsist.")
+            sys.exit()
+
+        self.entry.ep_url = filtered[0]["link"]
+
+        return self.entry
+
+    def get_special_list(self):
+        """
+        Get List of Special Episodes (.5)
+        """
+
+        ep_list = self._load_eps_list()
+        return list(filter(lambda x: re.match(r"^-?\d+(?:\.\d+)$", x["ep"]), ep_list))
+
     def get_latest(self):
         """
         Fetch latest episode avalible
         from a show and return it.
         """
-        r = requests.get(self.entry.category_url)
-        response_err(r, self.entry.category_url)
-        soup = BeautifulSoup(r.content, "html.parser")
-        ep_count = [
-            i.get("ep_end")
-            for i in soup.find_all("a", attrs={"ep_end": re.compile(r"^ *\d[\d ]*$")})
-        ]
 
-        if not ep_count:
-            error("could not get latest episode")
-            sys.exit()
+        latest = self._load_eps_list()[-1]["ep"]
+        self.entry.latest_ep = parsenum(latest)
 
-        self.entry.latest_ep = int(ep_count[-1])
+        return parsenum(latest)
 
-        return self.entry.latest_ep
+    def get_first(self):
+        return self._load_eps_list()[0]["ep"]
+
+    def _create_prompt(self, prompt="Episode"):
+        ep_range = f" [{self.get_first()}-{self.get_latest()}]"
+
+        specials = self.get_special_list()
+        if specials:
+            ep_range += " Special Eps: "
+            ep_range += ", ".join([x["ep"] for x in specials])
+
+        return str(
+            colors.END
+            + prompt
+            + colors.GREEN
+            + ep_range
+            + colors.END
+            + "\n>> "
+            + colors.CYAN
+        )
+
+    def _validate_ep(self, ep: str):
+        """
+        See if Episode is in episode list.
+        Pass a arg to special to accept this
+        charachter even though it is not in the episode list.
+        """
+
+        ep_list = self._load_eps_list()
+
+        is_in_list = bool(list(filter(lambda x: ep == x["ep"], ep_list)))
+
+        return is_in_list
+
+    def pick_ep(self):
+        """
+        Cli function to pick a episode from 1 to
+        the latest avalible.
+        """
+
+        self.get_latest()
+
+        while True:
+            which_episode = input(self._create_prompt())
+            try:
+                if self._validate_ep(which_episode):
+                    self.entry.ep = parsenum(which_episode)
+                    self.gen_eplink()
+                    break
+                else:
+                    error("Number out of range.")
+
+            except:
+                error("Invalid Input")
+
+        return self.entry
+
+    def pick_ep_seasonal(self):
+        """
+        Cli function to pick a episode from 0 to
+        the latest avalible.
+        """
+
+        self.get_latest()
+
+        while True:
+            which_episode = input(
+                self._create_prompt(
+                    "Last Episode you watched (put 0 to start at the beginning) "
+                )
+            )
+            try:
+                if self._validate_ep(which_episode) or int(which_episode) == 0:
+                    self.entry.ep = int(which_episode)
+                    if int(which_episode) != 0:
+                        self.gen_eplink()
+                    else:
+                        self.entry.ep_url = None
+                    break
+                else:
+                    error("Number out of range.")
+
+            except:
+                error("Invalid Input")
+
+        return self.entry
+
+    def pick_range(self):
+        """
+        Accept a range of episodes
+        and return it.
+        Input/output would be
+        something like this:
+             3-5 -> [3, 4, 5]
+             3 -> [3]
+        """
+        self.entry.latest_ep = self.get_latest()
+        while True:
+            which_episode = input(
+                self._create_prompt(prompt="Episode (Range with '-')")
+            )
+
+            which_episode = which_episode.split("-")
+
+            if len(which_episode) == 1:
+                try:
+                    if self._validate_ep(which_episode[0]):
+                        return which_episode
+                except:
+                    error("invalid input")
+            elif len(which_episode) == 2:
+                try:
+                    ep_list = self._load_eps_list()
+
+                    first_index = ep_list.index(
+                        list(filter(lambda x: x["ep"] == which_episode[0], ep_list))[0]
+                    )
+
+                    second_index = ep_list.index(
+                        list(filter(lambda x: x["ep"] == which_episode[1], ep_list))[0]
+                    )
+
+                    ep_list = ep_list[first_index : second_index + 1]
+
+                    if not ep_list:
+                        error("invlid input1")
+                    else:
+                        return [x["ep"] for x in ep_list]
+
+                except Exception as e:
+                    error(f"invalid input {e}")
+            else:
+                error("invalid input")
 
     def next_ep(self):
         """
@@ -76,137 +264,6 @@ class epHandler:
             self.entry.ep -= 1
             self.gen_eplink()
             return self.entry
-
-    def pick_ep(self):
-        """
-        Cli function to pick a episode from 1 to
-        the latest avalible.
-        """
-
-        self.get_latest()
-
-        while True:
-            which_episode = input(
-                colors.END
-                + "Episode "
-                + colors.GREEN
-                + f"[1-{self.entry.latest_ep}]"
-                + colors.END
-                + ": "
-                + colors.CYAN
-            )
-            try:
-                if int(which_episode) in list(range(1, self.entry.latest_ep + 1)):
-                    self.entry.ep = int(which_episode)
-                    self.gen_eplink()
-                    break
-                else:
-                    error("Number out of range.")
-
-            except:
-                error("Invalid Input")
-
-        return self.entry
-
-    def pick_ep_seasonal(self):
-        """
-        Cli function to pick a episode from 0 to
-        the latest avalible.
-        """
-
-        self.get_latest()
-
-        while True:
-            which_episode = input(
-                colors.END
-                + "Last Episode you watched (put 0 to start at the beginning) "
-                + colors.GREEN
-                + f"[0-{self.entry.latest_ep}]"
-                + colors.END
-                + ": \n>> "
-                + colors.CYAN
-            )
-            try:
-                if int(which_episode) in list(range(0, self.entry.latest_ep + 1)):
-                    self.entry.ep = int(which_episode)
-                    self.gen_eplink()
-                    break
-                else:
-                    error("Number out of range.")
-
-            except:
-                error("Invalid Input")
-
-        return self.entry
-
-    def pick_range(self):
-        """
-        Accept a range of episodes
-        and return it.
-        Input/output would be
-        something like this:
-             3-5 -> [3, 4, 5]
-             3 -> [3]
-        """
-        self.entry.latest_ep = self.get_latest()
-        while True:
-            which_episode = input(
-                colors.END
-                + "Episode "
-                + colors.GREEN
-                + f"[1-{self.entry.latest_ep}]"
-                + colors.END
-                + ": "
-                + colors.CYAN
-            )
-
-            which_episode = which_episode.split("-")
-
-            if len(which_episode) == 1:
-                try:
-                    if int(which_episode[0]) in list(
-                        range(1, self.entry.latest_ep + 1)
-                    ):
-                        return which_episode
-                except:
-                    error("invalid input")
-            elif len(which_episode) == 2:
-                try:
-                    ep_list = list(
-                        range(int(which_episode[0]), int(which_episode[1]) + 1)
-                    )
-                    if not ep_list:
-                        error("invlid input")
-                    else:
-                        if ep_list[-1] > self.entry.latest_ep:
-                            error("invalid input")
-                        else:
-                            return ep_list
-                except:
-                    error("invalid input")
-            else:
-                error("invalid input")
-
-    def gen_eplink(self):
-        """
-        Generate episode url
-        from ep and category url
-        will look something like this:
-        https://gogoanime.film/category/hyouka
-        to
-        https://gogoanime.film/hyouka-episode-1
-        """
-        r = requests.get(self.entry.category_url)
-        id = re.search(r'<input.+?value="(\d+)" id="movie_id"', r.text).group(1)
-        ajax_res = requests.get(
-            "https://ajax.gogo-load.com/ajax/load-list-episode",
-            params={"ep_start": self.entry.ep, "ep_end": self.entry.ep, "id": id},
-        )
-        soup = BeautifulSoup(ajax_res.content, "html.parser")
-        a = soup.find("a")
-        self.entry.ep_url = config.gogoanime_url + a["href"].strip()
-
-        return self.entry
 
 
 class videourl:
@@ -319,55 +376,61 @@ class videourl:
         the quality option that was picked,
         or the best one avalible.
         """
-
         self.entry.quality = ""
-        if "fc24fc6eef71638a72a9b19699526dcb" in json_data[0]["file"]:
-            r = self.session.get(
-                json_data[0]["file"], headers={"referer": self.entry.embed_url}
-            )
 
-            qualitys = re.findall(r"(?<=\d\d\dx)\d+", r.text)
-            quality_links = [x for x in r.text.split("\n")]
-            quality_links = [x for x in quality_links if not x.startswith("#")]
-            if "fc24fc6eef71638a72a9b19699526dcb" in json_data[0]["file"]:
-                qualitys.reverse()
-                quality_links.reverse()
+        streams = []
+        for i in json_data:
+            if "m3u8" in i["file"] or i["type"] == "hls":
+                type = "hls"
+            else:
+                type = "mp4"
 
-            quality_links = list(filter(None, quality_links))
+            quality = i["label"].replace(" P", "").lower()
 
-        else:
-            qualitys = []
-            quality_links = []
-            for i in json_data:
-                if i["label"] == "Auto":
-                    pass
-                else:
-                    qualitys.append(i["label"])
-                    quality_links.append(i["file"])
+            streams.append({"file": i["file"], "type": type, "quality": quality})
 
-            qualitys = [x.replace(" P", "") for x in qualitys]
+        # if len(streams) == 1:
+        #    streams = extract_m3u8_streams(
+        #        streams[0]['file']
+        #    )
 
-        if self.qual in qualitys:
-            q = quality_links[qualitys.index(self.qual)]
+        filtered_q_user = list(filter(lambda x: x["quality"] == self.qual, streams))
+
+        if filtered_q_user:
+            stream = list(filtered_q_user)[0]
         elif self.qual == "best" or self.qual == None:
-            q = quality_links[-1]
+            stream = streams[-1]
         elif self.qual == "worst":
-            q = quality_links[0]
+            stream = streams[0]
         else:
             error("quality not avalible, using default")
-            q = quality_links[-1]
+            stream = streams[-1]
 
-        if "fc24fc6eef71638a72a9b19699526dcb.com" in json_data[0]["file"]:
-            self.entry.stream_url = json_data[0]["file"].rsplit("/", 1)[0] + "/" + q
-        else:
-            self.entry.stream_url = q
+        self.entry.quality = stream["quality"]
+        self.entry.stream_url = stream["file"]
 
-        chosen_quality = q.split("/")
 
-        for _qual in chosen_quality:
+def extract_m3u8_streams(uri):
+    if re.match(r"https?://", uri):
+        resp = requests.get(uri)
+        resp.raise_for_status()
+        raw_content = resp.content.decode(resp.encoding or "utf-8")
+        base_uri = urljoin(uri, ".")
+    else:
+        with open(uri) as fin:
+            raw_content = fin.read()
+            base_uri = Path(uri)
 
-            if "EP" in _qual:
-                self.entry.quality = _qual.split(".")[4]
+    content = m3u8.M3U8(raw_content, base_uri=base_uri)
+    content.playlists.sort(key=lambda x: x.stream_info.bandwidth)
+    streams = []
+    for playlist in content.playlists:
+        streams.append(
+            {
+                "file": urljoin(content.base_uri, playlist.uri),
+                "type": "hls",
+                "quality": str(playlist.stream_info.resolution[1]),
+            }
+        )
 
-        if not self.entry.quality:
-            self.entry.quality = str(qualitys[quality_links.index(q)] + "p")
+    return streams

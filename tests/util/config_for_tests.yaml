@@ -1,0 +1,3 @@
+download_folder_path: "/tmp/anipy_cli/dls"
+seasonals_dl_path: "/tmp/anipy_cli/dls/seasonal"
+user_files_path: "/tmp/anipy_cli/user_files"

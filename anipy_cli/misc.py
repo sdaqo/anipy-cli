@@ -4,8 +4,9 @@ import sys
 import json
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
+from typing import Union
 
-from .config import config
+from .config import Config
 from .colors import colors
 
 options = [
@@ -57,8 +58,8 @@ class entry:
     ep_url: str = ""
     embed_url: str = ""
     stream_url: str = ""
-    ep: int = 0
-    latest_ep: int = 0
+    ep: Union[int, float] = 0
+    latest_ep: Union[int, float] = 0
     quality: str = ""
 
 
@@ -103,6 +104,18 @@ def keyboard_inter() -> None:
     sys.exit()
 
 
+def parsenum(n: str):
+    """
+    Parse String to either
+    int or float.
+    """
+
+    try:
+        return int(n)
+    except ValueError:
+        return float(n)
+
+
 def read_json(path):
     """
     Read a json file, if
@@ -117,7 +130,7 @@ def read_json(path):
 
         except FileNotFoundError:
             try:
-                config.user_files_path.mkdir(exist_ok=True)
+                Config().user_files_path.mkdir(exist_ok=True, parents=True)
                 path.touch(exist_ok=True)
                 # avoids error on empty json file
                 with path.open("a") as f:

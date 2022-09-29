@@ -24,6 +24,7 @@ Post your output of `pip show anipy-cli`
 
 **Platform**
  - OS: 
+ - Maybe something else that is specific to your platform and may have impact on the bug
 
 **Additional context**
 Add any other context about the problem here.

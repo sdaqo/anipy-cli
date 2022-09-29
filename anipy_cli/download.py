@@ -5,6 +5,7 @@ from pathlib import Path
 import m3u8
 import requests
 import shutil
+import sys
 
 from tqdm import tqdm
 from requests.adapters import HTTPAdapter, Retry
@@ -14,7 +15,7 @@ from moviepy.editor import ffmpeg_tools
 
 from .misc import response_err, error, keyboard_inter
 from .colors import colors
-from .config import config
+from .config import Config
 
 
 class download:
@@ -36,8 +37,17 @@ class download:
         }
 
     def download(self):
-        self.show_folder = config.download_folder_path / f"{self.entry.show_name}"
-        config.download_folder_path.mkdir(exist_ok=True)
+        show_name = self._get_valid_pathname(self.entry.show_name)
+        show_name.strip()
+        self.show_folder = Config().download_folder_path / f"{show_name}"
+
+        if Config().download_remove_dub_from_folder_name:
+            if show_name.endswith(" (Dub)"):
+                self.show_folder = Config().download_folder_path / f"{show_name[:-6]}"
+                print(self.show_folder)
+
+
+        Config().download_folder_path.mkdir(exist_ok=True, parents=True)
         self.show_folder.mkdir(exist_ok=True)
         self.session = requests.Session()
         retry = Retry(connect=3, backoff_factor=0.5)
@@ -46,7 +56,7 @@ class download:
         self.session.mount("https://", adapter)
         self.session.headers.update(self.headers)
 
-        fname = f"{self.entry.show_name}_{self.entry.ep}.mp4"
+        fname = self._get_fname()
         dl_path = self.show_folder / fname
 
         if dl_path.is_file():
@@ -63,7 +73,7 @@ class download:
 
         if "m3u8" in self.entry.stream_url:
             print(f"{colors.CYAN}Type:{colors.RED} m3u8")
-            if self.ffmpeg or config.ffmpeg_hls:
+            if self.ffmpeg or Config().ffmpeg_hls:
                 print(f"{colors.CYAN}Downloader:{colors.RED} ffmpeg")
                 self.ffmpeg_dl()
                 return
@@ -75,9 +85,9 @@ class download:
             self.mp4_dl(self.entry.stream_url)
 
     def ffmpeg_dl(self):
-        config.user_files_path.mkdir(exist_ok=True)
-        config.ffmpeg_log_path.mkdir(exist_ok=True)
-        fname = f"{self.entry.show_name}_{self.entry.ep}.mp4"
+        Config().user_files_path.mkdir(exist_ok=True, parents=True)
+        Config().ffmpeg_log_path.mkdir(exist_ok=True, parents=True)
+        fname = self._get_fname()
 
         dl_path = self.show_folder / fname
 
@@ -103,7 +113,7 @@ class download:
         try:
             ffmpeg_process.run(
                 ffmpeg_output_file=str(
-                    config.ffmpeg_log_path / fname.replace("mp4", "log")
+                    Config().ffmpeg_log_path / fname.replace("mp4", "log")
                 )
             )
             print(f"{colors.CYAN}Download finished.")
@@ -113,9 +123,9 @@ class download:
 
     def ffmpeg_merge(self, input_file, audio_input_file):
 
-        config.user_files_path.mkdir(exist_ok=True)
-        config.ffmpeg_log_path.mkdir(exist_ok=True)
-        fname = f"{self.entry.show_name}_{self.entry.ep}.mp4"
+        Config().user_files_path.mkdir(exist_ok=True, parents=True)
+        Config().ffmpeg_log_path.mkdir(exist_ok=True, parents=True)
+        fname = self._get_fname()
 
         dl_path = self.show_folder / fname
 
@@ -179,7 +189,7 @@ class download:
         r = self.session.get(dl_link, headers=self.headers, stream=True)
         response_err(r, dl_link)
         total = int(r.headers.get("content-length", 0))
-        fname = self.show_folder / f"{self.entry.show_name}_{self.entry.ep}.mp4"
+        fname = self.show_folder / self._get_fname()
         try:
             with fname.open("wb") as out_file, tqdm(
                 desc=self.entry.show_name,
@@ -369,6 +379,32 @@ class download:
                 key.uri = filename.__str__().replace(
                     "\\", "/"
                 )  # ffmpeg error when using \\ in windows
+
+    def _get_fname(self) -> str:
+        """
+        This function returns what the filename for the outputed video should be.
+
+        It finds this by using data in self.entry and the Config.
+
+        Returns a string which should be the filename.
+        """
+
+        show_name = self._get_valid_pathname(self.entry.show_name)
+
+        return Config().download_name_format.format(
+            show_name=show_name,
+            episode_number=self.entry.ep,
+            quality=self.entry.quality,
+        )
+
+    @staticmethod
+    def _get_valid_pathname(name):
+        WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|"]
+
+        if sys.platform == "win32":
+            name = "".join(["" if x in WIN_INVALID_CHARS else x for x in name])
+
+        return name
 
     @staticmethod
     def _is_url(uri):

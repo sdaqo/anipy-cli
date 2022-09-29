@@ -4,9 +4,9 @@ from bs4 import BeautifulSoup
 
 from .misc import loc_err, response_err, error, print_names
 from .colors import colors
-from .config import config
+from .config import Config
 
-base_url = config.gogoanime_url
+base_url = Config().gogoanime_url
 
 
 class query:
@@ -59,7 +59,7 @@ class query:
                         continue
 
                 loc_err(link, req_link, "query results")
-                self.names.append(link.text)
+                self.names.append(link.text.replace("\n", ""))
                 a_tag = link.findChildren("a", recursive=False)
                 self.links.append(a_tag[0].get("href"))
 
