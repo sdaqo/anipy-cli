@@ -38,6 +38,7 @@ class download:
 
     def download(self):
         show_name = self._get_valid_pathname(self.entry.show_name)
+        show_name.strip()
         self.show_folder = Config().download_folder_path / f"{show_name}"
 
         if Config().download_remove_dub_from_folder_name:
