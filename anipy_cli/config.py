@@ -76,6 +76,7 @@ class Config:
     def ffmpeg_hls(self):
         return self._get_value("ffmpeg_hls", False, bool)
 
+    
     @property
     def ffmpeg_log_path(self):
         return self.user_files_path / "ffmpeg_log"
@@ -93,6 +94,10 @@ class Config:
     @property
     def dc_presence(self):
         return self._get_value("dc_presence", False, bool)
+
+    @property
+    def auto_open_dl(self):
+        return self._get_value("auto_open_dl_defaultcli", False, bool)
 
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
