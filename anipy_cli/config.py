@@ -96,7 +96,7 @@ class Config:
         return self._get_value("dc_presence", False, bool)
 
     @property
-    def auto_open_dl(self):
+    def auto_open_dl_defaultcli(self):
         return self._get_value("auto_open_dl_defaultcli", False, bool)
 
     def _get_path_value(self, key: str, fallback: Path) -> Path:
