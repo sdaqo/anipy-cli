@@ -533,19 +533,16 @@ class menu:
         print(f"Embed Url: {self.entry.embed_url}")
         print(f"Stream Url: {self.entry.stream_url}")
         print(f"Quality: {self.entry.quality}")
-    
+
     def download_video(self):
-        try:
-            path = download(self.entry).download()
-            if Config().auto_open_dl:
-                player_command = ["mpv", str(path)]
-                if os.name in ("nt", "dos"):
-                    sp.Popen(player_command)
-                else:
-                    sp.Popen(player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
-            
-        except: #TODO: Make some error for download fail
-            pass
+        # TODO: Make some error for download fail
+        path = download(self.entry).download()
+        if Config().auto_open_dl_defaultcli:
+            player_command = [Config().player_path, str(path)]
+            if os.name in ("nt", "dos"):
+                sp.Popen(player_command)
+            else:
+                sp.Popen(player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
 
         self.print_status()
         self.print_opts()
