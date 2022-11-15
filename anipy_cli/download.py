@@ -46,7 +46,6 @@ class download:
                 self.show_folder = Config().download_folder_path / f"{show_name[:-6]}"
                 print(self.show_folder)
 
-
         Config().download_folder_path.mkdir(exist_ok=True, parents=True)
         self.show_folder.mkdir(exist_ok=True)
         self.session = requests.Session()

@@ -683,10 +683,10 @@ class MALCli:
         self.player = player
         self.no_season_search = no_season_search
         if (
-            not config.mal_user
-            or config.mal_user == ""
-            or not config.mal_password
-            or config.mal_password == ""
+            not Config().mal_user
+            or Config().mal_user == ""
+            or not Config().mal_password
+            or Config().mal_password == ""
         ):
             error(
                 "MAL Credentials need to be provided in config in order to use MAL CLI. Please check your config."
@@ -820,7 +820,7 @@ class MALCli:
             urls = self.m_class.latest_eps()
 
         else:
-            urls = self.m_class.latest_eps(all=True)
+            urls = self.m_class.latest_eps(all_eps=True)
 
         if not urls:
             error("Nothing to download")

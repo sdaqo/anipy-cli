@@ -11,7 +11,7 @@ from requests.adapters import HTTPAdapter, Retry
 
 from . import epHandler, Seasonal, query
 from .colors import colors
-from .config import config
+from .config import Config
 from .misc import read_json, error, entry
 
 
@@ -48,15 +48,15 @@ class MAL:
         self.api_client_id = "6114d00ca681b7701d1e15fe11a4987e"
         self.api_baseurl = "https://api.myanimelist.net/v2/"
         self.mal_user = (
-            config.mal_user if config.mal_user and config.mal_user != "" else False
+            Config().mal_user if Config().mal_user and Config().mal_user != "" else False
         )
         self.mal_password = (
-            config.mal_password
-            if config.mal_password and config.mal_password != ""
+            Config().mal_password
+            if Config().mal_password and Config().mal_password != ""
             else False
         )
         self.anime_list = None
-        self.gogo_baseurl = config.gogoanime_url
+        self.gogo_baseurl = Config().gogoanime_url
         self.data = {
             "client_id": self.api_client_id,
         }
@@ -75,14 +75,15 @@ class MAL:
         self.session.headers.update(self.headers)
         self.read_save_data()
         if self.mal_user:
+            print(self.mal_password)
             if not self.auth():
                 error(
                     "Could not authorize with MyAnimeList. Please check your credentials..."
                 )
             self.get_anime_list()
-            if config.auto_map_mal_to_gogo:
+            if Config().auto_map_mal_to_gogo:
                 self.auto_map_all_without_map()
-            if config.auto_sync_mal_to_seasonals:
+            if Config().auto_sync_mal_to_seasonals:
                 self.sync_mal_with_seasonal()
 
     def auto_map_all_without_map(self):
@@ -336,7 +337,7 @@ class MAL:
         link = (
             link_href
             if len(link_href.split("/category/")[0]) > 3
-            else config.gogoanime_url + link_href
+            else Config().gogoanime_url + link_href
         )
         if "(dub)" in name.lower():
             key = "dub"
@@ -363,7 +364,7 @@ class MAL:
 
     def read_save_data(self):
         try:
-            self.local_mal_list_json = read_json(config.mal_local_user_list_path)
+            self.local_mal_list_json = read_json(Config().mal_local_user_list_path)
 
         except json.decoder.JSONDecodeError:
             pass
@@ -377,7 +378,7 @@ class MAL:
 
     def write_save_data(self):
         try:
-            with config.mal_local_user_list_path.open("w") as f:
+            with Config().mal_local_user_list_path.open("w") as f:
                 json.dump(self.local_mal_list_json, f, indent=4)
 
         except PermissionError:
@@ -416,7 +417,7 @@ class MAL:
 
         pass
 
-    def latest_eps(self, all: bool = False):
+    def latest_eps(self, all_eps: bool = False):
         """
         returns a dict like so:
             {"name": {
@@ -433,12 +434,12 @@ class MAL:
         entries = [
             i
             for i in self.local_mal_list_json["data"]
-            if i["node"]["my_list_status"]["status"] in config.mal_status_categories
+            if i["node"]["my_list_status"]["status"] in Config().mal_status_categories
         ]
 
         latest_urls = {}
         for i in entries:
-            if all:
+            if all_eps:
                 start_ep = 0
             else:
                 start_ep = i["node"]["my_list_status"]["num_episodes_watched"]
@@ -491,7 +492,7 @@ class MAL:
         for mal_with_gogo_map in self.local_mal_list_json["data"]:
             if (
                 mal_with_gogo_map["node"]["my_list_status"]["status"]
-                in config.mal_status_categories
+                in Config().mal_status_categories
                 and "gogo_map" in mal_with_gogo_map
                 and len(mal_with_gogo_map["gogo_map"]) > 0
             ):

@@ -1,3 +1,5 @@
+import json
+
 import yaml
 from pathlib import Path
 from sys import platform
@@ -94,6 +96,33 @@ class Config:
     def dc_presence(self):
         return self._get_value("dc_presence", False, bool)
 
+    @property
+    def mal_local_user_list_path(self):
+        return self.user_files_path / "mal_list.json"
+    @property
+    def mal_user(self):
+        return self._get_value('mal_user', '', str)
+
+    @property
+    def mal_password(self):
+        return self._get_value('mal_password', '', str)
+
+    @property
+    def auto_sync_mal_to_seasonals(self):
+        return self._get_value("auto_sync_mal_to_seasonals", False, bool)
+
+    @property
+    def auto_map_mal_to_gogo(self):
+        return self._get_value("auto_map_mal_to_gogo", False, bool)
+    @property
+    def mal_status_categories(self):
+        return self._get_value("mal_status_categories", list(["watching"]), list)
+
+    @property
+    def anime_types(self):
+        return self._get_value("anime_types", list(["sub"]), list)
+
+
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
         try:
@@ -111,7 +140,14 @@ class Config:
     def _create_config(self):
         try:
             self._get_config_path().mkdir(exist_ok=True, parents=True)
+            config_options = {}
+            for attribute, value in Config.__dict__.items():
+                if isinstance(value, property):
+                    val = self.__getattribute__(attribute)
+                    config_options[attribute] = str(val) if isinstance(val, Path) else val
             (self._get_config_path() / "config.yaml").touch()
+            with open((self._get_config_path() / "config.yaml"), "w") as file:
+                yaml.dump(yaml.dump(config_options, file, indent=4, default_flow_style=False))
         except PermissionError:
             pass
 
@@ -130,27 +166,3 @@ class Config:
         else:
             raise SysNotFoundError(platform)
 
-       '''
-       todo: switch to new config system
-       
-        # MyAnimeListCredentials
-        mal_user = ""
-        mal_password = ""
-
-        # sync mal to seasonals file automatically
-        auto_sync_mal_to_seasonals = False
-
-        # try mapping MAL entries to gogo_format
-        auto_map_mal_to_gogo = False
-
-        # list of status categories that are being considered when binge-watching or downloading
-        # possible statuses are:
-        # ["watching","completed", "on_hold", "dropped", "plan_to_watch"]
-        mal_status_categories = ["watching"]
-
-        # This is relevant for auto mapping MyAnimeList to gogo links
-        # - Example Usage -
-        # if you don't want dubbed anime, just remove the "dub" entry like so:
-        # anime_types = ["sub"]
-        anime_types = ["sub", "dub"]
-       '''

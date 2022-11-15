@@ -52,10 +52,10 @@ class query:
 
             for link in self.soup.find_all("p", attrs={"class": "name"}):
                 name_lower = link.text.lower()
-                if len(config.anime_types) == 1:
-                    if "sub" in config.anime_types and "(dub)" in name_lower:
+                if len(Config().anime_types) == 1:
+                    if "sub" in Config().anime_types and "(dub)" in name_lower:
                         continue
-                    elif "dub" in config.anime_types and "(dub)" not in name_lower:
+                    elif "dub" in Config().anime_types and "(dub)" not in name_lower:
                         continue
 
                 loc_err(link, req_link, "query results")
