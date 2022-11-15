@@ -10,11 +10,10 @@ class SysNotFoundError(Exception):
 class Config:
     def __init__(self):
         self._config_file = self._get_config_path() / "config.yaml"
-
         try:
             with self._config_file.open("r") as conf:
                 self._yaml_conf = yaml.safe_load(conf)
-            if self._yaml_conf == None:
+            if self._yaml_conf is None:
                 # The config file is empty
                 self._yaml_conf = {}
         except FileNotFoundError:
@@ -155,7 +154,9 @@ class Config:
                 yaml.dump(
                     yaml.dump(config_options, file, indent=4, default_flow_style=False)
                 )
-        except PermissionError:
+        except PermissionError as e:
+            print(f"Failed to create config file: {e}")
+            exit(f"Failed to create config file: {e}")
             pass
 
     @staticmethod

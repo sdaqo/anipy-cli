@@ -832,6 +832,7 @@ class MALCli:
                 print(f"{colors.CYAN}==> EP: {j[0]}")
 
     def download(self, mode="all"):
+        print('Preparing list of episodes...')
         if mode == "latest":
             urls = self.m_class.latest_eps()
 
