@@ -77,7 +77,6 @@ class MAL:
         self.session.headers.update(self.headers)
         self.read_save_data()
         if self.mal_user:
-            print(self.mal_password)
             if not self.auth():
                 error(
                     "Could not authorize with MyAnimeList. Please check your credentials..."
