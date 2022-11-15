@@ -49,7 +49,7 @@ def test_config_values(resource: config.Config):
         "download_name_format": "{show_name} - {episode_number} - {quality}.mp4",
         "download_remove_dub_from_folder_name": True,
         "dc_presence": False,
-        "auto_open_dl_defaultcli": False
+        "auto_open_dl_defaultcli": False,
     }
 
     for prop in dir(resource):
