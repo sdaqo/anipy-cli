@@ -1,5 +1,3 @@
-import json
-
 import yaml
 from pathlib import Path
 from sys import platform
@@ -95,6 +93,10 @@ class Config:
     @property
     def dc_presence(self):
         return self._get_value("dc_presence", False, bool)
+
+    @property
+    def auto_open_dl_defaultcli(self):
+        return self._get_value("auto_open_dl_defaultcli", False, bool)
 
     @property
     def mal_local_user_list_path(self):

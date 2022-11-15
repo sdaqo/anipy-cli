@@ -67,3 +67,8 @@ download_remove_dub_from_folder_name: True
 # Show what you are watching on discord
 # Default: False
 dc_presence: False
+
+# When finshing downloading a vide
+# with the menu option in the default mode (cli)
+# automatically open it with mpv.
+auto_open_dl_defaultcli: False

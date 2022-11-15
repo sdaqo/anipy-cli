@@ -68,3 +68,5 @@ download_remove_dub_from_folder_name: True
 # Show what you are watching on discord
 # Default: False
 dc_presence: False
+
+auto_open_dl_defaultcli: False  

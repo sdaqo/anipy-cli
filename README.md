@@ -36,8 +36,6 @@ Directly from the repo (may be newer):
 
 `python3 -m pip install git+https://github.com/sdaqo/anipy-cli`
 
-Other methodes can be found in [docs/install.md](https://github.com/sdaqo/anipy-cli/blob/master/docs/install.md)
-
 For Videoplayback mpv is needed get it here: https://mpv.io/installation/
 
 Optionally you can install [ffmpeg](https://ffmpeg.org/download.html) to download m3u8 playlists instead of the internal downloader. Use it with the -f flag. This is something you only want to enable when the internal downlaoder fails, since its pretty slow.

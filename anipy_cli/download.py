@@ -63,7 +63,7 @@ class download:
             print(
                 f"{colors.GREEN}Skipping Already Existing:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}"
             )
-            return
+            return dl_path
 
         print("-" * 20)
         print(
@@ -75,13 +75,15 @@ class download:
             if self.ffmpeg or Config().ffmpeg_hls:
                 print(f"{colors.CYAN}Downloader:{colors.RED} ffmpeg")
                 self.ffmpeg_dl()
-                return
+                return dl_path
 
             print(f"{colors.CYAN}Downloader:{colors.RED} internal")
             self.multithread_m3u8_dl()
         elif "mp4" in self.entry.stream_url:
             print(f"{colors.CYAN}Type:{colors.RED} mp4")
             self.mp4_dl(self.entry.stream_url)
+
+        return dl_path
 
     def ffmpeg_dl(self):
         Config().user_files_path.mkdir(exist_ok=True, parents=True)

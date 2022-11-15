@@ -6,6 +6,7 @@ all cli functions.
 import time
 import os
 import sys
+import subprocess as sp
 from copy import deepcopy
 
 from .mal import MAL
@@ -487,6 +488,8 @@ class menu:
                 self.search()
             elif picked == "i":
                 self.video_info()
+            elif picked == "d":
+                self.download_video()
             elif picked == "q":
                 self.quit()
             else:
@@ -545,6 +548,19 @@ class menu:
         print(f"Embed Url: {self.entry.embed_url}")
         print(f"Stream Url: {self.entry.stream_url}")
         print(f"Quality: {self.entry.quality}")
+
+    def download_video(self):
+        # TODO: Make some error for download fail
+        path = download(self.entry).download()
+        if Config().auto_open_dl_defaultcli:
+            player_command = [Config().player_path, str(path)]
+            if os.name in ("nt", "dos"):
+                sp.Popen(player_command)
+            else:
+                sp.Popen(player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
+
+        self.print_status()
+        self.print_opts()
 
     def quit(self):
         self.kill_player()
