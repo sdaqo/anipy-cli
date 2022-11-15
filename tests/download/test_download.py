@@ -30,7 +30,7 @@ def show_entry():
 @pytest.mark.veryslow
 def test_hyouka_noffmpeg(show_entry):
     shutil.rmtree(config.Config().download_folder_path / show_entry.show_name)
-    
+
     download_class = download(entry=show_entry, ffmpeg=False)
     download_class.download()
 

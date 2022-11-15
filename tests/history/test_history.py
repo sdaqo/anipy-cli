@@ -26,25 +26,26 @@ def show_entry():
 def test_hyouka(show_entry):
     """Test if it is able to write"""
     MD5 = "a789a8734272e5d3025696468822bd19"
-    
+
     history(show_entry).write_hist()
-    
+
     assert _check_md5(MD5)
 
 
 def test_hyouka_duplicate(show_entry):
     """Check if it duplicates the entry"""
     MD5 = "a789a8734272e5d3025696468822bd19"
-    
+
     history(show_entry).write_hist()
     history(show_entry).write_hist()
-    
+
     assert _check_md5(MD5)
+
 
 def test_prepend(show_entry):
     """Check if able to prepend the entry if another one already exsists"""
     MD5 = "fe772be16ced55a1618ecd16743b7f5b"
-    
+
     history(show_entry).write_hist()
 
     another_entry = entry(
@@ -58,6 +59,7 @@ def test_prepend(show_entry):
 
     assert _check_md5(MD5)
 
+
 def test_hyouka_ep_increase(show_entry):
     """Test if it is able to increease the episode without duplicating the entry"""
     MD5 = "9dcfa02f2ea475f68cfdf8c084642596"
@@ -66,11 +68,12 @@ def test_hyouka_ep_increase(show_entry):
     show_entry.ep = 2
     show_entry.ep_url = "https://gogoanime.tel/hyouka-episode-2"
     history(show_entry).write_hist()
-    
+
     assert _check_md5(MD5)
 
+
 def _check_md5(md5_sum):
-    with config.Config().history_file_path.open('rb') as fb:
+    with config.Config().history_file_path.open("rb") as fb:
         md5sum_from_file = md5(fb.read()).hexdigest()
 
     return md5_sum == md5sum_from_file

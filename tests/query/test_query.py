@@ -1,6 +1,7 @@
 import pytest
 from anipy_cli import entry, query
 
+
 @pytest.mark.slow
 def test_naruto():
     query_class = query("Naruto", entry())

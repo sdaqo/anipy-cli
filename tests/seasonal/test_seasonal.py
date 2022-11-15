@@ -44,6 +44,7 @@ def test_update_hyouka(show_details):
 
     assert _check_md5(MD5), "MD5 mismatch"
 
+
 @pytest.mark.slow
 def test_latest_eps_hyouka(show_details):
     """Check if the right latest eps are being returned"""

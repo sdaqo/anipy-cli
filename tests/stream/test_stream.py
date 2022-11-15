@@ -2,17 +2,17 @@ import pytest
 from ..util import config_clearer
 from anipy_cli import videourl, entry
 
+
 @pytest.fixture
 def show_entry():
     config_clearer.clear_and_backup()
-    
-    show_entry = entry(
-        ep_url = "https://gogoanime.tel/hyouka-episode-1"    
-    )
-        
+
+    show_entry = entry(ep_url="https://gogoanime.tel/hyouka-episode-1")
+
     yield show_entry
-    
+
     config_clearer.revert()
+
 
 @pytest.mark.slow
 def test_hyouka_extraction(show_entry):
@@ -23,5 +23,3 @@ def test_hyouka_extraction(show_entry):
     show_entry = videourl_class.get_entry()
 
     assert show_entry.stream_url, "No stream url present"
-
-

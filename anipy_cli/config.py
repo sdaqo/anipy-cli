@@ -99,13 +99,14 @@ class Config:
     @property
     def mal_local_user_list_path(self):
         return self.user_files_path / "mal_list.json"
+
     @property
     def mal_user(self):
-        return self._get_value('mal_user', '', str)
+        return self._get_value("mal_user", "", str)
 
     @property
     def mal_password(self):
-        return self._get_value('mal_password', '', str)
+        return self._get_value("mal_password", "", str)
 
     @property
     def auto_sync_mal_to_seasonals(self):
@@ -114,6 +115,7 @@ class Config:
     @property
     def auto_map_mal_to_gogo(self):
         return self._get_value("auto_map_mal_to_gogo", False, bool)
+
     @property
     def mal_status_categories(self):
         return self._get_value("mal_status_categories", list(["watching"]), list)
@@ -121,7 +123,6 @@ class Config:
     @property
     def anime_types(self):
         return self._get_value("anime_types", list(["sub"]), list)
-
 
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
@@ -144,10 +145,14 @@ class Config:
             for attribute, value in Config.__dict__.items():
                 if isinstance(value, property):
                     val = self.__getattribute__(attribute)
-                    config_options[attribute] = str(val) if isinstance(val, Path) else val
+                    config_options[attribute] = (
+                        str(val) if isinstance(val, Path) else val
+                    )
             (self._get_config_path() / "config.yaml").touch()
             with open((self._get_config_path() / "config.yaml"), "w") as file:
-                yaml.dump(yaml.dump(config_options, file, indent=4, default_flow_style=False))
+                yaml.dump(
+                    yaml.dump(config_options, file, indent=4, default_flow_style=False)
+                )
         except PermissionError:
             pass
 
@@ -165,4 +170,3 @@ class Config:
             return windows_path
         else:
             raise SysNotFoundError(platform)
-

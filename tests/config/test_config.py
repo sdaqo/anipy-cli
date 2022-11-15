@@ -35,8 +35,12 @@ def test_config_values(resource: config.Config):
         "user_files_path": PosixPath("~/anipy-cli/user_files").expanduser(),
         "gogoanime_url": "https://gogoanime.gg/",
         "ffmpeg_log_path": PosixPath("~/anipy-cli/user_files/ffmpeg_log").expanduser(),
-        "history_file_path": PosixPath("~/anipy-cli/user_files/history.json").expanduser(),
-        "seasonal_file_path": PosixPath("~/anipy-cli/user_files/seasonals.json").expanduser(),
+        "history_file_path": PosixPath(
+            "~/anipy-cli/user_files/history.json"
+        ).expanduser(),
+        "seasonal_file_path": PosixPath(
+            "~/anipy-cli/user_files/seasonals.json"
+        ).expanduser(),
         "player_path": "mpv",
         "mpv_commandline_options": ["--fs", "--cache"],
         "vlc_commandline_options": [],

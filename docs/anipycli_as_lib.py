@@ -112,7 +112,7 @@ mpv_player = anipy_cli.player.create_mpv_controllable()
 # This returns the update player and starts the video
 mpv_player = anipy_cli.player.mpv_start_stream(entry, mpv_player)
 # With this you can play several videos without closing the player
-# between them. Read more about what you can do with it here: 
+# between them. Read more about what you can do with it here:
 # https://github.com/jaseg/python-mpv
 
 """HISTORY"""

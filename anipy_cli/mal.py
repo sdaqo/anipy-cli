@@ -48,7 +48,9 @@ class MAL:
         self.api_client_id = "6114d00ca681b7701d1e15fe11a4987e"
         self.api_baseurl = "https://api.myanimelist.net/v2/"
         self.mal_user = (
-            Config().mal_user if Config().mal_user and Config().mal_user != "" else False
+            Config().mal_user
+            if Config().mal_user and Config().mal_user != ""
+            else False
         )
         self.mal_password = (
             Config().mal_password
