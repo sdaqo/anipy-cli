@@ -978,6 +978,7 @@ class MALCli:
                                             },
                                         )
                             else:
+                                print("Skipping show")
                                 skip = True
                                 done = True
                     elif links_query[0] != 0:

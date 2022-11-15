@@ -477,11 +477,13 @@ class MAL:
         return latest_urls
 
     def update_watched(self, gogo_show_name, ep):
-        show = [
-            x
-            for x in self.local_mal_list_json["data"]
-            if gogo_show_name in x["gogo_map"].iterItems()["name"]
-        ]
+        show = []
+        for mal_entry in self.local_mal_list_json["data"]:
+            if "gogo_map" in mal_entry.keys():
+                for gogomap in mal_entry["gogo_map"]:
+                    if gogo_show_name in gogomap["name"]:
+                        show.append(mal_entry)
+                        break
         if len(show) > 0:
             anime_id = show[0]["node"]["id"]
             self.update_anime_list(anime_id, {"num_watched_episodes": ep})
@@ -547,15 +549,10 @@ class MAL:
         for search in search_values:
             query_class = query(search, entry)
             query_class.get_pages()
-            found["search"] = query_class.get_links()
+            found["search"] = query_class.get_links(mute=True)
 
             if found["search"] == 0:
                 self.shows_failed_automap.add(mal_entry["node"]["title"])
-                print(
-                    "{}{}: Failed.{}".format(
-                        colors.ERROR, mal_entry["node"]["title"], colors.END
-                    )
-                )
                 continue
             if "gogo_map" not in mal_entry:
                 mal_entry["gogo_map"] = []
