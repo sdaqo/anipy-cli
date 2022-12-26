@@ -46,7 +46,6 @@ class download:
                 self.show_folder = Config().download_folder_path / f"{show_name[:-6]}"
                 print(self.show_folder)
 
-
         Config().download_folder_path.mkdir(exist_ok=True, parents=True)
         self.show_folder.mkdir(exist_ok=True)
         self.session = requests.Session()
@@ -254,7 +253,7 @@ class download:
         - Starts ThreadPoolExecutor instance
           and downloads all ts links
         - Merges ts files
-        - Delets temp folder
+        - Deletes temp folder
 
         :return:
         :rtype:
@@ -294,7 +293,13 @@ class download:
             audio_input_file = self._dump_m3u8(self.content_audio_media)
 
         print(f"\n{colors.CYAN}Parts Downloaded")
-        self.ffmpeg_merge(input_file, audio_input_file)
+        try:
+            self.ffmpeg_merge(input_file, audio_input_file)
+        except FileNotFoundError:
+            # This restarts the download if a file is missing
+            error("Missing a download part, restarting download")
+            return self.multithread_m3u8_dl()
+
         print(f"\n{colors.CYAN}Parts Merged")
         shutil.rmtree(self.temp_folder)
 
