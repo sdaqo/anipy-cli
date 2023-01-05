@@ -46,7 +46,6 @@ class Seasonal:
 
             latest_urls.update({n: {"ep_list": ep_urls, "category_url": i}})
 
-        print(latest_urls)
         return latest_urls
 
     def read_save_data(self):

@@ -101,13 +101,22 @@ class epHandler:
         from a show and return it.
         """
 
-        latest = self._load_eps_list()[-1]["ep"]
-        self.entry.latest_ep = parsenum(latest)
+        ep_list = self._load_eps_list()
 
-        return parsenum(latest)
+        if not ep_list:
+            self.entry.latest_ep = 0
+            return 0
+        else:
+            latest = ep_list[-1]["ep"]
+            self.entry.latest_ep = parsenum(latest)
+            return parsenum(latest)
 
     def get_first(self):
-        return self._load_eps_list()[0]["ep"]
+        ep_list = self._load_eps_list()
+        if not ep_list:
+            return 0
+        else:
+            return ep_list[0]["ep"]
 
     def _create_prompt(self, prompt="Episode"):
         ep_range = f" [{self.get_first()}-{self.get_latest()}]"
