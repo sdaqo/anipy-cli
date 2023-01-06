@@ -24,7 +24,11 @@ class download:
     A entry with all fields is required.
     """
 
-    def __init__(self, entry, ffmpeg=False) -> None:
+    def __init__(self, entry, quality, ffmpeg=False) -> None:
+        try:
+            self.quality = int(quality)
+        except ValueError:
+            self.quality = quality
         self.is_audio = None
         self.content_audio_media = None
         self._m3u8_content = None
@@ -320,13 +324,18 @@ class download:
 
             # sort
             content.playlists.sort(key=lambda x: x.stream_info.bandwidth, reverse=True)
+
             selected_index = 0
+            if self.quality == "worst":
+                selected_index = len(content.playlists) - 1
+
             for index, playlist in enumerate(content.playlists):
                 print(
                     f"{colors.GREEN}Playlist Index:{colors.RED} {index}\n"
                     f"{colors.GREEN}Resolution at this index:{colors.RED} {playlist.stream_info.resolution}\n\n"
                 )
-                if self.entry.quality in playlist.stream_info.resolution:
+
+                if self.quality in playlist.stream_info.resolution:
                     selected_index = index
 
             try:

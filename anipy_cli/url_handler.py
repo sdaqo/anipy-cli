@@ -398,11 +398,6 @@ class videourl:
 
             streams.append({"file": i["file"], "type": type, "quality": quality})
 
-        # if len(streams) == 1:
-        #    streams = extract_m3u8_streams(
-        #        streams[0]['file']
-        #    )
-
         filtered_q_user = list(filter(lambda x: x["quality"] == self.qual, streams))
 
         if filtered_q_user:
@@ -412,7 +407,6 @@ class videourl:
         elif self.qual == "worst":
             stream = streams[0]
         else:
-            error("quality not avalible, using default")
             stream = streams[-1]
 
         self.entry.quality = stream["quality"]

@@ -76,13 +76,15 @@ entry = url_class.get_entry()
 # Download a m3u8/mp4 link:
 # this class requires all
 # fields of entry to be filled.
+# It also requires a quality argument 
+# in the same form as anipy_cli.videourl.
 # You can also enable ffmpeg download
 # for m3u8 playlists with `ffmpeg=True`,
 # though this is not recommended, only
 # use it when internal downloader fails,
 #  also note that there is an option in
 # config.py for it.
-dl_class = anipy_cli.download(entry, ffmpeg=True)
+dl_class = anipy_cli.download(entry, quality, ffmpeg=True)
 # downloads a m3u8 or a mp4 link
 dl_class.download()
 

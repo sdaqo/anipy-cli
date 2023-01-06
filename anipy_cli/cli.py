@@ -131,7 +131,7 @@ def download_cli(quality, ffmpeg, no_kitsu):
             url_class = videourl(show_entry, quality)
             url_class.stream_url()
             show_entry = url_class.get_entry()
-            download(show_entry, ffmpeg).download()
+            download(show_entry, quality, ffmpeg).download()
 
 
 def history_cli(quality, player):
@@ -357,7 +357,7 @@ class seasonalCli:
                 url_class = videourl(show_entry, self.quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
-                download(show_entry, self.ffmpeg).download()
+                download(show_entry, self.quality, self.ffmpeg).download()
 
         if not self.auto:
             clear_console()
@@ -535,8 +535,7 @@ class menu:
         print(f"Quality: {self.entry.quality}")
 
     def download_video(self):
-        # TODO: Make some error for download fail
-        path = download(self.entry).download()
+        path = download(self.entry, quality).download()
         if Config().auto_open_dl_defaultcli:
             player_command = [Config().player_path, str(path)]
             if os.name in ("nt", "dos"):
