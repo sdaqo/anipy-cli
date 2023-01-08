@@ -77,7 +77,7 @@ class history:
 
         try:
             with Config().history_file_path.open("w") as f:
-                json.dump(self.json, f)
+                json.dump(self.json, f, indent=4)
         except PermissionError:
             error("Unable to write to history file due permissions.")
             sys.exit()
