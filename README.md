@@ -53,7 +53,7 @@ Places of the config:
 
 # Usage  
 ```
-usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-D] [-d] [-B] [-S] [-f] [-c] [-o] [-a] [-s] [-v]
+usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-d] [-D] [-B] [-S] [-f] [-c] [-o] [-a] [-s] [-v]
 
 Play Animes from gogoanime in local video-player or Download them.
 
@@ -62,8 +62,8 @@ options:
   -q QUALITY, --quality QUALITY
                         Change the quality of the video, accepts: best, worst or 360, 480, 720 etc. Default: best
   -H, --history         Show your history of watched anime
-  -D, --download        Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)
-  -d, --delete-history  Delete your History.
+  -d, --download        Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)
+  -D, --delete-history  Delete your History.
   -B, --binge           Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)
   -S, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
   -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
