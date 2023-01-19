@@ -8,6 +8,7 @@ import os
 import sys
 import subprocess as sp
 from copy import deepcopy
+from pathlib import Path
 
 from kitsu_extended import Anime
 
@@ -72,17 +73,20 @@ def default_cli(quality, player):
     menu(show_entry, options, sub_proc, quality, player, mpv).print_and_input()
 
 
-def download_cli(quality, ffmpeg, no_kitsu):
+def download_cli(quality, ffmpeg, no_kitsu, path):
     """
     Cli function for the
     -d flag.
     """
+    if path is None:
+        path = Config().download_folder_path
+
     print(colors.GREEN + "***Download Mode***" + colors.END)
     print(
         colors.GREEN
         + "Downloads are stored in: "
         + colors.END
-        + str(Config().download_folder_path)
+        + str(path)
     )
 
     show_entry = entry()
@@ -228,8 +232,8 @@ def binge_cli(quality, player):
     binge(ep_list, quality, player)
 
 
-def seasonal_cli(quality, no_kitsu, ffmpeg, auto_update, player):
-    s = seasonalCli(quality, no_kitsu, player, ffmpeg, auto_update)
+def seasonal_cli(quality, no_kitsu, ffmpeg, auto_update, player, path):
+    s = seasonalCli(quality, no_kitsu, player, ffmpeg, auto_update, path)
 
     if auto_update:
         s.download_latest()
@@ -240,7 +244,7 @@ def seasonal_cli(quality, no_kitsu, ffmpeg, auto_update, player):
 
 
 class seasonalCli:
-    def __init__(self, quality, no_kitsu, player, ffmpeg=False, auto=False):
+    def __init__(self, quality, no_kitsu, player, ffmpeg=False, auto=False, path=None):
         self.entry = entry()
         self.quality = quality
         self.no_kitsu = no_kitsu
@@ -248,6 +252,9 @@ class seasonalCli:
         self.ffmpeg = ffmpeg
         self.auto = auto
         self.player = player
+        self.path = path
+        if path is None:
+            self.path = Config().seasonals_dl_path
 
     def print_opts(self):
         for i in seasonal_options:
@@ -357,7 +364,7 @@ class seasonalCli:
                 url_class = videourl(show_entry, self.quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
-                download(show_entry, self.quality, self.ffmpeg).download()
+                download(show_entry, self.quality, self.ffmpeg, self.path).download()
 
         if not self.auto:
             clear_console()
@@ -663,10 +670,14 @@ def get_searches_from_kitsu():
 
 
 def main():
-
     args = parse_args()
 
     player = None
+
+    location = args.location
+    if args.location is not None:
+        location = Path(args.location)
+        
 
     if args.syncplay:
         player = "syncplay"
@@ -682,16 +693,16 @@ def main():
             error("no history file found")
 
     elif args.download:
-        download_cli(args.quality, args.ffmpeg, args.no_kitsu)
+        download_cli(args.quality, args.ffmpeg, args.no_kitsu, location)
 
     elif args.binge:
         binge_cli(args.quality, player)
 
     elif args.seasonal:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player)
+        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location)
 
     elif args.auto_update:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player)
+        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location)
 
     elif args.history:
         history_cli(args.quality, player)

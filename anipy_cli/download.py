@@ -24,7 +24,7 @@ class download:
     A entry with all fields is required.
     """
 
-    def __init__(self, entry, quality, ffmpeg=False) -> None:
+    def __init__(self, entry, quality, ffmpeg=False, dl_path: Path=None) -> None:
         try:
             self.quality = int(quality)
         except ValueError:
@@ -35,6 +35,9 @@ class download:
         self.session = None
         self.entry = entry
         self.ffmpeg = ffmpeg
+        self.dl_path = dl_path
+        if dl_path is None:
+            self.dl_path = Config().download_folder_path
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
             "referer": self.entry.embed_url,
@@ -43,14 +46,14 @@ class download:
     def download(self):
         show_name = self._get_valid_pathname(self.entry.show_name)
         show_name.strip()
-        self.show_folder = Config().download_folder_path / f"{show_name}"
+        self.show_folder = self.dl_path / f"{show_name}"
 
         if Config().download_remove_dub_from_folder_name:
             if show_name.endswith(" (Dub)"):
-                self.show_folder = Config().download_folder_path / f"{show_name[:-6]}"
+                self.show_folder = self.dl_path / f"{show_name[:-6]}"
                 print(self.show_folder)
 
-        Config().download_folder_path.mkdir(exist_ok=True, parents=True)
+        self.dl_path.mkdir(exist_ok=True, parents=True)
         self.show_folder.mkdir(exist_ok=True)
         self.session = requests.Session()
         retry = Retry(connect=3, backoff_factor=0.5)

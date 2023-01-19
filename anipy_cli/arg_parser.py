@@ -108,4 +108,13 @@ def parse_args():
         help="Use VLC instead of mpv as video-player",
     )
 
+    parser.add_argument(
+        "-l",
+        "--location",
+        required=False,
+        dest="location",
+        action="store",
+        help="Override all configured download locations"
+    )
+
     return parser.parse_args()
