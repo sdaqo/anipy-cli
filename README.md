@@ -53,7 +53,7 @@ Places of the config:
 
 # Usage  
 ```
-usage: anipy_cli.py [-h] [-q QUALITY] [-H] [-d] [-D] [-B] [-S] [-f] [-c] [-o] [-a] [-s] [-v]
+usage: anipy-cli [-h] [-q QUALITY] [-H] [-d] [-D] [-B] [-S] [-f] [-c] [-o] [-a] [-s] [-v] [-l LOCATION]
 
 Play Animes from gogoanime in local video-player or Download them.
 
@@ -72,6 +72,8 @@ options:
   -a, --auto-update     Automatically update and download all Anime in seasonals list from start EP to newest.
   -s, --syncplay        Use Syncplay to watch Anime with your Friends.
   -v, --vlc             Use VLC instead of mpv as video-player
+  -l LOCATION, --location LOCATION
+                        Override all configured download locations
 ```
 # What it can do
 
