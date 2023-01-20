@@ -542,7 +542,7 @@ class menu:
         print(f"Quality: {self.entry.quality}")
 
     def download_video(self):
-        path = download(self.entry, quality).download()
+        path = download(self.entry, self.quality).download()
         if Config().auto_open_dl_defaultcli:
             player_command = [Config().player_path, str(path)]
             if os.name in ("nt", "dos"):
