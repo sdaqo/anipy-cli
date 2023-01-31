@@ -47,6 +47,8 @@ Places of the config:
 
 [Sample Config](https://github.com/sdaqo/anipy-cli/blob/master/docs/sample_config.yaml)
 
+**Attention Windows Users:** If you activate the option `reuse_mpv_window`, you will have to donwload and put the `mpv-2.dll` in your path. To get it go look here: https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
+
 # Usage
 
 ```
