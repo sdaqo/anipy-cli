@@ -37,7 +37,7 @@ class entry:
     """
     This is the class that saves
     metadata about a show. It is required
-    by all classes, it is a essential
+    by all classes, it is an essential
     part of this script.
     """
 
@@ -65,14 +65,14 @@ def error(error: str) -> None:
 
 def response_err(req, link) -> None:
     """
-    Function that checks if a requsted
+    Function that checks if a request
     was succesfull.
     """
     if req.ok:
         pass
     else:
         error(
-            f"requsted url not avalible/blocked: {link}: response-code: {req.status_code}"
+            f"requsted url not available/blocked: {link}: response-code: {req.status_code}"
         )
         sys.exit()
 
@@ -80,7 +80,7 @@ def response_err(req, link) -> None:
 def loc_err(soup, link: str, element: str) -> None:
     """
     Function that checks if beautifulsoup
-    could locate a element.
+    could locate an element.
     """
     if soup == None:
         error(f"could not locate {element}: {link}")
@@ -88,7 +88,7 @@ def loc_err(soup, link: str, element: str) -> None:
 
 
 def keyboard_inter() -> None:
-    print(colors.ERROR + "\nanipy-cli: error: interrupted")
+    print(colors.ERROR + "\nanipy-cli: error: interrupted" + colors.END)
     sys.exit()
 
 
@@ -135,7 +135,7 @@ def read_json(path):
 def print_names(names):
     """
     Cli function that takes a
-    list oof names and prints
+    list of names and prints
     them to the terminal.
     """
     for number, value in enumerate(names, 1):
