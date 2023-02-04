@@ -413,10 +413,10 @@ class seasonalCli:
 class menu:
     """
     This is mainly a class for the cli
-    interface, it should have a entry,
+    interface, it should have an entry,
     with all fields filled. It also accepts
     a list of options that will be printed
-    this is just a thing for flexebilyti.
+    this is just a thing for flexibility.
     A sub_proc is also required this one is
     a subprocess instance returned by misc.start_player().
     """
@@ -535,7 +535,7 @@ class menu:
     def video_info(self):
         print(f"Show Name: {self.entry.show_name}")
         print(f"Category Url: {self.entry.category_url}")
-        print(f"Epiode Url: {self.entry.ep_url}")
+        print(f"Episode Url: {self.entry.ep_url}")
         print(f"Episode: {self.entry.ep}")
         print(f"Embed Url: {self.entry.embed_url}")
         print(f"Stream Url: {self.entry.stream_url}")

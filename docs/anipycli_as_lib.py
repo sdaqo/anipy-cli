@@ -1,10 +1,10 @@
 """
 Examples to use 
 anipy-cli as libary.
-More discriptons can be 
+More descriptions can be 
 found by the functions/classes itself.
 """
-# Dont  run this file, it wont work it is only for demonstration purposes
+# Don't run this file, it wont work, it is only for demonstration purposes
 
 import anipy_cli
 
@@ -28,7 +28,7 @@ entry = anipy_cli.entry()
 """QUERY"""
 
 # Get results from a query, it takes
-# a search parameter and a empty entry.
+# a search parameter and an empty entry.
 query_class = anipy_cli.query("naruto", entry)
 # query.get_links() returns a tuple with a
 # list of links and names: (self.links, self.names)
@@ -49,11 +49,11 @@ print(links_and_names[1])  # prints names
 ep_class = anipy_cli.epHandler(entry)
 # get latest episode
 latest_ep = ep_class.get_latest()
-# generate ep link, returns a entry
+# generate ep link, returns an entry
 entry = ep_class.gen_eplink()
-# get next episode, returns a entry
+# get next episode, returns an entry
 next_ep = ep_class.next_ep()
-# get prev episode, returns a entry
+# get prev episode, returns an entry
 prev_ep = ep_class.prev_ep()
 # get your entry back
 entry = ep_class.get_entry()
@@ -64,9 +64,9 @@ entry = ep_class.get_entry()
 # done with the videourl class, it takes an entry
 # that has to at least have ep_url filled.
 # It also takes a quality argument which can have
-# the standart qualitys (1080, 720 etc.) or worst/best as value.
+# the standart qualities (1080, 720 etc.) or worst/best as value.
 url_class = anipy_cli.videourl(entry, "best")
-# generate stream url (this also, automaticlly generates the embed url)
+# generate stream url (this also, automatically generates the embed url)
 url_class.stream_url()
 # get your entry back filled with stream and embed url fields
 entry = url_class.get_entry()
@@ -82,21 +82,21 @@ entry = url_class.get_entry()
 # for m3u8 playlists with `ffmpeg=True`,
 # though this is not recommended, only
 # use it when internal downloader fails,
-#  also note that there is an option in
+# also note that there is an option in
 # config.py for it.
-dl_class = anipy_cli.download(entry, quality, ffmpeg=True)
+dl_class = anipy_cli.download(entry, "worst", ffmpeg=True)
 # downloads a m3u8 or a mp4 link
 dl_class.download()
 
 """PLAYER"""
 
 # Starting a player is done with start_player().
-# A entry with all fields is required.
+# An entry with all fields is required.
 # It returns a subprocess instance.
 # For example you can kill the player with it:
 # sub_proc.kill()
-# It takes a option "player", which accepts mpv, vlc
-# and syncplay if empty it defaults to the one specified
+# It takes an option "player", which accepts mpv, vlc
+# and syncplay. if empty it defaults to the one specified
 # in the config.
 sub_process = anipy_cli.player.start_player(entry, player="mpv")
 # kill the player:
@@ -104,7 +104,7 @@ sub_process.kill()
 # see if the player is still open
 if sub_process.poll() is None:
     print("player is running")
-# This function also automaticlly writes
+# This function also automatically writes
 # to the history file after the player is opened.
 
 # You can also use a controllable mpv client like so:
