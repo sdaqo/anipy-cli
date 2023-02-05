@@ -1,3 +1,6 @@
+import sys
+
+
 class colors:
     """
     Just a class for colors
@@ -12,9 +15,18 @@ class colors:
     RED = "\u001b[31m"
     END = "\x1b[0m"
 
-def color(*colors_texts) -> str:
+
+def color(*values, sep="") -> str:
     """Decorate a string with color codes.
+    Basically just ensures that the color doesn't "leak"
+    from the text.
     format: color(color1, text1, color2, text2...)"""
-    if colors_texts and len(colors_texts) % 2 == 0:
-        return "".join(colors_texts) + colors.END
-    return ''
+    return sep.join(values) + colors.END
+
+def cinput(prompt='', input_color="") -> None:
+    inp = input(prompt + input_color)
+    print(colors.END, end="")
+    return inp
+
+def cprint(*values, sep="", **kwargs):
+    print(color(*values, sep=sep), **kwargs)

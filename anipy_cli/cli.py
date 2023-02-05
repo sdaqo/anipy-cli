@@ -32,7 +32,7 @@ from .player import (
 )
 from .query import query
 from .arg_parser import parse_args
-from .colors import colors, color
+from .colors import colors, color, cinput
 from .download import download
 from .anime_info import AnimeInfo
 from .config import Config
@@ -171,7 +171,7 @@ def history_cli(quality, player):
         )
 
     while True:
-        inp = input("Enter Number: " + colors.CYAN)
+        inp = cinput("Enter Number: ", colors.CYAN)
         try:
             if int(inp) <= 0:
                 error("invalid input")
@@ -263,7 +263,7 @@ class seasonalCli:
 
     def take_input(self):
         while True:
-            picked = input(colors.END + "Enter option: ")
+            picked = input("Enter option: ")
             if picked == "a":
                 self.add_anime()
             elif picked == "e":
@@ -321,7 +321,7 @@ class seasonalCli:
         seasonals = [x[0] for x in seasonals]
         print_names(seasonals)
         while True:
-            inp = input("Enter Number: " + colors.CYAN)
+            inp = cinput("Enter Number: ", colors.CYAN)
             try:
                 picked = seasonals[int(inp) - 1]
                 break
@@ -439,9 +439,9 @@ class menu:
         print(
             color(
                 colors.GREEN,
-                f"Playing: {self.entry.show_name} {self.entry.quality} | "
-                ,colors.RED
-                ,f"{self.entry.ep}/{self.entry.latest_ep}"
+                f"Playing: {self.entry.show_name} {self.entry.quality} | ",
+                colors.RED,
+                f"{self.entry.ep}/{self.entry.latest_ep}"
             )
         )
 

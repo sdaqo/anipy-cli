@@ -3,7 +3,7 @@ import re
 from bs4 import BeautifulSoup
 
 from .misc import loc_err, response_err, error, print_names
-from .colors import colors
+from .colors import colors, cinput
 from .config import Config
 
 base_url = Config().gogoanime_url
@@ -71,7 +71,7 @@ class query:
         """
         print_names(self.names)
         while True:
-            inp = input("Enter Number: " + colors.CYAN)
+            inp = cinput("Enter Number: ", colors.CYAN)
             try:
                 self.entry.category_url = base_url + self.links[int(inp) - 1]
                 self.entry.show_name = self.names[int(inp) - 1]
