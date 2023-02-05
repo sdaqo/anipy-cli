@@ -11,3 +11,10 @@ class colors:
     CYAN = "\u001b[36m"
     RED = "\u001b[31m"
     END = "\x1b[0m"
+
+def color(*colors_texts) -> str:
+    """Decorate a string with color codes.
+    format: color(color1, text1, color2, text2...)"""
+    if colors_texts and len(colors_texts) % 2 == 0:
+        return "".join(colors_texts) + colors.END
+    return ''

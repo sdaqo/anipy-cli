@@ -32,7 +32,7 @@ from .player import (
 )
 from .query import query
 from .arg_parser import parse_args
-from .colors import colors
+from .colors import colors, color
 from .download import download
 from .anime_info import AnimeInfo
 from .config import Config
@@ -81,11 +81,9 @@ def download_cli(quality, ffmpeg, no_kitsu, path):
     if path is None:
         path = Config().download_folder_path
 
-    print(colors.GREEN + "***Download Mode***" + colors.END)
+    print(color(colors.GREEN, "***Download Mode***"))
     print(
-        colors.GREEN
-        + "Downloads are stored in: "
-        + colors.END
+        color(colors.GREEN, "Downloads are stored in: ")
         + str(path)
     )
 
@@ -160,13 +158,16 @@ def history_cli(quality, player):
         if num % 2:
             col = colors.YELLOW
         print(
-            colors.GREEN
-            + f"[{num}]"
-            + colors.RED
-            + f" EP: {ep}"
-            + colors.END
-            + f" |{col} {val}"
-            + colors.END
+            color(
+                colors.GREEN,
+                f"[{num}]",
+                colors.RED,
+                 f" EP: {ep}",
+                colors.END,
+                " | ",
+                 col,
+                 val
+            )
         )
 
     while True:
@@ -201,7 +202,7 @@ def binge_cli(quality, player):
     Cli function for the
     -b flag.
     """
-    print(colors.GREEN + "***Binge Mode***" + colors.END)
+    print(color(colors.GREEN, "***Binge Mode***"))
 
     show_entry = entry()
     query_class = query(input("Search: "), show_entry)
@@ -436,10 +437,12 @@ class menu:
     def print_status(self):
         clear_console()
         print(
-            colors.GREEN
-            + f"Playing: {self.entry.show_name} {self.entry.quality} | "
-            + colors.RED
-            + f"{self.entry.ep}/{self.entry.latest_ep}"
+            color(
+                colors.GREEN,
+                f"Playing: {self.entry.show_name} {self.entry.quality} | "
+                ,colors.RED
+                ,f"{self.entry.ep}/{self.entry.latest_ep}"
+            )
         )
 
     def print_and_input(self):
@@ -565,7 +568,7 @@ def binge(ep_list, quality, player):
     Accepts ep_list like so:
         {"name" {'ep_urls': [], 'eps': [], 'category_url': }, "next_anime"...}
     """
-    print(f"{colors.RED}To quit press CTRL+C")
+    print(color(colors.RED, "To quit press CTRL+C"))
     try:
         for i in ep_list:
             show_entry = entry()
@@ -578,20 +581,20 @@ def binge(ep_list, quality, player):
                 show_entry.embed_url = ""
                 show_entry.ep_url = url
                 print(
-                    f"""{
-                        colors.GREEN
-                    }Fetching links for: {
-                        colors.END
-                    }{
-                        show_entry.show_name
-                    }{
-                        colors.RED
-                    } | EP: {
+                    color(
+                        colors.GREEN,
+                        "Fetching links for: ",
+                        colors.END,
+                        show_entry.show_name,
+                        colors.RED,
+                        f""" | EP: {
                         show_entry.ep
-                    }/{
+                        }/{
                         show_entry.latest_ep
-                    }"""
+                        }"""
+                    )
                 )
+
                 url_class = videourl(show_entry, quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
@@ -688,7 +691,7 @@ def main():
     if args.delete:
         try:
             Config().history_file_path.unlink()
-            print(colors.RED + "Done")
+            print(color(colors.RED, "Done"))
         except FileNotFoundError:
             error("no history file found")
 
