@@ -8,7 +8,7 @@ from pypresence.exceptions import DiscordNotFound
 
 from .history import history
 from .misc import get_anime_info, error
-from .colors import colors, color
+from .colors import colors, cprint
 from .config import Config
 
 
@@ -64,7 +64,7 @@ def start_player(entry, rpc_client=None, player=None):
         else:
             sub_proc = sp.Popen(player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
     except FileNotFoundError as e:
-        print(color(colors.RED, "Error:" + e))
+        cprint(colors.RED, "Error:" + e)
         sys.exit()
 
     hist_class = history(entry)
@@ -111,13 +111,11 @@ def dc_presence_connect():
     try:
         rpc_client = Presence(CLIENT_ID)
         rpc_client.connect()
-        print(color(colors.GREEN, "Initialized Discord Presence Client"))
+        cprint(colors.GREEN, "Initialized Discord Presence Client")
     except DiscordNotFound:
-        print(
-            color(
-                colors.RED,
-                "Discord is not opened, can't initialize Discord Presence"
-            )
+        cprint(
+            colors.RED,
+            "Discord is not opened, can't initialize Discord Presence"
         )
 
     return rpc_client

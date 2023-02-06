@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Union
 
 from .config import Config
-from .colors import colors, color
+from .colors import colors, color, cprint
 
 options = [
     color(colors.GREEN, "[n] ") + "Next Episode",
@@ -88,7 +88,7 @@ def loc_err(soup, link: str, element: str) -> None:
 
 
 def keyboard_inter() -> None:
-    print(color(colors.ERROR, "\nanipy-cli: error: interrupted"))
+    cprint(colors.ERROR, "\nanipy-cli: error: interrupted")
     sys.exit()
 
 
@@ -139,12 +139,12 @@ def print_names(names):
     them to the terminal.
     """
     for number, value in enumerate(names, 1):
-        value_color = ""
+        value_color = colors.END
         if number % 2 == 0:
             value_color = colors.YELLOW
 
-        print(
-            color(colors.GREEN, f"[{number}]", value_color, value)
+        cprint(
+            colors.GREEN, f"[{number}] ", value_color, value
         )
 
 

@@ -80,7 +80,7 @@ class epHandler:
         filtered = list(filter(lambda x: x["ep"] == str(self.entry.ep), ep_list))
 
         if not filtered:
-            error(f"Episode {self.entry.ep} does not exsist.")
+            error(f"Episode {self.entry.ep} does not exist.")
             sys.exit()
 
         self.entry.ep_url = filtered[0]["link"]

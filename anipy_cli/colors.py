@@ -1,6 +1,3 @@
-import sys
-
-
 class colors:
     """
     Just a class for colors
@@ -16,17 +13,21 @@ class colors:
     END = "\x1b[0m"
 
 
-def color(*values, sep="") -> str:
+def color(*values: str, sep: str = "") -> str:
     """Decorate a string with color codes.
     Basically just ensures that the color doesn't "leak"
     from the text.
     format: color(color1, text1, color2, text2...)"""
     return sep.join(values) + colors.END
 
-def cinput(prompt='', input_color="") -> None:
-    inp = input(prompt + input_color)
+
+def cinput(*prompt: str, input_color: str = "") -> None:
+    """An input function that handles coloring input."""
+    inp = input(color(*prompt) + input_color)
     print(colors.END, end="")
     return inp
 
-def cprint(*values, sep="", **kwargs):
+
+def cprint(*values: str, sep: str = "", **kwargs) -> None:
+    """Prints colored text."""
     print(color(*values, sep=sep), **kwargs)
