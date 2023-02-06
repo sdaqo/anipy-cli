@@ -35,8 +35,12 @@ def test_config_values(resource: config.Config):
         "user_files_path": PosixPath("~/anipy-cli/user_files").expanduser(),
         "gogoanime_url": "https://gogoanime.gg/",
         "ffmpeg_log_path": PosixPath("~/anipy-cli/user_files/ffmpeg_log").expanduser(),
-        "history_file_path": PosixPath("~/anipy-cli/user_files/history.json").expanduser(),
-        "seasonal_file_path": PosixPath("~/anipy-cli/user_files/seasonals.json").expanduser(),
+        "history_file_path": PosixPath(
+            "~/anipy-cli/user_files/history.json"
+        ).expanduser(),
+        "seasonal_file_path": PosixPath(
+            "~/anipy-cli/user_files/seasonals.json"
+        ).expanduser(),
         "player_path": "mpv",
         "mpv_commandline_options": ["--fs", "--cache"],
         "vlc_commandline_options": [],
@@ -45,7 +49,7 @@ def test_config_values(resource: config.Config):
         "download_name_format": "{show_name} - {episode_number} - {quality}.mp4",
         "download_remove_dub_from_folder_name": True,
         "dc_presence": False,
-        "auto_open_dl_defaultcli": False
+        "auto_open_dl_defaultcli": False,
     }
 
     for prop in dir(resource):

@@ -33,10 +33,10 @@ def start_player(entry, rpc_client=None, player=None):
         player_command = [
             f"{player}",
             f"{entry.stream_url}",
-             "--" if player == "syncplay" else "",
+            "--" if player == "syncplay" else "",
             f"--force-media-title={media_title}",
             f"--referrer={entry.embed_url}",
-             "--force-window=immediate",
+            "--force-window=immediate",
         ]
 
         for x in Config().mpv_commandline_options:
@@ -76,16 +76,19 @@ def start_player(entry, rpc_client=None, player=None):
 
     return sub_proc
 
+
 def create_mpv_controllable():
     import mpv
+
     player = mpv.MPV(
         input_default_bindings=True,
         input_vo_keyboard=True,
         force_window="immediate",
-        osc=True
+        osc=True,
     )
 
     return player
+
 
 def mpv_start_stream(entry, player, rpc_client=None):
     media_title = (
@@ -105,6 +108,7 @@ def mpv_start_stream(entry, player, rpc_client=None):
 
     return player
 
+
 def dc_presence_connect():
     CLIENT_ID = 966365883691855942
     rpc_client = None
@@ -113,10 +117,7 @@ def dc_presence_connect():
         rpc_client.connect()
         cprint(colors.GREEN, "Initialized Discord Presence Client")
     except DiscordNotFound:
-        cprint(
-            colors.RED,
-            "Discord is not opened, can't initialize Discord Presence"
-        )
+        cprint(colors.RED, "Discord is not opened, can't initialize Discord Presence")
 
     return rpc_client
 
@@ -133,4 +134,4 @@ def dc_presence(media_title, category_url, rpc_client):
 
 
 # backwards-compatibility
-#mpv = start_player
+# mpv = start_player

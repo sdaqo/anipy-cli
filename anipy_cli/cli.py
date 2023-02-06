@@ -82,10 +82,7 @@ def download_cli(quality, ffmpeg, no_kitsu, path):
         path = Config().download_folder_path
 
     cprint(colors.GREEN, "***Download Mode***")
-    cprint(
-        colors.GREEN, "Downloads are stored in: ",
-        colors.END, str(path)
-    )
+    cprint(colors.GREEN, "Downloads are stored in: ", colors.END, str(path))
 
     show_entry = entry()
     searches = []
@@ -161,11 +158,11 @@ def history_cli(quality, player):
             colors.GREEN,
             f"[{num}]",
             colors.RED,
-                f" EP: {ep}",
+            f" EP: {ep}",
             colors.END,
             " | ",
-                col,
-                val
+            col,
+            val,
         )
 
     while True:
@@ -438,7 +435,7 @@ class menu:
             colors.GREEN,
             f"Playing: {self.entry.show_name} {self.entry.quality} | ",
             colors.RED,
-            f"{self.entry.ep}/{self.entry.latest_ep}"
+            f"{self.entry.ep}/{self.entry.latest_ep}",
         )
 
     def print_and_input(self):
@@ -586,7 +583,7 @@ def binge(ep_list, quality, player):
                     show_entry.ep
                     }/{
                     show_entry.latest_ep
-                    }"""
+                    }""",
                 )
 
                 url_class = videourl(show_entry, quality)
@@ -674,7 +671,6 @@ def main():
     location = args.location
     if args.location is not None:
         location = Path(args.location)
-        
 
     if args.syncplay:
         player = "syncplay"
@@ -696,10 +692,14 @@ def main():
         binge_cli(args.quality, player)
 
     elif args.seasonal:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location)
+        seasonal_cli(
+            args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location
+        )
 
     elif args.auto_update:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location)
+        seasonal_cli(
+            args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location
+        )
 
     elif args.history:
         history_cli(args.quality, player)

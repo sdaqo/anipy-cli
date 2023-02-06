@@ -28,7 +28,7 @@ setup(
         "tqdm",
         "moviepy",
         "pyyaml",
-        "python-mpv"
+        "python-mpv",
     ],
     entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )

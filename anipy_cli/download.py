@@ -24,7 +24,7 @@ class download:
     A entry with all fields is required.
     """
 
-    def __init__(self, entry, quality, ffmpeg=False, dl_path: Path=None) -> None:
+    def __init__(self, entry, quality, ffmpeg=False, dl_path: Path = None) -> None:
         try:
             self.quality = int(quality)
         except ValueError:
@@ -68,13 +68,19 @@ class download:
         if dl_path.is_file():
             print("-" * 20)
             cprint(
-                colors.GREEN, 'Skipping Already Existing: ', colors.RED , f"{self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality}"
+                colors.GREEN,
+                "Skipping Already Existing: ",
+                colors.RED,
+                f"{self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality}",
             )
             return dl_path
 
         print("-" * 20)
         cprint(
-            colors.CYAN, "Downloading: " ,colors.RED, f"{self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality}"
+            colors.CYAN,
+            "Downloading: ",
+            colors.RED,
+            f"{self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality}",
         )
 
         if "m3u8" in self.entry.stream_url:
@@ -229,8 +235,9 @@ class download:
         headers = self.headers
         retry_count = 0
         while not Path(filename).is_file() and retry_count < 20:
-            print(
-                color(colors.CYAN, f"Downloading {audio_suffix} Part: {self.counter}/{self.segment_count}"),
+            cprint(
+                colors.CYAN,
+                f"Downloading {audio_suffix} Part: {self.counter}/{self.segment_count}",
                 end="",
             )
             print("\r", end="")
@@ -334,8 +341,16 @@ class download:
 
             for index, playlist in enumerate(content.playlists):
                 cprint(
-                    colors.GREEN, "Playlist Index: ", colors.RED , index, "\n",
-                    colors.GREEN, "Resolution at this index: ", colors.RED, playlist.stream_info.resolution, "\n\n"
+                    colors.GREEN,
+                    "Playlist Index: ",
+                    colors.RED,
+                    index,
+                    "\n",
+                    colors.GREEN,
+                    "Resolution at this index: ",
+                    colors.RED,
+                    playlist.stream_info.resolution,
+                    "\n\n",
                 )
 
                 if self.quality in playlist.stream_info.resolution:
@@ -357,7 +372,10 @@ class download:
                         media_uri, timeout, headers, True
                     )
                 cprint(
-                    colors.GREEN, "Quality for Download:", colors.YELLOW, content.playlists[selected_index].stream_info.resolution
+                    colors.GREEN,
+                    "Quality for Download:",
+                    colors.YELLOW,
+                    content.playlists[selected_index].stream_info.resolution,
                 )
                 return self._download_m3u8(chosen_uri, timeout, headers)
 

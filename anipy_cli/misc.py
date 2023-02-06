@@ -143,9 +143,7 @@ def print_names(names):
         if number % 2 == 0:
             value_color = colors.YELLOW
 
-        cprint(
-            colors.GREEN, f"[{number}] ", value_color, value
-        )
+        cprint(colors.GREEN, f"[{number}] ", value_color, value)
 
 
 def get_anime_info(category_url: str) -> dict:
