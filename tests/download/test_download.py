@@ -32,7 +32,7 @@ def test_hyouka_noffmpeg(show_entry):
     shutil.rmtree(
         config.Config().download_folder_path / show_entry.show_name, ignore_errors=True
     )
-    
+
     download_class = download(entry=show_entry, quality="max", ffmpeg=False)
     download_class.download()
 

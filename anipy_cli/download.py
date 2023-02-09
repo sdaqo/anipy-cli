@@ -14,7 +14,7 @@ from better_ffmpeg_progress import FfmpegProcess
 from moviepy.editor import ffmpeg_tools
 
 from .misc import response_err, error, keyboard_inter
-from .colors import colors
+from .colors import colors, color, cprint
 from .config import Config
 
 
@@ -24,7 +24,7 @@ class download:
     A entry with all fields is required.
     """
 
-    def __init__(self, entry, quality, ffmpeg=False, dl_path: Path=None) -> None:
+    def __init__(self, entry, quality, ffmpeg=False, dl_path: Path = None) -> None:
         try:
             self.quality = int(quality)
         except ValueError:
@@ -67,27 +67,33 @@ class download:
 
         if dl_path.is_file():
             print("-" * 20)
-            print(
-                f"{colors.GREEN}Skipping Already Existing:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}"
+            cprint(
+                colors.GREEN,
+                "Skipping Already Existing: ",
+                colors.RED,
+                f"{self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality}",
             )
             return dl_path
 
         print("-" * 20)
-        print(
-            f"{colors.CYAN}Downloading:{colors.RED} {self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality} {colors.END}"
+        cprint(
+            colors.CYAN,
+            "Downloading: ",
+            colors.RED,
+            f"{self.entry.show_name} EP: {self.entry.ep} - {self.entry.quality}",
         )
 
         if "m3u8" in self.entry.stream_url:
-            print(f"{colors.CYAN}Type:{colors.RED} m3u8")
+            cprint(colors.CYAN, "Type: ", colors.RED, "m3u8")
             if self.ffmpeg or Config().ffmpeg_hls:
-                print(f"{colors.CYAN}Downloader:{colors.RED} ffmpeg")
+                cprint(colors.CYAN, "Downloader: ", colors.RED, "ffmpeg")
                 self.ffmpeg_dl()
                 return dl_path
 
-            print(f"{colors.CYAN}Downloader:{colors.RED} internal")
+            cprint(colors.CYAN, "Downloader:", colors.RED, "internal")
             self.multithread_m3u8_dl()
         elif "mp4" in self.entry.stream_url:
-            print(f"{colors.CYAN}Type:{colors.RED} mp4")
+            cprint(colors.CYAN, "Type: ", colors.RED, "mp4")
             self.mp4_dl(self.entry.stream_url)
 
         return dl_path
@@ -124,7 +130,7 @@ class download:
                     Config().ffmpeg_log_path / fname.replace("mp4", "log")
                 )
             )
-            print(f"{colors.CYAN}Download finished.")
+            cprint(colors.CYAN, "Download finished.")
         except KeyboardInterrupt:
             error("interrupted deleting partially downloaded file")
             fname.unlink()
@@ -143,7 +149,7 @@ class download:
             merged_audio_ts = self.merge_ts_files(audio_input_file, "_audio")
 
         try:
-            print(f"{colors.CYAN}Merging Parts using Movie.py...")
+            cprint(colors.CYAN, "Merging Parts using Movie.py...")
             if audio_input_file:
                 ffmpeg_tools.ffmpeg_merge_video_audio(
                     merged_video_ts,
@@ -165,7 +171,7 @@ class download:
                     logger="bar",
                 )
 
-            print(f"{colors.CYAN}Merge finished.")
+            cprint(colors.CYAN, "Merge finished.")
         except KeyboardInterrupt:
             error("interrupted deleting partially downloaded file")
             fname.unlink()
@@ -213,7 +219,7 @@ class download:
             error("interrupted deleting partially downloaded file")
             fname.unlink()
 
-        print(f"{colors.CYAN}Download finished.")
+        cprint(colors.CYAN, "Download finished.")
 
     def download_ts(self, m3u8_segments, retry=0):
         self.counter += 1
@@ -229,8 +235,9 @@ class download:
         headers = self.headers
         retry_count = 0
         while not Path(filename).is_file() and retry_count < 20:
-            print(
-                f"{colors.CYAN}Downloading {audio_suffix} Part: {self.counter}/{self.segment_count}",
+            cprint(
+                colors.CYAN,
+                f"Downloading {audio_suffix} Part: {self.counter}/{self.segment_count}",
                 end="",
             )
             print("\r", end="")
@@ -299,7 +306,7 @@ class download:
             self.is_audio = True
             audio_input_file = self._dump_m3u8(self.content_audio_media)
 
-        print(f"\n{colors.CYAN}Parts Downloaded")
+        cprint("\n", colors.CYAN, "Parts Downloaded")
         try:
             self.ffmpeg_merge(input_file, audio_input_file)
         except FileNotFoundError:
@@ -307,7 +314,7 @@ class download:
             error("Missing a download part, restarting download")
             return self.multithread_m3u8_dl()
 
-        print(f"\n{colors.CYAN}Parts Merged")
+        cprint("\n", colors.CYAN, "Parts Merged")
         shutil.rmtree(self.temp_folder)
 
     def _download_m3u8(self, uri, timeout, headers, is_audio=False):
@@ -333,9 +340,17 @@ class download:
                 selected_index = len(content.playlists) - 1
 
             for index, playlist in enumerate(content.playlists):
-                print(
-                    f"{colors.GREEN}Playlist Index:{colors.RED} {index}\n"
-                    f"{colors.GREEN}Resolution at this index:{colors.RED} {playlist.stream_info.resolution}\n\n"
+                cprint(
+                    colors.GREEN,
+                    "Playlist Index: ",
+                    colors.RED,
+                    index,
+                    "\n",
+                    colors.GREEN,
+                    "Resolution at this index: ",
+                    colors.RED,
+                    playlist.stream_info.resolution,
+                    "\n\n",
                 )
 
                 if self.quality in playlist.stream_info.resolution:
@@ -356,8 +371,11 @@ class download:
                     self.content_audio_media = self._download_m3u8(
                         media_uri, timeout, headers, True
                     )
-                print(
-                    f"{colors.GREEN}Quality for Download:{colors.YELLOW} {content.playlists[selected_index].stream_info.resolution} {colors.END}"
+                cprint(
+                    colors.GREEN,
+                    "Quality for Download:",
+                    colors.YELLOW,
+                    content.playlists[selected_index].stream_info.resolution,
                 )
                 return self._download_m3u8(chosen_uri, timeout, headers)
 

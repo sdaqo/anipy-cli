@@ -114,7 +114,7 @@ def parse_args():
         required=False,
         dest="location",
         action="store",
-        help="Override all configured download locations"
+        help="Override all configured download locations",
     )
 
     return parser.parse_args()

@@ -32,7 +32,7 @@ from .player import (
 )
 from .query import query
 from .arg_parser import parse_args
-from .colors import colors
+from .colors import colors, cinput, cprint
 from .download import download
 from .anime_info import AnimeInfo
 from .config import Config
@@ -81,13 +81,8 @@ def download_cli(quality, ffmpeg, no_kitsu, path):
     if path is None:
         path = Config().download_folder_path
 
-    print(colors.GREEN + "***Download Mode***" + colors.END)
-    print(
-        colors.GREEN
-        + "Downloads are stored in: "
-        + colors.END
-        + str(path)
-    )
+    cprint(colors.GREEN, "***Download Mode***")
+    cprint(colors.GREEN, "Downloads are stored in: ", colors.END, str(path))
 
     show_entry = entry()
     searches = []
@@ -159,18 +154,19 @@ def history_cli(quality, player):
         col = ""
         if num % 2:
             col = colors.YELLOW
-        print(
-            colors.GREEN
-            + f"[{num}]"
-            + colors.RED
-            + f" EP: {ep}"
-            + colors.END
-            + f" |{col} {val}"
-            + colors.END
+        cprint(
+            colors.GREEN,
+            f"[{num}]",
+            colors.RED,
+            f" EP: {ep}",
+            colors.END,
+            " | ",
+            col,
+            val,
         )
 
     while True:
-        inp = input("Enter Number: " + colors.CYAN)
+        inp = cinput("Enter Number: ", colors.CYAN)
         try:
             if int(inp) <= 0:
                 error("invalid input")
@@ -201,7 +197,7 @@ def binge_cli(quality, player):
     Cli function for the
     -b flag.
     """
-    print(colors.GREEN + "***Binge Mode***" + colors.END)
+    cprint(colors.GREEN, "***Binge Mode***")
 
     show_entry = entry()
     query_class = query(input("Search: "), show_entry)
@@ -262,7 +258,7 @@ class seasonalCli:
 
     def take_input(self):
         while True:
-            picked = input(colors.END + "Enter option: ")
+            picked = input("Enter option: ")
             if picked == "a":
                 self.add_anime()
             elif picked == "e":
@@ -320,7 +316,7 @@ class seasonalCli:
         seasonals = [x[0] for x in seasonals]
         print_names(seasonals)
         while True:
-            inp = input("Enter Number: " + colors.CYAN)
+            inp = cinput("Enter Number: ", colors.CYAN)
             try:
                 picked = seasonals[int(inp) - 1]
                 break
@@ -337,9 +333,9 @@ class seasonalCli:
 
     def list_possible(self, latest_urls):
         for i in latest_urls:
-            print(f"{colors.RED}{i}:")
+            cprint(colors.RED, f"{i}:")
             for j in latest_urls[i]["ep_list"]:
-                print(f"{colors.CYAN}==> EP: {j[0]}")
+                cprint(colors.CYAN, f"==> EP: {j[0]}")
 
     def download_latest(self):
         latest_urls = Seasonal().latest_eps()
@@ -351,7 +347,7 @@ class seasonalCli:
         print("Stuff to be downloaded:")
         self.list_possible(latest_urls)
         if not self.auto:
-            input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
+            cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
 
         for i in latest_urls:
             print(f"Downloading newest urls for {i}")
@@ -377,7 +373,7 @@ class seasonalCli:
         latest_eps = Seasonal().latest_eps()
         print("Stuff to be watched:")
         self.list_possible(latest_eps)
-        input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
+        cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
         ep_list = []
         ep_urls = []
         ep_dic = {}
@@ -413,10 +409,10 @@ class seasonalCli:
 class menu:
     """
     This is mainly a class for the cli
-    interface, it should have a entry,
+    interface, it should have an entry,
     with all fields filled. It also accepts
     a list of options that will be printed
-    this is just a thing for flexebilyti.
+    this is just a thing for flexibility.
     A sub_proc is also required this one is
     a subprocess instance returned by misc.start_player().
     """
@@ -435,11 +431,11 @@ class menu:
 
     def print_status(self):
         clear_console()
-        print(
-            colors.GREEN
-            + f"Playing: {self.entry.show_name} {self.entry.quality} | "
-            + colors.RED
-            + f"{self.entry.ep}/{self.entry.latest_ep}"
+        cprint(
+            colors.GREEN,
+            f"Playing: {self.entry.show_name} {self.entry.quality} | ",
+            colors.RED,
+            f"{self.entry.ep}/{self.entry.latest_ep}",
         )
 
     def print_and_input(self):
@@ -465,7 +461,7 @@ class menu:
 
     def take_input(self):
         while True:
-            picked = input(colors.END + "Enter option: ")
+            picked = input("Enter option: ")
             if picked == "n":
                 self.next_ep()
             elif picked == "p":
@@ -535,7 +531,7 @@ class menu:
     def video_info(self):
         print(f"Show Name: {self.entry.show_name}")
         print(f"Category Url: {self.entry.category_url}")
-        print(f"Epiode Url: {self.entry.ep_url}")
+        print(f"Episode Url: {self.entry.ep_url}")
         print(f"Episode: {self.entry.ep}")
         print(f"Embed Url: {self.entry.embed_url}")
         print(f"Stream Url: {self.entry.stream_url}")
@@ -565,7 +561,7 @@ def binge(ep_list, quality, player):
     Accepts ep_list like so:
         {"name" {'ep_urls': [], 'eps': [], 'category_url': }, "next_anime"...}
     """
-    print(f"{colors.RED}To quit press CTRL+C")
+    cprint(colors.RED, "To quit press CTRL+C")
     try:
         for i in ep_list:
             show_entry = entry()
@@ -577,21 +573,19 @@ def binge(ep_list, quality, player):
                 show_entry.ep = ep
                 show_entry.embed_url = ""
                 show_entry.ep_url = url
-                print(
-                    f"""{
-                        colors.GREEN
-                    }Fetching links for: {
-                        colors.END
-                    }{
-                        show_entry.show_name
-                    }{
-                        colors.RED
-                    } | EP: {
-                        show_entry.ep
+                cprint(
+                    colors.GREEN,
+                    "Fetching links for: ",
+                    colors.END,
+                    show_entry.show_name,
+                    colors.RED,
+                    f""" | EP: {
+                    show_entry.ep
                     }/{
-                        show_entry.latest_ep
-                    }"""
+                    show_entry.latest_ep
+                    }""",
                 )
+
                 url_class = videourl(show_entry, quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
@@ -677,7 +671,6 @@ def main():
     location = args.location
     if args.location is not None:
         location = Path(args.location)
-        
 
     if args.syncplay:
         player = "syncplay"
@@ -688,7 +681,7 @@ def main():
     if args.delete:
         try:
             Config().history_file_path.unlink()
-            print(colors.RED + "Done")
+            cprint(colors.RED, "Done")
         except FileNotFoundError:
             error("no history file found")
 
@@ -699,10 +692,14 @@ def main():
         binge_cli(args.quality, player)
 
     elif args.seasonal:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location)
+        seasonal_cli(
+            args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location
+        )
 
     elif args.auto_update:
-        seasonal_cli(args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location)
+        seasonal_cli(
+            args.quality, args.no_kitsu, args.ffmpeg, args.auto_update, player, location
+        )
 
     elif args.history:
         history_cli(args.quality, player)

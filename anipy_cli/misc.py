@@ -7,28 +7,28 @@ from dataclasses import dataclass
 from typing import Union
 
 from .config import Config
-from .colors import colors
+from .colors import colors, color, cprint
 
 options = [
-    colors.GREEN + "[n] " + colors.END + "Next Episode",
-    colors.GREEN + "[p] " + colors.END + "Previous Episode",
-    colors.GREEN + "[r] " + colors.END + "Replay episode",
-    colors.GREEN + "[s] " + colors.END + "Select episode",
-    colors.GREEN + "[h] " + colors.END + "History selection",
-    colors.GREEN + "[a] " + colors.END + "Search for Anime",
-    colors.GREEN + "[i] " + colors.END + "Print Video Info",
-    colors.GREEN + "[d] " + colors.END + "Download Episode",
-    colors.GREEN + "[q] " + colors.END + "Quit",
+    color(colors.GREEN, "[n] ") + "Next Episode",
+    color(colors.GREEN, "[p] ") + "Previous Episode",
+    color(colors.GREEN, "[r] ") + "Replay episode",
+    color(colors.GREEN, "[s] ") + "Select episode",
+    color(colors.GREEN, "[h] ") + "History selection",
+    color(colors.GREEN, "[a] ") + "Search for Anime",
+    color(colors.GREEN, "[i] ") + "Print Video Info",
+    color(colors.GREEN, "[d] ") + "Download Episode",
+    color(colors.GREEN, "[q] ") + "Quit",
 ]
 
 
 seasonal_options = [
-    colors.GREEN + "[a] " + colors.END + "Add Anime",
-    colors.GREEN + "[e] " + colors.END + "Delete one anime from seasonals",
-    colors.GREEN + "[l] " + colors.END + "List animes in seasonals file",
-    colors.GREEN + "[d] " + colors.END + "Download newest episodes",
-    colors.GREEN + "[w] " + colors.END + "Binge watch newest episodes",
-    colors.GREEN + "[q] " + colors.END + "Quit",
+    color(colors.GREEN, "[a] ") + "Add Anime",
+    color(colors.GREEN, "[e] ") + "Delete one anime from seasonals",
+    color(colors.GREEN, "[l] ") + "List animes in seasonals file",
+    color(colors.GREEN, "[d] ") + "Download newest episodes",
+    color(colors.GREEN, "[w] ") + "Binge watch newest episodes",
+    color(colors.GREEN, "[q] ") + "Quit",
 ]
 
 
@@ -60,7 +60,7 @@ def error(error: str) -> None:
     Error function for better error handling,
     that takes an error and prints it to stderr.
     """
-    sys.stderr.write(colors.ERROR + "anipy-cli: error: " + error + colors.END + "\n")
+    sys.stderr.write(color(colors.ERROR, "anipy-cli: error: " + error) + "\n")
 
 
 def response_err(req, link) -> None:
@@ -72,7 +72,7 @@ def response_err(req, link) -> None:
         pass
     else:
         error(
-            f"requsted url not available/blocked: {link}: response-code: {req.status_code}"
+            f"requested url not available/blocked: {link}: response-code: {req.status_code}"
         )
         sys.exit()
 
@@ -88,7 +88,7 @@ def loc_err(soup, link: str, element: str) -> None:
 
 
 def keyboard_inter() -> None:
-    print(colors.ERROR + "\nanipy-cli: error: interrupted" + colors.END)
+    cprint(colors.ERROR, "\nanipy-cli: error: interrupted")
     sys.exit()
 
 
@@ -139,13 +139,11 @@ def print_names(names):
     them to the terminal.
     """
     for number, value in enumerate(names, 1):
-        color = ""
+        value_color = colors.END
         if number % 2 == 0:
-            color = colors.YELLOW
+            value_color = colors.YELLOW
 
-        print(
-            colors.GREEN + f"[{number}]" + colors.END + f"{color} {value}" + colors.END
-        )
+        cprint(colors.GREEN, f"[{number}] ", value_color, value)
 
 
 def get_anime_info(category_url: str) -> dict:

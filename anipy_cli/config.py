@@ -15,7 +15,7 @@ class Config:
             with self._config_file.open("r") as conf:
                 self._yaml_conf = yaml.safe_load(conf)
             if self._yaml_conf == None:
-                # The config file is empty 
+                # The config file is empty
                 self._yaml_conf = {}
         except FileNotFoundError:
             # There is no config file, create one
@@ -76,7 +76,6 @@ class Config:
     def ffmpeg_hls(self):
         return self._get_value("ffmpeg_hls", False, bool)
 
-    
     @property
     def ffmpeg_log_path(self):
         return self.user_files_path / "ffmpeg_log"
