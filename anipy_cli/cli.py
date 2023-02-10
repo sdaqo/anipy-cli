@@ -86,7 +86,6 @@ def download_cli(quality, ffmpeg, no_season_search, path):
     cprint(colors.GREEN, "***Download Mode***")
     cprint(colors.GREEN, "Downloads are stored in: ", colors.END, str(path))
 
-
     show_entry = entry()
     searches = []
     show_entries = []
@@ -253,7 +252,9 @@ def seasonal_cli(quality, no_season_search, ffmpeg, auto_update, player, path):
 
 
 class seasonalCli:
-    def __init__(self, quality, no_season_search, player, ffmpeg=False, auto=False, path=None):
+    def __init__(
+        self, quality, no_season_search, player, ffmpeg=False, auto=False, path=None
+    ):
         self.entry = entry()
         self.quality = quality
         self.no_season_search = no_season_search
@@ -644,7 +645,9 @@ def get_season_searches(gogo=True):
             print("Please enter a valid year.\n")
 
     while not season_name:
-        season_name_input = cinput("Season Name (spring|summer|fall|winter): ", colors.CYAN)
+        season_name_input = cinput(
+            "Season Name (spring|summer|fall|winter): ", colors.CYAN
+        )
         if season_name_input.lower() in ["spring", "summer", "fall", "winter"]:
             season_name = season_name_input
 
@@ -682,8 +685,8 @@ def get_season_searches(gogo=True):
     return searches
 
 
-def mal_cli(quality, no_season_search, ffmpeg, auto_update, player):
-    m = MALCli(quality, player, no_season_search, ffmpeg, auto_update)
+def mal_cli(quality, no_season_search, ffmpeg, auto_update, player, path):
+    m = MALCli(quality, player, no_season_search, ffmpeg, auto_update, path)
     if auto_update:
         m.download(mode="all")
 
@@ -694,7 +697,13 @@ def mal_cli(quality, no_season_search, ffmpeg, auto_update, player):
 
 class MALCli:
     def __init__(
-        self, quality, player, no_season_search=False, ffmpeg=False, auto=False
+        self,
+        quality,
+        player,
+        no_season_search=False,
+        ffmpeg=False,
+        auto=False,
+        path=False,
     ):
         self.entry = entry()
         self.quality = quality
@@ -703,6 +712,9 @@ class MALCli:
         self.auto = auto
         self.player = player
         self.no_season_search = no_season_search
+        self.path = path
+        if path is None:
+            self.path = Config().seasonals_dl_path
         if (
             not Config().mal_user
             or Config().mal_user == ""
@@ -795,7 +807,7 @@ class MALCli:
         mal_names = [n["node"]["title"] for n in mal_list]
         print_names(mal_names)
         while True:
-            inp = input("Enter Number: " + colors.CYAN)
+            inp = cinput("Enter Number: ", colors.CYAN)
             try:
                 picked = mal_list[int(inp) - 1]["node"]["id"]
                 break
@@ -821,11 +833,9 @@ class MALCli:
                 color = colors.GREEN
 
             print(
-                "==> Last watched EP: {} | {}({}){} | {}".format(
+                "==> Last watched EP: {} | ({}) | {}".format(
                     i["node"]["my_list_status"]["num_episodes_watched"],
-                    color,
-                    status,
-                    colors.END,
+                    color(status, color),
                     i["node"]["title"],
                 )
             )
@@ -848,13 +858,13 @@ class MALCli:
             error("Nothing to download")
             return
 
-        print("Stuff to be downloaded:")
+        cprint(colors.CYAN, "Stuff to be downloaded:")
         self.list_possible(urls)
         if not self.auto:
-            input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
+            cinput("Enter to continue or CTRL+C to abort.", colors.RED)
 
         for i in urls:
-            print(f"Downloading newest urls for {i}")
+            cprint(f"Downloading newest urls for {i}", colors.CYAN)
             show_entry = entry()
             show_entry.show_name = i
             for j in urls[i]["ep_list"]:
@@ -864,16 +874,16 @@ class MALCli:
                 url_class = videourl(show_entry, self.quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
-                download(show_entry, self.ffmpeg).download()
+                download(show_entry, self.quality, self.ffmpeg, self.path).download()
 
         if not self.auto:
             clear_console()
 
     def binge_latest(self):
         latest_eps = self.m_class.latest_eps()
-        print("Stuff to be watched:")
+        cprint(colors.CYAN, "Stuff to be watched:")
         self.list_possible(latest_eps)
-        input(f"{colors.RED}Enter to continue or CTRL+C to abort.")
+        cinput("Enter to continue or CTRL+C to abort.", colors.RED)
         ep_list = []
         ep_urls = []
         ep_dic = {}
@@ -1060,12 +1070,22 @@ def main():
 
     elif args.seasonal:
         seasonal_cli(
-            args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player, location
+            args.quality,
+            args.no_season_search,
+            args.ffmpeg,
+            args.auto_update,
+            player,
+            location,
         )
 
     elif args.auto_update:
         seasonal_cli(
-            args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player, location
+            args.quality,
+            args.no_season_search,
+            args.ffmpeg,
+            args.auto_update,
+            player,
+            location,
         )
 
     elif args.history:
@@ -1076,7 +1096,12 @@ def main():
 
     elif args.mal:
         mal_cli(
-            args.quality, args.no_season_search, args.ffmpeg, args.auto_update, player, location
+            args.quality,
+            args.no_season_search,
+            args.ffmpeg,
+            args.auto_update,
+            player,
+            location,
         )
 
     else:
