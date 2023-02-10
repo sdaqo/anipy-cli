@@ -143,6 +143,7 @@ class Config:
         try:
             self._get_config_path().mkdir(exist_ok=True, parents=True)
             config_options = {}
+            # generate config based on attrs and default values of config class
             for attribute, value in Config.__dict__.items():
                 if isinstance(value, property):
                     val = self.__getattribute__(attribute)

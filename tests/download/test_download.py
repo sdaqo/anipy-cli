@@ -10,7 +10,7 @@ def show_entry():
     show_entry = entry(
         show_name="Hyouka",
         category_url="https://gogoanime.tel/category/hyouka",
-        ep_url="https://gogoanime.tel/hyouka-episode-1",
+        ep_url="https://gogoanime.tv/hyouka-episode-1",
         ep=1,
         latest_ep=22,
     )
@@ -29,9 +29,11 @@ def show_entry():
 
 @pytest.mark.veryslow
 def test_hyouka_noffmpeg(show_entry):
-    shutil.rmtree(config.Config().download_folder_path / show_entry.show_name)
+    shutil.rmtree(
+        config.Config().download_folder_path / show_entry.show_name, ignore_errors=True
+    )
 
-    download_class = download(entry=show_entry, ffmpeg=False)
+    download_class = download(entry=show_entry, quality="max", ffmpeg=False)
     download_class.download()
 
     download_path = download_class.show_folder / download_class._get_fname()
@@ -39,16 +41,18 @@ def test_hyouka_noffmpeg(show_entry):
     assert download_path.is_file(), f"File was not created {download_path}"
     assert (
         download_path.stat().st_size > 10000000
-    ), f"File is smaller than 10M, maybe it wasnt correctly downloaded?"
+    ), f"File is smaller than 10MB, maybe it wasnt correctly downloaded?"
 
     download_path.unlink()
 
 
 @pytest.mark.veryslow
 def test_hyouka_ffmpeg(show_entry):
-    shutil.rmtree(config.Config().download_folder_path / show_entry.show_name)
+    shutil.rmtree(
+        config.Config().download_folder_path / show_entry.show_name, ignore_errors=True
+    )
 
-    download_class = download(entry=show_entry, ffmpeg=True)
+    download_class = download(entry=show_entry, quality="max", ffmpeg=True)
     download_class.download()
 
     download_path = download_class.show_folder / download_class._get_fname()
@@ -56,6 +60,6 @@ def test_hyouka_ffmpeg(show_entry):
     assert download_path.is_file(), f"File was not created {download_path}"
     assert (
         download_path.stat().st_size > 10000000
-    ), f"File is smaller than 10M, maybe it wasnt correctly downloaded?"
+    ), f"File is smaller than 10MB, maybe it wasnt correctly downloaded?"
 
     download_path.unlink()

@@ -7,41 +7,41 @@ from dataclasses import dataclass
 from typing import Union
 
 from .config import Config
-from .colors import colors
+from .colors import colors, color, cprint
 
 options = [
-    colors.GREEN + "[n] " + colors.END + "Next Episode",
-    colors.GREEN + "[p] " + colors.END + "Previous Episode",
-    colors.GREEN + "[r] " + colors.END + "Replay episode",
-    colors.GREEN + "[s] " + colors.END + "Select episode",
-    colors.GREEN + "[h] " + colors.END + "History selection",
-    colors.GREEN + "[a] " + colors.END + "Search for Anime",
-    colors.GREEN + "[i] " + colors.END + "Print Video Info",
-    colors.GREEN + "[d] " + colors.END + "Download Episode",
-    colors.GREEN + "[q] " + colors.END + "Quit",
+    color(colors.GREEN, "[n] ") + "Next Episode",
+    color(colors.GREEN, "[p] ") + "Previous Episode",
+    color(colors.GREEN, "[r] ") + "Replay episode",
+    color(colors.GREEN, "[s] ") + "Select episode",
+    color(colors.GREEN, "[h] ") + "History selection",
+    color(colors.GREEN, "[a] ") + "Search for Anime",
+    color(colors.GREEN, "[i] ") + "Print Video Info",
+    color(colors.GREEN, "[d] ") + "Download Episode",
+    color(colors.GREEN, "[q] ") + "Quit",
 ]
 
 
 seasonal_options = [
-    colors.GREEN + "[a] " + colors.END + "Add Anime",
-    colors.GREEN + "[e] " + colors.END + "Delete one anime from seasonals",
-    colors.GREEN + "[l] " + colors.END + "List anime in seasonals file",
-    colors.GREEN + "[d] " + colors.END + "Download newest episodes",
-    colors.GREEN + "[w] " + colors.END + "Binge watch newest episodes",
-    colors.GREEN + "[q] " + colors.END + "Quit",
+    color(colors.GREEN, "[a] ") + "Add Anime",
+    color(colors.GREEN, "[e] ") + "Delete one anime from seasonals",
+    color(colors.GREEN, "[l] ") + "List anime in seasonals file",
+    color(colors.GREEN, "[d] ") + "Download newest episodes",
+    color(colors.GREEN, "[w] ") + "Binge watch newest episodes",
+    color(colors.GREEN, "[q] ") + "Quit",
 ]
 
 mal_options = [
-    colors.GREEN + "[a] " + colors.END + "Add Anime",
-    colors.GREEN + "[e] " + colors.END + "Delete one anime from mal list",
-    colors.GREEN + "[l] " + colors.END + "List anime in mal list",
-    colors.GREEN + "[m] " + colors.END + "Manually Map MAL anime to gogo Link",
-    colors.GREEN + "[s] " + colors.END + "Sync MAL list into seasonals",
-    colors.GREEN + "[b] " + colors.END + "Sync seasonals into MAL list",
-    colors.GREEN + "[d] " + colors.END + "Download newest episodes",
-    colors.GREEN + "[x] " + colors.END + "Download all episodes",
-    colors.GREEN + "[w] " + colors.END + "Binge watch newest episodes",
-    colors.GREEN + "[q] " + colors.END + "Quit",
+    color(colors.GREEN, "[a] ") + "Add Anime",
+    color(colors.GREEN, "[e] ") + "Delete one anime from mal list",
+    color(colors.GREEN, "[l] ") + "List anime in mal list",
+    color(colors.GREEN, "[m] ") + "Manually Map MAL anime to gogo Link",
+    color(colors.GREEN, "[s] ") + "Sync MAL list into seasonals",
+    color(colors.GREEN, "[b] ") + "Sync seasonals into MAL list",
+    color(colors.GREEN, "[d] ") + "Download newest episodes",
+    color(colors.GREEN, "[x] ") + "Download all episodes",
+    color(colors.GREEN, "[w] ") + "Binge watch newest episodes",
+    color(colors.GREEN, "[q] ") + "Quit",
 ]
 
 
@@ -50,7 +50,7 @@ class entry:
     """
     This is the class that saves
     metadata about a show. It is required
-    by all classes, it is a essential
+    by all classes, it is an essential
     part of this script.
     """
 
@@ -73,19 +73,19 @@ def error(error: str) -> None:
     Error function for better error handling,
     that takes an error and prints it to stderr.
     """
-    sys.stderr.write(colors.ERROR + "anipy-cli: error: " + error + colors.END + "\n")
+    sys.stderr.write(color(colors.ERROR, "anipy-cli: error: " + error) + "\n")
 
 
 def response_err(req, link) -> None:
     """
-    Function that checks if a requsted
+    Function that checks if a request
     was succesfull.
     """
     if req.ok:
         pass
     else:
         error(
-            f"requsted url not avalible/blocked: {link}: response-code: {req.status_code}"
+            f"requested url not available/blocked: {link}: response-code: {req.status_code}"
         )
         sys.exit()
 
@@ -93,7 +93,7 @@ def response_err(req, link) -> None:
 def loc_err(soup, link: str, element: str) -> None:
     """
     Function that checks if beautifulsoup
-    could locate a element.
+    could locate an element.
     """
     if soup == None:
         error(f"could not locate {element}: {link}")
@@ -101,7 +101,7 @@ def loc_err(soup, link: str, element: str) -> None:
 
 
 def keyboard_inter() -> None:
-    print(colors.ERROR + "\nanipy-cli: error: interrupted")
+    cprint(colors.ERROR, "\nanipy-cli: error: interrupted")
     sys.exit()
 
 
@@ -152,13 +152,11 @@ def print_names(names):
     them to the terminal.
     """
     for number, value in enumerate(names, 1):
-        color = ""
+        value_color = colors.END
         if number % 2 == 0:
-            color = colors.YELLOW
+            value_color = colors.YELLOW
 
-        print(
-            colors.GREEN + f"[{number}]" + colors.END + f"{color} {value}" + colors.END
-        )
+        cprint(colors.GREEN, f"[{number}] ", value_color, value)
 
 
 def get_anime_info(category_url: str) -> dict:
@@ -191,7 +189,7 @@ def search_in_season_on_gogo(s_year, s_name):
     gogo_anime_season_list = []
     while content:
         r = requests.get(
-            f"{config.gogoanime_url}/sub-category/{s_year}-{s_name}-anime",
+            f"{Config().gogoanime_url}/sub-category/{s_year}-{s_name}-anime",
             params={"page": page},
         )
         soup = BeautifulSoup(r.content, "html.parser")
@@ -205,7 +203,7 @@ def search_in_season_on_gogo(s_year, s_name):
                     {
                         "name": name,
                         "category_url": "{}{}".format(
-                            config.gogoanime_url, link_a.get("href")
+                            Config().gogoanime_url, link_a.get("href")
                         ),
                     }
                 )
@@ -220,12 +218,12 @@ def search_in_season_on_gogo(s_year, s_name):
 
 
 def filter_anime_list_dub_sub(gogo_anime_season_list):
-    if "sub" not in config.anime_types and "dub" in config.anime_types:
+    if "sub" not in Config().anime_types and "dub" in Config().anime_types:
         filtered_list = [
             x for x in gogo_anime_season_list if "(dub)" in x["name"].lower()
         ]
 
-    elif "dub" not in config.anime_types and "sub" in config.anime_types:
+    elif "dub" not in Config().anime_types and "sub" in Config().anime_types:
         filtered_list = [
             x for x in gogo_anime_season_list if "(dub)" not in x["name"].lower()
         ]

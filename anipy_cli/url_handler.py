@@ -81,7 +81,7 @@ class epHandler:
         filtered = list(filter(lambda x: x["ep"] == str(self.entry.ep), ep_list))
 
         if not filtered:
-            error(f"Episode {self.entry.ep} does not exsist.")
+            error(f"Episode {self.entry.ep} does not exist.")
             sys.exit()
 
         self.entry.ep_url = filtered[0]["link"]
@@ -102,13 +102,22 @@ class epHandler:
         from a show and return it.
         """
 
-        latest = self._load_eps_list()[-1]["ep"]
-        self.entry.latest_ep = parsenum(latest)
+        ep_list = self._load_eps_list()
 
-        return parsenum(latest)
+        if not ep_list:
+            self.entry.latest_ep = 0
+            return 0
+        else:
+            latest = ep_list[-1]["ep"]
+            self.entry.latest_ep = parsenum(latest)
+            return parsenum(latest)
 
     def get_first(self):
-        return self._load_eps_list()[0]["ep"]
+        ep_list = self._load_eps_list()
+        if not ep_list:
+            return 0
+        else:
+            return ep_list[0]["ep"]
 
     def _create_prompt(self, prompt="Episode"):
         ep_range = f" [{self.get_first()}-{self.get_latest()}]"
@@ -131,8 +140,8 @@ class epHandler:
     def _validate_ep(self, ep: str):
         """
         See if Episode is in episode list.
-        Pass a arg to special to accept this
-        charachter even though it is not in the episode list.
+        Pass an arg to special to accept this
+        character even though it is not in the episode list.
         """
 
         ep_list = self._load_eps_list()
@@ -143,8 +152,8 @@ class epHandler:
 
     def pick_ep(self):
         """
-        Cli function to pick a episode from 1 to
-        the latest avalible.
+        Cli function to pick an episode from 1 to
+        the latest available.
         """
 
         self.get_latest()
@@ -166,8 +175,8 @@ class epHandler:
 
     def pick_ep_seasonal(self):
         """
-        Cli function to pick a episode from 0 to
-        the latest avalible.
+        Cli function to pick an episode from 0 to
+        the latest available.
         """
 
         self.get_latest()
@@ -390,11 +399,6 @@ class videourl:
 
             streams.append({"file": i["file"], "type": type, "quality": quality})
 
-        # if len(streams) == 1:
-        #    streams = extract_m3u8_streams(
-        #        streams[0]['file']
-        #    )
-
         filtered_q_user = list(filter(lambda x: x["quality"] == self.qual, streams))
 
         if filtered_q_user:
@@ -404,7 +408,6 @@ class videourl:
         elif self.qual == "worst":
             stream = streams[0]
         else:
-            error("quality not avalible, using default")
             stream = streams[-1]
 
         self.entry.quality = stream["quality"]
