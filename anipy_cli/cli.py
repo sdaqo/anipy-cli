@@ -178,7 +178,7 @@ def history_cli(quality, player):
         )
 
     while True:
-        inp = cinput("Enter Number: ", colors.CYAN)
+        inp = cinput(colors.CYAN, "Enter Number: ")
         try:
             if int(inp) <= 0:
                 error("invalid input")
@@ -272,7 +272,7 @@ class seasonalCli:
 
     def take_input(self):
         while True:
-            picked = cinput("Enter option: ", colors.CYAN)
+            picked = cinput(colors.CYAN, "Enter option: ")
             if picked == "a":
                 self.add_anime()
             elif picked == "e":
@@ -337,7 +337,7 @@ class seasonalCli:
         seasonals = [x[0] for x in seasonals]
         print_names(seasonals)
         while True:
-            inp = cinput("Enter Number: ", colors.CYAN)
+            inp = cinput(colors.CYAN, "Enter Number: ")
             try:
                 picked = seasonals[int(inp) - 1]
                 break
@@ -368,7 +368,7 @@ class seasonalCli:
         print("Stuff to be downloaded:")
         self.list_possible(latest_urls)
         if not self.auto:
-            cinput("Enter to continue or CTRL+C to abort.", colors.RED)
+            cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
 
         for i in latest_urls:
             print(f"Downloading newest urls for {i}")
@@ -394,7 +394,7 @@ class seasonalCli:
         latest_eps = Seasonal().latest_eps()
         print("Stuff to be watched:")
         self.list_possible(latest_eps)
-        cinput("Enter to continue or CTRL+C to abort.", colors.RED)
+        cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
         ep_list = []
         ep_urls = []
         ep_dic = {}
@@ -640,13 +640,13 @@ def get_season_searches(gogo=True):
     season_name = None
     while not season_year:
         try:
-            season_year = int(cinput("Season Year: ", colors.CYAN))
+            season_year = int(cinput(colors.CYAN, "Season Year: "))
         except ValueError:
             print("Please enter a valid year.\n")
 
     while not season_name:
         season_name_input = cinput(
-            "Season Name (spring|summer|fall|winter): ", colors.CYAN
+            colors.CYAN, "Season Name (spring|summer|fall|winter): "
         )
         if season_name_input.lower() in ["spring", "summer", "fall", "winter"]:
             season_name = season_name_input
@@ -662,11 +662,16 @@ def get_season_searches(gogo=True):
 
     cprint("Anime found in {} {} Season: ".format(season_year, season_name))
     cprint(
-        colors.CYAN, "Anime found in ",
-        colors.GREEN, season_year,
-        colors.CYAN, " ",
-        colors.YELLOW, season_name,
-        colors.CYAN, " Season: "
+        colors.CYAN,
+        "Anime found in ",
+        colors.GREEN,
+        season_year,
+        colors.CYAN,
+        " ",
+        colors.YELLOW,
+        season_name,
+        colors.CYAN,
+        " Season: ",
     )
     anime_names = []
     for anime in anime_in_season:
@@ -677,7 +682,7 @@ def get_season_searches(gogo=True):
             anime_names.append(anime["node"]["title"])
 
     print_names(anime_names)
-    selection = cinput("Selection: (e.g. 1, 1  3 or 1-3) \n>> ", colors.CYAN)
+    selection = cinput(colors.CYAN, "Selection: (e.g. 1, 1  3 or 1-3) \n>> ")
     if selection.__contains__("-"):
         selection_range = selection.strip(" ").split("-")
         for i in range(int(selection_range[0]) - 1, int(selection_range[1]) - 1, 1):
@@ -739,7 +744,7 @@ class MALCli:
 
     def take_input(self):
         while True:
-            picked = cinput("Enter option: ", colors.END)
+            picked = cinput(colors.END, "Enter option: ")
             if picked == "a":
                 self.add_anime()
             elif picked == "e":
@@ -814,7 +819,7 @@ class MALCli:
         mal_names = [n["node"]["title"] for n in mal_list]
         print_names(mal_names)
         while True:
-            inp = cinput("Enter Number: ", colors.CYAN)
+            inp = cinput(colors.CYAN, "Enter Number: ")
             try:
                 picked = mal_list[int(inp) - 1]["node"]["id"]
                 break
@@ -840,9 +845,14 @@ class MALCli:
                 color = colors.GREEN
 
             cprint(
-                colors.CYAN, "==> Last watched EP: {}".format(i["node"]["my_list_status"]["num_episodes_watched"]),
-                color, " | ({}) | ".format(status),
-                colors.CYAN, i["node"]["title"]
+                colors.CYAN,
+                "==> Last watched EP: {}".format(
+                    i["node"]["my_list_status"]["num_episodes_watched"]
+                ),
+                color,
+                " | ({}) | ".format(status),
+                colors.CYAN,
+                i["node"]["title"],
             )
 
     def list_possible(self, latest_urls):
@@ -866,7 +876,7 @@ class MALCli:
         cprint(colors.CYAN, "Stuff to be downloaded:")
         self.list_possible(urls)
         if not self.auto:
-            cinput("Enter to continue or CTRL+C to abort.", colors.RED)
+            cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
 
         for i in urls:
             cprint(f"Downloading newest urls for {i}", colors.CYAN)
@@ -888,7 +898,7 @@ class MALCli:
         latest_eps = self.m_class.latest_eps()
         cprint(colors.CYAN, "Stuff to be watched:")
         self.list_possible(latest_eps)
-        cinput("Enter to continue or CTRL+C to abort.", colors.RED)
+        cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
         ep_list = []
         ep_urls = []
         ep_dic = {}
@@ -937,7 +947,9 @@ class MALCli:
             searches = []
 
             print_names(failed_to_map)
-            selection = input("Selection: (e.g. 1, 1  3, 1-3 or * [for all] ) \n>> ")
+            print("Selection: (e.g. 1, 1  3, 1-3 or * [for all]) \n")
+            cprint(colors.YELLOW, "Enter or n to skip...")
+            selection = cinput(colors.GREEN, ">>")
             if selection.__contains__("-"):
                 selection_range = selection.strip(" ").split("-")
                 for i in range(
@@ -947,6 +959,8 @@ class MALCli:
 
             elif selection in ["all", "*"]:
                 selected = range(0, len(failed_to_map) - 1)
+            elif selection in ["", "n", "N"]:
+                selected = []
 
             else:
                 for i in selection.strip(" ").split(" "):
@@ -958,8 +972,10 @@ class MALCli:
                 search_name = failed_to_map[value]
                 while not done:
                     cprint(
-                        colors.GREEN, "Current: ",
-                        colors.CYAN, f"{failed_to_map[value]}\n"
+                        colors.GREEN,
+                        "Current: ",
+                        colors.CYAN,
+                        f"{failed_to_map[value]}\n",
                     )
                     show_entry = entry()
                     query_class = query(search_name, show_entry)
@@ -969,30 +985,39 @@ class MALCli:
                         skip = False
                         while not links_query and not skip:
                             cprint(
-                                colors.ERROR, "No search results for ",
-                                colors.YELLOW, failed_to_map[value],
+                                colors.ERROR,
+                                "No search results for ",
+                                colors.YELLOW,
+                                failed_to_map[value],
                             )
-                            cprint(colors.GREEN, "Sometimes the names on GoGo are too different from the ones on MAL.\n")
+                            cprint(
+                                colors.GREEN,
+                                "Sometimes the names on GoGo are too different from the ones on MAL.\n",
+                            )
                             cprint(colors.CYAN, "Try custom name for mapping? (Y/N):\n")
                             if input().lower() == "y":
                                 query_class = query(
-                                    cinput("Enter Search String to search on GoGo:\n", colors.GREEN),
+                                    cinput(
+                                        colors.GREEN,
+                                        "Enter Search String to search on GoGo:\n",
+                                    ),
                                     show_entry,
                                 )
                                 links_query = query_class.get_links(mute=True)
                                 if links_query:
                                     show = query_class.pick_show(cancelable=True)
                                     if show:
-                                        show_entries.append(
-                                            query_class.pick_show(cancelable=True)
-                                        )
-                                        self.m_class.manual_map_gogo_mal(
+                                        show_entries.append(show_entry)
+                                        mapped = self.m_class.manual_map_gogo_mal(
                                             failed_to_map[value],
                                             {
                                                 "link": show_entry.category_url,
                                                 "name": show_entry.show_name,
                                             },
                                         )
+                                        if mapped:
+                                            del failed_to_map[value]
+                                            del selected[value]
                             else:
                                 print("Skipping show")
                                 skip = True
@@ -1001,27 +1026,29 @@ class MALCli:
                         links, names = links_query
                         search_another = True
                         while search_another and len(links) > 0:
-                            show_entries.append(query_class.pick_show(cancelable=True))
-                            self.m_class.manual_map_gogo_mal(
-                                failed_to_map[value],
-                                {
-                                    "link": show_entry.category_url,
-                                    "name": show_entry.show_name,
-                                },
-                            )
+                            show = query_class.pick_show(cancelable=True)
+                            if show:
+                                show_entries.append(show_entry)
+                                self.m_class.manual_map_gogo_mal(
+                                    failed_to_map[value],
+                                    {
+                                        "link": show_entry.category_url,
+                                        "name": show_entry.show_name,
+                                    },
+                                )
 
-                            links.remove(
-                                "/category/"
-                                + show_entry.category_url.split("/category/")[1]
-                            )
-                            names.remove(show_entry.show_name)
-                            print(
-                                f"{colors.GREEN} Added {show_entry.show_name} ...{colors.END}"
-                            )
-                            if input(
-                                f"Add another show map to {failed_to_map[value]}? (y/n):\n"
-                            ).lower() not in ["y", "yes"]:
-                                search_another = False
+                                links.remove(
+                                    "/category/"
+                                    + show_entry.category_url.split("/category/")[1]
+                                )
+                                names.remove(show_entry.show_name)
+                                print(
+                                    f"{colors.GREEN} Added {show_entry.show_name} ...{colors.END}"
+                                )
+                                if input(
+                                    f"Add another show map to {failed_to_map[value]}? (y/n):\n"
+                                ).lower() not in ["y", "yes"]:
+                                    search_another = False
                         done = True
                     else:
                         search_name_parts = search_name.split(" ")

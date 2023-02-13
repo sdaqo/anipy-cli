@@ -593,9 +593,10 @@ class MAL:
         else:
             return False
 
-        if "gogo_map" in current_mal_entry:
-            if not isinstance(current_mal_entry["gogo_map"], list):
-                current_mal_entry["gogo_map"] = []
+        if "gogo_map" not in current_mal_entry or not isinstance(
+            current_mal_entry["gogo_map"], list
+        ):
+            current_mal_entry["gogo_map"] = []
 
         self.update_gogo_map_list(
             current_mal_entry["gogo_map"],
@@ -603,6 +604,7 @@ class MAL:
         )
         if mal_anime_name in self.shows_failed_automap:
             self.shows_failed_automap.discard(mal_anime_name)
+        return True
 
 
 def update_dict_recursive(dct, merge_dct):
