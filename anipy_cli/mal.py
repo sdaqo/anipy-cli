@@ -415,6 +415,7 @@ class MAL:
     def del_show(self, anime_id):
         url = f"{self.api_baseurl}anime/{anime_id}/my_list_status"
         self._make_request(url, "delete")
+        self.delete_mal_entry(anime_id)
 
         pass
 
