@@ -963,7 +963,7 @@ class MALCli:
                     )
                     show_entry = entry()
                     query_class = query(search_name, show_entry)
-                    links_query = query_class.get_links()
+                    links_query = query_class.get_links(mute=True)
 
                     if not links_query:
                         skip = False
@@ -979,7 +979,7 @@ class MALCli:
                                     cinput("Enter Search String to search on GoGo:\n", colors.GREEN),
                                     show_entry,
                                 )
-                                links_query = query_class.get_links()
+                                links_query = query_class.get_links(mute=True)
                                 if links_query:
                                     show = query_class.pick_show(cancelable=True)
                                     if show:
