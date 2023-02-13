@@ -593,7 +593,7 @@ class MAL:
         else:
             return False
 
-        if "gogo_map" not in current_mal_entry:
+        if "gogo_map" in current_mal_entry:
             if not isinstance(current_mal_entry["gogo_map"], list):
                 current_mal_entry["gogo_map"] = []
 
