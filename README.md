@@ -99,7 +99,7 @@ Documentation can be found [here](https://github.com/sdaqo/anipy-cli/blob/master
 
 To import the libary, don't import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
-# Usage Examples
+### Usage Examples
 #### Little example of using anipy-cli for automatically keeping anime library up-to-date:
 ```
 # Cronjob runs every 2 minutes and checks wether anipy-cli is still running or not 
