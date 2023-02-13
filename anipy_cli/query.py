@@ -36,7 +36,7 @@ class query:
         except:
             self.pages = 1
 
-    def get_links(self):
+    def get_links(self, mute=False):
         """
         Get all category links and names of a query
         and returns them.
@@ -51,18 +51,26 @@ class query:
             self.soup = BeautifulSoup(r.content, "html.parser")
 
             for link in self.soup.find_all("p", attrs={"class": "name"}):
+                name_lower = link.text.lower()
+                if len(Config().anime_types) == 1:
+                    if "sub" in Config().anime_types and "(dub)" in name_lower:
+                        continue
+                    elif "dub" in Config().anime_types and "(dub)" not in name_lower:
+                        continue
+
                 loc_err(link, req_link, "query results")
                 self.names.append(link.text.replace("\n", ""))
                 a_tag = link.findChildren("a", recursive=False)
                 self.links.append(a_tag[0].get("href"))
 
         if not self.links:
-            error("no search results")
+            if not mute:
+                error("no search results")
             return 0
         else:
             return self.links, self.names
 
-    def pick_show(self):
+    def pick_show(self, cancelable=False):
         """
         Cli Function that
         Lets you pick a show from
@@ -70,6 +78,8 @@ class query:
         field from the entry and returns it.
         """
         print_names(self.names)
+        if cancelable:
+            print(f"{colors.GREEN}[C] {colors.YELLOW} Cancel.")
         while True:
             inp = cinput("Enter Number: ", colors.CYAN)
             try:
@@ -77,6 +87,8 @@ class query:
                 self.entry.show_name = self.names[int(inp) - 1]
                 break
             except:
+                if cancelable and inp.lower() == "c":
+                    return False
                 error("Invalid Input")
 
         return self.entry

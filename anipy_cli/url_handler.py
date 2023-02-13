@@ -40,7 +40,7 @@ class epHandler:
             return self.ep_list
 
         if not self.movie_id:
-            r = requests.get(self.entry.category_url)
+            r = requests.get(self.entry.category_url, timeout=2)
             self.movie_id = re.search(
                 r'<input.+?value="(\d+)" id="movie_id"', r.text
             ).group(1)
@@ -48,6 +48,7 @@ class epHandler:
         res = requests.get(
             "https://ajax.gogo-load.com/ajax/load-list-episode",
             params={"ep_start": 0, "ep_end": 9999, "id": self.movie_id},
+            timeout=2,
         )
 
         response_err(res, res.url)

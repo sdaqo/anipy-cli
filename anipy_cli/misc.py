@@ -25,8 +25,21 @@ options = [
 seasonal_options = [
     color(colors.GREEN, "[a] ") + "Add Anime",
     color(colors.GREEN, "[e] ") + "Delete one anime from seasonals",
-    color(colors.GREEN, "[l] ") + "List animes in seasonals file",
+    color(colors.GREEN, "[l] ") + "List anime in seasonals file",
     color(colors.GREEN, "[d] ") + "Download newest episodes",
+    color(colors.GREEN, "[w] ") + "Binge watch newest episodes",
+    color(colors.GREEN, "[q] ") + "Quit",
+]
+
+mal_options = [
+    color(colors.GREEN, "[a] ") + "Add Anime",
+    color(colors.GREEN, "[e] ") + "Delete one anime from mal list",
+    color(colors.GREEN, "[l] ") + "List anime in mal list",
+    color(colors.GREEN, "[m] ") + "Manually Map MAL anime to gogo Link",
+    color(colors.GREEN, "[s] ") + "Sync MAL list into seasonals",
+    color(colors.GREEN, "[b] ") + "Sync seasonals into MAL list",
+    color(colors.GREEN, "[d] ") + "Download newest episodes",
+    color(colors.GREEN, "[x] ") + "Download all episodes",
     color(colors.GREEN, "[w] ") + "Binge watch newest episodes",
     color(colors.GREEN, "[q] ") + "Quit",
 ]
@@ -168,3 +181,53 @@ def get_anime_info(category_url: str) -> dict:
     }
 
     return info_dict
+
+
+def search_in_season_on_gogo(s_year, s_name):
+    page = 1
+    content = True
+    gogo_anime_season_list = []
+    while content:
+        r = requests.get(
+            f"{Config().gogoanime_url}/sub-category/{s_year}-{s_name}-anime",
+            params={"page": page},
+        )
+        soup = BeautifulSoup(r.content, "html.parser")
+        wrapper_div = soup.find("div", attrs={"class": "last_episodes"})
+        try:
+            anime_items = wrapper_div.findAll("li")
+            for link in anime_items:
+                link_a = link.find("p", attrs={"class": "name"}).find("a")
+                name = link_a.get("title")
+                gogo_anime_season_list.append(
+                    {
+                        "name": name,
+                        "category_url": "{}{}".format(
+                            Config().gogoanime_url, link_a.get("href")
+                        ),
+                    }
+                )
+
+        except AttributeError:
+            content = False
+
+        page += 1
+    filtered_list = filter_anime_list_dub_sub(gogo_anime_season_list)
+
+    return filtered_list
+
+
+def filter_anime_list_dub_sub(gogo_anime_season_list):
+    if "sub" not in Config().anime_types and "dub" in Config().anime_types:
+        filtered_list = [
+            x for x in gogo_anime_season_list if "(dub)" in x["name"].lower()
+        ]
+
+    elif "dub" not in Config().anime_types and "sub" in Config().anime_types:
+        filtered_list = [
+            x for x in gogo_anime_season_list if "(dub)" not in x["name"].lower()
+        ]
+
+    else:
+        filtered_list = gogo_anime_season_list
+    return filtered_list

@@ -10,11 +10,10 @@ class SysNotFoundError(Exception):
 class Config:
     def __init__(self):
         self._config_file = self._get_config_path() / "config.yaml"
-
         try:
             with self._config_file.open("r") as conf:
                 self._yaml_conf = yaml.safe_load(conf)
-            if self._yaml_conf == None:
+            if self._yaml_conf is None:
                 # The config file is empty
                 self._yaml_conf = {}
         except FileNotFoundError:
@@ -98,6 +97,34 @@ class Config:
     def auto_open_dl_defaultcli(self):
         return self._get_value("auto_open_dl_defaultcli", False, bool)
 
+    @property
+    def mal_local_user_list_path(self):
+        return self.user_files_path / "mal_list.json"
+
+    @property
+    def mal_user(self):
+        return self._get_value("mal_user", "", str)
+
+    @property
+    def mal_password(self):
+        return self._get_value("mal_password", "", str)
+
+    @property
+    def auto_sync_mal_to_seasonals(self):
+        return self._get_value("auto_sync_mal_to_seasonals", False, bool)
+
+    @property
+    def auto_map_mal_to_gogo(self):
+        return self._get_value("auto_map_mal_to_gogo", False, bool)
+
+    @property
+    def mal_status_categories(self):
+        return self._get_value("mal_status_categories", list(["watching"]), list)
+
+    @property
+    def anime_types(self):
+        return self._get_value("anime_types", list(["sub"]), list)
+
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
         try:
@@ -115,8 +142,22 @@ class Config:
     def _create_config(self):
         try:
             self._get_config_path().mkdir(exist_ok=True, parents=True)
+            config_options = {}
+            # generate config based on attrs and default values of config class
+            for attribute, value in Config.__dict__.items():
+                if isinstance(value, property):
+                    val = self.__getattribute__(attribute)
+                    config_options[attribute] = (
+                        str(val) if isinstance(val, Path) else val
+                    )
             (self._get_config_path() / "config.yaml").touch()
-        except PermissionError:
+            with open((self._get_config_path() / "config.yaml"), "w") as file:
+                yaml.dump(
+                    yaml.dump(config_options, file, indent=4, default_flow_style=False)
+                )
+        except PermissionError as e:
+            print(f"Failed to create config file: {e}")
+            exit(f"Failed to create config file: {e}")
             pass
 
     @staticmethod

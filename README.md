@@ -67,12 +67,13 @@ options:
   -S, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
   -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
   -c, --config          Print path to the config file.
-  -o, --no-kitsu        Turn off search in season. Disables prompting if kitsu is to be searched for anime in specific season.
+  -o, --no-seas-search  Turn off search in season. Disables prompting if GoGoAnime is to be searched for anime in specific season.
   -a, --auto-update     Automatically update and download all Anime in seasonals list from start EP to newest.
   -s, --syncplay        Use Syncplay to watch Anime with your Friends.
   -v, --vlc             Use VLC instead of mpv as video-player
   -l LOCATION, --location LOCATION
                         Override all configured download locations
+  -m, --my-anime-list   MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList (requires MAL account credentials to be set in config).
 ```
 
 # What it can do
@@ -84,8 +85,9 @@ options:
 - History of watched Episodes
 - Binge Mode to watch a range of episodes back-to-back.
 - Seasonal Mode to bulk download or binge watch the latest episodes of animes you pick
-- Configurable with config file
-- (**Optional**) Search [Kitsu](https://www.kitsu.io/) for animes in specific seasons. Avalible for the dwonload cli and the seasonal mode. Turn it off with -o flag.
+- Configurable with config
+- (**Optional**) MAL Mode: Like seasonal mode, but uses your anime list at [MyAnimeList.net](https://myanimelist.net/)
+- (**Optional**) Search GoGo for animes in specific seasons. Available for the download cli, seasonal mode and MAL mode. Turn it off with -o flag.
 - (**Optional**) Discord Presence for the anime you currently watch. This is off by default, activate it in the config (-c)
 - (**Optional**) Ffmpeg to download m3u8 playlists, may be more stable but is slower than internal downloader.
 
@@ -96,6 +98,15 @@ Documentation can be found [here](https://github.com/sdaqo/anipy-cli/blob/master
 #### Important:
 
 To import the libary, don't import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
+
+# Usage Examples
+#### Little example of using anipy-cli for automatically keeping anime library up-to-date:
+```
+# Cronjob runs every 2 minutes and checks wether anipy-cli is still running or not 
+# (only run the job if last one is finished)
+
+*/2 *   * * *   username        pidof -x anipy-cli || anipy-cli -ma >> /var/log/anipy-cli.log
+```
 
 # Other versions
 
