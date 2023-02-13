@@ -368,7 +368,7 @@ class seasonalCli:
         print("Stuff to be downloaded:")
         self.list_possible(latest_urls)
         if not self.auto:
-            cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
+            cinput("Enter to continue or CTRL+C to abort.", colors.RED)
 
         for i in latest_urls:
             print(f"Downloading newest urls for {i}")
@@ -394,7 +394,7 @@ class seasonalCli:
         latest_eps = Seasonal().latest_eps()
         print("Stuff to be watched:")
         self.list_possible(latest_eps)
-        cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
+        cinput("Enter to continue or CTRL+C to abort.", colors.RED)
         ep_list = []
         ep_urls = []
         ep_dic = {}
@@ -660,7 +660,14 @@ def get_season_searches(gogo=True):
     else:
         anime_in_season = MAL().get_seasonal_anime(season_year, season_name)
 
-    print("Anime found in {} {} Season: ".format(season_year, season_name))
+    cprint("Anime found in {} {} Season: ".format(season_year, season_name))
+    cprint(
+        colors.CYAN, "Anime found in ",
+        colors.GREEN, season_year,
+        colors.CYAN, " ",
+        colors.YELLOW, season_name,
+        colors.CYAN, " Season: "
+    )
     anime_names = []
     for anime in anime_in_season:
         if gogo:
@@ -732,7 +739,7 @@ class MALCli:
 
     def take_input(self):
         while True:
-            picked = input(colors.END + "Enter option: ")
+            picked = cinput("Enter option: ", colors.END)
             if picked == "a":
                 self.add_anime()
             elif picked == "e":
@@ -832,19 +839,17 @@ class MALCli:
             else:
                 color = colors.GREEN
 
-            print(
-                "==> Last watched EP: {} | ({}) | {}".format(
-                    i["node"]["my_list_status"]["num_episodes_watched"],
-                    color(status, color),
-                    i["node"]["title"],
-                )
+            cprint(
+                colors.CYAN, "==> Last watched EP: {}".format(i["node"]["my_list_status"]["num_episodes_watched"]),
+                color, " | ({}) | ".format(status),
+                colors.CYAN, i["node"]["title"]
             )
 
     def list_possible(self, latest_urls):
         for i in latest_urls:
-            print(f"{colors.RED}{i}:")
+            cprint(colors.RED, f"{i}:")
             for j in latest_urls[i]["ep_list"]:
-                print(f"{colors.CYAN}==> EP: {j[0]}")
+                cprint(colors.CYAN, f"==> EP: {j[0]}")
 
     def download(self, mode="all"):
         print("Preparing list of episodes...")
@@ -952,8 +957,9 @@ class MALCli:
                 done = False
                 search_name = failed_to_map[value]
                 while not done:
-                    print(
-                        f"{colors.GREEN}Current:{colors.CYAN} {failed_to_map[value]}{colors.END}\n"
+                    cprint(
+                        colors.GREEN, "Current: ",
+                        colors.CYAN, f"{failed_to_map[value]}\n"
                     )
                     show_entry = entry()
                     query_class = query(search_name, show_entry)
@@ -962,20 +968,15 @@ class MALCli:
                     if not links_query:
                         skip = False
                         while not links_query and not skip:
-                            print(
-                                f"{colors.ERROR}No search results for {colors.YELLOW}{failed_to_map[value]}{colors.END}\n"
+                            cprint(
+                                colors.ERROR, "No search results for ",
+                                colors.YELLOW, failed_to_map[value],
                             )
-                            print(
-                                f"{colors.GREEN}Sometimes the names on GoGo are too different from the ones on MAL.\n"
-                            )
-                            print(
-                                f"{colors.CYAN}Try custom name for mapping? (Y/N):{colors.END}\n"
-                            )
+                            cprint(colors.GREEN, "Sometimes the names on GoGo are too different from the ones on MAL.\n")
+                            cprint(colors.CYAN, "Try custom name for mapping? (Y/N):\n")
                             if input().lower() == "y":
                                 query_class = query(
-                                    input(
-                                        f"{colors.GREEN}Enter Search String to search on GoGo:\n{colors.END}"
-                                    ),
+                                    cinput("Enter Search String to search on GoGo:\n", colors.GREEN),
                                     show_entry,
                                 )
                                 links_query = query_class.get_links()
