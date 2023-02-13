@@ -21,13 +21,16 @@ def color(*values: str, sep: str = "") -> str:
     return sep.join(values) + colors.END
 
 
-def cinput(*prompt: str, input_color: str = "") -> None:
+def cinput(*prompt: str | int | float | bool, input_color: str = "") -> None:
     """An input function that handles coloring input."""
+    prompt = [str(value) for value in prompt]
     inp = input(color(*prompt) + input_color)
     print(colors.END, end="")
     return inp
 
 
-def cprint(*values: str, sep: str = "", **kwargs) -> None:
+def cprint(*values: str | int | float | bool, sep: str = "", **kwargs) -> None:
+    values = [str(value) for value in values]
+
     """Prints colored text."""
     print(color(*values, sep=sep), **kwargs)
