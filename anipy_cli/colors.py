@@ -21,7 +21,7 @@ def color(*values: str, sep: str = "") -> str:
     return sep.join(values) + colors.END
 
 
-def cinput(*prompt: str | int | float | bool, input_color: str = "") -> None:
+def cinput(*prompt: str | int | float | bool, input_color: str = "") -> str:
     """An input function that handles coloring input."""
     prompt = [str(value) for value in prompt]
     inp = input(color(*prompt) + input_color)
