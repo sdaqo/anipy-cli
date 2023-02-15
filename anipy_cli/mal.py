@@ -80,7 +80,7 @@ class MAL:
         if self.mal_user:
             if not self.auth():
                 error(
-                    "Could not authorize with MyAnimeList. Please check your credentials..."
+                    "Could not authenticate with MyAnimeList. Please check your credentials..."
                 )
             self.get_anime_list()
             if Config().auto_map_mal_to_gogo:
