@@ -770,7 +770,6 @@ class MALCli:
             self.print_opts()
 
     def add_anime(self):
-        show_entry = entry()
         searches = []
         if (
             not self.no_season_search
@@ -781,7 +780,6 @@ class MALCli:
         else:
             searches.append(input("Search: "))
 
-        #
         for search in searches:
             if isinstance(search, dict):
                 mal_entry = search
@@ -799,7 +797,7 @@ class MALCli:
                         if sel_index == "c":
                             skip = True
                             break
-                        selected = int(sel_index)
+                        selected = int(sel_index) - 1
                     except ValueError:
                         print("Please enter a valid number.")
                 if skip:
@@ -830,7 +828,9 @@ class MALCli:
         clear_console()
 
     def list_animes(self):
-        for i in self.m_class.get_anime_list():
+        mal_list = self.m_class.get_anime_list()
+        clear_console()
+        for i in mal_list:
             status = i["node"]["my_list_status"]["status"]
 
             if status == "completed":
@@ -854,6 +854,9 @@ class MALCli:
                 colors.CYAN,
                 i["node"]["title"],
             )
+        # List is empty
+        if not mal_list:
+            cprint(colors.YELLOW, "No anime found.\nAdd an anime to your list first.")
 
     def list_possible(self, latest_urls):
         for i in latest_urls:

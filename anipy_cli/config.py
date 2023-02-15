@@ -1,6 +1,7 @@
 import yaml
 from pathlib import Path
 from sys import platform
+from sys import exit as sys_exit
 
 
 class SysNotFoundError(Exception):
@@ -150,15 +151,14 @@ class Config:
                     config_options[attribute] = (
                         str(val) if isinstance(val, Path) else val
                     )
-            (self._get_config_path() / "config.yaml").touch()
-            with open((self._get_config_path() / "config.yaml"), "w") as file:
+            self._config_file.touch()
+            with open(self._config_file, "w") as file:
                 yaml.dump(
                     yaml.dump(config_options, file, indent=4, default_flow_style=False)
                 )
         except PermissionError as e:
-            print(f"Failed to create config file: {e}")
-            exit(f"Failed to create config file: {e}")
-            pass
+            print(f"Failed to create config file: {repr(e)}")
+            sys_exit(1)
 
     @staticmethod
     def _get_config_path() -> Path:

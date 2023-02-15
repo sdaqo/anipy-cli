@@ -249,7 +249,7 @@ class MAL:
         url = f"{self.api_baseurl}anime"
         params = {
             "q": query,
-            "limit": 3,
+            "limit": 10,
         }
         anime_found = self._make_request(url, "get", query_params=params)
         if (

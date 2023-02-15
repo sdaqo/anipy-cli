@@ -72,3 +72,8 @@ dc_presence: False
 # with the menu option in the default mode (cli)
 # automatically open it with mpv.
 auto_open_dl_defaultcli: False
+
+# Mal user credentials
+# Required to connect to your MAL account and use the MAL cli.
+mal_user: username
+mal_password: password
