@@ -104,8 +104,7 @@ class MAL:
                     self.shows_failed_automap.discard(result['mal_entry']["node"]['title'])
         self.local_mal_list_json["data"] = new_mal_entries
         self.write_save_data()
-        #for mal_entry in self.local_mal_list_json["data"]:
-        #    self.auto_map_gogo_mal(mal_entry)
+
         return self.shows_failed_automap
 
     def get_all_without_gogo_map(self):
