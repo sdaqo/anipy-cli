@@ -5,6 +5,7 @@ import os
 import sys
 import time
 from copy import deepcopy
+from multiprocessing import Pool
 
 import requests
 from requests.adapters import HTTPAdapter, Retry
@@ -88,8 +89,23 @@ class MAL:
                 self.sync_mal_with_seasonal()
 
     def auto_map_all_without_map(self):
-        for mal_entry in self.local_mal_list_json["data"]:
-            self.auto_map_gogo_mal(mal_entry)
+        with Pool(processes=None) as pool:
+            mal_entries = self.local_mal_list_json["data"]
+            # apply the search function to each search value in parallel
+            results = pool.map(self.auto_map_gogo_mal, mal_entries, True)
+
+        new_mal_entries = list()
+        for result in results:
+            if type(result) is dict:
+                new_mal_entries.append(result['mal_entry'])
+                if result['failed_to_map'] is True:
+                    self.shows_failed_automap.add(result['mal_entry']["node"]["title"])
+                else:
+                    self.shows_failed_automap.discard(result['mal_entry']["node"]['title'])
+        self.local_mal_list_json["data"] = new_mal_entries
+        self.write_save_data()
+        #for mal_entry in self.local_mal_list_json["data"]:
+        #    self.auto_map_gogo_mal(mal_entry)
         return self.shows_failed_automap
 
     def get_all_without_gogo_map(self):
@@ -532,9 +548,10 @@ class MAL:
             self.add_show(anime[0], anime[1], anime[2])
             print(f"{colors.GREEN}Done.{colors.END}")
 
-    def auto_map_gogo_mal(self, mal_entry):
+    def auto_map_gogo_mal(self, mal_entry, mp=False):
         if "gogo_map" in mal_entry and len(mal_entry["gogo_map"]) > 0:
-            return True
+            return {'failed_to_map': False, 'mal_entry': mal_entry}
+        failed_to_map = True
         print(
             "{} Auto mapping:{} {}".format(
                 colors.GREEN, mal_entry["node"]["title"], colors.END
@@ -548,6 +565,7 @@ class MAL:
 
         found = {}
         for search in search_values:
+
             query_class = query(search, entry)
             query_class.get_pages()
             found["search"] = query_class.get_links(mute=True)
@@ -567,7 +585,9 @@ class MAL:
                     current_map = self.make_gogo_map(found["search"][0][i], anime)
 
                     self.update_gogo_map_list(gogo_map, current_map)
-                    self.shows_failed_automap.discard(mal_entry["node"]["title"])
+                    failed_to_map = False
+                    if not mp:
+                        self.shows_failed_automap.discard(mal_entry["node"]["title"])
                     self.update_anime_list(
                         mal_entry["node"]["id"],
                         {
@@ -578,8 +598,11 @@ class MAL:
                         },
                     )
                 else:
-                    self.shows_failed_automap.add(mal_entry["node"]["title"])
-        self.write_save_data()
+                    if not mp:
+                        self.shows_failed_automap.add(mal_entry["node"]["title"])
+        if mp:
+            self.write_save_data()
+        return {'failed_to_map': failed_to_map, 'mal_entry': mal_entry}
 
     def manual_map_gogo_mal(self, mal_anime_name: str, gogo: dict):
         mal_entry = [
