@@ -52,28 +52,28 @@ Places of the config:
 # Usage
 
 ```
-usage: anipy-cli [-h] [-q QUALITY] [-H] [-d] [-D] [-B] [-S] [-f] [-c] [-o] [-a] [-s] [-v] [-l LOCATION]
+usage: anipy-cli [-h] [-q QUALITY] [-H] [-d] [-D] [-B] [-S] [-f] [-c] [-o] [-a] [-s] [-v] [-l LOCATION] [--mal-password MAL_PASSWORD]
 
-Play Animes from gogoanime in local video-player or Download them.
+Play Anime from gogoanime in local video-player or Download them.
 
 options:
-  -h, --help            show this help message and exit
-  -q QUALITY, --quality QUALITY
-                        Change the quality of the video, accepts: best, worst or 360, 480, 720 etc. Default: best
-  -H, --history         Show your history of watched anime
-  -d, --download        Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)
-  -D, --delete-history  Delete your History.
-  -B, --binge           Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)
-  -S, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
-  -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
-  -c, --config          Print path to the config file.
-  -o, --no-seas-search  Turn off search in season. Disables prompting if GoGoAnime is to be searched for anime in specific season.
-  -a, --auto-update     Automatically update and download all Anime in seasonals list from start EP to newest.
-  -s, --syncplay        Use Syncplay to watch Anime with your Friends.
-  -v, --vlc             Use VLC instead of mpv as video-player
-  -l LOCATION, --location LOCATION
-                        Override all configured download locations
-  -m, --my-anime-list   MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList (requires MAL account credentials to be set in config).
+  -h, --help                        show this help message and exit
+  -q QUALITY, --quality             QUALITY
+                                    Change the quality of the video, accepts: best, worst or 360, 480, 720 etc. Default: best
+  -H, --history                     Show your history of watched anime
+  -d, --download                    Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)
+  -D, --delete-history              Delete your History.
+  -B, --binge                       Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)
+  -S, --seasonal                    Seasonal Anime mode. Bulk download or binge watch newest episodes.
+  -f, --ffmpeg                      Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
+  -c, --config                      Print path to the config file.
+  -o, --no-seas-search              Turn off search in season. Disables prompting if GoGoAnime is to be searched for anime in specific season.
+  -a, --auto-update                 Automatically update and download all Anime in seasonals list from start EP to newest.
+  -s, --syncplay                    Use Syncplay to watch Anime with your Friends.
+  -v, --vlc                         Use VLC instead of mpv as video-player
+  -l LOCATION, --location LOCATION  Override all configured download locations
+  -m, --my-anime-list               MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList (requires MAL account credentials to be set in config).
+  --mal-password MAL_PASSWORD       Provide password for MAL login (overrides password set in config)
 ```
 
 # What it can do
