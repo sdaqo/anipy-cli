@@ -127,4 +127,12 @@ def parse_args():
         help="Override all configured download locations",
     )
 
+    parser.add_argument(
+        "--mal-password",
+        required=False,
+        dest="mal_password",
+        action="store",
+        help="Provide password for MAL login (overrides password set in config)",
+    )
+
     return parser.parse_args()

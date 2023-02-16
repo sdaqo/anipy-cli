@@ -697,8 +697,8 @@ def get_season_searches(gogo=True):
     return searches
 
 
-def mal_cli(quality, no_season_search, ffmpeg, auto_update, player, path):
-    m = MALCli(quality, player, no_season_search, ffmpeg, auto_update, path)
+def mal_cli(quality, no_season_search, ffmpeg, auto_update, player, path, mal_password):
+    m = MALCli(quality, player, no_season_search, ffmpeg, auto_update, path, mal_password)
     if auto_update:
         m.download(mode="all")
 
@@ -716,27 +716,50 @@ class MALCli:
         ffmpeg=False,
         auto=False,
         path=False,
+        mal_password=None
     ):
         self.entry = entry()
         self.quality = quality
-        self.m_class = MAL()
         self.ffmpeg = ffmpeg
         self.auto = auto
         self.player = player
         self.no_season_search = no_season_search
         self.path = path
+        self.mal_password = mal_password
         if path is None:
             self.path = Config().seasonals_dl_path
-        if (
-            not Config().mal_user
-            or Config().mal_user == ""
-            or not Config().mal_password
-            or Config().mal_password == ""
-        ):
-            error(
-                "MAL Credentials need to be provided in config in order to use MAL CLI. Please check your config."
-            )
-            sys.exit(1)
+        user = None
+        if Config().mal_user and Config().mal_user != "":
+            user = Config().mal_user
+
+        if mal_password is not None and mal_password != "":
+            password = mal_password
+        else:
+            password = Config().mal_password
+        if not password or password == "":
+            password = None
+
+        cprint(colors.ERROR, "Missing credentials!\n")
+        cprint(colors.CYAN, "In order to use the MAL-Mode, you need to specify your username and password.\n")
+        cprint(colors.CYAN, "Those can be specified in the anipy-cli config file.\n")
+
+
+        if user is None:
+            while not user:
+                user_input = cinput(colors.CYAN, "Please enter your MyAnimeList ", colors.YELLOW, "Username ",
+                                    colors.CYAN, ":\n")
+                if user_input and user_input != "":
+                    user = user_input
+
+        if password is None:
+            cprint(colors.MAGENTA, "The password can also be passed with the '--mal-password' parameter.")
+            while not password:
+                pw_input = cinput(colors.CYAN, "Please enter your MyAnimeList ", colors.YELLOW, "Password ",
+                                    colors.CYAN, ":\n")
+                if pw_input and pw_input != "":
+                    password = pw_input
+
+        self.m_class = MAL(user, password)
 
     def print_opts(self):
         for i in mal_options:
@@ -1133,6 +1156,7 @@ def main():
             args.auto_update,
             player,
             location,
+            args.mal_password
         )
 
     else:

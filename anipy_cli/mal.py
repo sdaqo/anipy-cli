@@ -30,7 +30,7 @@ class MAL:
     MyAnimeList API client
     """
 
-    def __init__(self):
+    def __init__(self, user=None, password=None):
         # API information taken from here: https://github.com/SuperMarcus/myanimelist-api-specification
         self.entry = entry()
         self.local_mal_list_json = None
@@ -51,12 +51,14 @@ class MAL:
         self.mal_user = (
             Config().mal_user
             if Config().mal_user and Config().mal_user != ""
-            else False
+            else (user if user else False)
         )
         self.mal_password = (
-            Config().mal_password
-            if Config().mal_password and Config().mal_password != ""
-            else False
+            password if password else (
+                Config().mal_password
+                if Config().mal_password and Config().mal_password != ""
+                else False
+            )
         )
         self.anime_list = None
         self.gogo_baseurl = Config().gogoanime_url
