@@ -183,7 +183,7 @@ class download:
             ts_filenames = [
                 line.rstrip() + f"{suffix}"
                 for line in playlist
-                if line.rstrip().endswith(".ts")
+                if not line.lstrip().startswith("#")
             ]
         # open one ts_file from the list after another and append them to merged.ts
         with open(filename, "wb") as merged:
