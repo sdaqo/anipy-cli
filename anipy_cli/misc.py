@@ -35,7 +35,7 @@ mal_options = [
     color(colors.GREEN, "[a] ") + "Add Anime",
     color(colors.GREEN, "[e] ") + "Delete one anime from mal list",
     color(colors.GREEN, "[l] ") + "List anime in mal list",
-    color(colors.GREEN, "[m] ") + "Manually Map MAL anime to gogo Link",
+    color(colors.GREEN, "[m] ") + "Map MAL anime to gogo Links",
     color(colors.GREEN, "[s] ") + "Sync MAL list into seasonals",
     color(colors.GREEN, "[b] ") + "Sync seasonals into MAL list",
     color(colors.GREEN, "[d] ") + "Download newest episodes",
