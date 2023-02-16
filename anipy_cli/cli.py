@@ -725,7 +725,6 @@ class MALCli:
         self.player = player
         self.no_season_search = no_season_search
         self.path = path
-        self.mal_password = mal_password
         if path is None:
             self.path = Config().seasonals_dl_path
         user = None
@@ -739,9 +738,10 @@ class MALCli:
         if not password or password == "":
             password = None
 
-        cprint(colors.ERROR, "Missing credentials!\n")
-        cprint(colors.CYAN, "In order to use the MAL-Mode, you need to specify your username and password.\n")
-        cprint(colors.CYAN, "Those can be specified in the anipy-cli config file.\n")
+        if user is None or password is None:
+            cprint(colors.ERROR, "Missing credentials!\n")
+            cprint(colors.CYAN, "In order to use the MAL-Mode, you need to specify your username and password.\n")
+            cprint(colors.CYAN, "Those can be specified in the anipy-cli config file.\n")
 
 
         if user is None:
@@ -968,7 +968,8 @@ class MALCli:
         failed_to_map = list(self.m_class.get_all_without_gogo_map())
         failed_to_map.sort(key=len, reverse=True)
         if not self.auto and len(failed_to_map) > 0:
-            print("MAL Anime that failed auto-map to gogo:")
+            cprint(colors.YELLOW, "Some Anime failed auto-mapping...")
+            cprint(colors.GREEN, "Select Anime for manual mapping:\n")
             selected = []
             searches = []
 

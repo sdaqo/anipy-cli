@@ -11,7 +11,7 @@ import requests
 from requests.adapters import HTTPAdapter, Retry
 
 from . import epHandler, Seasonal, query
-from .colors import colors
+from .colors import colors, cprint
 from .config import Config
 from .misc import read_json, error, entry
 
@@ -553,11 +553,7 @@ class MAL:
         if "gogo_map" in mal_entry and len(mal_entry["gogo_map"]) > 0:
             return {'failed_to_map': False, 'mal_entry': mal_entry}
         failed_to_map = True
-        print(
-            "{} Auto mapping:{} {}".format(
-                colors.GREEN, mal_entry["node"]["title"], colors.END
-            )
-        )
+        cprint(colors.GREEN, "Auto mapping: ", colors.BLUE, mal_entry["node"]["title"])
 
         search_values = [
             mal_entry["node"]["title"],
