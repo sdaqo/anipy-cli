@@ -54,7 +54,9 @@ class MAL:
             else (user if user else False)
         )
         self.mal_password = (
-            password if password else (
+            password
+            if password
+            else (
                 Config().mal_password
                 if Config().mal_password and Config().mal_password != ""
                 else False
@@ -99,11 +101,13 @@ class MAL:
         new_mal_entries = list()
         for result in results:
             if type(result) is dict:
-                new_mal_entries.append(result['mal_entry'])
-                if result['failed_to_map'] is True:
-                    self.shows_failed_automap.add(result['mal_entry']["node"]["title"])
+                new_mal_entries.append(result["mal_entry"])
+                if result["failed_to_map"] is True:
+                    self.shows_failed_automap.add(result["mal_entry"]["node"]["title"])
                 else:
-                    self.shows_failed_automap.discard(result['mal_entry']["node"]['title'])
+                    self.shows_failed_automap.discard(
+                        result["mal_entry"]["node"]["title"]
+                    )
         self.local_mal_list_json["data"] = new_mal_entries
         self.write_save_data()
 
@@ -551,7 +555,7 @@ class MAL:
 
     def auto_map_gogo_mal(self, mal_entry, mp=False):
         if "gogo_map" in mal_entry and len(mal_entry["gogo_map"]) > 0:
-            return {'failed_to_map': False, 'mal_entry': mal_entry}
+            return {"failed_to_map": False, "mal_entry": mal_entry}
         failed_to_map = True
         cprint(colors.GREEN, "Auto mapping: ", colors.BLUE, mal_entry["node"]["title"])
 
@@ -599,7 +603,7 @@ class MAL:
                         self.shows_failed_automap.add(mal_entry["node"]["title"])
         if mp:
             self.write_save_data()
-        return {'failed_to_map': failed_to_map, 'mal_entry': mal_entry}
+        return {"failed_to_map": failed_to_map, "mal_entry": mal_entry}
 
     def manual_map_gogo_mal(self, mal_anime_name: str, gogo: dict):
         mal_entry = [

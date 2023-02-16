@@ -698,7 +698,9 @@ def get_season_searches(gogo=True):
 
 
 def mal_cli(quality, no_season_search, ffmpeg, auto_update, player, path, mal_password):
-    m = MALCli(quality, player, no_season_search, ffmpeg, auto_update, path, mal_password)
+    m = MALCli(
+        quality, player, no_season_search, ffmpeg, auto_update, path, mal_password
+    )
     if auto_update:
         m.download(mode="all")
 
@@ -716,7 +718,7 @@ class MALCli:
         ffmpeg=False,
         auto=False,
         path=False,
-        mal_password=None
+        mal_password=None,
     ):
         self.entry = entry()
         self.quality = quality
@@ -740,22 +742,41 @@ class MALCli:
 
         if user is None or password is None:
             cprint(colors.ERROR, "Missing credentials!\n")
-            cprint(colors.CYAN, "In order to use the MAL-Mode, you need to specify your username and password.\n")
-            cprint(colors.CYAN, "Those can be specified in the anipy-cli config file.\n")
-
+            cprint(
+                colors.CYAN,
+                "In order to use the MAL-Mode, you need to specify your username and password.\n",
+            )
+            cprint(
+                colors.CYAN, "Those can be specified in the anipy-cli config file.\n"
+            )
 
         if user is None:
             while not user:
-                user_input = cinput(colors.CYAN, "Please enter your MyAnimeList ", colors.YELLOW, "Username ",
-                                    colors.CYAN, ":\n")
+                user_input = cinput(
+                    colors.CYAN,
+                    "Please enter your MyAnimeList ",
+                    colors.YELLOW,
+                    "Username ",
+                    colors.CYAN,
+                    ":\n",
+                )
                 if user_input and user_input != "":
                     user = user_input
 
         if password is None:
-            cprint(colors.MAGENTA, "The password can also be passed with the '--mal-password' parameter.")
+            cprint(
+                colors.MAGENTA,
+                "The password can also be passed with the '--mal-password' parameter.",
+            )
             while not password:
-                pw_input = cinput(colors.CYAN, "Please enter your MyAnimeList ", colors.YELLOW, "Password ",
-                                    colors.CYAN, ":\n")
+                pw_input = cinput(
+                    colors.CYAN,
+                    "Please enter your MyAnimeList ",
+                    colors.YELLOW,
+                    "Password ",
+                    colors.CYAN,
+                    ":\n",
+                )
                 if pw_input and pw_input != "":
                     password = pw_input
 
@@ -1157,7 +1178,7 @@ def main():
             args.auto_update,
             player,
             location,
-            args.mal_password
+            args.mal_password,
         )
 
     else:
