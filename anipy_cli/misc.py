@@ -206,6 +206,9 @@ def dc_presence_connect():
         cprint(colors.GREEN, "Initialized Discord Presence Client")
     except DiscordNotFound:
         cprint(colors.RED, "Discord is not opened, can't initialize Discord Presence")
+    except ConnectionError:
+        cprint(colors.RED, "Can't Connect to discord.")
+
 
     return rpc_client
 
