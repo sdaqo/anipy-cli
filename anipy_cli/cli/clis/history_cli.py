@@ -46,7 +46,7 @@ class HistoryCli(CliBase):
         self.entry.show_name = picked
         self.entry.ep = self.hist[picked]["ep"]
         self.entry.ep_url = self.hist[picked]["ep-link"]
-        self.entry.category_url = self.hist[picked]["category-url"]
+        self.entry.category_url = self.hist[picked]["category-link"]
         self.entry.latest_ep = epHandler(self.entry).get_latest()
 
     def process(self):
@@ -62,5 +62,4 @@ class HistoryCli(CliBase):
             options=self.options,
             entry=self.entry,
             player=self.player,
-            rpc_client=self.rpc_client
         ).run()
