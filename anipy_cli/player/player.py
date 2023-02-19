@@ -3,7 +3,7 @@ from typing import TypeVar
 
 from anipy_cli.config import Config
 from anipy_cli.misc import error
-from anipy_cli.player.players import MpvControllable, Mpv, Vlc, Syncplay
+from anipy_cli.player.players import Mpv, Vlc, Syncplay
 from anipy_cli.player.players.base import PlayerBase
 
 PlayerBaseType = TypeVar('PlayerBaseType', bound=PlayerBase)
@@ -17,6 +17,7 @@ def get_player(rpc_client=None, player_override=None) -> PlayerBaseType:
         player = cfg.player_path
     
     if player == "mpv" and cfg.reuse_mpv_window:
+        from anipy_cli.player.players import MpvControllable
         return MpvControllable(rpc_client=rpc_client)
 
     if player in ("mpv", "mpvnet"):
