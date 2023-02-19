@@ -1,8 +1,8 @@
 import json
 import sys
 
-from .misc import error, read_json
-from .config import Config
+from anipy_cli.misc import error, read_json
+from anipy_cli.config import Config
 
 
 class history:

@@ -1,3 +1,3 @@
-from .menu import Menu
-from .mal_menu import MALMenu
-from .seasonal_menu import SeasonalMenu
+from anipy_cli.cli.menus.menu import Menu
+from anipy_cli.cli.menus.mal_menu import MALMenu
+from anipy_cli.cli.menus.seasonal_menu import SeasonalMenu

@@ -1,9 +1,9 @@
-from ..colors import cprint, colors, cinput
-from ..misc import Entry, search_in_season_on_gogo, print_names
-from ..url_handler import epHandler, videourl
-from ..mal import MAL
-from ..seasonal import Seasonal
-from ..player import PlayerBaseType
+from anipy_cli.colors import cprint, colors, cinput
+from anipy_cli.misc import Entry, search_in_season_on_gogo, print_names
+from anipy_cli.url_handler import epHandler, videourl
+from anipy_cli.mal import MAL
+from anipy_cli.seasonal import Seasonal
+from anipy_cli.player import PlayerBaseType
 
 
 def binge(ep_list, quality, player: PlayerBaseType, mode="", mal_class: MAL = None):

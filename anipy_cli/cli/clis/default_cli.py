@@ -1,12 +1,12 @@
 import sys
 
-from ...misc import Entry
-from ...query import query
-from ...url_handler import epHandler, videourl
-from ...player import get_player
-from ...arg_parser import CliArgs
-from ..menus import Menu
-from .base_cli import CliBase
+from anipy_cli.misc import Entry
+from anipy_cli.query import query
+from anipy_cli.url_handler import epHandler, videourl
+from anipy_cli.player import get_player
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.cli.menus import Menu
+from anipy_cli.cli.clis.base_cli import CliBase
 
 
 class DefaultCli(CliBase): 
@@ -44,4 +44,5 @@ class DefaultCli(CliBase):
             options=self.options,
             entry=self.entry,
             player=self.player,
+            rpc_client=self.rpc_client
         ).run()

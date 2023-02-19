@@ -1,16 +1,16 @@
 import sys
 
-from ...arg_parser import CliArgs
-from ...colors import colors, cprint, cinput
-from ...misc import Entry, print_names, error
-from ...player import get_player
-from ...url_handler import videourl, epHandler
-from ...query import query
-from ...download import download
-from ...config import Config
-from ...seasonal import Seasonal
-from ..util import get_season_searches, binge
-from .base_menu import MenuBase, MenuOption
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.colors import colors, cprint, cinput
+from anipy_cli.misc import Entry, print_names, error
+from anipy_cli.player import get_player
+from anipy_cli.url_handler import videourl, epHandler
+from anipy_cli.query import query
+from anipy_cli.download import download
+from anipy_cli.config import Config
+from anipy_cli.seasonal import Seasonal
+from anipy_cli.cli.util import get_season_searches, binge
+from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 
 
 class SeasonalMenu(MenuBase, Seasonal):

@@ -11,9 +11,9 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
 
-from .misc import response_err, error, loc_err, parsenum, Entry
-from .colors import colors
-from .config import Config
+from anipy_cli.misc import response_err, error, loc_err, parsenum, Entry
+from anipy_cli.colors import colors
+from anipy_cli.config import Config
 
 
 class epHandler:

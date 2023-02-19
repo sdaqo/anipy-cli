@@ -1,13 +1,11 @@
-import sys
-
-from ...colors import cprint, colors
-from ...misc import Entry
-from ...query import query
-from ...url_handler import epHandler, videourl
-from ...player import get_player
-from ...arg_parser import CliArgs
-from ..util import binge
-from .base_cli import CliBase
+from anipy_cli.colors import cprint, colors
+from anipy_cli.misc import Entry
+from anipy_cli.query import query
+from anipy_cli.url_handler import epHandler
+from anipy_cli.player import get_player
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.cli.util import binge
+from anipy_cli.cli.clis.base_cli import CliBase
 
 
 class BingeCli(CliBase):

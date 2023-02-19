@@ -9,8 +9,8 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from typing import Union
 
-from .config import Config
-from .colors import colors, color, cprint
+from anipy_cli.config import Config
+from anipy_cli.colors import colors, color, cprint
 
 @dataclass
 class Entry:

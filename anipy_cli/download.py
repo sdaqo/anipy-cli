@@ -13,9 +13,9 @@ from concurrent.futures import ThreadPoolExecutor
 from better_ffmpeg_progress import FfmpegProcess
 from moviepy.editor import ffmpeg_tools
 
-from .misc import response_err, error, keyboard_inter
-from .colors import colors, color, cprint
-from .config import Config
+from anipy_cli.misc import response_err, error, keyboard_inter
+from anipy_cli.colors import colors, color, cprint
+from anipy_cli.config import Config
 
 
 class download:

@@ -1,10 +1,10 @@
 import sys
 from typing import TypeVar
 
-from ..config import Config
-from ..misc import error
-from .players import MpvControllable, Mpv, Vlc, Syncplay
-from .players.base import PlayerBase
+from anipy_cli.config import Config
+from anipy_cli.misc import error
+from anipy_cli.player.players import MpvControllable, Mpv, Vlc, Syncplay
+from anipy_cli.player.players.base import PlayerBase
 
 PlayerBaseType = TypeVar('PlayerBaseType', bound=PlayerBase)
 

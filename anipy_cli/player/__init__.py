@@ -1,1 +1,1 @@
-from .player import get_player, PlayerBaseType
+from anipy_cli.player.player import get_player, PlayerBaseType

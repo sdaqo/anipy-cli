@@ -1,18 +1,22 @@
 import sys
 
-from ...arg_parser import CliArgs
-from ...colors import colors, cprint
-from ...misc import Entry, error
-from ...player import PlayerBaseType
-from ...url_handler import videourl, epHandler
-from ...query import query
-from ...download import download
-from ...config import Config
-from .base_menu import MenuBase, MenuOption
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.colors import colors, cprint
+from anipy_cli.misc import Entry, error
+from anipy_cli.player import PlayerBaseType
+from anipy_cli.url_handler import videourl, epHandler
+from anipy_cli.query import query
+from anipy_cli.download import download
+from anipy_cli.config import Config
+from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
+
+# Circular import bs, for HistoryCli class
+import anipy_cli.cli.clis.history_cli
 
 
 class Menu(MenuBase):
-    def __init__(self, options: CliArgs, entry: Entry, player: PlayerBaseType):
+    def __init__(self, options: CliArgs, entry: Entry, player: PlayerBaseType, rpc_client=None):
+        self.rpc_client = rpc_client
         self.options = options
         self.entry = entry
         self.player = player
@@ -66,7 +70,8 @@ class Menu(MenuBase):
         self.print_options()
 
     def hist(self):
-        history_cli(self.options.quality, self.player)
+        self.player.kill_player()
+        anipy_cli.cli.clis.history_cli.HistoryCli(self.options, self.rpc_client).run()
 
     def search(self):
         query_class = query(input("Search: "), self.entry)

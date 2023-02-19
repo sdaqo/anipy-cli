@@ -1,12 +1,11 @@
 import os
-import time
 import subprocess as sp
 import sys
 from abc import ABC, abstractmethod
 
-from ...colors import cprint, colors
-from ...history import history
-from ...misc import dc_presence, Entry
+from anipy_cli.colors import cprint, colors
+from anipy_cli.history import history
+from anipy_cli.misc import dc_presence, Entry
 
 
 class PlayerBase(ABC):

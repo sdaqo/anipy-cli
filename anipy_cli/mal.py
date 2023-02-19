@@ -10,10 +10,12 @@ from multiprocessing import Pool
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
-from . import epHandler, Seasonal, query
-from .colors import colors, cprint
-from .config import Config
-from .misc import read_json, error, Entry
+from anipy_cli.url_handler import epHandler
+from anipy_cli.seasonal import Seasonal
+from anipy_cli.query import query
+from anipy_cli.colors import colors, cprint
+from anipy_cli.config import Config
+from anipy_cli.misc import read_json, error, Entry
 
 
 def _base64_decode(b64: str):

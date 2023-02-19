@@ -2,9 +2,9 @@ import requests
 import re
 from bs4 import BeautifulSoup
 
-from .misc import loc_err, response_err, error, print_names
-from .colors import colors, cinput
-from .config import Config
+from anipy_cli.misc import loc_err, response_err, error, print_names
+from anipy_cli.colors import colors, cinput
+from anipy_cli.config import Config
 
 base_url = Config().gogoanime_url
 

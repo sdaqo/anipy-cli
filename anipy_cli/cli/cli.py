@@ -1,9 +1,8 @@
-import os
-from ..misc import error, dc_presence_connect
-from ..arg_parser import parse_args
-from ..config import Config
-from ..colors import cprint, colors
-from .clis import *
+from anipy_cli.misc import error, dc_presence_connect
+from anipy_cli.arg_parser import parse_args
+from anipy_cli.config import Config
+from anipy_cli.colors import cprint, colors
+from anipy_cli.cli.clis import *
 
 
 def run_cli() -> None:

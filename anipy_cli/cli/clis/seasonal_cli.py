@@ -1,6 +1,6 @@
-from ...arg_parser import CliArgs
-from ..menus import SeasonalMenu
-from .base_cli import CliBase
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.cli.menus import SeasonalMenu
+from anipy_cli.cli.clis.base_cli import CliBase
 
 
 class SeasonalCli(CliBase):

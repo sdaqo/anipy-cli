@@ -10,12 +10,12 @@
 https://github.com/sdaqo/anipy-cli
 
 """
-from .download import download
-from .url_handler import epHandler, videourl
-from . import config
-from .query import query
-from .player import get_player
-from .misc import Entry, get_anime_info
-from .seasonal import Seasonal
-from .history import history
+from anipy_cli.download import download
+from anipy_cli.url_handler import epHandler, videourl
+from anipy_cli import config
+from anipy_cli.query import query
+from anipy_cli.player import get_player
+from anipy_cli.misc import Entry, get_anime_info
+from anipy_cli.seasonal import Seasonal
+from anipy_cli.history import history
 

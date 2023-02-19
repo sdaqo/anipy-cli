@@ -1,16 +1,14 @@
-import sys
 from copy import deepcopy
 
-from ...arg_parser import CliArgs
-from ...config import Config
-from ...colors import cprint, colors
-from ...misc import Entry
-from ...query import query
-from ...url_handler import videourl, epHandler
-from ...misc import parsenum
-from ...download import download
-from ..util import get_season_searches
-from .base_cli import CliBase
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.config import Config
+from anipy_cli.colors import cprint, colors
+from anipy_cli.misc import Entry, parsenum
+from anipy_cli.query import query
+from anipy_cli.url_handler import videourl, epHandler
+from anipy_cli.download import download
+from anipy_cli.cli.util import get_season_searches
+from anipy_cli.cli.clis.base_cli import CliBase
 
 
 class DownloadCli(CliBase):

@@ -1,11 +1,11 @@
-from ...arg_parser import CliArgs
-from ...misc import Entry, error, print_names
-from ...colors import cinput, colors
-from ...history import history
-from ...url_handler import epHandler, videourl
-from ...player import get_player
-from ..menus import Menu
-from .base_cli import CliBase
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.misc import Entry, error, print_names
+from anipy_cli.colors import cinput, colors
+from anipy_cli.history import history
+from anipy_cli.url_handler import epHandler, videourl
+from anipy_cli.player import get_player
+from anipy_cli.cli.menus import Menu
+from anipy_cli.cli.clis.base_cli import CliBase
 
 
 class HistoryCli(CliBase):
@@ -17,8 +17,7 @@ class HistoryCli(CliBase):
             rpc_client=self.rpc_client,
             player_override=self.options.optional_player
         )
-        self.hist = history(self.entry)\
-            .read_save_data()
+        self.hist = history(self.entry).read_save_data()
 
     def print_header(self):
         pass
@@ -62,4 +61,5 @@ class HistoryCli(CliBase):
             options=self.options,
             entry=self.entry,
             player=self.player,
+            rpc_client=self.rpc_client
         ).run()

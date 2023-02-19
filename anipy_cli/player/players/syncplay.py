@@ -1,5 +1,5 @@
-from .base import SubProcessPlayerBase
-from ...config import Config
+from anipy_cli.player.players.base import SubProcessPlayerBase
+from anipy_cli.config import Config
 
 
 class Syncplay(SubProcessPlayerBase):

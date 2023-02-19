@@ -1,11 +1,10 @@
 import sys
-
-from ...misc import error, clear_console
-from ...colors import colors, color
-
 from dataclasses import dataclass
 from typing import Callable
 from abc import ABC, abstractmethod
+
+from anipy_cli.misc import error, clear_console
+from anipy_cli.colors import colors, color
 
 
 @dataclass(frozen=True)

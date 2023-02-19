@@ -1,9 +1,9 @@
 import json
 import sys
 
-from .config import Config
-from .url_handler import epHandler
-from .misc import Entry, error, read_json
+from anipy_cli.config import Config
+from anipy_cli.url_handler import epHandler
+from anipy_cli.misc import Entry, error, read_json
 
 
 class Seasonal:

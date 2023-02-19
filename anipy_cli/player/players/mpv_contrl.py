@@ -1,6 +1,6 @@
 import mpv
 
-from .base import PlayerBase
+from anipy_cli.player.players.base import PlayerBase
 
 
 class MpvControllable(mpv.MPV, PlayerBase):

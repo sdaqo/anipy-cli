@@ -1,8 +1,8 @@
 import sys
 from abc import ABC, abstractmethod
-from ...arg_parser import CliArgs
 
-from ...misc import error
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.misc import error
 
 
 class CliBase(ABC):

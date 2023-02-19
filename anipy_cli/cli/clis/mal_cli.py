@@ -1,7 +1,6 @@
-from ...player import get_player
-from ...arg_parser import CliArgs
-from ..menus import MALMenu
-from .base_cli import CliBase
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.cli.menus import MALMenu
+from anipy_cli.cli.clis.base_cli import CliBase
 
 
 class MalCli(CliBase):
