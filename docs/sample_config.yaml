@@ -77,3 +77,9 @@ auto_open_dl_defaultcli: False
 # Required to connect to your MAL account and use the MAL cli.
 mal_user: username
 mal_password: password
+
+# Specify Anime Types that should be shown in search results.
+# Defaults to sub and dub
+anime_types: 
+  - "sub"
+  - "dub"

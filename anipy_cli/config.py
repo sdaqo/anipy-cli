@@ -124,7 +124,7 @@ class Config:
 
     @property
     def anime_types(self):
-        return self._get_value("anime_types", list(["sub"]), list)
+        return self._get_value("anime_types", list(["sub", "dub"]), list)
 
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
