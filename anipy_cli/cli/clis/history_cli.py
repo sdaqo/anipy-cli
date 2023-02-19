@@ -9,7 +9,7 @@ from .base_cli import CliBase
 
 
 class HistoryCli(CliBase):
-    def __int__(self, options: CliArgs, rpc_client=None):
+    def __init__(self, options: CliArgs, rpc_client=None):
         super().__init__(options, rpc_client)
 
         self.entry = Entry()
