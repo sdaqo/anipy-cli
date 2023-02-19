@@ -5,7 +5,7 @@ from anipy_cli.misc import keyboard_inter
 
 def main():
     try:
-        cli.main()
+        cli.run_cli()
     except KeyboardInterrupt:
         keyboard_inter()
 

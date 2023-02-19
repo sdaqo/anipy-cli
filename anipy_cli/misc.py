@@ -2,6 +2,9 @@ import os
 import requests
 import sys
 import json
+import time
+from pypresence import Presence
+from pypresence.exceptions import DiscordNotFound
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from typing import Union
@@ -9,49 +12,11 @@ from typing import Union
 from .config import Config
 from .colors import colors, color, cprint
 
-options = [
-    color(colors.GREEN, "[n] ") + "Next Episode",
-    color(colors.GREEN, "[p] ") + "Previous Episode",
-    color(colors.GREEN, "[r] ") + "Replay episode",
-    color(colors.GREEN, "[s] ") + "Select episode",
-    color(colors.GREEN, "[h] ") + "History selection",
-    color(colors.GREEN, "[a] ") + "Search for Anime",
-    color(colors.GREEN, "[i] ") + "Print Video Info",
-    color(colors.GREEN, "[d] ") + "Download Episode",
-    color(colors.GREEN, "[q] ") + "Quit",
-]
-
-
-seasonal_options = [
-    color(colors.GREEN, "[a] ") + "Add Anime",
-    color(colors.GREEN, "[e] ") + "Delete one anime from seasonals",
-    color(colors.GREEN, "[l] ") + "List anime in seasonals file",
-    color(colors.GREEN, "[d] ") + "Download newest episodes",
-    color(colors.GREEN, "[w] ") + "Binge watch newest episodes",
-    color(colors.GREEN, "[q] ") + "Quit",
-]
-
-mal_options = [
-    color(colors.GREEN, "[a] ") + "Add Anime",
-    color(colors.GREEN, "[e] ") + "Delete one anime from mal list",
-    color(colors.GREEN, "[l] ") + "List anime in mal list",
-    color(colors.GREEN, "[m] ") + "Map MAL anime to gogo Links",
-    color(colors.GREEN, "[s] ") + "Sync MAL list into seasonals",
-    color(colors.GREEN, "[b] ") + "Sync seasonals into MAL list",
-    color(colors.GREEN, "[d] ") + "Download newest episodes",
-    color(colors.GREEN, "[x] ") + "Download all episodes",
-    color(colors.GREEN, "[w] ") + "Binge watch newest episodes",
-    color(colors.GREEN, "[q] ") + "Quit",
-]
-
-
 @dataclass
-class entry:
+class Entry:
     """
     This is the class that saves
-    metadata about a show. It is required
-    by all classes, it is an essential
-    part of this script.
+    metadata about a show.
     """
 
     show_name: str = ""
@@ -189,7 +154,7 @@ def search_in_season_on_gogo(s_year, s_name):
     gogo_anime_season_list = []
     while content:
         r = requests.get(
-            f"{Config().gogoanime_url}/sub-category/{s_year}-{s_name}-anime",
+            f"{Config().gogoanime_url}/sub-category/{s_name}-{s_year}-anime",
             params={"page": page},
         )
         soup = BeautifulSoup(r.content, "html.parser")
@@ -231,3 +196,27 @@ def filter_anime_list_dub_sub(gogo_anime_season_list):
     else:
         filtered_list = gogo_anime_season_list
     return filtered_list
+
+def dc_presence_connect():
+    CLIENT_ID = 966365883691855942
+    rpc_client = None
+    try:
+        rpc_client = Presence(CLIENT_ID)
+        rpc_client.connect()
+        cprint(colors.GREEN, "Initialized Discord Presence Client")
+    except DiscordNotFound:
+        cprint(colors.RED, "Discord is not opened, can't initialize Discord Presence")
+
+    return rpc_client
+
+
+def dc_presence(media_title, category_url, rpc_client):
+    info = get_anime_info(category_url)
+    rpc_client.update(
+        details="Watching anime via anipy-cli",
+        state=media_title,
+        large_image=info["image_url"],
+        small_image="https://github.com/Dankni95/ulauncher-anime/raw/master/images/icon.png",
+        start=int(time.time()),
+    )
+

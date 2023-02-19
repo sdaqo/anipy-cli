@@ -36,7 +36,7 @@ class query:
         except:
             self.pages = 1
 
-    def get_links(self, mute=False):
+    def get_links(self):
         """
         Get all category links and names of a query
         and returns them.
@@ -64,8 +64,6 @@ class query:
                 self.links.append(a_tag[0].get("href"))
 
         if not self.links:
-            if not mute:
-                error("no search results")
             return 0
         else:
             return self.links, self.names

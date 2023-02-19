@@ -1,13 +1,13 @@
 import pytest
 import sys
 import shutil
-from anipy_cli import entry, download, videourl, config
+from anipy_cli import Entry, download, videourl, config
 from ..util import config_clearer
 
 
 @pytest.fixture
 def show_entry():
-    show_entry = entry(
+    show_entry = Entry(
         show_name="Hyouka",
         category_url="https://gogoanime.tel/category/hyouka",
         ep_url="https://gogoanime.tv/hyouka-episode-1",

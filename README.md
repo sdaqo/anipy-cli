@@ -52,28 +52,41 @@ Places of the config:
 # Usage
 
 ```
-usage: anipy-cli [-h] [-q QUALITY] [-H] [-d] [-D] [-B] [-S] [-f] [-c] [-o] [-a] [-s] [-v] [-l LOCATION] [--mal-password MAL_PASSWORD]
+usage: anipy-cli [-D | -B | -H | -S | -M | --delete-history] [-q QUALITY] [-f] [-o] [-a] [-p {mpv,vlc,syncplay,mpvnet}] [-l LOCATION] [--mal-password MAL_PASSWORD] [-h] [-v] [--config-path]
 
-Play Anime from gogoanime in local video-player or Download them.
+Play Animes from gogoanime in local video-player or Download them.
 
-options:
-  -h, --help                        show this help message and exit
-  -q QUALITY, --quality             QUALITY
-                                    Change the quality of the video, accepts: best, worst or 360, 480, 720 etc. Default: best
-  -H, --history                     Show your history of watched anime
-  -d, --download                    Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)
-  -D, --delete-history              Delete your History.
-  -B, --binge                       Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)
-  -S, --seasonal                    Seasonal Anime mode. Bulk download or binge watch newest episodes.
-  -f, --ffmpeg                      Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
-  -c, --config                      Print path to the config file.
-  -o, --no-seas-search              Turn off search in season. Disables prompting if GoGoAnime is to be searched for anime in specific season.
-  -a, --auto-update                 Automatically update and download all Anime in seasonals list from start EP to newest.
-  -s, --syncplay                    Use Syncplay to watch Anime with your Friends.
-  -v, --vlc                         Use VLC instead of mpv as video-player
-  -l LOCATION, --location LOCATION  Override all configured download locations
-  -m, --my-anime-list               MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList (requires MAL account credentials to be set in config).
-  --mal-password MAL_PASSWORD       Provide password for MAL login (overrides password set in config)
+Actions:
+  Different Actions and Modes of anipy-cli (only pick one)
+
+  -D, --download        Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)
+  -B, --binge           Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)
+  -H, --history         Show your history of watched anime
+  -S, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
+  -M, --my-anime-list   MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList (requires MAL account credentials to be set in config).
+  --delete-history      Delete your History.
+
+Options:
+  Options to change the behaviour of anipy-cli
+
+  -q QUALITY, --quality QUALITY
+                        Change the quality of the video, accepts: best, worst or 360, 480, 720 etc. Default: best
+  -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
+  -o, --no-seas-search  Turn off search in season. Disables prompting if GoGoAnime is to be searched for anime in specific season.
+  -a, --auto-update     Automatically update and download all Anime in seasonals list from start EP to newest.
+  -p {mpv,vlc,syncplay,mpvnet}, --optional-player {mpv,vlc,syncplay,mpvnet}
+                        Override the player set in the config.
+  -l LOCATION, --location LOCATION
+                        Override all configured download locations
+  --mal-password MAL_PASSWORD
+                        Provide password for MAL login (overrides password set in config)
+
+Info:
+  Info about the current anipy-cli installation
+
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  --config-path         Print path to the config file.
 ```
 
 # What it can do
@@ -105,7 +118,7 @@ To import the libary, don't import `anipy-cli`, but `anipy_cli` (no '-' is allow
 # Cronjob runs every 2 minutes and checks wether anipy-cli is still running or not 
 # (only run the job if last one is finished)
 
-*/2 *   * * *   username        pidof -x anipy-cli || anipy-cli -ma >> /var/log/anipy-cli.log
+*/2 *   * * *   username        pidof -x anipy-cli || anipy-cli -Ma >> /var/log/anipy-cli.log
 ```
 
 # Other versions

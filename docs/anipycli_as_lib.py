@@ -13,7 +13,7 @@ import anipy_cli
 # needed for almost every function.
 # It is like a struct from C.
 # It looks like this:
-#    class entry:
+#    class Entry:
 #        show_name: str = "" # name of show
 #        category_url: str = "" # category url of show
 #        ep_url: str = "" # ep url with episode corresponding to ep
@@ -22,7 +22,7 @@ import anipy_cli
 #        ep: int = 0 # episode currently played/downloaded or whatever
 #        latest_ep: int = 0 # latest episode of the show
 #        quality: str = "" # current quality
-entry = anipy_cli.entry()
+entry = anipy_cli.Entry()
 
 
 """QUERY"""
@@ -90,32 +90,38 @@ dl_class.download()
 
 """PLAYER"""
 
-# Starting a player is done with start_player().
-# An entry with all fields is required.
-# It returns a subprocess instance.
-# For example you can kill the player with it:
-# sub_proc.kill()
-# It takes an option "player", which accepts mpv, vlc
-# and syncplay. if empty it defaults to the one specified
-# in the config.
-sub_process = anipy_cli.player.start_player(entry, player="mpv")
-# kill the player:
-sub_process.kill()
-# see if the player is still open
-if sub_process.poll() is None:
-    print("player is running")
-# This function also automatically writes
-# to the history file after the player is opened.
+# Every Player has its own class, to get the default
+# player class use this:
+player = anipy_cli.player.get_player(player_override="mpv")
+# The default player is specified in the config, but you can
+# also use player_override="..." to override the default player
 
-# You can also use a controllable mpv client like so:
-mpv_player = anipy_cli.player.create_mpv_controllable()
-# You can play a video like so
+# All players have common methods:
 
-# This returns the update player and starts the video
-mpv_player = anipy_cli.player.mpv_start_stream(entry, mpv_player)
-# With this you can play several videos without closing the player
-# between them. Read more about what you can do with it here:
+# Play title from an Entry class
+player.play_title(entry)
+
+# Play a file from a specific path
+player.play_file(path)
+
+# Wait until thplayback finishes/player is closed
+player.wait()
+
+# Kill the player
+player.kill_player()
+
+
+# You can also, instead of using the get_player function,
+# use the player classes directly:
+
+vlc_player = anipy_cli.player.players.Vlc()
+
+# This is a controllable mpv player, it has the same common methods
+# as the other players but is a little special as you can completly
+# controll the player. Read more about what you can do with it here:
 # https://github.com/jaseg/python-mpv
+contr_mpv_player = anipy_cli.player.players.MpvControllable()
+
 
 """HISTORY"""
 

@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
 
-from .misc import response_err, error, loc_err, parsenum
+from .misc import response_err, error, loc_err, parsenum, Entry
 from .colors import colors
 from .config import Config
 
@@ -23,12 +23,12 @@ class epHandler:
     entry to be filled.
     """
 
-    def __init__(self, entry) -> None:
+    def __init__(self, entry: Entry) -> None:
         self.entry = entry
         self.movie_id = None
         self.ep_list = None
 
-    def get_entry(self):
+    def get_entry(self) -> Entry:
         """
         Returns the entry with which was
         previously passed to this class.
@@ -71,7 +71,7 @@ class epHandler:
     def gen_eplink(self):
         """
         Generate episode url
-        from ep and category url will look something like this:
+        from ep and category url, will look something like this:
         https://gogoanime.film/category/hyouka
         to
         https://gogoanime.film/hyouka-episode-1
@@ -282,7 +282,7 @@ class videourl:
     stream url.
     """
 
-    def __init__(self, entry, quality) -> None:
+    def __init__(self, entry: Entry, quality) -> None:
         self.entry = entry
         self.qual = quality.lower().strip("p")
         self.session = requests.Session()
@@ -301,7 +301,7 @@ class videourl:
         self.key = keys["key"]
         self.second_key = keys["second_key"]
 
-    def get_entry(self):
+    def get_entry(self) -> Entry:
         """
         Returns the entry with stream and emebed url fields filled
         which was previously passed to this class.

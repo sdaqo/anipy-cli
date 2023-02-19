@@ -1,44 +1,57 @@
 import argparse
+from pathlib import Path
+from dataclasses import dataclass
+from typing import Union, Optional
+from .version import __version__
 
 
-def parse_args():
+@dataclass(frozen=True)
+class CliArgs:
+    download: bool
+    binge: bool
+    history: bool
+    seasonal: bool
+    mal: bool
+    delete: bool
+    quality: Optional[Union[str, int]]
+    ffmpeg: bool
+    no_season_search: bool
+    auto_update: bool
+    optional_player: Optional[str]
+    location: Optional[Path]
+    mal_password: Optional[str]
+    config: bool
+
+
+def parse_args() -> CliArgs:
     parser = argparse.ArgumentParser(
-        description="Play Animes from gogoanime in local video-player or Download them."
+        description="Play Animes from gogoanime in local video-player or Download them.", add_help=False
     )
 
-    parser.add_argument(
-        "-q",
-        "--quality",
-        action="store",
-        required=False,
-        default="auto",
-        help="Change the quality of the video, accepts: best, worst or 360, 480, 720 etc.  Default: best",
+    # Workaround, so the Mutally Exclusive group can have a custom title+description
+    actions_group = parser.add_argument_group(
+        "Actions", "Different Actions and Modes of anipy-cli (only pick one)"
     )
-    parser.add_argument(
-        "-H",
-        "--history",
-        required=False,
-        dest="history",
-        action="store_true",
-        help="Show your history of watched anime",
+    actions_group = actions_group.add_mutually_exclusive_group()
+
+    options_group = parser.add_argument_group(
+        "Options", "Options to change the behaviour of anipy-cli"
     )
-    parser.add_argument(
-        "-d",
+    info_group = parser.add_argument_group(
+        "Info", "Info about the current anipy-cli installation"
+    )
+
+
+    actions_group.add_argument(
+        "-D",
         "--download",
         required=False,
         dest="download",
         action="store_true",
         help="Download mode. Download multiple episodes like so: first_number-second_number (e.g. 1-3)",
     )
-    parser.add_argument(
-        "-D",
-        "--delete-history",
-        required=False,
-        dest="delete",
-        action="store_true",
-        help="Delete your History.",
-    )
-    parser.add_argument(
+
+    actions_group.add_argument(
         "-B",
         "--binge",
         required=False,
@@ -46,7 +59,17 @@ def parse_args():
         action="store_true",
         help="Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)",
     )
-    parser.add_argument(
+
+    actions_group.add_argument(
+        "-H",
+        "--history",
+        required=False,
+        dest="history",
+        action="store_true",
+        help="Show your history of watched anime",
+    )
+
+    actions_group.add_argument(
         "-S",
         "--seasonal",
         required=False,
@@ -55,7 +78,36 @@ def parse_args():
         help="Seasonal Anime mode. Bulk download or binge watch newest episodes.",
     )
 
-    parser.add_argument(
+    actions_group.add_argument(
+        "-M",
+        "--my-anime-list",
+        required=False,
+        dest="mal",
+        action="store_true",
+        help="MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList "
+        "(requires MAL account credentials to be set in config).",
+    )
+
+    actions_group.add_argument(
+        "--delete-history",
+        required=False,
+        dest="delete",
+        action="store_true",
+        help="Delete your History.",
+    )
+
+
+
+    options_group.add_argument(
+        "-q",
+        "--quality",
+        action="store",
+        required=False,
+        default="auto",
+        help="Change the quality of the video, accepts: best, worst or 360, 480, 720 etc.  Default: best",
+    )
+
+    options_group.add_argument(
         "-f",
         "--ffmpeg",
         required=False,
@@ -63,16 +115,8 @@ def parse_args():
         action="store_true",
         help="Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader",
     )
-    parser.add_argument(
-        "-c",
-        "--config",
-        required=False,
-        dest="config",
-        action="store_true",
-        help="Print path to the config file.",
-    )
 
-    parser.add_argument(
+    options_group.add_argument(
         "-o",
         "--no-seas-search",
         required=False,
@@ -82,7 +126,7 @@ def parse_args():
         "Disables prompting if GoGoAnime is to be searched for anime in specific season.",
     )
 
-    parser.add_argument(
+    options_group.add_argument(
         "-a",
         "--auto-update",
         required=False,
@@ -90,44 +134,27 @@ def parse_args():
         action="store_true",
         help="Automatically update and download all Anime in seasonals list from start EP to newest.",
     )
-    parser.add_argument(
-        "-m",
-        "--my-anime-list",
+
+    options_group.add_argument(
+        "-p",
+        "--optional-player",
         required=False,
-        dest="mal",
-        action="store_true",
-        help="MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList "
-        "(requires MAL account credentials to be set in config).",
+        choices=["mpv", "vlc", "syncplay", "mpvnet"],
+        help="Override the player set in the config."
     )
 
-    parser.add_argument(
-        "-s",
-        "--syncplay",
-        required=False,
-        dest="syncplay",
-        action="store_true",
-        help="Use Syncplay to watch Anime with your Friends.",
-    )
-
-    parser.add_argument(
-        "-v",
-        "--vlc",
-        required=False,
-        dest="vlc",
-        action="store_true",
-        help="Use VLC instead of mpv as video-player",
-    )
-
-    parser.add_argument(
+    options_group.add_argument(
         "-l",
         "--location",
         required=False,
         dest="location",
         action="store",
+        type=Path,
+        default=None,
         help="Override all configured download locations",
     )
 
-    parser.add_argument(
+    options_group.add_argument(
         "--mal-password",
         required=False,
         dest="mal_password",
@@ -135,4 +162,26 @@ def parse_args():
         help="Provide password for MAL login (overrides password set in config)",
     )
 
-    return parser.parse_args()
+    info_group.add_argument(
+        "-h",
+        "--help",
+        action='help',
+        help='show this help message and exit'
+    )
+
+    info_group.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=__version__
+    )
+
+    info_group.add_argument(
+        "--config-path",
+        required=False,
+        dest="config",
+        action="store_true",
+        help="Print path to the config file.",
+    )
+
+    return CliArgs(**vars(parser.parse_args()))

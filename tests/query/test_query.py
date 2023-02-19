@@ -1,10 +1,10 @@
 import pytest
-from anipy_cli import entry, query
+from anipy_cli import Entry, query
 
 
 @pytest.mark.slow
 def test_naruto():
-    query_class = query("Naruto", entry())
+    query_class = query("Naruto", Entry())
     res = query_class.get_links()
 
     assert res != 0

@@ -3,12 +3,12 @@ import sys
 
 from .config import Config
 from .url_handler import epHandler
-from .misc import entry, error, read_json
+from .misc import Entry, error, read_json
 
 
 class Seasonal:
     def __init__(self):
-        self.entry = entry()
+        self.entry = Entry()
 
     def latest_eps(self):
         """

@@ -62,7 +62,7 @@ class Config:
 
     @property
     def mpv_commandline_options(self):
-        return self._get_value("mpv_commandline_options", [], list)
+        return self._get_value("mpv_commandline_options", ["--keep-open=no"], list)
 
     @property
     def vlc_commandline_options(self):

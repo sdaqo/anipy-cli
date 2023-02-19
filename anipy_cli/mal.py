@@ -13,7 +13,7 @@ from requests.adapters import HTTPAdapter, Retry
 from . import epHandler, Seasonal, query
 from .colors import colors, cprint
 from .config import Config
-from .misc import read_json, error, entry
+from .misc import read_json, error, Entry
 
 
 def _base64_decode(b64: str):
@@ -32,7 +32,7 @@ class MAL:
 
     def __init__(self, user=None, password=None):
         # API information taken from here: https://github.com/SuperMarcus/myanimelist-api-specification
-        self.entry = entry()
+        self.entry = Entry()
         self.local_mal_list_json = None
 
         self.anime_fields = [
@@ -567,9 +567,9 @@ class MAL:
         found = {}
         for search in search_values:
 
-            query_class = query(search, entry)
+            query_class = query(search, Entry)
             query_class.get_pages()
-            found["search"] = query_class.get_links(mute=True)
+            found["search"] = query_class.get_links()
 
             if found["search"] == 0:
                 self.shows_failed_automap.add(mal_entry["node"]["title"])

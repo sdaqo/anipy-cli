@@ -1,6 +1,6 @@
 import pytest
 from ..util import config_clearer
-from anipy_cli import entry, history, config
+from anipy_cli import Entry, history, config
 from hashlib import md5
 
 
@@ -11,7 +11,7 @@ def show_entry():
 
     config.Config().history_file_path.unlink(missing_ok=True)
 
-    hyouka_entry = entry(
+    hyouka_entry = Entry(
         show_name="Hyouka",
         category_url="https://gogoanime.tel/category/hyouka",
         ep_url="https://gogoanime.tel/hyouka-episode-1",
@@ -48,7 +48,7 @@ def test_prepend(show_entry):
 
     history(show_entry).write_hist()
 
-    another_entry = entry(
+    another_entry = Entry(
         show_name="Shoujo Shuumatsu Ryokou",
         category_url="https://gogoanime.tel/category/shoujo-shuumatsu-ryokou",
         ep_url="https://gogoanime.tel/shoujo-shuumatsu-ryokou-episode-1",

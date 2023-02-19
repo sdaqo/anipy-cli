@@ -1,12 +1,20 @@
 from setuptools import find_packages, setup
 
+def read_version():
+    fname = "anipy_cli/version.py"
+    with open(fname) as fh:
+        version_file = fh.read()
+
+    exec(compile(version_file, fname, 'exec'))
+    return locals()['__version__']
+
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name="anipy_cli",
-    packages=find_packages(include=["anipy_cli"]),
-    version="2.6.3",
+    packages=find_packages(include=['anipy_cli', 'anipy_cli.*']),
+    version=read_version(),
     python_requires=">3.9",
     description="Little tool in python to watch anime from the terminal (the better way to watch anime)",
     long_description=long_description,

@@ -1,13 +1,13 @@
 import pytest
 from ..util import config_clearer
-from anipy_cli import videourl, entry
+from anipy_cli import videourl, Entry
 
 
 @pytest.fixture
 def show_entry():
     config_clearer.clear_and_backup()
 
-    show_entry = entry(ep_url="https://gogoanime.tel/hyouka-episode-1")
+    show_entry = Entry(ep_url="https://gogoanime.tel/hyouka-episode-1")
 
     yield show_entry
 
