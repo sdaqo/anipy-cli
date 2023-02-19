@@ -10,9 +10,6 @@ from anipy_cli.download import download
 from anipy_cli.config import Config
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 
-# Circular import bs, for HistoryCli class
-import anipy_cli.cli.clis.history_cli
-
 
 class Menu(MenuBase):
     def __init__(self, options: CliArgs, entry: Entry, player: PlayerBaseType, rpc_client=None):
@@ -28,7 +25,6 @@ class Menu(MenuBase):
             MenuOption("Previous Episode",  self.prev_ep,        "p"),
             MenuOption("Replay Episode",    self.repl_ep,        "r"),
             MenuOption("Select episode",    self.selec_ep,       "s"),
-            MenuOption("History selection", self.hist,           "h"),
             MenuOption("Search for Anime",  self.search,         "a"),
             MenuOption("Print Video Info",  self.video_info,     "i"),
             MenuOption("Download Episode",  self.download_video, "d"),
@@ -68,10 +64,6 @@ class Menu(MenuBase):
         self.entry = ep_class.pick_ep()
         self.start_ep()
         self.print_options()
-
-    def hist(self):
-        self.player.kill_player()
-        anipy_cli.cli.clis.history_cli.HistoryCli(self.options, self.rpc_client).run()
 
     def search(self):
         query_class = query(input("Search: "), self.entry)
