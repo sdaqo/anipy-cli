@@ -568,7 +568,6 @@ class MAL:
 
         found = {}
         for search in search_values:
-
             query_class = query(search, Entry)
             query_class.get_pages()
             found["search"] = query_class.get_links()

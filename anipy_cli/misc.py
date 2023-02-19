@@ -12,6 +12,7 @@ from typing import Union
 from anipy_cli.config import Config
 from anipy_cli.colors import colors, color, cprint
 
+
 @dataclass
 class Entry:
     """
@@ -197,6 +198,7 @@ def filter_anime_list_dub_sub(gogo_anime_season_list):
         filtered_list = gogo_anime_season_list
     return filtered_list
 
+
 def dc_presence_connect():
     CLIENT_ID = 966365883691855942
     rpc_client = None
@@ -211,7 +213,6 @@ def dc_presence_connect():
         rpc_client = None
         cprint(colors.RED, "Can't Connect to discord.")
 
-
     return rpc_client
 
 
@@ -224,4 +225,3 @@ def dc_presence(media_title, category_url, rpc_client):
         small_image="https://github.com/Dankni95/ulauncher-anime/raw/master/images/icon.png",
         start=int(time.time()),
     )
-

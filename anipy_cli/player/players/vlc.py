@@ -9,10 +9,9 @@ class Vlc(SubProcessPlayerBase):
             "--http-referrer='{embed_url}'",
             "--meta-title='{media_title}'",
             "{stream_url}",
-            *Config().vlc_commandline_options
+            *Config().vlc_commandline_options,
         ]
 
         super().__init__(
-            rpc_client=rpc_client,
-            player_args_template=player_args_template
-        )       
+            rpc_client=rpc_client, player_args_template=player_args_template
+        )

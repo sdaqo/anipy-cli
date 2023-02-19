@@ -34,11 +34,7 @@ class MenuBase(ABC):
     def take_input(self):
         while True:
             picked = input("Enter option: ")
-            op = next(
-                filter(
-                    lambda x: x.trigger == picked, self.menu_options
-                ), None
-            )
+            op = next(filter(lambda x: x.trigger == picked, self.menu_options), None)
 
             if op is None:
                 error("invalid input")
@@ -54,5 +50,3 @@ class MenuBase(ABC):
 
     def quit(self):
         sys.exit()
-
-

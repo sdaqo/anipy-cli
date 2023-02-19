@@ -14,9 +14,7 @@ class BingeCli(CliBase):
         self.entry = Entry()
         self.ep_list = []
         self.binge_list = {}
-        self.player = get_player(
-            self.rpc_client, self.options.optional_player
-        )
+        self.player = get_player(self.rpc_client, self.options.optional_player)
 
     def print_header(self):
         cprint(colors.GREEN, "***Binge Mode***")

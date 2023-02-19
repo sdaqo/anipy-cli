@@ -21,7 +21,6 @@ def binge(ep_list, quality, player: PlayerBaseType, mode="", mal_class: MAL = No
             show_entry.category_url = ep_list[i]["category_url"]
             show_entry.latest_ep = epHandler(show_entry).get_latest()
             for url, ep in zip(ep_list[i]["ep_urls"], ep_list[i]["eps"]):
-
                 show_entry.ep = ep
                 show_entry.embed_url = ""
                 show_entry.ep_url = url

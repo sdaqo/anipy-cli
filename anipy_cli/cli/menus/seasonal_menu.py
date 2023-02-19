@@ -77,9 +77,7 @@ class SeasonalMenu(MenuBase, Seasonal):
                 show_entry = query_class.pick_show()
 
             picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
-            self.add_show(
-                show_entry.show_name, show_entry.category_url, picked_ep
-            )
+            self.add_show(show_entry.show_name, show_entry.category_url, picked_ep)
         self.print_options()
 
     def del_anime(self):
@@ -131,7 +129,9 @@ class SeasonalMenu(MenuBase, Seasonal):
                 url_class = videourl(show_entry, self.options.quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
-                download(show_entry, self.options.quality, self.options.ffmpeg, self.dl_path).download()
+                download(
+                    show_entry, self.options.quality, self.options.ffmpeg, self.dl_path
+                ).download()
 
         if not self.options.auto_update:
             self.print_options()

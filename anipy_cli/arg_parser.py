@@ -25,7 +25,8 @@ class CliArgs:
 
 def parse_args() -> CliArgs:
     parser = argparse.ArgumentParser(
-        description="Play Animes from gogoanime in local video-player or Download them.", add_help=False
+        description="Play Animes from gogoanime in local video-player or Download them.",
+        add_help=False,
     )
 
     # Workaround, so the Mutally Exclusive group can have a custom title+description
@@ -40,7 +41,6 @@ def parse_args() -> CliArgs:
     info_group = parser.add_argument_group(
         "Info", "Info about the current anipy-cli installation"
     )
-
 
     actions_group.add_argument(
         "-D",
@@ -96,8 +96,6 @@ def parse_args() -> CliArgs:
         help="Delete your History.",
     )
 
-
-
     options_group.add_argument(
         "-q",
         "--quality",
@@ -140,7 +138,7 @@ def parse_args() -> CliArgs:
         "--optional-player",
         required=False,
         choices=["mpv", "vlc", "syncplay", "mpvnet"],
-        help="Override the player set in the config."
+        help="Override the player set in the config.",
     )
 
     options_group.add_argument(
@@ -163,18 +161,10 @@ def parse_args() -> CliArgs:
     )
 
     info_group.add_argument(
-        "-h",
-        "--help",
-        action='help',
-        help='show this help message and exit'
+        "-h", "--help", action="help", help="show this help message and exit"
     )
 
-    info_group.add_argument(
-        "-v",
-        "--version",
-        action="version",
-        version=__version__
-    )
+    info_group.add_argument("-v", "--version", action="version", version=__version__)
 
     info_group.add_argument(
         "--config-path",

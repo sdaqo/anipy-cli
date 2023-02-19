@@ -29,7 +29,7 @@ def run_cli() -> None:
         args.seasonal: SeasonalCli,
         args.history: HistoryCli,
         args.mal: MalCli,
-        args.auto_update: SeasonalCli
+        args.auto_update: SeasonalCli,
     }
 
     cli_class = clis_dict.get(True, DefaultCli)

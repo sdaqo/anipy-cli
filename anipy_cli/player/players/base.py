@@ -17,15 +17,15 @@ class PlayerBase(ABC):
     @abstractmethod
     def play_title(self, entry: Entry):
         pass
-    
+
     @abstractmethod
     def play_file(self, path: str):
         pass
-    
+
     @abstractmethod
     def wait(self):
         pass
-    
+
     @abstractmethod
     def kill_player(self):
         pass
@@ -34,18 +34,26 @@ class PlayerBase(ABC):
         if self.rpc_client:
             dc_media_title = f"{entry.show_name} | {entry.ep}/{entry.latest_ep}"
             dc_presence(dc_media_title, entry.category_url, self.rpc_client)
-    
+
     @staticmethod
     def _write_hist(entry: Entry):
         history(entry).write_hist()
 
     @staticmethod
     def _get_media_title(entry: Entry):
-        return entry.show_name + " - Episode: " + str(entry.ep) + " - " + str(entry.quality)
+        return (
+            entry.show_name
+            + " - Episode: "
+            + str(entry.ep)
+            + " - "
+            + str(entry.quality)
+        )
 
 
 class SubProcessPlayerBase(PlayerBase):
-    def __init__(self, player_args_template: list[str], player_exec: str, rpc_client=None):
+    def __init__(
+        self, player_args_template: list[str], player_exec: str, rpc_client=None
+    ):
         self._rpc_client = rpc_client
         self._sub_proc = None
         self._player_args_template = player_args_template
@@ -57,7 +65,7 @@ class SubProcessPlayerBase(PlayerBase):
 
     def play_title(self, entry):
         player_cmd = [
-            i.format(media_title=self._get_media_title(entry), **vars(entry)) 
+            i.format(media_title=self._get_media_title(entry), **vars(entry))
             for i in self._player_args_template
         ]
         player_cmd.insert(0, self._player_exec)

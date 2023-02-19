@@ -217,7 +217,9 @@ class MALMenu(MenuBase):
                 url_class = videourl(show_entry, self.options.quality)
                 url_class.stream_url()
                 show_entry = url_class.get_entry()
-                download(show_entry, self.options.quality, self.options.ffmpeg, self.dl_path).download()
+                download(
+                    show_entry, self.options.quality, self.options.ffmpeg, self.dl_path
+                ).download()
 
         if not self.options.auto_update:
             self.print_options()
@@ -248,7 +250,13 @@ class MALMenu(MenuBase):
             ep_urls.clear()
 
         player = get_player(self.rpc_client, self.options.optional_player)
-        binge(ep_dic, self.options.quality, player=player, mode="mal", mal_class=self.m_class)
+        binge(
+            ep_dic,
+            self.options.quality,
+            player=player,
+            mode="mal",
+            mal_class=self.m_class,
+        )
         player.kill_player()
         self.print_options()
 

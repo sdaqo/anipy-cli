@@ -6,7 +6,6 @@ from anipy_cli import Seasonal, config
 
 @pytest.fixture
 def show_details():
-
     config_clearer.clear_and_backup()
 
     config.Config().seasonal_file_path.unlink(missing_ok=True)

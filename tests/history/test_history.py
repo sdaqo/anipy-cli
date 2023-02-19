@@ -6,7 +6,6 @@ from hashlib import md5
 
 @pytest.fixture
 def show_entry():
-
     config_clearer.clear_and_backup()
 
     config.Config().history_file_path.unlink(missing_ok=True)

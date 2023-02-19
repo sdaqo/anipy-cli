@@ -30,8 +30,8 @@ class DownloadCli(CliBase):
 
         searches = []
         if (
-                not self.options.no_season_search
-                and input("Search MyAnimeList for anime in Season? (y|n): \n>> ") == "y"
+            not self.options.no_season_search
+            and input("Search MyAnimeList for anime in Season? (y|n): \n>> ") == "y"
         ):
             searches = get_season_searches()
 

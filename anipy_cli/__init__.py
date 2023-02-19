@@ -18,4 +18,3 @@ from anipy_cli.player import get_player
 from anipy_cli.misc import Entry, get_anime_info
 from anipy_cli.seasonal import Seasonal
 from anipy_cli.history import history
-

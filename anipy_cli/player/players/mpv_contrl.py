@@ -10,7 +10,7 @@ class MpvControllable(mpv.MPV, PlayerBase):
             input_vo_keyboard=True,
             force_window="immediate",
             title="MPV - Receiving Links from anipy-cli",
-            osc=True
+            osc=True,
         )
         self._rpc_client = rpc_client
 
@@ -23,7 +23,7 @@ class MpvControllable(mpv.MPV, PlayerBase):
 
         self.referrer = entry.embed_url
         self.play(entry.stream_url)
-        
+
         self._write_hist(entry)
         self._start_dc_presence(entry)
 

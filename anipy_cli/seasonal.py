@@ -71,7 +71,6 @@ class Seasonal:
             self.json[name]["ep"] = ep
 
         else:
-
             self.json[name]["ep"] = epHandler(self.entry).get_latest()
         self.write_seasonals()
 

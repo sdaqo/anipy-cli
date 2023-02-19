@@ -12,7 +12,9 @@ from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 
 
 class Menu(MenuBase):
-    def __init__(self, options: CliArgs, entry: Entry, player: PlayerBaseType, rpc_client=None):
+    def __init__(
+        self, options: CliArgs, entry: Entry, player: PlayerBaseType, rpc_client=None
+    ):
         self.rpc_client = rpc_client
         self.options = options
         self.entry = entry
@@ -32,10 +34,12 @@ class Menu(MenuBase):
         ]
 
     def print_header(self):
-        cprint(colors.GREEN,
-               f"Playing: {self.entry.show_name} {self.entry.quality} | ",
-               colors.RED,
-               f"{self.entry.ep}/{self.entry.latest_ep}")
+        cprint(
+            colors.GREEN,
+            f"Playing: {self.entry.show_name} {self.entry.quality} | ",
+            colors.RED,
+            f"{self.entry.ep}/{self.entry.latest_ep}",
+        )
 
     def start_ep(self):
         self.entry.embed_url = ""

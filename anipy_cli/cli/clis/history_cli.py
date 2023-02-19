@@ -14,8 +14,7 @@ class HistoryCli(CliBase):
 
         self.entry = Entry()
         self.player = get_player(
-            rpc_client=self.rpc_client,
-            player_override=self.options.optional_player
+            rpc_client=self.rpc_client, player_override=self.options.optional_player
         )
         self.hist = history(self.entry).read_save_data()
 
@@ -61,5 +60,5 @@ class HistoryCli(CliBase):
             options=self.options,
             entry=self.entry,
             player=self.player,
-            rpc_client=self.rpc_client
+            rpc_client=self.rpc_client,
         ).run()

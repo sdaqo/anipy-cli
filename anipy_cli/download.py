@@ -136,7 +136,6 @@ class download:
             fname.unlink()
 
     def ffmpeg_merge(self, input_file, audio_input_file):
-
         Config().user_files_path.mkdir(exist_ok=True, parents=True)
         Config().ffmpeg_log_path.mkdir(exist_ok=True, parents=True)
         fname = self._get_fname()
@@ -246,7 +245,6 @@ class download:
                 with self.session.get(
                     uri, timeout=10, headers=headers, stream=False
                 ) as response:
-
                     if response.status_code == 416:
                         return
 
