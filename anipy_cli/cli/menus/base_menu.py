@@ -38,6 +38,7 @@ class MenuBase(ABC):
 
             if op is None:
                 error("invalid input")
+                continue
 
             op.callback()
 
