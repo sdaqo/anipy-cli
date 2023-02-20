@@ -1,6 +1,6 @@
 import sys
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, List
 from abc import ABC, abstractmethod
 
 from anipy_cli.misc import error, clear_console
@@ -20,7 +20,7 @@ class MenuOption:
 class MenuBase(ABC):
     @property
     @abstractmethod
-    def menu_options(self) -> list[MenuOption]:
+    def menu_options(self) -> List[MenuOption]:
         pass
 
     @abstractmethod

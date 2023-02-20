@@ -1,4 +1,5 @@
 import sys
+from typing import List
 
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint
@@ -21,7 +22,7 @@ class Menu(MenuBase):
         self.player = player
 
     @property
-    def menu_options(self) -> list[MenuOption]:
+    def menu_options(self) -> List[MenuOption]:
         return [
             MenuOption("Next Episode",      self.next_ep,        "n"),
             MenuOption("Previous Episode",  self.prev_ep,        "p"),

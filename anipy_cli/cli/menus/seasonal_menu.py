@@ -1,4 +1,5 @@
 import sys
+from typing import List
 
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint, cinput
@@ -25,7 +26,7 @@ class SeasonalMenu(MenuBase, Seasonal):
             self.dl_path = options.location
 
     @property
-    def menu_options(self) -> list[MenuOption]:
+    def menu_options(self) -> List[MenuOption]:
         return [
             MenuOption("Add Anime",                       self.add_anime,       "a"),
             MenuOption("Delete one anime from seasonals", self.del_anime,       "e"),

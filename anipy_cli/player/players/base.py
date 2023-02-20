@@ -1,6 +1,7 @@
 import os
 import subprocess as sp
 import sys
+from typing import List
 from abc import ABC, abstractmethod
 
 from anipy_cli.colors import cprint, colors
@@ -52,7 +53,7 @@ class PlayerBase(ABC):
 
 class SubProcessPlayerBase(PlayerBase):
     def __init__(
-        self, player_args_template: list[str], player_exec: str, rpc_client=None
+        self, player_args_template: List[str], player_exec: str, rpc_client=None
     ):
         self._rpc_client = rpc_client
         self._sub_proc = None
@@ -92,7 +93,7 @@ class SubProcessPlayerBase(PlayerBase):
         self._sub_proc.kill()
 
     @staticmethod
-    def _open_sproc(player_command: list[str]) -> sp.Popen:
+    def _open_sproc(player_command: List[str]) -> sp.Popen:
         try:
             if os.name in ("nt", "dos"):
                 sub_proc = sp.Popen(player_command)

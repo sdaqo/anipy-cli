@@ -1,3 +1,5 @@
+from typing import List
+
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint, cinput
 from anipy_cli.misc import Entry, print_names, error
@@ -78,7 +80,7 @@ class MALMenu(MenuBase):
         pass
 
     @property
-    def menu_options(self) -> list[MenuOption]:
+    def menu_options(self) -> List[MenuOption]:
         return [
             MenuOption("Add Anime",                       self.add_anime,                       "a"),
             MenuOption("Delete one anime from mal list",  self.del_anime,                       "e"),
