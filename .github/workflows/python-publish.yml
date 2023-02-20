@@ -31,6 +31,6 @@ jobs:
         pip install build
         pip install twine
     - name: Run Publishing Script
-    - run: bash .github/pypi.sh
+      run: bash .github/pypi.sh
       env:
         PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
