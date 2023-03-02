@@ -21,6 +21,11 @@ seasonals_dl_path: "~/anipy-cli/downloads/seasonals"
 # Default: anipy_install_path/user_files
 user_files_path: "~/anipy-cli/user_files"
 
+# Default: user_files_path/history.json
+history_file_path:
+# Default: user_files_path/seasonals.json
+seasonal_file_path: 
+
 # Url of the goganime website, only change if needed
 gogoanime_url: "https://gogoanime.gg/"
 
@@ -53,6 +58,7 @@ reuse_mpv_window: False
 # downloading something.
 # Default: False
 ffmpeg_hls: False
+ffmpeg_log_path: # Default: user_files_path/ffmpeg_log/
 
 # This determines how downloaded anime will be named
 # The following variables can be used: show_name, episode_number, quality
@@ -74,9 +80,22 @@ dc_presence: False
 auto_open_dl_defaultcli: False
 
 # Mal user credentials
-# Required to connect to your MAL account and use the MAL cli.
+# Store your user/pw here if you don't want to get prompted for it everytime
 mal_user: username
 mal_password: password
+
+# Status Categories of your MAL-List that are shown in the MAL-Cli
+# Note: It is recommended to use the default setting as it will take significantly
+# longer if you put more.
+# Default:
+#  - watching
+mal_status_categories:
+  # Possible categories:
+  - watching
+  - completed
+  - on_hold
+  - dropped
+  - plan_to_watch
 
 # Specify Anime Types that should be shown in search results.
 # Defaults to sub and dub
