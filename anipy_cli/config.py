@@ -146,6 +146,9 @@ class Config:
             config_options = {}
             # generate config based on attrs and default values of config class
             for attribute, value in Config.__dict__.items():
+                if attribute.startswith("_"):
+                    continue
+
                 if isinstance(value, property):
                     val = self.__getattribute__(attribute)
                     config_options[attribute] = (
