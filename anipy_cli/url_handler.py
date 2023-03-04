@@ -127,7 +127,7 @@ class epHandler:
             ep_range += " Special Eps: "
             ep_range += ", ".join([x["ep"] for x in specials])
 
-        return cinput(color(prompt, colors.GREEN, ep_range) + "\n>> ", colors.CYAN)
+        return cinput(prompt, colors.GREEN, ep_range, colors.END, "\n>> ", input_color=colors.CYAN)
 
     def _validate_ep(self, ep: str):
         """
