@@ -28,12 +28,12 @@ class SeasonalMenu(MenuBase, Seasonal):
     @property
     def menu_options(self) -> List[MenuOption]:
         return [
-            MenuOption("Add Anime",                       self.add_anime,       "a"),
-            MenuOption("Delete one anime from seasonals", self.del_anime,       "e"),
-            MenuOption("List anime in seasonals file",    self.list_animes,     "l"),
-            MenuOption("Download newest episodes",        self.download_latest, "d"),
-            MenuOption("Binge watch newest episodes",     self.binge_latest,    "w"),
-            MenuOption("Quit",                            self.quit,            "q")
+            MenuOption("Add Anime", self.add_anime, "a"),
+            MenuOption("Delete one anime from seasonals", self.del_anime, "e"),
+            MenuOption("List anime in seasonals file", self.list_animes, "l"),
+            MenuOption("Download newest episodes", self.download_latest, "d"),
+            MenuOption("Binge watch newest episodes", self.binge_latest, "w"),
+            MenuOption("Quit", self.quit, "q"),
         ]
 
     def print_header(self):

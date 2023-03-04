@@ -82,16 +82,22 @@ class MALMenu(MenuBase):
     @property
     def menu_options(self) -> List[MenuOption]:
         return [
-            MenuOption("Add Anime",                       self.add_anime,                       "a"),
-            MenuOption("Delete one anime from mal list",  self.del_anime,                       "e"),
-            MenuOption("List anime in mal list",          self.list_animes,                     "l"),
-            MenuOption("Map MAL anime to gogo Links",     self.create_gogo_maps,                "m"),
-            MenuOption("Sync MAL list into seasonals",    self.sync_mal_to_seasonals,           "s"),
-            MenuOption("Sync seasonals into MAL list",    self.m_class.sync_seasonals_with_mal, "b"),
-            MenuOption("Download newest episodes",        lambda: self.download(mode="latest"), "d"),
-            MenuOption("Download all episodes",           lambda: self.download(mode="all"),    "x"),
-            MenuOption("Binge watch newest episodes",     self.binge_latest,                    "w"),
-            MenuOption("Quit",                            self.quit,                            "q")
+            MenuOption("Add Anime", self.add_anime, "a"),
+            MenuOption("Delete one anime from mal list", self.del_anime, "e"),
+            MenuOption("List anime in mal list", self.list_animes, "l"),
+            MenuOption("Map MAL anime to gogo Links", self.create_gogo_maps, "m"),
+            MenuOption("Sync MAL list into seasonals", self.sync_mal_to_seasonals, "s"),
+            MenuOption(
+                "Sync seasonals into MAL list",
+                self.m_class.sync_seasonals_with_mal,
+                "b",
+            ),
+            MenuOption(
+                "Download newest episodes", lambda: self.download(mode="latest"), "d"
+            ),
+            MenuOption("Download all episodes", lambda: self.download(mode="all"), "x"),
+            MenuOption("Binge watch newest episodes", self.binge_latest, "w"),
+            MenuOption("Quit", self.quit, "q"),
         ]
 
     def add_anime(self):

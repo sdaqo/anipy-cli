@@ -24,14 +24,14 @@ class Menu(MenuBase):
     @property
     def menu_options(self) -> List[MenuOption]:
         return [
-            MenuOption("Next Episode",      self.next_ep,        "n"),
-            MenuOption("Previous Episode",  self.prev_ep,        "p"),
-            MenuOption("Replay Episode",    self.repl_ep,        "r"),
-            MenuOption("Select episode",    self.selec_ep,       "s"),
-            MenuOption("Search for Anime",  self.search,         "a"),
-            MenuOption("Print Video Info",  self.video_info,     "i"),
-            MenuOption("Download Episode",  self.download_video, "d"),
-            MenuOption("Quit",              self.quit,           "q")
+            MenuOption("Next Episode", self.next_ep, "n"),
+            MenuOption("Previous Episode", self.prev_ep, "p"),
+            MenuOption("Replay Episode", self.repl_ep, "r"),
+            MenuOption("Select episode", self.selec_ep, "s"),
+            MenuOption("Search for Anime", self.search, "a"),
+            MenuOption("Print Video Info", self.video_info, "i"),
+            MenuOption("Download Episode", self.download_video, "d"),
+            MenuOption("Quit", self.quit, "q"),
         ]
 
     def print_header(self):

@@ -19,6 +19,7 @@ def get_player(rpc_client=None, player_override=None) -> PlayerBaseType:
 
     if player == "mpv" and cfg.reuse_mpv_window:
         from anipy_cli.player.players.mpv_contrl import MpvControllable
+
         return MpvControllable(rpc_client=rpc_client)
 
     if player in ("mpv", "mpvnet"):

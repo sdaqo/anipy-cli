@@ -12,7 +12,7 @@ from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
 
 from anipy_cli.misc import response_err, error, loc_err, parsenum, Entry
-from anipy_cli.colors import colors
+from anipy_cli.colors import cinput, color, colors
 from anipy_cli.config import Config
 
 
@@ -119,7 +119,7 @@ class epHandler:
         else:
             return ep_list[0]["ep"]
 
-    def _create_prompt(self, prompt="Episode"):
+    def _do_prompt(self, prompt="Episode"):
         ep_range = f" [{self.get_first()}-{self.get_latest()}]"
 
         specials = self.get_special_list()
@@ -127,15 +127,7 @@ class epHandler:
             ep_range += " Special Eps: "
             ep_range += ", ".join([x["ep"] for x in specials])
 
-        return str(
-            colors.END
-            + prompt
-            + colors.GREEN
-            + ep_range
-            + colors.END
-            + "\n>> "
-            + colors.CYAN
-        )
+        return cinput(color(prompt, colors.GREEN, ep_range) + "\n>> ", colors.CYAN)
 
     def _validate_ep(self, ep: str):
         """
@@ -159,7 +151,7 @@ class epHandler:
         self.get_latest()
 
         while True:
-            which_episode = input(self._create_prompt())
+            which_episode = self._do_prompt()
             try:
                 if self._validate_ep(which_episode):
                     self.entry.ep = parsenum(which_episode)
@@ -182,10 +174,8 @@ class epHandler:
         self.get_latest()
 
         while True:
-            which_episode = input(
-                self._create_prompt(
-                    "Last Episode you watched (put 0 to start at the beginning) "
-                )
+            which_episode = self._do_prompt(
+                "Last Episode you watched (put 0 to start at the beginning) "
             )
             try:
                 if self._validate_ep(which_episode) or int(which_episode) == 0:
@@ -214,9 +204,7 @@ class epHandler:
         """
         self.entry.latest_ep = self.get_latest()
         while True:
-            which_episode = input(
-                self._create_prompt(prompt="Episode (Range with '-')")
-            )
+            which_episode = self._do_prompt(prompt="Episode (Range with '-')")
 
             which_episode = which_episode.split("-")
 
@@ -276,8 +264,6 @@ class epHandler:
             return self.entry
 
 
-
-
 class videourl:
     """
     Class that fetches embed and
@@ -298,8 +284,6 @@ class videourl:
         self.size = AES.block_size
         self.padder = "\x08\x0e\x03\x08\t\x03\x04\t"
         self.pad = lambda s: s + chr(len(s) % 16) * (16 - len(s) % 16)
-
-
 
     def get_entry(self) -> Entry:
         """
@@ -327,7 +311,11 @@ class videourl:
 
         key, iv, second_key = keys
 
-        return {"key": key.encode(), "second_key": second_key.encode(), "iv": iv.encode()}
+        return {
+            "key": key.encode(),
+            "second_key": second_key.encode(),
+            "iv": iv.encode(),
+        }
 
     def aes_encrypt(self, data, key, iv):
         return base64.b64encode(
@@ -361,7 +349,9 @@ class videourl:
         parsed = urlparse(self.entry.embed_url)
         self.ajax_url = parsed.scheme + "://" + parsed.netloc + self.ajax_url
 
-        data = self.aes_decrypt(self.get_data(), enc_keys["key"], enc_keys["iv"]).decode()
+        data = self.aes_decrypt(
+            self.get_data(), enc_keys["key"], enc_keys["iv"]
+        ).decode()
         data = dict(parse_qsl(data))
 
         id = urlparse(self.entry.embed_url).query
@@ -381,7 +371,11 @@ class videourl:
 
         response_err(r, r.url)
 
-        json_resp = json.loads(self.aes_decrypt(r.json().get("data"), enc_keys["second_key"], enc_keys["iv"]))
+        json_resp = json.loads(
+            self.aes_decrypt(
+                r.json().get("data"), enc_keys["second_key"], enc_keys["iv"]
+            )
+        )
 
         source_data = [x for x in json_resp["source"]]
         self.quality(source_data)
