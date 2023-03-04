@@ -276,6 +276,8 @@ class epHandler:
             return self.entry
 
 
+
+
 class videourl:
     """
     Class that fetches embed and
@@ -296,10 +298,8 @@ class videourl:
         self.size = AES.block_size
         self.padder = "\x08\x0e\x03\x08\t\x03\x04\t"
         self.pad = lambda s: s + chr(len(s) % 16) * (16 - len(s) % 16)
-        keys = self.get_encryption_keys()
-        self.iv = keys["iv"]
-        self.key = keys["key"]
-        self.second_key = keys["second_key"]
+
+
 
     def get_entry(self) -> Entry:
         """
@@ -317,20 +317,26 @@ class videourl:
         self.entry.embed_url = f'https:{link["data-video"]}'
 
     @functools.lru_cache()
-    def get_encryption_keys(self):
-        return {
-            _: __.encode()
-            for _, __ in self.session.get(self.enc_key_api).json().items()
-        }
+    def get_enc_keys(self):
+        page = self.session.get(self.entry.embed_url).text
 
-    def aes_encrypt(self, data, key):
+        keys = re.findall(r"(?:container|videocontent)-(\d+)", page)
+
+        if not keys:
+            return {}
+
+        key, iv, second_key = keys
+
+        return {"key": key.encode(), "second_key": second_key.encode(), "iv": iv.encode()}
+
+    def aes_encrypt(self, data, key, iv):
         return base64.b64encode(
-            AES.new(key, self.mode, iv=self.iv).encrypt(self.pad(data).encode())
+            AES.new(key, self.mode, iv=iv).encrypt(self.pad(data).encode())
         )
 
-    def aes_decrypt(self, data, key):
+    def aes_decrypt(self, data, key, iv):
         return (
-            AES.new(key, self.mode, iv=self.iv)
+            AES.new(key, self.mode, iv=iv)
             .decrypt(base64.b64decode(data))
             .strip(b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10")
         )
@@ -350,15 +356,17 @@ class videourl:
         if not self.entry.embed_url:
             self.embed_url()
 
+        enc_keys = self.get_enc_keys()
+
         parsed = urlparse(self.entry.embed_url)
         self.ajax_url = parsed.scheme + "://" + parsed.netloc + self.ajax_url
 
-        data = self.aes_decrypt(self.get_data(), self.key).decode()
+        data = self.aes_decrypt(self.get_data(), enc_keys["key"], enc_keys["iv"]).decode()
         data = dict(parse_qsl(data))
 
         id = urlparse(self.entry.embed_url).query
         id = dict(parse_qsl(id))["id"]
-        enc_id = self.aes_encrypt(id, self.key).decode()
+        enc_id = self.aes_encrypt(id, enc_keys["key"], enc_keys["iv"]).decode()
         data.update(id=enc_id)
 
         headers = {
@@ -373,7 +381,7 @@ class videourl:
 
         response_err(r, r.url)
 
-        json_resp = json.loads(self.aes_decrypt(r.json().get("data"), self.second_key))
+        json_resp = json.loads(self.aes_decrypt(r.json().get("data"), enc_keys["second_key"], enc_keys["iv"]))
 
         source_data = [x for x in json_resp["source"]]
         self.quality(source_data)
