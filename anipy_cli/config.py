@@ -1,4 +1,5 @@
 import yaml
+import functools
 from pathlib import Path
 from sys import platform
 from sys import exit as sys_exit
@@ -10,17 +11,7 @@ class SysNotFoundError(Exception):
 
 class Config:
     def __init__(self):
-        self._config_file = self._get_config_path() / "config.yaml"
-        try:
-            with self._config_file.open("r") as conf:
-                self._yaml_conf = yaml.safe_load(conf)
-            if self._yaml_conf is None:
-                # The config file is empty
-                self._yaml_conf = {}
-        except FileNotFoundError:
-            # There is no config file, create one
-            self._yaml_conf = {}
-            self._create_config()
+        self._config_file, self._yaml_conf = Config._read_config()
 
     @property
     def _anipy_cli_folder(self):
@@ -162,6 +153,20 @@ class Config:
         except PermissionError as e:
             print(f"Failed to create config file: {repr(e)}")
             sys_exit(1)
+    
+    @functools.lru_cache()
+    @staticmethod
+    def _read_config():
+        config_file = Config._get_config_path() / "config.yaml"
+        try:
+            with config_file.open("r") as conf:
+                yaml_conf = yaml.safe_load(conf)
+        except FileNotFoundError:
+            # There is no config file, create one
+            yaml_conf = {}
+        
+        return config_file, yaml_conf
+
 
     @staticmethod
     def _get_config_path() -> Path:
