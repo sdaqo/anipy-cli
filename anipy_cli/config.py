@@ -157,8 +157,8 @@ class Config:
             print(f"Failed to create config file: {repr(e)}")
             sys_exit(1)
     
-    @functools.lru_cache()
     @staticmethod
+    @functools.lru_cache
     def _read_config():
         config_file = Config._get_config_path() / "config.yaml"
         try:
