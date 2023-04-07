@@ -26,7 +26,7 @@ def get_player(rpc_client=None, player_override=None) -> PlayerBaseType:
         return Mpv(rpc_client=rpc_client, mpv_exec_name=player)
     elif player == "vlc":
         return Vlc(rpc_client=rpc_client)
-    elif player == "synclplay":
+    elif player == "syncplay":
         return Syncplay(rpc_client=rpc_client)
     else:
         error(f"Specified player `{player}` is unknown")
