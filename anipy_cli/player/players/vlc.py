@@ -14,5 +14,4 @@ class Vlc(SubProcessPlayerBase):
         super().__init__(
             rpc_client=rpc_client,
             player_args_template=player_args_template,
-            player_exec="vlc",
         )

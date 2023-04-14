@@ -5,6 +5,7 @@ from typing import List
 from abc import ABC, abstractmethod
 
 from anipy_cli.colors import cprint, colors
+from anipy_cli.config import Config
 from anipy_cli.history import history
 from anipy_cli.misc import dc_presence, Entry
 
@@ -53,12 +54,12 @@ class PlayerBase(ABC):
 
 class SubProcessPlayerBase(PlayerBase):
     def __init__(
-        self, player_args_template: List[str], player_exec: str, rpc_client=None
+        self, player_args_template: List[str], rpc_client=None
     ):
         self._rpc_client = rpc_client
         self._sub_proc = None
         self._player_args_template = player_args_template
-        self._player_exec = player_exec
+        self._player_exec = Config().player_path
 
     @property
     def rpc_client(self):

@@ -14,6 +14,5 @@ class Syncplay(SubProcessPlayerBase):
 
         super().__init__(
             rpc_client=rpc_client,
-            player_exec=self.player_exec,
             player_args_template=player_args_template,
         )
