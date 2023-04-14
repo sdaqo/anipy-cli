@@ -434,7 +434,7 @@ class download:
 
     @staticmethod
     def _get_valid_pathname(name):
-        WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|"]
+        WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|", '"']
 
         if sys.platform == "win32":
             name = "".join(["" if x in WIN_INVALID_CHARS else x for x in name])
