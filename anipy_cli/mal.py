@@ -609,7 +609,7 @@ class MAL:
                 self.write_save_data()
             return {"failed_to_map": failed_to_map, "mal_entry": mal_entry}
         except json.JSONDecodeError:
-            return {"failed_to_map": False, "mal_entry": mal_entry}
+            return {"failed_to_map": True, "mal_entry": mal_entry}
 
     def manual_map_gogo_mal(self, mal_anime_name: str, gogo: dict):
         mal_entry = [
