@@ -176,7 +176,7 @@ class download:
             fname.unlink()
 
     def merge_ts_files(self, input_file, suffix=""):
-        filename = f"{self.temp_folder}/{self.entry.show_name}_{self.entry.ep}_merged{suffix}.ts"
+        filename = f"{self.temp_folder}/{self._get_valid_pathname(self.entry.show_name)}_{self.entry.ep}_merged{suffix}.ts"
         # Parse playlist for filenames with ending .ts and put them into the list ts_filenames
         with open(input_file, "r") as playlist:
             ts_filenames = [
