@@ -298,7 +298,7 @@ class videourl:
         soup = BeautifulSoup(r.content, "html.parser")
         link = soup.find("a", {"class": "active", "rel": "1"})
         loc_err(link, self.entry.ep_url, "embed-url")
-        self.entry.embed_url = f'https:{link["data-video"]}'
+        self.entry.embed_url = f'https:{link["data-video"]}' if not link["data-video"].startswith("https:") else link["data-video"]
 
     @functools.lru_cache()
     def get_enc_keys(self):
