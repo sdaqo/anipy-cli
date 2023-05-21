@@ -39,7 +39,7 @@ class Seasonal:
 
             eps_range = list(range(int(e) + 1, int(latest) + 1))
 
-            if not latest.is_integer() and e != latest: # special episodes (.5)
+            if not float(latest).is_integer() and e != latest: # special episodes (.5)
                 print(latest)
                 eps_range.append(latest)
 
