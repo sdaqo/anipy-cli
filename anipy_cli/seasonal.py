@@ -36,7 +36,13 @@ class Seasonal:
             self.entry.category_url = i
             ep_class = epHandler(self.entry)
             latest = ep_class.get_latest()
-            eps_range = list(range(e + 1, latest + 1))
+
+            eps_range = list(range(int(e) + 1, int(latest) + 1))
+
+            if not float(latest).is_integer() and e != latest: # special episodes (.5)
+                print(latest)
+                eps_range.append(latest)
+
             ep_urls = []
             for j in eps_range:
                 self.entry.ep = j
