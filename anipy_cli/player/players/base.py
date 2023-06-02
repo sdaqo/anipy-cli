@@ -54,12 +54,12 @@ class PlayerBase(ABC):
 
 class SubProcessPlayerBase(PlayerBase):
     def __init__(
-        self, player_args_template: List[str], rpc_client=None
+        self, player_args_template: List[str], player_path: str, rpc_client=None
     ):
         self._rpc_client = rpc_client
         self._sub_proc = None
         self._player_args_template = player_args_template
-        self._player_exec = Config().player_path
+        self._player_exec = player_path
 
     @property
     def rpc_client(self):

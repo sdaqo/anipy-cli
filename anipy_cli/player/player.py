@@ -33,7 +33,7 @@ def get_player(rpc_client=None, player_override="") -> PlayerBaseType:
     player_class = player_dict.get(player.name, None)
     
     if player_class:
-        return player_class(rpc_client=rpc_client)
+        return player_class(str(player), rpc_client=rpc_client)
     else:
         error(f"Specified player `{player}` is unknown")
         sys.exit()
