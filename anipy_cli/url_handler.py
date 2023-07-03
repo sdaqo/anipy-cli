@@ -175,12 +175,12 @@ class epHandler:
 
         while True:
             which_episode = self._do_prompt(
-                "Last Episode you watched (put 0 to start at the beginning) "
+                "Last Episode you watched (put -1 to start at the beginning) "
             )
             try:
-                if self._validate_ep(which_episode) or int(which_episode) == 0:
+                if self._validate_ep(which_episode) or int(which_episode) == -1:
                     self.entry.ep = int(which_episode)
-                    if int(which_episode) != 0:
+                    if int(which_episode) != -1:
                         self.gen_eplink()
                     else:
                         self.entry.ep_url = None

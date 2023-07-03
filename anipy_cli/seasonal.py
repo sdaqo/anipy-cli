@@ -4,6 +4,7 @@ import sys
 from anipy_cli.config import Config
 from anipy_cli.url_handler import epHandler
 from anipy_cli.misc import Entry, error, read_json
+from anipy_cli.misc import parsenum
 
 
 class Seasonal:
@@ -35,20 +36,20 @@ class Seasonal:
         for i, e, n in zip(categ_urls, user_eps, names):
             self.entry.category_url = i
             ep_class = epHandler(self.entry)
-            latest = ep_class.get_latest()
+            
+            eps_range = ep_class._load_eps_list()
+            for j in eps_range:
+                if parsenum(j["ep"]) == e:
+                    eps_range = eps_range[eps_range.index(j) + 1:]
+                    break
 
-            eps_range = list(range(int(e) + 1, int(latest) + 1))
-
-            if not float(latest).is_integer() and e != latest: # special episodes (.5)
-                print(latest)
-                eps_range.append(latest)
-
+            
             ep_urls = []
             for j in eps_range:
-                self.entry.ep = j
+                self.entry.ep = parsenum(j["ep"])
                 ep_class = epHandler(self.entry)
                 entry = ep_class.gen_eplink()
-                ep_urls.append([j, entry.ep_url])
+                ep_urls.append([parsenum(j["ep"]), entry.ep_url])
 
             latest_urls.update({n: {"ep_list": ep_urls, "category_url": i}})
 
