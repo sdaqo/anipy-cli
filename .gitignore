@@ -9,3 +9,9 @@ user_files/
 anipy_cli/config_personal.py
 pypi.sh
 .idea/
+
+# VSCode
+.vscode/
+
+# Venv
+.venv/
