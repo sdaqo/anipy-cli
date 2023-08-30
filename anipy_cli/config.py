@@ -14,7 +14,7 @@ class Config:
         self._config_file, self._yaml_conf = Config._read_config()
         
         if not self._yaml_conf:
-            self._yaml_conf = {}
+            self._create_config() # Create config file
 
     @property
     def _anipy_cli_folder(self):
