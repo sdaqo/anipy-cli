@@ -47,7 +47,9 @@ Places of the config:
 
 [Sample Config](https://github.com/sdaqo/anipy-cli/blob/master/docs/sample_config.yaml)
 
-**Attention Windows Users:** If you activate the option `reuse_mpv_window`, you will have to donwload and put the `mpv-2.dll` in your path. To get it go look here: https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
+**Attention Windows Users Using MPV:** If you activate the option `reuse_mpv_window`, you will have to download and put the `mpv-2.dll` in your path. To get it go look here: https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
+
+**Attention Windows Users on Config File Placement:** If you have downloaded Python from the Microsoft Store, your config file will be cached inside of your Python's AppData. For example: `%USERPROFILE%\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\Local\anipy-cli\config.yaml`.
 
 # Usage
 
