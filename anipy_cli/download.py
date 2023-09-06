@@ -45,7 +45,6 @@ class download:
 
     def download(self):
         show_name = self._get_valid_pathname(self.entry.show_name)
-        show_name.strip()
         self.show_folder = self.dl_path / f"{show_name}"
 
         if Config().download_remove_dub_from_folder_name:
@@ -433,11 +432,14 @@ class download:
         )
 
     @staticmethod
-    def _get_valid_pathname(name):
+    def _get_valid_pathname(name: str):
         WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|", '"']
 
         if sys.platform == "win32":
             name = "".join(["" if x in WIN_INVALID_CHARS else x for x in name])
+
+        name = "".join([i for i in name if i.isascii()])  # Verify all chars are ascii (eject if not)
+        name = "-".join(name.split())  # Clean all white spaces, including tabs and such
 
         return name
 
