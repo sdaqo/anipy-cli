@@ -1,3 +1,4 @@
+import os
 import yaml
 import functools
 from pathlib import Path
@@ -14,6 +15,7 @@ class Config:
         self._config_file, self._yaml_conf = Config._read_config()
         
         if not self._yaml_conf:
+            self._yaml_conf = {}
             self._create_config() # Create config file
 
     @property
@@ -123,7 +125,10 @@ class Config:
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
         try:
-            return Path(path).expanduser()
+            # os.path.expanduser is equivalent to Path().expanduser()
+            # But because pathlib doesn't have expandvars(), we resort 
+            # to using the os module inside the Path constructor
+            return Path(os.path.expandvars(path)).expanduser()
         except:
             return fallback
 
