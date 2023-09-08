@@ -1,3 +1,4 @@
+import os
 import yaml
 import functools
 from pathlib import Path
@@ -12,9 +13,10 @@ class SysNotFoundError(Exception):
 class Config:
     def __init__(self):
         self._config_file, self._yaml_conf = Config._read_config()
-        
+
         if not self._yaml_conf:
-            self._create_config() # Create config file
+            self._yaml_conf = {}
+            self._create_config()  # Create config file
 
     @property
     def _anipy_cli_folder(self):
@@ -123,7 +125,10 @@ class Config:
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
         try:
-            return Path(path).expanduser()
+            # os.path.expanduser is equivalent to Path().expanduser()
+            # But because pathlib doesn't have expandvars(), we resort
+            # to using the os module inside the Path constructor
+            return Path(os.path.expandvars(path)).expanduser()
         except:
             return fallback
 
@@ -156,7 +161,7 @@ class Config:
         except PermissionError as e:
             print(f"Failed to create config file: {repr(e)}")
             sys_exit(1)
-    
+
     @staticmethod
     @functools.lru_cache
     def _read_config():
@@ -167,9 +172,8 @@ class Config:
         except FileNotFoundError:
             # There is no config file, create one
             yaml_conf = {}
-        
-        return config_file, yaml_conf
 
+        return config_file, yaml_conf
 
     @staticmethod
     def _get_config_path() -> Path:
