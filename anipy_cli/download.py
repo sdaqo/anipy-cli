@@ -24,7 +24,7 @@ class download:
     A entry with all fields is required.
     """
 
-    def __init__(self, entry, quality, ffmpeg=False, dl_path: Path = None) -> None:
+    def __init__(self, entry, quality, ffmpeg=False, dl_path: Path = None, file_name_format="") -> None:
         try:
             self.quality = int(quality)
         except ValueError:
@@ -36,6 +36,7 @@ class download:
         self.entry = entry
         self.ffmpeg = ffmpeg
         self.dl_path = dl_path
+        self.file_name_format = file_name_format
         if dl_path is None:
             self.dl_path = Config().download_folder_path
         self.headers = {
@@ -425,7 +426,9 @@ class download:
 
         show_name = self._get_valid_pathname(self.entry.show_name)
 
-        return Config().download_name_format.format(
+        file_format = self.file_name_format if self.file_name_format else Config().download_name_format
+
+        return file_format.format(
             show_name=show_name,
             episode_number=self.entry.ep,
             quality=self.entry.quality,
