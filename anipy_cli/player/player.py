@@ -26,6 +26,7 @@ def get_player(rpc_client=None, player_override="") -> PlayerBaseType:
 
     player_dict = {
         "mpv": Mpv,
+        "mpvnet": Mpv,
         "vlc": Vlc,
         "syncplay": Syncplay
     }
