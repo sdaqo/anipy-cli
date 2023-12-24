@@ -22,9 +22,9 @@ class query:
 
     def __init__(self, search_param, entry) -> None:
         with yaspin() as spinner:
-            spinner.text=f"Searching for {colors.BLUE}{search_param}{colors.END}"
-            spinner.spinner=Spinners.dots
-            spinner.color="cyan"
+            spinner.text = f"Searching for {colors.BLUE}{search_param}{colors.END}"
+            spinner.spinner = Spinners.dots
+            spinner.color = "cyan"
             self.entry = entry
             self.search_url = base_url + f"/search.html?keyword={search_param}"
             r = requests.get(self.search_url)

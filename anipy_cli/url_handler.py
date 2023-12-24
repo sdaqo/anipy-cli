@@ -123,7 +123,14 @@ class epHandler:
 
     def _do_prompt(self, prompt="Select Episode"):
         clear_console()
-        cprint(colors.BLUE, colors.BOLD, colors.UNDERLINE, (self.entry.show_name), colors.END, colors.RESET)
+        cprint(
+            colors.BLUE,
+            colors.BOLD,
+            colors.UNDERLINE,
+            (self.entry.show_name),
+            colors.END,
+            colors.RESET,
+        )
         ep_range = f" [{self.get_first()}-{self.get_latest()}]"
 
         specials = self.get_special_list()
@@ -131,7 +138,9 @@ class epHandler:
             ep_range += " Special Eps: "
             ep_range += ", ".join([x["ep"] for x in specials])
 
-        return cinput(prompt, colors.GREEN, ep_range, colors.END, "\n>> ", input_color=colors.CYAN)
+        return cinput(
+            prompt, colors.GREEN, ep_range, colors.END, "\n>> ", input_color=colors.CYAN
+        )
 
     def _validate_ep(self, ep: str):
         """
@@ -151,7 +160,9 @@ class epHandler:
         Cli function to pick an episode from 1 to
         the latest available.
         """
-        with yaspin(text=f"Fetching episode list for {colors.BLUE}{self.entry.show_name}...") as spinner:
+        with yaspin(
+            text=f"Fetching episode list for {colors.BLUE}{self.entry.show_name}..."
+        ) as spinner:
             spinner.color = "cyan"
             spinner.spinner = Spinners.dots
             self.get_latest()
@@ -178,7 +189,9 @@ class epHandler:
         the latest available.
         """
 
-        with yaspin(text=f"Fetching episode list for {colors.BLUE}{self.entry.show_name}...") as spinner:
+        with yaspin(
+            text=f"Fetching episode list for {colors.BLUE}{self.entry.show_name}..."
+        ) as spinner:
             spinner.color = "cyan"
             spinner.spinner = Spinners.dots
             self.get_latest()
@@ -309,7 +322,11 @@ class videourl:
         soup = BeautifulSoup(r.content, "html.parser")
         link = soup.find("a", {"class": "active", "rel": "1"})
         loc_err(link, self.entry.ep_url, "embed-url")
-        self.entry.embed_url = f'https:{link["data-video"]}' if not link["data-video"].startswith("https:") else link["data-video"]
+        self.entry.embed_url = (
+            f'https:{link["data-video"]}'
+            if not link["data-video"].startswith("https:")
+            else link["data-video"]
+        )
 
     @functools.lru_cache()
     def get_enc_keys(self):

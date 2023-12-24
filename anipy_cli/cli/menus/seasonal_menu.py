@@ -6,7 +6,7 @@ from yaspin.spinners import Spinners
 
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint, cinput
-from anipy_cli.misc import Entry, print_names, error , clear_console
+from anipy_cli.misc import Entry, print_names, error, clear_console
 from anipy_cli.player import get_player
 from anipy_cli.url_handler import videourl, epHandler
 from anipy_cli.query import query
@@ -80,7 +80,6 @@ class SeasonalMenu(MenuBase, Seasonal):
             else:
                 show_entry = query_class.pick_show()
 
-        
             picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
             self.add_show(show_entry.show_name, show_entry.category_url, picked_ep)
         self.print_options()

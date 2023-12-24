@@ -38,7 +38,11 @@ class Menu(MenuBase):
     def print_header(self):
         cprint(
             colors.GREEN,
-            "Playing: ", colors.BLUE, self.entry.show_name, colors.GREEN, f" | {self.entry.quality} | ",
+            "Playing: ",
+            colors.BLUE,
+            self.entry.show_name,
+            colors.GREEN,
+            f" | {self.entry.quality} | ",
             colors.RED,
             f"{self.entry.ep}/{self.entry.latest_ep}",
         )

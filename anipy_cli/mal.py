@@ -97,9 +97,8 @@ class MAL:
     def auto_map_all_without_map(self):
         with Pool(processes=None) as pool:
             mal_entries = self.local_mal_list_json["data"]
-                # apply the search function to each search value in parallel
+            # apply the search function to each search value in parallel
             results = pool.map(self.auto_map_gogo_mal, mal_entries, True)
-
 
         new_mal_entries = list()
         for result in results:
@@ -562,7 +561,9 @@ class MAL:
             if "gogo_map" in mal_entry and len(mal_entry["gogo_map"]) > 0:
                 return {"failed_to_map": False, "mal_entry": mal_entry}
             failed_to_map = True
-            cprint(colors.GREEN, "Auto mapping: ", colors.BLUE, mal_entry["node"]["title"])
+            cprint(
+                colors.GREEN, "Auto mapping: ", colors.BLUE, mal_entry["node"]["title"]
+            )
 
             search_values = [
                 mal_entry["node"]["title"],
@@ -582,7 +583,10 @@ class MAL:
                     mal_entry["gogo_map"] = []
                 for i, anime in enumerate(found["search"][1]):
                     if any(
-                        anime.lower().rstrip("(dub)").rstrip("(japanese dub)").strip(" ")
+                        anime.lower()
+                        .rstrip("(dub)")
+                        .rstrip("(japanese dub)")
+                        .strip(" ")
                         in show.lower()
                         for show in [search_values[0], search_values[1]]
                     ):
@@ -592,13 +596,15 @@ class MAL:
                         self.update_gogo_map_list(gogo_map, current_map)
                         failed_to_map = False
                         if not mp:
-                            self.shows_failed_automap.discard(mal_entry["node"]["title"])
+                            self.shows_failed_automap.discard(
+                                mal_entry["node"]["title"]
+                            )
                         self.update_anime_list(
                             mal_entry["node"]["id"],
                             {
-                                "num_watched_episodes": mal_entry["node"]["my_list_status"][
-                                    "num_episodes_watched"
-                                ],
+                                "num_watched_episodes": mal_entry["node"][
+                                    "my_list_status"
+                                ]["num_episodes_watched"],
                                 "tags": "anipy-cli",
                             },
                         )

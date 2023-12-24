@@ -17,22 +17,18 @@ def get_player(rpc_client=None, player_override="") -> PlayerBaseType:
 
     if not player_override:
         player = cfg.player_path
-    
+
     player = Path(player)
-    
+
     if player.name == "mpv" and cfg.reuse_mpv_window:
         from anipy_cli.player.players.mpv_contrl import MpvControllable
+
         return MpvControllable(rpc_client=rpc_client)
 
-    player_dict = {
-        "mpv": Mpv,
-        "mpvnet": Mpv,
-        "vlc": Vlc,
-        "syncplay": Syncplay
-    }
+    player_dict = {"mpv": Mpv, "mpvnet": Mpv, "vlc": Vlc, "syncplay": Syncplay}
 
     player_class = player_dict.get(player.name, None)
-    
+
     if player_class:
         return player_class(str(player), rpc_client=rpc_client)
     else:

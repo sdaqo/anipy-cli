@@ -77,7 +77,9 @@ def get_season_searches(gogo=True):
         else:
             cprint(colors.YELLOW, "Please enter a valid season name.\n")
 
-    with yaspin(text="Fetching seasonals...", spinner=Spinners.dots, color="cyan") as spinner:
+    with yaspin(
+        text="Fetching seasonals...", spinner=Spinners.dots, color="cyan"
+    ) as spinner:
         if gogo:
             anime_in_season = search_in_season_on_gogo(season_year, season_name)
 
@@ -85,7 +87,6 @@ def get_season_searches(gogo=True):
             anime_in_season = MAL().get_seasonal_anime(season_year, season_name)
 
         spinner.ok("✔")
-
 
     cprint("Anime found in {} {} Season: ".format(season_year, season_name))
     cprint(
