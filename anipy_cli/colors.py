@@ -11,6 +11,9 @@ class colors:
     CYAN = "\u001b[36m"
     RED = "\u001b[31m"
     END = "\x1b[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    RESET = "\033[0m"
 
 
 def color(*values, sep: str = "") -> str:

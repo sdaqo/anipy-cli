@@ -1,9 +1,10 @@
 import sys
+import os
 from typing import List
 
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint
-from anipy_cli.misc import Entry, error
+from anipy_cli.misc import Entry, error, clear_console
 from anipy_cli.player import PlayerBaseType
 from anipy_cli.url_handler import videourl, epHandler
 from anipy_cli.query import query
@@ -37,7 +38,7 @@ class Menu(MenuBase):
     def print_header(self):
         cprint(
             colors.GREEN,
-            f"Playing: {self.entry.show_name} {self.entry.quality} | ",
+            "Playing: ", colors.BLUE, self.entry.show_name, colors.GREEN, f" | {self.entry.quality} | ",
             colors.RED,
             f"{self.entry.ep}/{self.entry.latest_ep}",
         )
@@ -71,6 +72,7 @@ class Menu(MenuBase):
         self.print_options()
 
     def search(self):
+        clear_console()
         query_class = query(input("Search: "), self.entry)
         if query_class.get_links() == 0:
             error("no search results")

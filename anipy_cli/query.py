@@ -1,6 +1,9 @@
 import requests
 import re
 from bs4 import BeautifulSoup
+from yaspin import yaspin
+from yaspin.spinners import Spinners
+
 
 from anipy_cli.misc import loc_err, response_err, error, print_names
 from anipy_cli.colors import colors, cinput
@@ -18,11 +21,16 @@ class query:
     """
 
     def __init__(self, search_param, entry) -> None:
-        self.entry = entry
-        self.search_url = base_url + f"/search.html?keyword={search_param}"
-        r = requests.get(self.search_url)
-        response_err(r, self.search_url)
-        self.soup = BeautifulSoup(r.content, "html.parser")
+        with yaspin() as spinner:
+            spinner.text=f"Searching for {colors.BLUE}{search_param}{colors.END}"
+            spinner.spinner=Spinners.dots
+            spinner.color="cyan"
+            self.entry = entry
+            self.search_url = base_url + f"/search.html?keyword={search_param}"
+            r = requests.get(self.search_url)
+            response_err(r, self.search_url)
+            self.soup = BeautifulSoup(r.content, "html.parser")
+            spinner.ok("✓")
 
     def get_pages(self):
         """Get count of result pages of query"""
