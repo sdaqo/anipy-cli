@@ -36,14 +36,13 @@ class Seasonal:
         for i, e, n in zip(categ_urls, user_eps, names):
             self.entry.category_url = i
             ep_class = epHandler(self.entry)
-            
+
             eps_range = ep_class._load_eps_list()
             for j in eps_range:
                 if parsenum(j["ep"]) == e:
-                    eps_range = eps_range[eps_range.index(j) + 1:]
+                    eps_range = eps_range[eps_range.index(j) + 1 :]
                     break
 
-            
             ep_urls = []
             for j in eps_range:
                 self.entry.ep = parsenum(j["ep"])

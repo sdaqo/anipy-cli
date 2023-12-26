@@ -1,3 +1,5 @@
+from yaspin import yaspin
+from yaspin.spinners import Spinners
 from anipy_cli.colors import cprint, colors, cinput
 from anipy_cli.misc import Entry, search_in_season_on_gogo, print_names
 from anipy_cli.url_handler import epHandler, videourl
@@ -75,11 +77,16 @@ def get_season_searches(gogo=True):
         else:
             cprint(colors.YELLOW, "Please enter a valid season name.\n")
 
-    if gogo:
-        anime_in_season = search_in_season_on_gogo(season_year, season_name)
+    with yaspin(
+        text="Fetching seasonals...", spinner=Spinners.dots, color="cyan"
+    ) as spinner:
+        if gogo:
+            anime_in_season = search_in_season_on_gogo(season_year, season_name)
 
-    else:
-        anime_in_season = MAL().get_seasonal_anime(season_year, season_name)
+        else:
+            anime_in_season = MAL().get_seasonal_anime(season_year, season_name)
+
+        spinner.ok("✔")
 
     cprint("Anime found in {} {} Season: ".format(season_year, season_name))
     cprint(

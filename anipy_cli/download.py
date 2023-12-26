@@ -24,7 +24,9 @@ class download:
     A entry with all fields is required.
     """
 
-    def __init__(self, entry, quality, ffmpeg=False, dl_path: Path = None, file_name_format="") -> None:
+    def __init__(
+        self, entry, quality, ffmpeg=False, dl_path: Path = None, file_name_format=""
+    ) -> None:
         try:
             self.quality = int(quality)
         except ValueError:
@@ -426,7 +428,11 @@ class download:
 
         show_name = self._get_valid_pathname(self.entry.show_name)
 
-        file_format = self.file_name_format if self.file_name_format else Config().download_name_format
+        file_format = (
+            self.file_name_format
+            if self.file_name_format
+            else Config().download_name_format
+        )
 
         return file_format.format(
             show_name=show_name,
@@ -441,7 +447,9 @@ class download:
         if sys.platform == "win32":
             name = "".join(["" if x in WIN_INVALID_CHARS else x for x in name])
 
-        name = "".join([i for i in name if i.isascii()])  # Verify all chars are ascii (eject if not)
+        name = "".join(
+            [i for i in name if i.isascii()]
+        )  # Verify all chars are ascii (eject if not)
         name = "-".join(name.split())  # Clean all white spaces, including tabs and such
 
         return name

@@ -1,9 +1,12 @@
 import sys
 from typing import List
+from yaspin import yaspin
+from yaspin.spinners import Spinners
+
 
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint, cinput
-from anipy_cli.misc import Entry, print_names, error
+from anipy_cli.misc import Entry, print_names, error, clear_console
 from anipy_cli.player import get_player
 from anipy_cli.url_handler import videourl, epHandler
 from anipy_cli.query import query
@@ -59,7 +62,7 @@ class SeasonalMenu(MenuBase, Seasonal):
                 links = [search["category_url"]]
 
             else:
-                print("\nCurrent: ", search)
+                clear_console()
                 query_class = query(search, show_entry)
                 query_class.get_pages()
                 links = query_class.get_links()
