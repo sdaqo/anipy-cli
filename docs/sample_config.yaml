@@ -24,7 +24,7 @@ user_files_path: "~/anipy-cli/user_files"
 # Default: user_files_path/history.json
 history_file_path:
 # Default: user_files_path/seasonals.json
-seasonal_file_path: 
+seasonal_file_path:
 
 # Url of the goganime website, only change if needed
 gogoanime_url: "https://gogoanime.gg/"
@@ -80,7 +80,7 @@ dc_presence: False
 auto_open_dl_defaultcli: False
 
 # Mal user credentials
-# Store your user/pw here if you don't want to get prompted for it everytime
+# Store your user/pw here if you don't want to get prompted for it every time
 mal_user: username
 mal_password: password
 
@@ -99,6 +99,6 @@ mal_status_categories:
 
 # Specify Anime Types that should be shown in search results.
 # Defaults to sub and dub
-anime_types: 
+anime_types:
   - "sub"
   - "dub"

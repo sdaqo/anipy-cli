@@ -100,7 +100,7 @@ class epHandler:
 
     def get_latest(self):
         """
-        Fetch latest episode avalible
+        Fetch latest episode available
         from a show and return it.
         """
 
@@ -253,7 +253,7 @@ class epHandler:
                     ep_list = ep_list[first_index : second_index + 1]
 
                     if not ep_list:
-                        error("invlid input1")
+                        error("invalid input1")
                     else:
                         return [x["ep"] for x in ep_list]
 
@@ -414,7 +414,7 @@ class videourl:
         JSON repons and change
         stream url to the either
         the quality option that was picked,
-        or the best one avalible.
+        or the best one available.
         """
         self.entry.quality = ""
 

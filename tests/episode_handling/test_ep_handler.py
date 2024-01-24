@@ -14,7 +14,7 @@ def test_gen_link_regular():
 
 
 def test_gen_link_with_unknown_chars():
-    """Test link generation with a show with unkown charachters
+    """Test link generation with a show with unknown characters
     in its title (e.g. Saenai Heroine no Sodatekata ♭)"""
 
     show_entry = epHandler(

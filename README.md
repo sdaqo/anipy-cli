@@ -12,7 +12,7 @@ https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-
 
 - [Installation](#Installation)
 - [Usage](#Usage)
-- [Libary Usage](#libary-usage)
+- [Library Usage](#library-usage)
 - [What it can do](#what-it-can-do)
 - [Other Versions](#other-versions)
 - [Credits](#Credits)
@@ -106,18 +106,18 @@ Info:
 - (**Optional**) Discord Presence for the anime you currently watch. This is off by default, activate it in the config (-c)
 - (**Optional**) Ffmpeg to download m3u8 playlists, may be more stable but is slower than internal downloader.
 
-# Libary Usage
+# Library Usage
 
 Documentation can be found [here](https://github.com/sdaqo/anipy-cli/blob/master/docs/anipycli_as_lib.py)
 
 #### Important:
 
-To import the libary, don't import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
+To import the library, don't import `anipy-cli`, but `anipy_cli` (no '-' is allowed)
 
 # Advanced Usage Examples
 #### Little example of using anipy-cli for automatically keeping anime library up-to-date:
 ```
-# Cronjob runs every 2 minutes and checks wether anipy-cli is still running or not 
+# Cronjob runs every 2 minutes and checks whether anipy-cli is still running or not
 # (only run the job if last one is finished)
 
 */2 *   * * *   username        pidof -x anipy-cli || anipy-cli -Ma >> /var/log/anipy-cli.log
