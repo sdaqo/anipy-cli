@@ -35,7 +35,7 @@ def test_del_hyouka(show_details):
 
 
 def test_update_hyouka(show_details):
-    """Check if updateing a show works"""
+    """Check if updating a show works"""
     MD5 = "0dc5e6db1089f5e9ccf42f1ed443076c"
 
     Seasonal().add_show(*show_details)

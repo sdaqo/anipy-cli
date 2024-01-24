@@ -41,7 +41,7 @@ def test_hyouka_noffmpeg(show_entry):
     assert download_path.is_file(), f"File was not created {download_path}"
     assert (
         download_path.stat().st_size > 10000000
-    ), f"File is smaller than 10MB, maybe it wasnt correctly downloaded?"
+    ), f"File is smaller than 10MB, maybe it wasn't correctly downloaded?"
 
     download_path.unlink()
 
@@ -60,6 +60,6 @@ def test_hyouka_ffmpeg(show_entry):
     assert download_path.is_file(), f"File was not created {download_path}"
     assert (
         download_path.stat().st_size > 10000000
-    ), f"File is smaller than 10MB, maybe it wasnt correctly downloaded?"
+    ), f"File is smaller than 10MB, maybe it wasn't correctly downloaded?"
 
     download_path.unlink()

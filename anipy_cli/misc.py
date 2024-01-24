@@ -45,7 +45,7 @@ def error(error: str) -> None:
 def response_err(req, link) -> None:
     """
     Function that checks if a request
-    was succesfull.
+    was successful.
     """
     if req.ok:
         pass

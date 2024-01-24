@@ -80,7 +80,7 @@ class query:
         """
         Cli Function that
         Lets you pick a show from
-        yout query, filles the category_url
+        yout query, filled the category_url
         field from the entry and returns it.
         """
         print_names(self.names)

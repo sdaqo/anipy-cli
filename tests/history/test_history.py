@@ -42,7 +42,7 @@ def test_hyouka_duplicate(show_entry):
 
 
 def test_prepend(show_entry):
-    """Check if able to prepend the entry if another one already exsists"""
+    """Check if able to prepend the entry if another one already exists"""
     MD5 = "fe772be16ced55a1618ecd16743b7f5b"
 
     history(show_entry).write_hist()

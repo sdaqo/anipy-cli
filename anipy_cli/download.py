@@ -419,7 +419,7 @@ class download:
 
     def _get_fname(self) -> str:
         """
-        This function returns what the filename for the outputed video should be.
+        This function returns what the filename for the outputted video should be.
 
         It finds this by using data in self.entry and the Config.
 

@@ -1,10 +1,10 @@
 """
-Examples to use 
-anipy-cli as libary.
-More descriptions can be 
+Examples to use
+anipy-cli as library.
+More descriptions can be
 found by the functions/classes itself.
 """
-# Don't run this file, it wont work, it is only for demonstration purposes
+# Don't run this file, it won't work, it is only for demonstration purposes
 
 import anipy_cli
 
@@ -43,7 +43,7 @@ print(links_and_names[1])  # prints names
 # Episode Handling is done with
 # epHandler, it can get the latest
 # episode, generate episode links,
-# get next episode and previos episode.
+# get next episode and previous episode.
 # it requires the fields category_url,
 # and ep.
 ep_class = anipy_cli.epHandler(entry)
@@ -64,7 +64,7 @@ entry = ep_class.get_entry()
 # done with the videourl class, it takes an entry
 # that has to at least have ep_url filled.
 # It also takes a quality argument which can have
-# the standart qualities (1080, 720 etc.) or worst/best as value.
+# the standard qualities (1080, 720 etc.) or worst/best as value.
 url_class = anipy_cli.videourl(entry, "best")
 # generate stream url (this also, automatically generates the embed url)
 url_class.stream_url()
@@ -117,8 +117,8 @@ player.kill_player()
 vlc_player = anipy_cli.player.players.Vlc()
 
 # This is a controllable mpv player, it has the same common methods
-# as the other players but is a little special as you can completly
-# controll the player. Read more about what you can do with it here:
+# as the other players but is a little special as you can completely
+# control the player. Read more about what you can do with it here:
 # https://github.com/jaseg/python-mpv
 contr_mpv_player = anipy_cli.player.players.MpvControllable()
 
@@ -170,7 +170,7 @@ mpv_cmd_opts = anipy_cli.config.config.mpv_commandline_options
 # Create the class
 seasonal_class = anipy_cli.Seasonal()
 # Fetch latest episodes, this function returns
-# a dictonary with the episodes, it looks like
+# a dictionary with the episodes, it looks like
 # this:
 #           {"name": {
 #               "ep_list": [[ep, ep-link], [], ...],
