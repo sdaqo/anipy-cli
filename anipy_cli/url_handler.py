@@ -48,7 +48,7 @@ class epHandler:
             ).group(1)
 
         res = requests.get(
-            "https://ajax.gogo-load.com/ajax/load-list-episode",
+            "https://ajax.gogocdn.net/ajax/load-list-episode",
             params={"ep_start": 0, "ep_end": 9999, "id": self.movie_id},
             timeout=2,
         )
