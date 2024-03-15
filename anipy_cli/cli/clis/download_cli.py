@@ -3,7 +3,8 @@ from copy import deepcopy
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.config import Config
 from anipy_cli.colors import cprint, colors
-from anipy_cli.misc import Entry, parsenum
+from anipy_cli.misc import Entry
+from anipy_cli.provider.utils import parsenum
 from anipy_cli.query import query
 from anipy_cli.url_handler import videourl, epHandler
 from anipy_cli.download import download

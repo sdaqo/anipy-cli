@@ -1,22 +1,20 @@
 import re
-import functools
 import base64
 import json
 import m3u8
 from urllib.parse import urlparse, parse_qsl, urlencode, urljoin
 from requests import Request, Session
 from Cryptodome.Cipher import AES
-from typing import List, Union
+from typing import List
 from bs4 import BeautifulSoup
 from pathlib import Path
 
-from anipy_cli.provider import BaseProvider, ProviderSearchResult, ProviderInfoResult, ProviderStream
+from anipy_cli.provider import BaseProvider, ProviderSearchResult, ProviderInfoResult, ProviderStream, Episode
 from anipy_cli.provider.error import BeautifulSoupLocationError
-from anipy_cli.provider.utils import request_page
-from anipy_cli.misc import parsenum
+from anipy_cli.provider.utils import request_page, memoized_method, parsenum
 from anipy_cli.config import Config
 
-@functools.lru_cache()
+@memoized_method()
 def _get_enc_keys(session: Session, embed_url: str):
     page = request_page(session, Request("GET", embed_url)).text
 
@@ -49,8 +47,9 @@ def _aes_decrypt(data, key, iv):
 class GoGoProvider(BaseProvider):
     BASE_URL = Config().gogoanime_url
 
-    def __init__(self):
-        self.session = Session()
+    @staticmethod
+    def name() -> str:
+        return "gogoanime"
 
     def get_search(self, query: str) -> List[ProviderSearchResult]:
         search_url = self.BASE_URL + f"/search.html?keyword={query}"
@@ -66,7 +65,7 @@ class GoGoProvider(BaseProvider):
             raise BeautifulSoupLocationError("page count", search_url)
 
         pages = [x.get("data-page") for x in pages]
-        pages = pages[-1] if len(pages) > 0 else 1
+        pages = int(pages[-1]) if len(pages) > 0 else 1
 
         results = []
         
@@ -87,8 +86,8 @@ class GoGoProvider(BaseProvider):
 
         return results
     
-    @functools.lru_cache()
-    def get_episodes(self, identifier: str) -> List[Union[int, float]]:
+    @memoized_method()
+    def get_episodes(self, identifier: str) -> List[Episode]:
         req = Request("GET", f"{self.BASE_URL}/category/{identifier}")
         res = request_page(self.session, req)
 
@@ -115,7 +114,7 @@ class GoGoProvider(BaseProvider):
 
         return ep_list
     
-    @functools.lru_cache()
+    @memoized_method()
     def get_info(self, identifier: str) -> ProviderInfoResult:
         req = Request("GET", f"{self.BASE_URL}/category/{identifier}")
         res = request_page(self.session, req)
@@ -125,7 +124,8 @@ class GoGoProvider(BaseProvider):
 
         if info_body == None:
             raise BeautifulSoupLocationError("anime info", res.url)
-
+        
+        name = info_body.find("h1").text
         image = info_body.find("img").get("src").__str__()
         other_info = info_body.find_all("p", {"class": "type"})
 
@@ -137,10 +137,10 @@ class GoGoProvider(BaseProvider):
             for x in other_info[2].find_all("a")
         ]
 
-        return ProviderInfoResult(image, genres, synopsis, release_year, status)
+        return ProviderInfoResult(name, image, genres, synopsis, release_year, status)
 
     
-    def get_video(self, identifier: str, episode: Union[int, float]) -> List[ProviderStream]:
+    def get_video(self, identifier: str, episode: Episode) -> List[ProviderStream]:
         episode_url = f"{self.BASE_URL}/{identifier}-episode-{str(episode).replace('.', '-')}"
 
         req = Request("GET", episode_url)
@@ -208,12 +208,13 @@ class GoGoProvider(BaseProvider):
                 for playlist in content.playlists:
                     streams.append(
                         ProviderStream(
-                            stream=urljoin(content.base_uri, playlist.uri),
-                            resolution=str(playlist.stream_info.resolution[1])
+                            url=urljoin(content.base_uri, playlist.uri),
+                            resolution=str(playlist.stream_info.resolution[1]),
+                            episode=episode
                         )
                     )
             else:
                 resolution = int(re.search(r"\d+", s['label']).group(0))
-                streams.append(ProviderStream(stream=s['file'], resolution=resolution))
+                streams.append(ProviderStream(url=s['file'], resolution=resolution, episode=episode))
 
         return streams

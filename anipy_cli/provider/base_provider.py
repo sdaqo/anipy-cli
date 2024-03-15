@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Union, List, Optional
+from typing import Union, List, Optional, NewType, TypeVar
 from dataclasses import dataclass
 from requests import Session
+
+Episode = Union[int, float]
 
 @dataclass
 class ProviderSearchResult:
@@ -12,33 +14,44 @@ class ProviderSearchResult:
 
 @dataclass 
 class ProviderInfoResult:
+    name: str
     image: Optional[str]
     genres: Optional[List[str]]
     synopsis: Optional[str]
     release_year: Optional[int]
     status: Optional[str]
 
+
 @dataclass
 class ProviderStream:
-    stream: str
+    url: str
     resolution: int
+    episode: Episode
 
 
 class BaseProvider(ABC):
-    session: Session
+    def __init__(self):
+        self.session = Session()
+
+    @staticmethod 
+    @abstractmethod
+    def name() -> str:
+        ...
 
     @abstractmethod
     def get_search(self, query: str) -> List[ProviderSearchResult]:
-        pass
+        ...
         
     @abstractmethod
-    def get_episodes(self, identifier: str) -> List[Union[int, float]]:
-        pass
+    def get_episodes(self, identifier: str) -> List[Episode]:
+        ...
 
     @abstractmethod
     def get_info(self, identifier: str) -> ProviderInfoResult:
-        pass
+        ...
 
     @abstractmethod
-    def get_video(self, identifier: str, episode: Union[int, float]) -> List[ProviderStream]:
-        pass
+    def get_video(self, identifier: str, episode: Episode) -> List[ProviderStream]:
+        ...
+
+ProviderBaseType = TypeVar("ProviderBaseType", bound=BaseProvider)

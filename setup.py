@@ -38,7 +38,9 @@ setup(
         "moviepy",
         "pyyaml",
         "python-mpv",
-        "yaspin"
+        "yaspin",
+        "InquirerPy",
+        "dataclasses_json"
     ],
     entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )

@@ -11,6 +11,7 @@ from typing import Union
 
 from anipy_cli.config import Config
 from anipy_cli.colors import colors, color, cprint
+from anipy_cli.provider import ProviderInfoResult
 
 
 @dataclass
@@ -70,17 +71,6 @@ def keyboard_inter() -> None:
     cprint(colors.ERROR, "\nanipy-cli: error: interrupted")
     sys.exit()
 
-
-def parsenum(n: str):
-    """
-    Parse String to either
-    int or float.
-    """
-
-    try:
-        return int(n)
-    except ValueError:
-        return float(n)
 
 
 def read_json(path):
@@ -216,12 +206,11 @@ def dc_presence_connect():
     return rpc_client
 
 
-def dc_presence(media_title, category_url, rpc_client):
-    info = get_anime_info(category_url)
+def dc_presence(media_title: str, anime_info: ProviderInfoResult , rpc_client):
     rpc_client.update(
         details="Watching anime via anipy-cli",
         state=media_title,
-        large_image=info["image_url"],
+        large_image=anime_info.image,
         small_image="https://github.com/Dankni95/ulauncher-anime/raw/master/images/icon.png",
         start=int(time.time()),
     )

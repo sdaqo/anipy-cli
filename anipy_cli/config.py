@@ -49,6 +49,10 @@ class Config:
         return self.user_files_path / "seasonals.json"
 
     @property
+    def providers(self):
+        return self._get_value("providers", ["gogoanime"], list)
+
+    @property
     def gogoanime_url(self):
         return self._get_value("gogoanime_url", "https://gogoanime.gg/", str)
 

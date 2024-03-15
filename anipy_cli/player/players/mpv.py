@@ -7,7 +7,6 @@ class Mpv(SubProcessPlayerBase):
         player_args_template = [
             "{stream_url}",
             "--force-media-title={media_title}",
-            "--referrer={embed_url}",
             "--force-window=immediate",
             *Config().mpv_commandline_options,
         ]

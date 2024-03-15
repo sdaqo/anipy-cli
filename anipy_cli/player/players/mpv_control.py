@@ -1,6 +1,8 @@
 import mpv
 
 from anipy_cli.player.players.base import PlayerBase
+from anipy_cli.provider import ProviderStream
+from anipy_cli.anime import Anime
 
 
 class MpvControllable(mpv.MPV, PlayerBase):
@@ -18,14 +20,14 @@ class MpvControllable(mpv.MPV, PlayerBase):
     def rpc_client(self):
         return self._rpc_client
 
-    def play_title(self, entry):
-        self.force_media_title = self._get_media_title(entry)
+    def play_title(self, anime: Anime, stream: ProviderStream):
+        self.force_media_title = self._get_media_title(anime, stream)
 
-        self.referrer = entry.embed_url
-        self.play(entry.stream_url)
+        # self.referrer = entry.embed_url
+        self.play(stream.url)
 
-        self._write_hist(entry)
-        self._start_dc_presence(entry)
+        self._write_hist(anime, stream)
+        self._start_dc_presence(anime, stream)
 
     def play_file(self, path: str):
         self.play(path)

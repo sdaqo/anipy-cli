@@ -1,5 +1,5 @@
 import sys
-from typing import TypeVar
+from typing import TypeVar, Optional
 from pathlib import Path
 
 from anipy_cli.config import Config
@@ -10,13 +10,13 @@ from anipy_cli.player.players.base import PlayerBase
 PlayerBaseType = TypeVar("PlayerBaseType", bound=PlayerBase)
 
 
-def get_player(rpc_client=None, player_override="") -> PlayerBaseType:
+def get_player(rpc_client = None, player_override: Optional[str] = None) -> PlayerBaseType:
     cfg = Config()
 
-    player = player_override
+    player = cfg.player_path
 
-    if not player_override:
-        player = cfg.player_path
+    if player_override is not None:
+        player = player_override
 
     player = Path(player)
 

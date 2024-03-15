@@ -1,12 +1,18 @@
 from yaspin import yaspin
 from yaspin.spinners import Spinners
+from typing import Iterator, List, Optional, Type, Union
+from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
+
 from anipy_cli.colors import cprint, colors, cinput
-from anipy_cli.misc import Entry, search_in_season_on_gogo, print_names
+from anipy_cli.misc import Entry, search_in_season_on_gogo, print_names, error
 from anipy_cli.url_handler import epHandler, videourl
+from anipy_cli.config import Config
 from anipy_cli.mal import MAL
 from anipy_cli.seasonal import Seasonal
 from anipy_cli.player import PlayerBaseType
-
+from anipy_cli.provider import ProviderSearchResult, ProviderStream, BaseProvider, list_providers, Episode
+from anipy_cli.anime import Anime
 
 def binge(ep_list, quality, player: PlayerBaseType, mode="", mal_class: MAL = None):
     """
@@ -123,3 +129,44 @@ def get_season_searches(gogo=True):
     for value in selected:
         searches.append(anime_in_season[int(value)])
     return searches
+
+
+
+
+
+def search_show_prompt(loop_on_nores: bool = True) -> Optional[Anime]:
+    query = inquirer.text("Search Anime:").execute()
+
+    results: List[Anime] = []
+    for provider in get_prefered_providers():
+        results.extend(Anime.from_search_results(provider, provider.get_search(query)))
+    
+    if loop_on_nores:
+        if len(results) == 0:
+            error("no search results")
+            search_show()
+    
+    anime: Anime | None = inquirer.fuzzy(
+        message="Select Show:",
+        instruction="Ctrl+C to abort",
+        choices=results
+    ).execute()
+
+    return anime
+
+def pick_episode_prompt(anime: Anime) -> Episode:
+    return inquirer.fuzzy(
+        message="Select Episode:",
+        choices=anime.get_episodes(),
+    ).execute()
+
+
+
+def get_prefered_providers():
+    preferred_providers = Config().providers
+
+    for i in list_providers():
+        if i.name() in preferred_providers:
+            yield i()
+
+

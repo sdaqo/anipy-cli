@@ -4,7 +4,7 @@ import sys
 from anipy_cli.config import Config
 from anipy_cli.url_handler import epHandler
 from anipy_cli.misc import Entry, error, read_json
-from anipy_cli.misc import parsenum
+from anipy_cli.provider.utils import parsenum
 
 
 class Seasonal:

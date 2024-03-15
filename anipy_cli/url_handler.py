@@ -13,7 +13,8 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 from Cryptodome.Cipher import AES
 
-from anipy_cli.misc import response_err, error, loc_err, parsenum, Entry, clear_console
+from anipy_cli.misc import response_err, error, loc_err, Entry, clear_console
+from anipy_cli.provider.utils import parsenum
 from anipy_cli.colors import cinput, color, colors, cprint
 from anipy_cli.config import Config
 

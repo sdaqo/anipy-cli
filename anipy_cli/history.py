@@ -1,83 +1,51 @@
-import json
-import sys
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from typing import Dict, Optional
 
-from anipy_cli.misc import error, read_json
 from anipy_cli.config import Config
+from anipy_cli.provider import Episode
+from anipy_cli.anime import Anime
+
+@dataclass_json
+@dataclass
+class HistoryEntry:
+    pv: str
+    id: str
+    ep: Episode
+
+@dataclass_json
+@dataclass
+class History:
+    history: Dict[str, HistoryEntry]
 
 
-class history:
-    """
-    Class for history.
-    Following entry fields are required
-    for writing to history file:
-        - show_name
-        - category_url
-        - ep_url
-        - ep
-    """
+def get_history() -> Dict[str, HistoryEntry]:
+    hist_file = Config().history_file_path
 
-    def __init__(self, entry) -> None:
-        self.entry = entry
+    if not hist_file.is_file():
+        return {}
+        
+    history = History.from_json(hist_file.read_text())
 
-    def read_save_data(self):
-        self.json = read_json(Config().history_file_path)
+    return history.history
 
-        return self.json
 
-    def check_duplicate(self):
-        """
-        Check if show is already in
-        history file.
-        """
-        for i in self.json:
-            if i == self.entry.show_name:
-                self.dup = True
-                return 1
+def get_history_entry(anime: Anime) -> Optional[HistoryEntry]:
+    history = get_history()
+    uniqueid = f"{anime.provider.name()}:{anime.identifier}"
 
-        self.dup = False
+    return history.get(uniqueid, None)
 
-    def prepend_json(self):
-        """Moves data to the top of a json file"""
-        new_data = self.json[self.entry.show_name]
-        self.json.pop(self.entry.show_name)
-        new_data = {self.entry.show_name: (new_data)}
-        self.json = {**new_data, **self.json}
 
-    def update_hist(self):
-        self.json[self.entry.show_name]["ep"] = self.entry.ep
-        self.json[self.entry.show_name]["ep-link"] = self.entry.ep_url
+def update_history(anime: Anime, episode: Episode):
+    hist_file = Config().history_file_path
+    history = get_history()
+    
+    uniqueid = f"{anime.provider.name()}:{anime.identifier}"
+    entry = history.get(uniqueid, None)
 
-    def write_hist(self):
-        """
-        Write json that looks something like this
-        {"some-anime":
-               {
-                "ep": 1,
-                "ep-link": "https://ep-link",
-                "category_url": "https://"
-                }
-         "another-anime": ...}
-        """
+    if entry is None:
+        entry = HistoryEntry(anime.provider.name(), anime.identifier, episode)
+        history[uniqueid] = entry
 
-        self.read_save_data()
-        self.check_duplicate()
-        if self.dup:
-            self.update_hist()
-        else:
-            add_data = {
-                self.entry.show_name: {
-                    "ep": self.entry.ep,
-                    "ep-link": self.entry.ep_url,
-                    "category-link": self.entry.category_url,
-                }
-            }
-            self.json.update(add_data)
-
-        self.prepend_json()
-
-        try:
-            with Config().history_file_path.open("w") as f:
-                json.dump(self.json, f, indent=4)
-        except PermissionError:
-            error("Unable to write to history file due permissions.")
-            sys.exit()
+    hist_file.write_text(History(history=history).to_json())
