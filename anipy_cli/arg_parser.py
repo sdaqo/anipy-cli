@@ -101,7 +101,8 @@ def parse_args() -> CliArgs:
         "--quality",
         action="store",
         required=False,
-        default="auto",
+        default="best",
+        type=lambda v: int(v) if v.isdigit() else v,
         help="Change the quality of the video, accepts: best, worst or 360, 480, 720 etc.  Default: best",
     )
 

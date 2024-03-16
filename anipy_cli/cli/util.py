@@ -1,20 +1,21 @@
-from yaspin import yaspin
+from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
+from contextlib import contextmanager
 from typing import Iterator, List, Optional, Type, Union
 from InquirerPy import inquirer
-from InquirerPy.base.control import Choice
 
-from anipy_cli.colors import cprint, colors, cinput
+from anipy_cli.colors import cprint, colors, cinput, color
 from anipy_cli.misc import Entry, search_in_season_on_gogo, print_names, error
 from anipy_cli.url_handler import epHandler, videourl
 from anipy_cli.config import Config
 from anipy_cli.mal import MAL
 from anipy_cli.seasonal import Seasonal
 from anipy_cli.player import PlayerBaseType
-from anipy_cli.provider import ProviderSearchResult, ProviderStream, BaseProvider, list_providers, Episode
+from anipy_cli.provider import  list_providers, Episode, BaseProvider
 from anipy_cli.anime import Anime
 
 def binge(ep_list, quality, player: PlayerBaseType, mode="", mal_class: MAL = None):
+
     """
     TODO: bruh what is this, let this accept a list of Entry
     Accepts ep_list like so:
@@ -131,42 +132,63 @@ def get_season_searches(gogo=True):
     return searches
 
 
+class DotSpinner:
+    def __init__(self, *text_and_colors):
+        self.spinner = Yaspin(text=color(*text_and_colors), color="cyan", spinner=Spinners.dots)
+    
+    def __enter__(self):
+        self.spinner.__enter__()
+        return self.spinner
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.spinner.__exit__(exc_type, exc_val, exc_tb)
 
 
 def search_show_prompt(loop_on_nores: bool = True) -> Optional[Anime]:
-    query = inquirer.text("Search Anime:").execute()
+    query = inquirer.text(
+        "Search Anime:", 
+        long_instruction="To cancel this prompt press ctrl+z",
+        mandatory=False
+    ).execute()
 
-    results: List[Anime] = []
-    for provider in get_prefered_providers():
-        results.extend(Anime.from_search_results(provider, provider.get_search(query)))
+    if query is None: return None
+
+    with DotSpinner("Searching for ", colors.BLUE, query, "..."):
+    # with yaspin(text="Searching...", color="cyan", spinner=Spinners.dots) as s:
+        results: List[Anime] = []
+        for provider in get_prefered_providers():
+            results.extend(Anime.from_search_results(provider, provider.get_search(query)))
+            # s.write(f"> Provider '{provider.NAME}' searched")
     
     if loop_on_nores:
         if len(results) == 0:
             error("no search results")
-            search_show()
+            search_show_prompt()
     
-    anime: Anime | None = inquirer.fuzzy(
+    anime = inquirer.fuzzy(
         message="Select Show:",
-        instruction="Ctrl+C to abort",
-        choices=results
+        choices=results,
+        long_instruction="To cancel this prompt press ctrl+z",
+        mandatory=False
     ).execute()
 
     return anime
 
 def pick_episode_prompt(anime: Anime) -> Episode:
+    with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
+        episodes = anime.get_episodes()
+
     return inquirer.fuzzy(
         message="Select Episode:",
-        choices=anime.get_episodes(),
+        choices=episodes,
     ).execute()
 
 
-
-def get_prefered_providers():
+def get_prefered_providers() -> Iterator[BaseProvider]:
     preferred_providers = Config().providers
 
     for i in list_providers():
-        if i.name() in preferred_providers:
+        if i.NAME in preferred_providers:
             yield i()
 
 

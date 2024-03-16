@@ -1,28 +1,26 @@
 import sys
-from anipy_cli.misc import Entry
 # from anipy_cli.query import query
-from anipy_cli.url_handler import epHandler, videourl
+import time
+from typing import Optional
+from anipy_cli.anime import Anime
 from anipy_cli.player import get_player
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.cli.menus import Menu
 from anipy_cli.cli.clis.base_cli import CliBase
-from anipy_cli.cli.util import search_show_prompt, pick_episode_prompt
-from anipy_cli.misc import error
-from anipy_cli.anime import Anime
-from typing import List
-from InquirerPy import inquirer
-from InquirerPy.base.control import Choice
+from anipy_cli.cli.util import search_show_prompt, pick_episode_prompt, DotSpinner
+from anipy_cli.colors import colors
+from anipy_cli.provider import Episode, ProviderStream
 
-# Add Resume feature
+# TODO: Add Resume feature
 class DefaultCli(CliBase):
     def __init__(self, options: CliArgs, rpc_client=None):
         super().__init__(options, rpc_client)
 
         self.player = get_player(self.rpc_client, self.options.optional_player)
 
-        self.anime = None
-        self.epsiode = None
-        self.stream = None
+        self.anime: Optional[Anime] = None
+        self.epsiode: Optional[Episode] = None
+        self.stream: Optional[ProviderStream]= None
 
     def print_header(self):
         pass
@@ -33,16 +31,14 @@ class DefaultCli(CliBase):
         if anime is None:
             sys.exit()
 
-        episode =  pick_episode_prompt(anime)
-
-        if episode is None:
-            sys.exit()
+        episode = pick_episode_prompt(anime)
         
         self.anime = anime
         self.epsiode = episode
 
     def process(self):
-        self.stream = self.anime.get_video(self.epsiode, self.options.quality)
+        with DotSpinner("Extracting streams for ", colors.BLUE, self.anime.name, " Episode ", self.epsiode, "..."):
+            self.stream = self.anime.get_video(self.epsiode, self.options.quality)
 
     def show(self):
         self.player.play_title(self.anime, self.stream)

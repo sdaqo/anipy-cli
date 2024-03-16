@@ -45,11 +45,8 @@ def _aes_decrypt(data, key, iv):
     )
 
 class GoGoProvider(BaseProvider):
+    NAME = "gogoanime"
     BASE_URL = Config().gogoanime_url
-
-    @staticmethod
-    def name() -> str:
-        return "gogoanime"
 
     def get_search(self, query: str) -> List[ProviderSearchResult]:
         search_url = self.BASE_URL + f"/search.html?keyword={query}"
@@ -205,11 +202,20 @@ class GoGoProvider(BaseProvider):
                 req = Request("GET", s['file'])
                 res = request_page(self.session, req)
                 content = m3u8.M3U8(res.text, base_uri=urljoin(res.url, '.'))
+                if len(content.playlists) == 0:
+                    streams.append(
+                        ProviderStream(
+                            url=s['file'],
+                            resolution=1080,
+                            episode=episode
+                        )
+                    )
+
                 for playlist in content.playlists:
                     streams.append(
                         ProviderStream(
                             url=urljoin(content.base_uri, playlist.uri),
-                            resolution=str(playlist.stream_info.resolution[1]),
+                            resolution=playlist.stream_info.resolution[1],
                             episode=episode
                         )
                     )

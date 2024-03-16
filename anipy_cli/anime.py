@@ -1,17 +1,27 @@
 from typing import Union, List, Optional
 from dataclasses import dataclass
 
-from anipy_cli.provider import BaseProvider, ProviderSearchResult, ProviderStream, Episode
+import anipy_cli.history
+from anipy_cli.provider import BaseProvider, ProviderSearchResult, ProviderStream, Episode, list_providers
 
 class Anime():
     @staticmethod
-    def from_search_results(provider: BaseProvider, results: List[ProviderSearchResult]) -> List["Anime"]:
-        return [Anime(provider, x) for x in results]
+    def from_search_result(provider: BaseProvider, result: ProviderSearchResult) -> "Anime":
+        return Anime(provider, result.name, result.identifier)
 
-    def __init__(self, provider: BaseProvider, anime: ProviderSearchResult):
+    @staticmethod
+    def from_search_results(provider: BaseProvider, results: List[ProviderSearchResult]) -> List["Anime"]:
+        return [Anime.from_search_result(provider, x) for x in results]
+    
+    @staticmethod
+    def from_history_entry(entry: "anipy_cli.history.HistoryEntry") -> "Anime":
+        provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
+        return Anime(provider(), entry.name, entry.identifier)
+
+    def __init__(self, provider: BaseProvider, name: str, identifier: str):
         self.provider = provider
-        self.identifier = anime.identifier
-        self.name = anime.name
+        self.name = name
+        self.identifier = identifier
 
     def get_episodes(self):
         return self.provider.get_episodes(self.identifier)
@@ -39,4 +49,3 @@ class Anime():
 
     def __repr__(self) -> str:
         return self.name
-

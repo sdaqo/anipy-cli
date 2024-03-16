@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from typing import Union, List, Optional, NewType, TypeVar
 from dataclasses import dataclass
 from requests import Session
@@ -30,13 +30,19 @@ class ProviderStream:
 
 
 class BaseProvider(ABC):
+    NAME: str
+    BASE_URL: str
+
     def __init__(self):
         self.session = Session()
 
-    @staticmethod 
-    @abstractmethod
-    def name() -> str:
-        ...
+    def __init_subclass__(cls) -> None:
+        for v in ['NAME', 'BASE_URL']:
+            if not hasattr(cls, v):
+                raise NotImplementedError(
+                    "Attribute '{}' has not been overriden in class '{}'" \
+                    .format(v, cls.__name__)
+                )
 
     @abstractmethod
     def get_search(self, query: str) -> List[ProviderSearchResult]:
