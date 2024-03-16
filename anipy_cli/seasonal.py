@@ -6,7 +6,88 @@ from anipy_cli.url_handler import epHandler
 from anipy_cli.misc import Entry, error, read_json
 from anipy_cli.provider.utils import parsenum
 
+from dataclasses import dataclass, field
+from InquirerPy import inquirer
+from time import time
+from dataclasses_json import dataclass_json, config
+from typing import Dict, Optional
 
+from anipy_cli.config import Config
+from anipy_cli.provider import Episode
+from anipy_cli.anime import Anime
+
+# TODO: History migration
+
+@dataclass_json
+@dataclass
+class SeasonalEntry:
+    provider: str = field(metadata=config(field_name="pv"))
+    identifier: str = field(metadata=config(field_name="id"))
+    name: str = field(metadata=config(field_name="na"))
+    episode: Episode = field(metadata=config(field_name="ep"))
+
+    def __repr__(self) -> str:
+        return f"{self.name} Episode {self.episode}"
+
+
+@dataclass_json
+@dataclass
+class Seasonals:
+    seasonals: Dict[str, SeasonalEntry]
+
+
+def get_seasonals() -> Dict[str, SeasonalEntry]:
+    season_file = Config().seasonal_file_path
+
+    if not season_file.is_file():
+        return {}
+    
+    try:
+        seasonals: Seasonals = Seasonals.from_json(season_file.read_text())
+    except KeyError:
+        print("It seems like your seasonals file is not in a compatible format, this may be an artifact of changes to the structure of it.")
+        delete = inquirer.confirm(message="Do you want to delete the file now or take care of it yourself?", default=False).execute()
+        if delete:
+            season_file.unlink()
+            print(f"Deleted {season_file}")
+            return {}
+        else:
+            print(f"Alright, here is the path to your seasonals file: {season_file}")
+            sys.exit()
+
+
+    return seasonals.seasonals
+
+
+def get_history_entry(anime: Anime) -> Optional[SeasonalEntry]:
+    history = get_history()
+    uniqueid = f"{anime.provider.NAME}:{anime.identifier}"
+
+    return history.get(uniqueid, None)
+
+
+def update_history(anime: Anime, episode: Episode):
+    hist_file = Config().history_file_path
+    history = get_history()
+    
+    uniqueid = f"{anime.provider.NAME}:{anime.identifier}"
+    entry = history.get(uniqueid, None)
+
+    if entry is None:
+        entry = HistoryEntry(
+            provider=anime.provider.NAME, 
+            identifier=anime.identifier, 
+            name=anime.name, 
+            episode=episode, 
+            timestamp=int(time())
+        )
+        history[uniqueid] = entry
+    else:
+        entry.episode = episode
+        entry.timestamp = int(time())
+        history[uniqueid] = entry
+
+    hist_file.write_text(History(history=history).to_json())
 class Seasonal:
     def __init__(self):
         self.entry = Entry()

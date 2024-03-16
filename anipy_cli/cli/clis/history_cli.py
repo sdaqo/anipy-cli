@@ -27,9 +27,8 @@ class HistoryCli(CliBase):
         pass
 
     def take_input(self):
-        with DotSpinner("Parsing History..."):
-            history = list(get_history().values())
-            history.sort(key=lambda h: h.timestamp, reverse=True)
+        history = list(get_history().values())
+        history.sort(key=lambda h: h.timestamp, reverse=True)
 
         if not history:
             self.exit("You have no History")

@@ -1,4 +1,6 @@
+import sys
 from dataclasses import dataclass, field
+from InquirerPy import inquirer
 from time import time
 from dataclasses_json import dataclass_json, config
 from typing import Dict, Optional
@@ -33,8 +35,21 @@ def get_history() -> Dict[str, HistoryEntry]:
 
     if not hist_file.is_file():
         return {}
-        
-    history = History.from_json(hist_file.read_text())
+    
+    try:
+        history: History = History.from_json(hist_file.read_text())
+    except KeyError:
+        print("It seems like your history file is not in a compatible format, this may be an artifact of changes to the structure of it.")
+        delete = inquirer.confirm(message="Do you want to delete the file now or take care of it yourself?", default=False).execute()
+        if delete:
+            hist_file.unlink()
+            print(f"Deleted {hist_file}")
+            return {}
+        else:
+            print(f"Alright, here is the path to your history file: {hist_file}")
+            sys.exit()
+
+
 
     return history.history
 
