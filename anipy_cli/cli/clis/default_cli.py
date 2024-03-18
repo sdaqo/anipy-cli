@@ -29,7 +29,7 @@ class DefaultCli(CliBase):
         anime = search_show_prompt()
 
         if anime is None:
-            sys.exit()
+            self.exit("No Anime Chosen")
 
         episode = pick_episode_prompt(anime)
         

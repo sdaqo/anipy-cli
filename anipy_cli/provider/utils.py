@@ -1,10 +1,8 @@
 import functools
 import weakref
 from requests import Request, Session, Response
-from typing import List
 
 from anipy_cli.provider.error import RequestError
-from anipy_cli.provider import ProviderBaseType
 from anipy_cli.provider.providers import *
 
 

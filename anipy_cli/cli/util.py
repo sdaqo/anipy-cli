@@ -1,7 +1,7 @@
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
 from contextlib import contextmanager
-from typing import Iterator, List, Optional, Type, Union
+from typing import Iterator, List, Optional, List
 from InquirerPy import inquirer
 
 from anipy_cli.colors import cprint, colors, cinput, color
@@ -10,11 +10,11 @@ from anipy_cli.url_handler import epHandler, videourl
 from anipy_cli.config import Config
 from anipy_cli.mal import MAL
 from anipy_cli.seasonal import Seasonal
-from anipy_cli.player import PlayerBaseType
+from anipy_cli.player import PlayerBase
 from anipy_cli.provider import  list_providers, Episode, BaseProvider
 from anipy_cli.anime import Anime
 
-def binge(ep_list, quality, player: PlayerBaseType, mode="", mal_class: MAL = None):
+def binge(ep_list, quality, player: PlayerBase, mode="", mal_class: MAL = None):
 
     """
     TODO: bruh what is this, let this accept a list of Entry
@@ -180,8 +180,30 @@ def pick_episode_prompt(anime: Anime) -> Episode:
 
     return inquirer.fuzzy(
         message="Select Episode:",
+        long_instruction="To cancel this prompt press ctrl+z",
         choices=episodes,
     ).execute()
+
+
+def pick_episode_range_prompt(anime: Anime) -> List[Episode]:
+    with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
+        episodes = anime.get_episodes()
+
+
+    res = inquirer.fuzzy(
+        message="Select Episode Range:",
+        choices=episodes,
+        multiselect=True,
+        validate=lambda res: len(res) == 2,
+        instruction="Use ctrl+space to select two episodes and press enter to continue",
+        long_instruction="To cancel this prompt press ctrl+z",
+        invalid_message="Select two episodes!",
+        mandatory=False,
+        keybindings={"toggle": [{"key": "c-space"}]},
+        transformer=lambda res: f"{res[0]} -> {res[1]}"
+    ).execute()
+    
+    return episodes[episodes.index(res[0]) : episodes.index(res[1]) + 1]
 
 
 def get_prefered_providers() -> Iterator[BaseProvider]:

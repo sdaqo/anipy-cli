@@ -7,10 +7,7 @@ from anipy_cli.misc import error
 from anipy_cli.player.players import Mpv, Vlc, Syncplay
 from anipy_cli.player.players.base import PlayerBase
 
-PlayerBaseType = TypeVar("PlayerBaseType", bound=PlayerBase)
-
-
-def get_player(rpc_client = None, player_override: Optional[str] = None) -> PlayerBaseType:
+def get_player(rpc_client = None, player_override: Optional[str] = None) -> PlayerBase:
     cfg = Config()
 
     player = cfg.player_path

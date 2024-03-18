@@ -4,8 +4,8 @@ from typing import List
 
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint
-from anipy_cli.misc import error, clear_console
-from anipy_cli.player import PlayerBaseType
+from anipy_cli.misc import error
+from anipy_cli.player import PlayerBase
 from anipy_cli.provider import ProviderStream, Episode
 from anipy_cli.download import download
 from anipy_cli.config import Config
@@ -16,7 +16,7 @@ from anipy_cli.cli.util import DotSpinner, search_show_prompt, pick_episode_prom
 
 class Menu(MenuBase):
     def __init__(
-        self, options: CliArgs, anime: Anime, stream: ProviderStream, player: PlayerBaseType, rpc_client=None
+        self, options: CliArgs, anime: Anime, stream: ProviderStream, player: PlayerBase, rpc_client=None
     ):
         self.rpc_client = rpc_client
         self.options = options
@@ -85,14 +85,12 @@ class Menu(MenuBase):
         self.print_options()
 
     def search(self):
-        clear_console()
         search_result = search_show_prompt()
         if search_result is None:
             return
-
         self.anime = search_result
         self._start_episode(pick_episode_prompt(self.anime))
-        self.print_options()
+        self.print_options(clear_screen=True)
 
     def video_info(self):
         print(f"Show Name: {self.anime.name}")

@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod, abstractproperty
-from typing import Union, List, Optional, NewType, TypeVar
+from abc import ABC, abstractmethod
+from typing import Union, List, Optional
 from dataclasses import dataclass
 from requests import Session
 
@@ -59,5 +59,3 @@ class BaseProvider(ABC):
     @abstractmethod
     def get_video(self, identifier: str, episode: Episode) -> List[ProviderStream]:
         ...
-
-ProviderBaseType = TypeVar("ProviderBaseType", bound=BaseProvider)

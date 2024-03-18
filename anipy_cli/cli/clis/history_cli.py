@@ -38,7 +38,6 @@ class HistoryCli(CliBase):
             choices=history,
             long_instruction="Press Ctrl"
         ).execute()
-        print(entry)
 
         self.history_entry = entry
         self.anime = Anime.from_history_entry(entry)
