@@ -1,6 +1,5 @@
-import sys
+from pathlib import Path
 from dataclasses import dataclass, field
-from InquirerPy import inquirer
 from time import time
 from dataclasses_json import dataclass_json, config
 from typing import Dict, Optional
@@ -8,8 +7,6 @@ from typing import Dict, Optional
 from anipy_cli.config import Config
 from anipy_cli.provider import Episode
 from anipy_cli.anime import Anime
-
-# TODO: History migration
 
 @dataclass_json
 @dataclass
@@ -29,44 +26,38 @@ class HistoryEntry:
 class History:
     history: Dict[str, HistoryEntry]
 
+    def write(self):
+        hist_file = Config().history_file_path 
+        hist_file.write_text(self.to_json())
 
-def get_history() -> Dict[str, HistoryEntry]:
-    hist_file = Config().history_file_path
+    @staticmethod
+    def read() -> "History":
+        hist_file = Config().history_file_path
 
-    if not hist_file.is_file():
-        return {}
-    
-    try:
-        history: History = History.from_json(hist_file.read_text())
-    except KeyError:
-        print("It seems like your history file is not in a compatible format, this may be an artifact of changes to the structure of it.")
-        delete = inquirer.confirm(message="Do you want to delete the file now or take care of it yourself?", default=False).execute()
-        if delete:
-            hist_file.unlink()
-            print(f"Deleted {hist_file}")
-            return {}
-        else:
-            print(f"Alright, here is the path to your history file: {hist_file}")
-            sys.exit()
+        if not hist_file.is_file():
+            hist_file.parent.mkdir(parents=True)
+            return History({})
+        
+        try:
+            history: History = History.from_json(hist_file.read_text())
+        except KeyError:
+            history = _migrate_history()
 
-
-
-    return history.history
+        return history
 
 
 def get_history_entry(anime: Anime) -> Optional[HistoryEntry]:
-    history = get_history()
+    history = History.read()
     uniqueid = f"{anime.provider.NAME}:{anime.identifier}"
 
-    return history.get(uniqueid, None)
+    return history.history.get(uniqueid, None)
 
 
 def update_history(anime: Anime, episode: Episode):
-    hist_file = Config().history_file_path
-    history = get_history()
+    history = History.read()
     
     uniqueid = f"{anime.provider.NAME}:{anime.identifier}"
-    entry = history.get(uniqueid, None)
+    entry = history.history.get(uniqueid, None)
 
     if entry is None:
         entry = HistoryEntry(
@@ -76,10 +67,37 @@ def update_history(anime: Anime, episode: Episode):
             episode=episode, 
             timestamp=int(time())
         )
-        history[uniqueid] = entry
     else:
         entry.episode = episode
         entry.timestamp = int(time())
-        history[uniqueid] = entry
 
-    hist_file.write_text(History(history=history).to_json())
+    history.history[uniqueid] = entry
+
+    history.write()
+
+def _migrate_history():
+    import json
+
+    hist_file = Config().history_file_path
+    old_data = json.load(hist_file.open("r"))
+    new_history = History({})
+
+    for k, v in old_data.items():
+        name = k
+        identifier = Path(v['category-link']).name
+        episode = v['ep']
+        timestamp = int(time())
+        unique_id = f"gogoanime:{identifier}"
+        new_entry = HistoryEntry(
+            provider="gogoanmie",
+            name=name,
+            identifier=identifier,
+            episode=episode,
+            timestamp=timestamp
+        )
+
+        new_history.history[unique_id] = new_entry
+    
+    new_history.write()
+    return new_history
+

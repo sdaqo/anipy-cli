@@ -1,4 +1,3 @@
-import sys
 from typing import List
 from yaspin import yaspin
 from yaspin.spinners import Spinners
@@ -12,15 +11,13 @@ from anipy_cli.url_handler import videourl, epHandler
 from anipy_cli.query import query
 from anipy_cli.download import download
 from anipy_cli.config import Config
-from anipy_cli.seasonal import Seasonal
-from anipy_cli.cli.util import get_season_searches, binge
+from anipy_cli.seasonal import get_seasonal_entry, update_seasonals
+from anipy_cli.cli.util import get_season_searches, binge, search_show_prompt
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 
 
 class SeasonalMenu(MenuBase, Seasonal):
     def __init__(self, options: CliArgs, rpc_client=None):
-        super().__init__()
-
         self.rpc_client = rpc_client
         self.options = options
         self.entry = Entry()
@@ -43,45 +40,17 @@ class SeasonalMenu(MenuBase, Seasonal):
         pass
 
     def add_anime(self):
-        show_entry = Entry()
-        is_season_search = False
-        searches = []
-        if (
-            not self.options.no_season_search
-            and input("Search for anime in Season? (y|n): \n>> ") == "y"
-        ):
-            searches = get_season_searches()
+       # if (
+       #      not self.options.no_season_search
+       #      and input("Search for anime in Season? (y|n): \n>> ") == "y"
+       #  ):
+       #      searches = get_season_searches()
+        # else:
+        #     searches.append(input("Search: "))
 
-        else:
-            searches.append(input("Search: "))
-
-        for search in searches:
-            query_class = None
-            if isinstance(search, dict):
-                is_season_search = True
-                links = [search["category_url"]]
-
-            else:
-                clear_console()
-                query_class = query(search, show_entry)
-                query_class.get_pages()
-                links = query_class.get_links()
-
-            if links == 0:
-                error("no search results")
-                input("Enter to continue")
-                self.print_options()
-
-            if is_season_search:
-                show_entry = Entry()
-                show_entry.show_name = search["name"]
-                show_entry.category_url = search["category_url"]
-
-            else:
-                show_entry = query_class.pick_show()
-
-            picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
-            self.add_show(show_entry.show_name, show_entry.category_url, picked_ep)
+        search_show_prompt()
+        picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
+        self.add_show(show_entry.show_name, show_entry.category_url, picked_ep)
         self.print_options()
 
     def del_anime(self):
