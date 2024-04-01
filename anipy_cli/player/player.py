@@ -7,7 +7,8 @@ from anipy_cli.misc import error
 from anipy_cli.player.players import Mpv, Vlc, Syncplay
 from anipy_cli.player.players.base import PlayerBase
 
-def get_player(rpc_client = None, player_override: Optional[str] = None) -> PlayerBase:
+
+def get_player(rpc_client=None, player_override: Optional[str] = None) -> PlayerBase:
     cfg = Config()
 
     player = cfg.player_path
@@ -19,6 +20,7 @@ def get_player(rpc_client = None, player_override: Optional[str] = None) -> Play
 
     if Path(player.name).stem == "mpv" and cfg.reuse_mpv_window:
         from anipy_cli.player.players.mpv_control import MpvControllable
+
         return MpvControllable(rpc_client=rpc_client)
 
     player_dict = {"mpv": Mpv, "mpvnet": Mpv, "vlc": Vlc, "syncplay": Syncplay}

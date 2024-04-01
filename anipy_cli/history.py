@@ -8,6 +8,7 @@ from anipy_cli.config import Config
 from anipy_cli.provider import Episode
 from anipy_cli.anime import Anime
 
+
 @dataclass_json
 @dataclass
 class HistoryEntry:
@@ -18,7 +19,7 @@ class HistoryEntry:
     timestamp: int = field(metadata=config(field_name="ts"))
 
     def __repr__(self) -> str:
-        return f"{self.name} Episode {self.episode}"
+        return f"{self.name} episode {self.episode}"
 
 
 @dataclass_json
@@ -27,7 +28,7 @@ class History:
     history: Dict[str, HistoryEntry]
 
     def write(self):
-        hist_file = Config().history_file_path 
+        hist_file = Config().history_file_path
         hist_file.write_text(self.to_json())
 
     @staticmethod
@@ -35,15 +36,19 @@ class History:
         hist_file = Config().history_file_path
 
         if not hist_file.is_file():
-            hist_file.parent.mkdir(parents=True)
+            hist_file.parent.mkdir(exist_ok=True, parents=True)
             return History({})
-        
+
         try:
             history: History = History.from_json(hist_file.read_text())
         except KeyError:
             history = _migrate_history()
 
         return history
+
+
+def get_history() -> History:
+    return History.read()
 
 
 def get_history_entry(anime: Anime) -> Optional[HistoryEntry]:
@@ -55,17 +60,17 @@ def get_history_entry(anime: Anime) -> Optional[HistoryEntry]:
 
 def update_history(anime: Anime, episode: Episode):
     history = History.read()
-    
+
     uniqueid = f"{anime.provider.NAME}:{anime.identifier}"
     entry = history.history.get(uniqueid, None)
 
     if entry is None:
         entry = HistoryEntry(
-            provider=anime.provider.NAME, 
-            identifier=anime.identifier, 
-            name=anime.name, 
-            episode=episode, 
-            timestamp=int(time())
+            provider=anime.provider.NAME,
+            identifier=anime.identifier,
+            name=anime.name,
+            episode=episode,
+            timestamp=int(time()),
         )
     else:
         entry.episode = episode
@@ -74,6 +79,7 @@ def update_history(anime: Anime, episode: Episode):
     history.history[uniqueid] = entry
 
     history.write()
+
 
 def _migrate_history():
     import json
@@ -84,8 +90,8 @@ def _migrate_history():
 
     for k, v in old_data.items():
         name = k
-        identifier = Path(v['category-link']).name
-        episode = v['ep']
+        identifier = Path(v["category-link"]).name
+        episode = v["ep"]
         timestamp = int(time())
         unique_id = f"gogoanime:{identifier}"
         new_entry = HistoryEntry(
@@ -93,11 +99,10 @@ def _migrate_history():
             name=name,
             identifier=identifier,
             episode=episode,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         new_history.history[unique_id] = new_entry
-    
+
     new_history.write()
     return new_history
-

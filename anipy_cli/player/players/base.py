@@ -36,7 +36,9 @@ class PlayerBase(ABC):
 
     def _start_dc_presence(self, anime: Anime, stream: ProviderStream):
         if self.rpc_client:
-            dc_media_title = f"{anime.name} | {stream.episode}/{anime.get_episodes()[-1]}"
+            dc_media_title = (
+                f"{anime.name} | {stream.episode}/{anime.get_episodes()[-1]}"
+            )
             dc_presence(dc_media_title, anime.get_info(), self.rpc_client)
 
     @staticmethod
@@ -63,7 +65,9 @@ class SubProcessPlayerBase(PlayerBase):
 
     def play_title(self, anime: Anime, stream: ProviderStream):
         player_cmd = [
-            i.format(media_title=self._get_media_title(anime, stream), stream_url=stream.url)
+            i.format(
+                media_title=self._get_media_title(anime, stream), stream_url=stream.url
+            )
             for i in self._player_args_template
         ]
         player_cmd.insert(0, self._player_exec)

@@ -1,20 +1,29 @@
-from typing import Union, List, Optional
-from dataclasses import dataclass
+from typing import TYPE_CHECKING, Optional, Union
 
-import anipy_cli.history
-from anipy_cli.provider import BaseProvider, ProviderSearchResult, ProviderStream, Episode, list_providers
+from anipy_cli.provider import (
+    BaseProvider,
+    Episode,
+    ProviderSearchResult,
+    list_providers,
+)
+if TYPE_CHECKING:
+    from anipy_cli.history import HistoryEntry
+    from anipy_cli.seasonal import SeasonalEntry
 
-class Anime():
+class Anime:
     @staticmethod
-    def from_search_result(provider: BaseProvider, result: ProviderSearchResult) -> "Anime":
+    def from_search_result(
+        provider: BaseProvider, result: ProviderSearchResult
+    ) -> "Anime":
         return Anime(provider, result.name, result.identifier)
 
     @staticmethod
-    def from_search_results(provider: BaseProvider, results: List[ProviderSearchResult]) -> List["Anime"]:
-        return [Anime.from_search_result(provider, x) for x in results]
-    
+    def from_history_entry(entry: "HistoryEntry") -> "Anime":
+        provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
+        return Anime(provider(), entry.name, entry.identifier)
+
     @staticmethod
-    def from_history_entry(entry: "anipy_cli.history.HistoryEntry") -> "Anime":
+    def from_seasonal_entry(entry: "SeasonalEntry") -> "Anime":
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
         return Anime(provider(), entry.name, entry.identifier)
 
@@ -40,7 +49,9 @@ class Anime():
         elif preferred_quality is None:
             stream = streams[-1]
         else:
-            stream = next(filter(lambda s: s.resolution == preferred_quality, streams), None)
+            stream = next(
+                filter(lambda s: s.resolution == preferred_quality, streams), None
+            )
 
             if stream is None:
                 stream = streams[-1]

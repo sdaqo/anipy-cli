@@ -6,7 +6,7 @@ from anipy_cli.misc import Entry, print_names, error
 from anipy_cli.player import get_player
 from anipy_cli.url_handler import videourl
 from anipy_cli.query import query
-from anipy_cli.download import download
+from anipy_cli.download import Downloader
 from anipy_cli.config import Config
 from anipy_cli.mal import MAL
 from anipy_cli.cli.util import binge, get_season_searches

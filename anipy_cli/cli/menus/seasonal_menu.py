@@ -1,27 +1,32 @@
 from typing import List
-from yaspin import yaspin
-from yaspin.spinners import Spinners
 
+from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
+from InquirerPy.utils import get_style
 
+from anipy_cli.anime import Anime
 from anipy_cli.arg_parser import CliArgs
-from anipy_cli.colors import colors, cprint, cinput
-from anipy_cli.misc import Entry, print_names, error, clear_console
-from anipy_cli.player import get_player
-from anipy_cli.url_handler import videourl, epHandler
-from anipy_cli.query import query
-from anipy_cli.download import download
-from anipy_cli.config import Config
-from anipy_cli.seasonal import get_seasonal_entry, update_seasonals
-from anipy_cli.cli.util import get_season_searches, binge, search_show_prompt
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
+from anipy_cli.cli.util import DotSpinner, pick_episode_prompt, search_show_prompt
+from anipy_cli.colors import colors
+from anipy_cli.config import Config
+from anipy_cli.download import Downloader
+from anipy_cli.misc import Entry, error
+from anipy_cli.player import get_player
+from anipy_cli.seasonal import (
+    delete_seasonal,
+    get_seasonals,
+    update_seasonal,
+)
 
 
-class SeasonalMenu(MenuBase, Seasonal):
+class SeasonalMenu(MenuBase):
     def __init__(self, options: CliArgs, rpc_client=None):
         self.rpc_client = rpc_client
         self.options = options
         self.entry = Entry()
         self.dl_path = Config().seasonals_dl_path
+        self.player = get_player(self.rpc_client, self.options.optional_player)
         if options.location:
             self.dl_path = options.location
 
@@ -39,108 +44,121 @@ class SeasonalMenu(MenuBase, Seasonal):
     def print_header(self):
         pass
 
+    def _choose_latest(self) -> List[Choice]:
+        with DotSpinner("Fetching status of shows in seasonals..."):
+            choices = []
+            for s in list(get_seasonals().seasonals.values()):
+                anime = Anime.from_seasonal_entry(s)
+                episodes = anime.get_episodes()
+                to_watch = episodes[episodes.index(s.episode) + 1 :]
+                if len(to_watch) > 0:
+                    ch = Choice(
+                        value=(anime, to_watch),
+                        name=f"{anime.name} (to watch: {len(to_watch)})",
+                    )
+                    choices.append(ch)
+
+        return choices
+
     def add_anime(self):
-       # if (
-       #      not self.options.no_season_search
-       #      and input("Search for anime in Season? (y|n): \n>> ") == "y"
-       #  ):
-       #      searches = get_season_searches()
+        # if (
+        #      not self.options.no_season_search
+        #      and input("Search for anime in Season? (y|n): \n>> ") == "y"
+        #  ):
+        #      searches = get_season_searches()
         # else:
         #     searches.append(input("Search: "))
 
-        search_show_prompt()
-        picked_ep = epHandler(show_entry).pick_ep_seasonal().ep
-        self.add_show(show_entry.show_name, show_entry.category_url, picked_ep)
+        anime = search_show_prompt()
+
+        if anime is None:
+            return
+
+        episode = pick_episode_prompt(
+            anime, instruction="To start from the beginning skip this Prompt"
+        )
+
+        if episode is None:
+            episode = anime.get_episodes()[0]
+
+        update_seasonal(anime, episode)
+
         self.print_options()
 
     def del_anime(self):
-        seasonals = self.list_seasonals()
-        seasonals = [x[0] for x in seasonals]
-        print_names(seasonals)
-        while True:
-            inp = cinput(colors.CYAN, "Enter Number: ")
-            try:
-                picked = seasonals[int(inp) - 1]
-                break
-            except:
-                error("Invalid Input")
+        seasonals = list(get_seasonals().seasonals.values())
+        if len(seasonals) == 0:
+            error("No seasonals configured.")
+            return
 
-        self.del_show(picked)
+        style = get_style(
+            {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+        )
+        entries = (
+            inquirer.fuzzy(
+                message="Select Seasonals to delete:",
+                choices=seasonals,
+                multiselect=True,
+                long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
+                mandatory=False,
+                keybindings={"toggle": [{"key": "c-space"}]},
+                style=style,
+            ).execute()
+            or []
+        )
+
+        for e in entries:
+            delete_seasonal(e)
 
         self.print_options()
 
     def list_animes(self):
-        for i in self.list_seasonals():
-            print(f"==> EP: {i[1]} | {i[0]}")
+        for i in list(get_seasonals().seasonals.values()):
+            print(i)
 
-    def list_possible(self, latest_urls):
-        for i in latest_urls:
-            cprint(colors.RED, f"{i}:")
-            for j in latest_urls[i]["ep_list"]:
-                cprint(colors.CYAN, f"==> EP: {j[0]}")
+        style = get_style(
+            {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+        )
+        return (
+            inquirer.fuzzy(
+                message="Select Seasonals to catch up to:",
+                choices=choices,
+                multiselect=True,
+                long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
+                mandatory=False,
+                keybindings={"toggle": [{"key": "c-space"}]},
+                style=style,
+            ).execute()
+            or []
+        )
 
     def download_latest(self):
-        latest_urls = self.latest_eps()
-
-        if not latest_urls:
-            error("Nothing to download")
-            return
-
-        print("Stuff to be downloaded:")
-        self.list_possible(latest_urls)
-        if not self.options.auto_update:
-            cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
-
-        for i in latest_urls:
-            print(f"Downloading newest urls for {i}")
-            show_entry = Entry()
-            show_entry.show_name = i
-            for j in latest_urls[i]["ep_list"]:
-                show_entry.embed_url = ""
-                show_entry.ep = j[0]
-                show_entry.ep_url = j[1]
-                url_class = videourl(show_entry, self.options.quality)
-                url_class.stream_url()
-                show_entry = url_class.get_entry()
-                download(
-                    show_entry, self.options.quality, self.options.ffmpeg, self.dl_path
-                ).download()
-
-        if not self.options.auto_update:
-            self.print_options()
-
-        for i in latest_urls:
-            self.update_show(i, latest_urls[i]["category_url"])
+        choices = self._choose_latest()
+        ...
+        # def progress_indicator():
+        #
+        # downloader = Downloader()
 
     def binge_latest(self):
-        latest_eps = self.latest_eps()
-        print("Stuff to be watched:")
-        self.list_possible(latest_eps)
-        cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
-        ep_list = []
-        ep_urls = []
-        ep_dic = {}
-        for i in latest_eps:
-            for j in latest_eps[i]["ep_list"]:
-                ep_list.append(j[0])
-                ep_urls.append(j[1])
+        picked = self._choose_latest()
 
-            ep_dic.update(
-                {
-                    i: {
-                        "ep_urls": [x for x in ep_urls],
-                        "eps": [x for x in ep_list],
-                        "category_url": latest_eps[i]["category_url"],
-                    }
-                }
-            )
-            ep_list.clear()
-            ep_urls.clear()
+        for anime, eps in picked:
+            for e in eps:
+                with DotSpinner(
+                    "Extracting streams for ",
+                    colors.BLUE,
+                    anime.name,
+                    colors.END,
+                    " Episode ",
+                    e,
+                    "...",
+                ) as s:
+                    stream = anime.get_video(e, self.options.quality)
+                    s.ok("✔")
 
-        player = get_player(self.rpc_client, self.options.optional_player)
-        binge(ep_dic, self.options.quality, player, mode="seasonal")
-        player.kill_player()
-        for i in latest_eps:
-            self.update_show(i, latest_eps[i]["category_url"])
+                self.player.play_title(anime, stream)
+                self.player.wait()
+
+                update_seasonal(anime, e)
 
         self.print_options()

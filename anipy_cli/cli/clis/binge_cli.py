@@ -28,21 +28,26 @@ class BingeCli(CliBase):
             sys.exit()
 
         episodes = pick_episode_range_prompt(anime)
-        
+
         self.anime = anime
         self.episodes = episodes
 
-    def process(self):
-        ...
+    def process(self): ...
 
     def show(self):
         for e in self.episodes:
             with DotSpinner(
-                "Extracting streams for ", colors.BLUE, self.anime.name, colors.END, " Episode ", e, "..."
+                "Extracting streams for ",
+                colors.BLUE,
+                self.anime.name,
+                colors.END,
+                " Episode ",
+                e,
+                "...",
             ) as s:
                 stream = self.anime.get_video(e, self.options.quality)
                 s.ok("✔")
-                
+
             self.player.play_title(self.anime, stream)
             self.player.wait()
 

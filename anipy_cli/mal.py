@@ -11,7 +11,7 @@ import requests
 from requests.adapters import HTTPAdapter, Retry
 
 from anipy_cli.url_handler import epHandler
-from anipy_cli.seasonal import Seasonal
+from anipy_cli import Seasonal
 from anipy_cli.query import query
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config

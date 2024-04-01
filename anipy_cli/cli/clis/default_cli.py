@@ -1,4 +1,5 @@
 import sys
+
 # from anipy_cli.query import query
 import time
 from typing import Optional
@@ -11,6 +12,7 @@ from anipy_cli.cli.util import search_show_prompt, pick_episode_prompt, DotSpinn
 from anipy_cli.colors import colors
 from anipy_cli.provider import Episode, ProviderStream
 
+
 # TODO: Add Resume feature
 class DefaultCli(CliBase):
     def __init__(self, options: CliArgs, rpc_client=None):
@@ -18,9 +20,9 @@ class DefaultCli(CliBase):
 
         self.player = get_player(self.rpc_client, self.options.optional_player)
 
-        self.anime: Optional[Anime] = None
-        self.epsiode: Optional[Episode] = None
-        self.stream: Optional[ProviderStream]= None
+        self.anime = None
+        self.epsiode = None
+        self.stream = None
 
     def print_header(self):
         pass
@@ -32,12 +34,19 @@ class DefaultCli(CliBase):
             self.exit("No Anime Chosen")
 
         episode = pick_episode_prompt(anime)
-        
+
         self.anime = anime
         self.epsiode = episode
 
     def process(self):
-        with DotSpinner("Extracting streams for ", colors.BLUE, self.anime.name, " Episode ", self.epsiode, "..."):
+        with DotSpinner(
+            "Extracting streams for ",
+            colors.BLUE,
+            self.anime.name,
+            " Episode ",
+            self.epsiode,
+            "...",
+        ):
             self.stream = self.anime.get_video(self.epsiode, self.options.quality)
 
     def show(self):

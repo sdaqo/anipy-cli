@@ -83,7 +83,7 @@ class Config:
     @property
     def download_name_format(self):
         return self._get_value(
-            "download_name_format", "{show_name}_{episode_number}.mp4", str
+            "download_name_format", "{show_name}_{episode_number}", str
         )
 
     @property

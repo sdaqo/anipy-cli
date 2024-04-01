@@ -72,7 +72,6 @@ def keyboard_inter() -> None:
     sys.exit()
 
 
-
 def read_json(path):
     """
     Read a json file, if
@@ -206,7 +205,7 @@ def dc_presence_connect():
     return rpc_client
 
 
-def dc_presence(media_title: str, anime_info: ProviderInfoResult , rpc_client):
+def dc_presence(media_title: str, anime_info: ProviderInfoResult, rpc_client):
     rpc_client.update(
         details="Watching anime via anipy-cli",
         state=media_title,

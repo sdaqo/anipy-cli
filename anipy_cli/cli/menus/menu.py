@@ -7,7 +7,7 @@ from anipy_cli.colors import colors, cprint
 from anipy_cli.misc import error
 from anipy_cli.player import PlayerBase
 from anipy_cli.provider import ProviderStream, Episode
-from anipy_cli.download import download
+from anipy_cli.download import Downloader
 from anipy_cli.config import Config
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.anime import Anime
@@ -16,7 +16,12 @@ from anipy_cli.cli.util import DotSpinner, search_show_prompt, pick_episode_prom
 
 class Menu(MenuBase):
     def __init__(
-        self, options: CliArgs, anime: Anime, stream: ProviderStream, player: PlayerBase, rpc_client=None
+        self,
+        options: CliArgs,
+        anime: Anime,
+        stream: ProviderStream,
+        player: PlayerBase,
+        rpc_client=None,
     ):
         self.rpc_client = rpc_client
         self.options = options
@@ -48,9 +53,16 @@ class Menu(MenuBase):
             colors.RED,
             f"{self.stream.episode}/{self.anime.get_episodes()[-1]}",
         )
-    
+
     def _start_episode(self, episode: Episode):
-        with DotSpinner("Extracting streams for ", colors.BLUE, self.anime.name, " Episode ", episode, "..."):
+        with DotSpinner(
+            "Extracting streams for ",
+            colors.BLUE,
+            self.anime.name,
+            " Episode ",
+            episode,
+            "...",
+        ):
             self.stream = self.anime.get_video(episode, self.options.quality)
 
         self.player.play_title(self.anime, self.stream)
@@ -99,10 +111,11 @@ class Menu(MenuBase):
         print(f"Quality: {self.stream.resolution}P")
 
     def download_video(self):
-        path = download(self.entry, self.options.quality).download()
-        if Config().auto_open_dl_defaultcli:
-            self.player.play_file(str(path))
-        self.print_options()
+        # path = download(self.entry, self.options.quality).download()
+        # if Config().auto_open_dl_defaultcli:
+        #     self.player.play_file(str(path))
+        # self.print_options()
+        ...
 
     def quit(self):
         self.player.kill_player()

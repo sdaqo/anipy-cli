@@ -13,6 +13,7 @@ from anipy_cli.colors import colors
 from anipy_cli.history import get_history
 from anipy_cli.player import get_player
 
+
 class HistoryCli(CliBase):
     def __init__(self, options: CliArgs, rpc_client=None):
         super().__init__(options, rpc_client)
@@ -27,7 +28,7 @@ class HistoryCli(CliBase):
         pass
 
     def take_input(self):
-        history = list(get_history().values())
+        history = list(get_history().history.values())
         history.sort(key=lambda h: h.timestamp, reverse=True)
 
         if not history:
@@ -36,15 +37,24 @@ class HistoryCli(CliBase):
         entry = inquirer.select(
             message="Select History Entry:",
             choices=history,
-            long_instruction="Press Ctrl"
+            long_instruction="Press Ctrl",
         ).execute()
 
         self.history_entry = entry
         self.anime = Anime.from_history_entry(entry)
 
     def process(self):
-        with DotSpinner("Extracting streams for ", colors.BLUE, self.anime.name, " Episode ", self.history_entry.episode, "..."):
-            self.stream = self.anime.get_video(self.history_entry.episode, self.options.quality)
+        with DotSpinner(
+            "Extracting streams for ",
+            colors.BLUE,
+            self.anime.name,
+            " Episode ",
+            self.history_entry.episode,
+            "...",
+        ):
+            self.stream = self.anime.get_video(
+                self.history_entry.episode, self.options.quality
+            )
 
     def show(self):
         self.player.play_title(self.anime, self.stream)

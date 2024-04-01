@@ -1,7 +1,10 @@
+from InquirerPy.base.simple import BaseSimplePrompt
+from InquirerPy.prompts.input import InputPrompt
+from InquirerPy.utils import get_style
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
 from contextlib import contextmanager
-from typing import Iterator, List, Optional, List
+from typing import Any, Dict, Iterator, List, Optional, List
 from InquirerPy import inquirer
 
 from anipy_cli.colors import cprint, colors, cinput, color
@@ -9,13 +12,11 @@ from anipy_cli.misc import Entry, search_in_season_on_gogo, print_names, error
 from anipy_cli.url_handler import epHandler, videourl
 from anipy_cli.config import Config
 from anipy_cli.mal import MAL
-from anipy_cli.seasonal import Seasonal
 from anipy_cli.player import PlayerBase
-from anipy_cli.provider import  list_providers, Episode, BaseProvider
+from anipy_cli.provider import list_providers, Episode, BaseProvider
 from anipy_cli.anime import Anime
 
 def binge(ep_list, quality, player: PlayerBase, mode="", mal_class: MAL = None):
-
     """
     TODO: bruh what is this, let this accept a list of Entry
     Accepts ep_list like so:
@@ -134,8 +135,10 @@ def get_season_searches(gogo=True):
 
 class DotSpinner:
     def __init__(self, *text_and_colors):
-        self.spinner = Yaspin(text=color(*text_and_colors), color="cyan", spinner=Spinners.dots)
-    
+        self.spinner = Yaspin(
+            text=color(*text_and_colors), color="cyan", spinner=Spinners.dots
+        )
+
     def __enter__(self):
         self.spinner.__enter__()
         return self.spinner
@@ -146,42 +149,49 @@ class DotSpinner:
 
 def search_show_prompt(loop_on_nores: bool = True) -> Optional[Anime]:
     query = inquirer.text(
-        "Search Anime:", 
+        "Search Anime:",
         long_instruction="To cancel this prompt press ctrl+z",
-        mandatory=False
+        mandatory=False,
     ).execute()
 
-    if query is None: return None
+    if query is None:
+        return None
 
     with DotSpinner("Searching for ", colors.BLUE, query, "..."):
-    # with yaspin(text="Searching...", color="cyan", spinner=Spinners.dots) as s:
         results: List[Anime] = []
         for provider in get_prefered_providers():
-            results.extend(Anime.from_search_results(provider, provider.get_search(query)))
-            # s.write(f"> Provider '{provider.NAME}' searched")
-    
+            results.extend(
+                [
+                    Anime.from_search_result(provider, x)
+                    for x in provider.get_search(query)
+                ]
+            )
+
     if loop_on_nores:
         if len(results) == 0:
             error("no search results")
             search_show_prompt()
-    
+
     anime = inquirer.fuzzy(
         message="Select Show:",
         choices=results,
-        long_instruction="To cancel this prompt press ctrl+z",
-        mandatory=False
+        long_instruction="To skip this prompt press ctrl+z",
+        mandatory=False,
     ).execute()
 
     return anime
 
-def pick_episode_prompt(anime: Anime) -> Episode:
+
+def pick_episode_prompt(anime: Anime, instruction: str = "") -> Optional[Episode]:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
         episodes = anime.get_episodes()
 
     return inquirer.fuzzy(
         message="Select Episode:",
-        long_instruction="To cancel this prompt press ctrl+z",
+        instruction=instruction,
         choices=episodes,
+        long_instruction="To skip this prompt press ctrl+z",
+        mandatory=False,
     ).execute()
 
 
@@ -189,20 +199,19 @@ def pick_episode_range_prompt(anime: Anime) -> List[Episode]:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
         episodes = anime.get_episodes()
 
-
     res = inquirer.fuzzy(
         message="Select Episode Range:",
         choices=episodes,
         multiselect=True,
         validate=lambda res: len(res) == 2,
         instruction="Use ctrl+space to select two episodes and press enter to continue",
-        long_instruction="To cancel this prompt press ctrl+z",
+        long_instruction="To skip this prompt press ctrl+z",
         invalid_message="Select two episodes!",
         mandatory=False,
         keybindings={"toggle": [{"key": "c-space"}]},
-        transformer=lambda res: f"{res[0]} -> {res[1]}"
+        transformer=lambda res: f"{res[0]} -> {res[1]}",
     ).execute()
-    
+
     return episodes[episodes.index(res[0]) : episodes.index(res[1]) + 1]
 
 
@@ -212,5 +221,3 @@ def get_prefered_providers() -> Iterator[BaseProvider]:
     for i in list_providers():
         if i.NAME in preferred_providers:
             yield i()
-
-
