@@ -50,7 +50,7 @@ class Config:
 
     @property
     def gogoanime_url(self):
-        return self._get_value("gogoanime_url", "https://gogoanime.gg/", str)
+        return self._get_value("gogoanime_url", "https://gogoanime3.co/", str)
 
     @property
     def player_path(self):
