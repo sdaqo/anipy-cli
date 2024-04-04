@@ -5,10 +5,7 @@ from pathlib import Path
 from sys import platform
 from sys import exit as sys_exit
 
-
-class SysNotFoundError(Exception):
-    pass
-
+from anipy_cli.error import SysNotFoundError
 
 class Config:
     def __init__(self):

@@ -1,12 +1,14 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import TYPE_CHECKING, Dict, Optional, Union
 
 from dataclasses_json import config, dataclass_json
 
-from anipy_cli.anime import Anime
 from anipy_cli.config import Config
 from anipy_cli.provider import Episode
+
+if TYPE_CHECKING:
+    from anipy_cli.anime import Anime
 
 
 @dataclass_json
@@ -31,7 +33,7 @@ class Seasonals:
         season_file.write_text(self.to_json())
 
     @staticmethod
-    def read() -> "Seasonals":
+    def read() -> 'Seasonals':
         season_file = Config().seasonal_file_path
 
         if not season_file.is_file():
@@ -50,14 +52,14 @@ def get_seasonals() -> Seasonals:
     return Seasonals.read()
 
 
-def get_seasonal_entry(anime: Anime) -> Optional[SeasonalEntry]:
+def get_seasonal_entry(anime: 'Anime') -> Optional[SeasonalEntry]:
     seasonals = Seasonals.read()
     uniqueid = f"{anime.provider.NAME}:{anime.identifier}"
 
     return seasonals.seasonals.get(uniqueid, None)
 
 
-def delete_seasonal(anime: Union[Anime, SeasonalEntry]):
+def delete_seasonal(anime: Union['Anime', SeasonalEntry]):
     seasonals = Seasonals.read()
 
     if isinstance(anime, Anime):
@@ -69,7 +71,7 @@ def delete_seasonal(anime: Union[Anime, SeasonalEntry]):
     seasonals.write()
 
 
-def update_seasonal(anime: Union[Anime, SeasonalEntry], episode: Episode):
+def update_seasonal(anime: Union['Anime', SeasonalEntry], episode: 'Episode'):
     seasonals = Seasonals.read()
 
     if isinstance(anime, Anime):

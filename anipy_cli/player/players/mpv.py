@@ -1,4 +1,4 @@
-from anipy_cli.player.players.base import SubProcessPlayerBase
+from anipy_cli.player.base import SubProcessPlayerBase
 from anipy_cli.config import Config
 
 

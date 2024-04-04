@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 from typing import Union, List, Optional
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from requests import Session
 

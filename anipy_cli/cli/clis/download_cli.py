@@ -1,24 +1,23 @@
 import sys
-from typing import Optional, List
+from typing import TYPE_CHECKING, Optional, List
 
-from anipy_cli.anime import Anime
-from anipy_cli.arg_parser import CliArgs
 from anipy_cli.config import Config
-from anipy_cli.colors import cprint, colors
-from anipy_cli.provider.base_provider import Episode
-from anipy_cli.provider.utils import parsenum
-from anipy_cli.url_handler import videourl, epHandler
+from anipy_cli.cli.colors import cprint, colors
 from anipy_cli.download import Downloader
 from anipy_cli.cli.util import DotSpinner, get_season_searches, pick_episode_range_prompt, search_show_prompt
 from anipy_cli.cli.clis.base_cli import CliBase
 
+if TYPE_CHECKING:
+    from anipy_cli.anime import Anime
+    from anipy_cli.cli.arg_parser import CliArgs
+    from anipy_cli.provider.base_provider import Episode
 
 class DownloadCli(CliBase):
-    def __init__(self, options: CliArgs, rpc_client=None):
+    def __init__(self, options: 'CliArgs', rpc_client=None):
         super().__init__(options, rpc_client)
         
-        self.anime: Optional[Anime] = None
-        self.episodes: Optional[List[Episode]] = None
+        self.anime: Optional['Anime'] = None
+        self.episodes: Optional[List['Episode']] = None
 
         self.dl_path = Config().download_folder_path
         if options.location:

@@ -1,12 +1,11 @@
 from typing import List
 
-from anipy_cli.arg_parser import CliArgs
-from anipy_cli.colors import colors, cprint, cinput
+from anipy_cli.cli.arg_parser import CliArgs
+from anipy_cli.cli.colors import colors, cprint, cinput
 from anipy_cli.misc import Entry, print_names, error
 from anipy_cli.player import get_player
-from anipy_cli.url_handler import videourl
-from anipy_cli.query import query
-from anipy_cli.download import Downloader
+from os import system as query 
+# from anipy_cli.download import Downloader
 from anipy_cli.config import Config
 from anipy_cli.mal import MAL
 from anipy_cli.cli.util import binge, get_season_searches
@@ -198,39 +197,40 @@ class MALMenu(MenuBase):
                 cprint(colors.CYAN, f"==> EP: {j[0]}")
 
     def download(self, mode="all"):
-        print("Preparing list of episodes...")
-        if mode == "latest":
-            urls = self.m_class.latest_eps()
-
-        else:
-            urls = self.m_class.latest_eps(all_eps=True)
-
-        if not urls:
-            error("Nothing to download")
-            return
-
-        cprint(colors.CYAN, "Stuff to be downloaded:")
-        self.list_possible(urls)
-        if not self.options.auto_update:
-            cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
-
-        for i in urls:
-            cprint(f"Downloading newest urls for {i}", colors.CYAN)
-            show_entry = Entry()
-            show_entry.show_name = i
-            for j in urls[i]["ep_list"]:
-                show_entry.embed_url = ""
-                show_entry.ep = j[0]
-                show_entry.ep_url = j[1]
-                url_class = videourl(show_entry, self.options.quality)
-                url_class.stream_url()
-                show_entry = url_class.get_entry()
-                download(
-                    show_entry, self.options.quality, self.options.ffmpeg, self.dl_path
-                ).download()
-
-        if not self.options.auto_update:
-            self.print_options()
+        ...
+        # print("Preparing list of episodes...")
+        # if mode == "latest":
+        #     urls = self.m_class.latest_eps()
+        #
+        # else:
+        #     urls = self.m_class.latest_eps(all_eps=True)
+        #
+        # if not urls:
+        #     error("Nothing to download")
+        #     return
+        #
+        # cprint(colors.CYAN, "Stuff to be downloaded:")
+        # self.list_possible(urls)
+        # if not self.options.auto_update:
+        #     cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
+        #
+        # for i in urls:
+        #     cprint(f"Downloading newest urls for {i}", colors.CYAN)
+        #     show_entry = Entry()
+        #     show_entry.show_name = i
+        #     for j in urls[i]["ep_list"]:
+        #         show_entry.embed_url = ""
+        #         show_entry.ep = j[0]
+        #         show_entry.ep_url = j[1]
+        #         url_class = videourl(show_entry, self.options.quality)
+        #         url_class.stream_url()
+        #         show_entry = url_class.get_entry()
+        #         download(
+        #             show_entry, self.options.quality, self.options.ffmpeg, self.dl_path
+        #         ).download()
+        #
+        # if not self.options.auto_update:
+        #     self.print_options()
 
     def binge_latest(self):
         latest_eps = self.m_class.latest_eps()

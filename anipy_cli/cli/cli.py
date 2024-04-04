@@ -1,7 +1,8 @@
-from anipy_cli.misc import error, dc_presence_connect
-from anipy_cli.arg_parser import parse_args
+from anipy_cli.misc import dc_presence_connect
+from anipy_cli.error import CliError
+from anipy_cli.cli.arg_parser import parse_args
 from anipy_cli.config import Config
-from anipy_cli.colors import cprint, colors
+from anipy_cli.cli.colors import cprint, colors
 from anipy_cli.cli.clis import *
 
 
@@ -20,7 +21,7 @@ def run_cli() -> None:
             Config().history_file_path.unlink()
             cprint(colors.RED, "Done")
         except FileNotFoundError:
-            error("no history file found")
+            raise CliError("no history file found")
         return
 
     clis_dict = {

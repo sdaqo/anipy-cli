@@ -1,22 +1,24 @@
 import sys
-from typing import List, Optional
-from anipy_cli.colors import cprint, colors
+from typing import TYPE_CHECKING, List, Optional
+from anipy_cli.cli.colors import cprint, colors
 from anipy_cli.player import get_player
-from anipy_cli.arg_parser import CliArgs
 from anipy_cli.cli.util import search_show_prompt, pick_episode_range_prompt, DotSpinner
 from anipy_cli.cli.clis.base_cli import CliBase
-from anipy_cli.anime import Anime
-from anipy_cli.provider import Episode
+
+if TYPE_CHECKING:
+    from anipy_cli.anime import Anime
+    from anipy_cli.provider import Episode
+    from anipy_cli.cli.arg_parser import CliArgs
 
 
 class BingeCli(CliBase):
-    def __init__(self, options: CliArgs, rpc_client=None):
+    def __init__(self, options: 'CliArgs', rpc_client=None):
         super().__init__(options, rpc_client)
 
         self.player = get_player(self.rpc_client, self.options.optional_player)
 
-        self.anime: Optional[Anime] = None
-        self.episodes: Optional[List[Episode]] = None
+        self.anime: Optional['Anime'] = None
+        self.episodes: Optional[List['Episode']] = None
 
     def print_header(self):
         cprint(colors.GREEN, "***Binge Mode***")

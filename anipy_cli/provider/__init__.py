@@ -1,4 +1,4 @@
-from anipy_cli.provider.base_provider import (
+from anipy_cli.provider.base import (
     BaseProvider,
     ProviderSearchResult,
     ProviderInfoResult,

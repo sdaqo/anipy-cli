@@ -1,14 +1,15 @@
-import sys
-from typing import TypeVar, Optional
+from typing import TYPE_CHECKING, Optional
 from pathlib import Path
 
 from anipy_cli.config import Config
-from anipy_cli.misc import error
 from anipy_cli.player.players import Mpv, Vlc, Syncplay
-from anipy_cli.player.players.base import PlayerBase
+from anipy_cli.error import PlayerError
+
+if TYPE_CHECKING:
+    from anipy_cli.player.players.base import PlayerBase
 
 
-def get_player(rpc_client=None, player_override: Optional[str] = None) -> PlayerBase:
+def get_player(rpc_client=None, player_override: Optional[str] = None) -> 'PlayerBase':
     cfg = Config()
 
     player = cfg.player_path
@@ -30,5 +31,4 @@ def get_player(rpc_client=None, player_override: Optional[str] = None) -> Player
     if player_class:
         return player_class(str(player), rpc_client=rpc_client)
     else:
-        error(f"Specified player `{player}` is unknown")
-        sys.exit()
+        raise PlayerError(f"Specified player `{player}` is unknown")

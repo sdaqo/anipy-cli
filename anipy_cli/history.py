@@ -2,11 +2,13 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from time import time
 from dataclasses_json import dataclass_json, config
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from anipy_cli.config import Config
 from anipy_cli.provider import Episode
-from anipy_cli.anime import Anime
+
+if TYPE_CHECKING:
+    from anipy_cli.anime import Anime
 
 
 @dataclass_json
@@ -51,14 +53,14 @@ def get_history() -> History:
     return History.read()
 
 
-def get_history_entry(anime: Anime) -> Optional[HistoryEntry]:
+def get_history_entry(anime: 'Anime') -> Optional[HistoryEntry]:
     history = History.read()
     uniqueid = f"{anime.provider.NAME}:{anime.identifier}"
 
     return history.history.get(uniqueid, None)
 
 
-def update_history(anime: Anime, episode: Episode):
+def update_history(anime: 'Anime', episode: 'Episode'):
     history = History.read()
 
     uniqueid = f"{anime.provider.NAME}:{anime.identifier}"

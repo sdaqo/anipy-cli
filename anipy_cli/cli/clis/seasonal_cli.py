@@ -1,10 +1,12 @@
-from anipy_cli.arg_parser import CliArgs
+from typing import TYPE_CHECKING
 from anipy_cli.cli.menus import SeasonalMenu
 from anipy_cli.cli.clis.base_cli import CliBase
 
+if TYPE_CHECKING:
+    from anipy_cli.cli.arg_parser import CliArgs
 
 class SeasonalCli(CliBase):
-    def __init__(self, options: CliArgs, rpc_client=None):
+    def __init__(self, options: 'CliArgs', rpc_client=None):
         super().__init__(options, rpc_client)
 
     def print_header(self):

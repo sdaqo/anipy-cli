@@ -1,12 +1,14 @@
 import sys
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from anipy_cli.arg_parser import CliArgs
 from anipy_cli.misc import error
 
+if TYPE_CHECKING:
+    from anipy_cli.cli.arg_parser import CliArgs
 
 class CliBase(ABC):
-    def __init__(self, options: CliArgs, rpc_client=None):
+    def __init__(self, options: 'CliArgs', rpc_client=None):
         self.options = options
         self.rpc_client = rpc_client
 

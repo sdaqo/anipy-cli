@@ -1,11 +1,10 @@
 import sys
-from dataclasses import dataclass
 from typing import Callable, List
+from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 from anipy_cli.misc import error, clear_console
-from anipy_cli.colors import colors, color
-
+from anipy_cli.cli.colors import colors, color
 
 @dataclass(frozen=True)
 class MenuOption:

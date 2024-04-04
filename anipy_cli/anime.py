@@ -1,33 +1,33 @@
 from typing import TYPE_CHECKING, Optional, Union
 
 from anipy_cli.provider import (
-    BaseProvider,
     Episode,
-    ProviderSearchResult,
     list_providers,
 )
+
 if TYPE_CHECKING:
     from anipy_cli.history import HistoryEntry
     from anipy_cli.seasonal import SeasonalEntry
+    from anipy_cli.provider import BaseProvider, ProviderSearchResult
 
 class Anime:
     @staticmethod
     def from_search_result(
-        provider: BaseProvider, result: ProviderSearchResult
+        provider: 'BaseProvider', result: 'ProviderSearchResult'
     ) -> "Anime":
         return Anime(provider, result.name, result.identifier)
 
     @staticmethod
-    def from_history_entry(entry: "HistoryEntry") -> "Anime":
+    def from_history_entry(entry: 'HistoryEntry') -> 'Anime':
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
         return Anime(provider(), entry.name, entry.identifier)
 
     @staticmethod
-    def from_seasonal_entry(entry: "SeasonalEntry") -> "Anime":
+    def from_seasonal_entry(entry: 'SeasonalEntry') -> 'Anime':
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
         return Anime(provider(), entry.name, entry.identifier)
 
-    def __init__(self, provider: BaseProvider, name: str, identifier: str):
+    def __init__(self, provider: 'BaseProvider', name: str, identifier: str):
         self.provider = provider
         self.name = name
         self.identifier = identifier

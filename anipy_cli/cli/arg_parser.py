@@ -2,8 +2,8 @@ import argparse
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Union, Optional
-from anipy_cli.version import __version__
 
+from anipy_cli.version import __version__
 
 @dataclass(frozen=True)
 class CliArgs:

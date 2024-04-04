@@ -7,11 +7,13 @@ from pypresence import Presence
 from pypresence.exceptions import DiscordNotFound
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from anipy_cli.config import Config
-from anipy_cli.colors import colors, color, cprint
-from anipy_cli.provider import ProviderInfoResult
+# from anipy_cli.cli.colors import colors, color, cprint
+
+if TYPE_CHECKING:
+    from anipy_cli.provider import ProviderInfoResult
 
 
 @dataclass
@@ -194,18 +196,18 @@ def dc_presence_connect():
     try:
         rpc_client = Presence(CLIENT_ID)
         rpc_client.connect()
-        cprint(colors.GREEN, "Initialized Discord Presence Client")
+        # cprint(colors.GREEN, "Initialized Discord Presence Client")
     except DiscordNotFound:
         rpc_client = None
-        cprint(colors.RED, "Discord is not opened, can't initialize Discord Presence")
+        # cprint(colors.RED, "Discord is not opened, can't initialize Discord Presence")
     except ConnectionError:
         rpc_client = None
-        cprint(colors.RED, "Can't Connect to discord.")
+        # cprint(colors.RED, "Can't Connect to discord.")
 
     return rpc_client
 
 
-def dc_presence(media_title: str, anime_info: ProviderInfoResult, rpc_client):
+def dc_presence(media_title: str, anime_info: 'ProviderInfoResult', rpc_client):
     rpc_client.update(
         details="Watching anime via anipy-cli",
         state=media_title,

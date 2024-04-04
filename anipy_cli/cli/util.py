@@ -1,67 +1,66 @@
-from InquirerPy.base.simple import BaseSimplePrompt
-from InquirerPy.prompts.input import InputPrompt
-from InquirerPy.utils import get_style
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
-from contextlib import contextmanager
-from typing import Any, Dict, Iterator, List, Optional, List
 from InquirerPy import inquirer
 
-from anipy_cli.colors import cprint, colors, cinput, color
+from anipy_cli.cli.colors import cprint, colors, cinput, color
 from anipy_cli.misc import Entry, search_in_season_on_gogo, print_names, error
-from anipy_cli.url_handler import epHandler, videourl
 from anipy_cli.config import Config
 from anipy_cli.mal import MAL
-from anipy_cli.player import PlayerBase
-from anipy_cli.provider import list_providers, Episode, BaseProvider
+from anipy_cli.provider import list_providers
+from typing import TYPE_CHECKING, Iterator, List, Optional, List
 from anipy_cli.anime import Anime
 
-def binge(ep_list, quality, player: PlayerBase, mode="", mal_class: MAL = None):
+if TYPE_CHECKING:
+    from anipy_cli.player import PlayerBase
+    from anipy_cli.provider import Episode, BaseProvider
+
+def binge(ep_list, quality, player: 'PlayerBase', mode="", mal_class: MAL = None):
     """
     TODO: bruh what is this, let this accept a list of Entry
     Accepts ep_list like so:
         {"name" {'ep_urls': [], 'eps': [], 'category_url': }, "next_anime"...}
     """
-    cprint(colors.RED, "To quit press CTRL+C")
-    try:
-        for i in ep_list:
-            print(i)
-            show_entry = Entry()
-            show_entry.show_name = i
-            show_entry.category_url = ep_list[i]["category_url"]
-            show_entry.latest_ep = epHandler(show_entry).get_latest()
-            for url, ep in zip(ep_list[i]["ep_urls"], ep_list[i]["eps"]):
-                show_entry.ep = ep
-                show_entry.embed_url = ""
-                show_entry.ep_url = url
-                cprint(
-                    colors.GREEN,
-                    "Fetching links for: ",
-                    colors.END,
-                    show_entry.show_name,
-                    colors.RED,
-                    f""" | EP: {
-                    show_entry.ep
-                    }/{
-                    show_entry.latest_ep
-                    }""",
-                )
-
-                url_class = videourl(show_entry, quality)
-                url_class.stream_url()
-                show_entry = url_class.get_entry()
-                player.play_title(show_entry)
-                player.wait()
-
-                if mode == "seasonal":
-                    Seasonal().update_show(
-                        show_entry.show_name, show_entry.category_url, show_entry.ep
-                    )
-                elif mode == "mal":
-                    mal_class.update_watched(show_entry.show_name, show_entry.ep)
-
-    except KeyboardInterrupt:
-        player.kill_player()
+    # cprint(colors.RED, "To quit press CTRL+C")
+    # try:
+    #     for i in ep_list:
+    #         print(i)
+    #         show_entry = Entry()
+    #         show_entry.show_name = i
+    #         show_entry.category_url = ep_list[i]["category_url"]
+    #         show_entry.latest_ep = epHandler(show_entry).get_latest()
+    #         for url, ep in zip(ep_list[i]["ep_urls"], ep_list[i]["eps"]):
+    #             show_entry.ep = ep
+    #             show_entry.embed_url = ""
+    #             show_entry.ep_url = url
+    #             cprint(
+    #                 colors.GREEN,
+    #                 "Fetching links for: ",
+    #                 colors.END,
+    #                 show_entry.show_name,
+    #                 colors.RED,
+    #                 f""" | EP: {
+    #                 show_entry.ep
+    #                 }/{
+    #                 show_entry.latest_ep
+    #                 }""",
+    #             )
+    #
+    #             url_class = videourl(show_entry, quality)
+    #             url_class.stream_url()
+    #             show_entry = url_class.get_entry()
+    #             player.play_title(show_entry)
+    #             player.wait()
+    #
+    #             if mode == "seasonal":
+    #                 Seasonal().update_show(
+    #                     show_entry.show_name, show_entry.category_url, show_entry.ep
+    #                 )
+    #             elif mode == "mal":
+    #                 mal_class.update_watched(show_entry.show_name, show_entry.ep)
+    #
+    # except KeyboardInterrupt:
+    #     player.kill_player()
+    ...
 
 
 def get_season_searches(gogo=True):
@@ -147,7 +146,7 @@ class DotSpinner:
         self.spinner.__exit__(exc_type, exc_val, exc_tb)
 
 
-def search_show_prompt(loop_on_nores: bool = True) -> Optional[Anime]:
+def search_show_prompt(loop_on_nores: bool = True) -> Optional['Anime']:
     query = inquirer.text(
         "Search Anime:",
         long_instruction="To cancel this prompt press ctrl+z",
@@ -182,7 +181,7 @@ def search_show_prompt(loop_on_nores: bool = True) -> Optional[Anime]:
     return anime
 
 
-def pick_episode_prompt(anime: Anime, instruction: str = "") -> Optional[Episode]:
+def pick_episode_prompt(anime: 'Anime', instruction: str = "") -> Optional['Episode']:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
         episodes = anime.get_episodes()
 
@@ -195,7 +194,7 @@ def pick_episode_prompt(anime: Anime, instruction: str = "") -> Optional[Episode
     ).execute()
 
 
-def pick_episode_range_prompt(anime: Anime) -> List[Episode]:
+def pick_episode_range_prompt(anime: 'Anime') -> List['Episode']:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
         episodes = anime.get_episodes()
 
@@ -215,7 +214,7 @@ def pick_episode_range_prompt(anime: Anime) -> List[Episode]:
     return episodes[episodes.index(res[0]) : episodes.index(res[1]) + 1]
 
 
-def get_prefered_providers() -> Iterator[BaseProvider]:
+def get_prefered_providers() -> Iterator['BaseProvider']:
     preferred_providers = Config().providers
 
     for i in list_providers():

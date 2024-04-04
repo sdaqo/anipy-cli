@@ -2,7 +2,6 @@ import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Optional, Protocol
 from urllib.parse import urljoin
 
 import m3u8
@@ -10,12 +9,15 @@ import requests
 from better_ffmpeg_progress import FfmpegProcess
 from requests.adapters import HTTPAdapter, Retry
 
-from anipy_cli.anime import Anime
-from anipy_cli.colors import color, colors
+from anipy_cli.cli.colors import color, colors
 from anipy_cli.config import Config
 from anipy_cli.error import DownloadError, RequestError
-from anipy_cli.provider import ProviderStream
 
+from typing import TYPE_CHECKING, Optional, Protocol
+
+if TYPE_CHECKING:
+    from anipy_cli.anime import Anime
+    from anipy_cli.provider import ProviderStream
 
 class ProgressCallback(Protocol):
     def __call__(self, percentage: float): ...
@@ -53,8 +55,8 @@ class Downloader:
 
     @staticmethod
     def get_download_path(
-        anime: Anime,
-        stream: ProviderStream,
+        anime:'Anime',
+        stream: 'ProviderStream',
         parent_directory: Optional[Path] = None,
     ) -> Path:
         download_folder = parent_directory or Config().download_folder_path
@@ -71,7 +73,7 @@ class Downloader:
             quality=stream.resolution,
         )
 
-    def m3u8_download(self, stream: ProviderStream, download_path: Path) -> Path:
+    def m3u8_download(self, stream: 'ProviderStream', download_path: Path) -> Path:
         self.info_callback(str(download_path))
         temp_folder = download_path.parent / "temp"
         temp_folder.mkdir(exist_ok=True)
@@ -88,9 +90,10 @@ class Downloader:
 
         def download_ts(segment: m3u8.Segment):
             nonlocal counter
-            url = Path(segment.base_uri) / segment.uri
+            url = urljoin(segment.base_uri, segment.uri)
             fname = temp_folder / self._get_valid_pathname(segment.uri)
-            self.info_callback(f"{str(url)} -> {str(fname)}")
+            # self.info_callback(f"{str(url)} -> {str(fname)}")
+            # self.info_callback(f"{segment.base_uri}, {url}")
             try:
                 res = self._session.get(str(url))
                 if not res.ok:
@@ -102,18 +105,18 @@ class Downloader:
                 counter += 1
                 self.progress_callback(counter / len(m3u8_content.segments) * 100)
             except Exception as e:
-                DownloadError(f"Encountered this error while downloading: {str(e)}")
+                raise DownloadError(f"Encountered this error while downloading: {str(e)}")
         try:
             with ThreadPoolExecutor(12) as pool_video:
                 pool_video.map(download_ts, m3u8_content.segments)
-            exit()
 
             self.info_callback(color(colors.CYAN, "Parts Downloaded"))
 
             self.info_callback(color(colors.CYAN, "Merging Parts"))
             with download_path.with_suffix(".ts").open("wb") as merged:
                 for segment in m3u8_content.segments:
-                    fname = temp_folder.with_name(self._get_valid_pathname(segment.uri))
+                    fname = temp_folder  / self._get_valid_pathname(segment.uri)
+                    self.info_callback(fname.__str__())
                     if not fname.is_file():
                         raise DownloadError(
                             f"Could not merge, missing a segment of this playlist: {stream.url}"
@@ -131,7 +134,7 @@ class Downloader:
             download_path.unlink()
             shutil.rmtree(temp_folder)
 
-    def mp4_download(self, stream: ProviderStream, download_path: Path) -> Path:
+    def mp4_download(self, stream: 'ProviderStream', download_path: Path) -> Path:
         r = self._session.get(stream.url, stream=True)
         total = int(r.headers.get("content-length", 0))
         try:
@@ -148,7 +151,7 @@ class Downloader:
         return download_path.with_suffix(".mp4")
 
     def ffmpeg_download(
-        self, stream: ProviderStream, download_path: Path, ffmpeg_log_path: Path
+        self, stream: 'ProviderStream', download_path: Path, ffmpeg_log_path: Path
     ) -> Path:
         ffmpeg_process = FfmpegProcess(
             [
@@ -182,8 +185,8 @@ class Downloader:
 
     def download(
         self,
-        stream: ProviderStream,
-        anime: Anime,
+        stream: 'ProviderStream',
+        anime: 'Anime',
         ffmpeg: bool = False,
         download_path: Optional[Path] = None,
     ) -> Path:

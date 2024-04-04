@@ -10,10 +10,11 @@ from multiprocessing import Pool
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
-from anipy_cli.url_handler import epHandler
-from anipy_cli import Seasonal
-from anipy_cli.query import query
-from anipy_cli.colors import colors, cprint
+from os import system as epHandler
+from anipy_cli.seasonal import Seasonals as Seasonal
+# TODO: ...
+from os import system as query
+from anipy_cli.cli.colors import colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.misc import read_json, error, Entry
 

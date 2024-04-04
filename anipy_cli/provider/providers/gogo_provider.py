@@ -2,26 +2,28 @@ import re
 import base64
 import json
 import m3u8
+import functools
 from urllib.parse import urlparse, parse_qsl, urlencode, urljoin
 from requests import Request, Session
 from Cryptodome.Cipher import AES
-from typing import List
 from bs4 import BeautifulSoup
 from pathlib import Path
+from typing import TYPE_CHECKING, List
 
 from anipy_cli.provider import (
     BaseProvider,
     ProviderSearchResult,
     ProviderInfoResult,
-    ProviderStream,
-    Episode,
+    ProviderStream
 )
 from anipy_cli.error import BeautifulSoupLocationError
 from anipy_cli.provider.utils import request_page, memoized_method, parsenum
 from anipy_cli.config import Config
 
+if TYPE_CHECKING:
+    from anipy_cli.provider import Episode
 
-@memoized_method()
+@functools.lru_cache()
 def _get_enc_keys(session: Session, embed_url: str):
     page = request_page(session, Request("GET", embed_url)).text
 
@@ -94,7 +96,7 @@ class GoGoProvider(BaseProvider):
         return results
 
     @memoized_method()
-    def get_episodes(self, identifier: str) -> List[Episode]:
+    def get_episodes(self, identifier: str) -> List['Episode']:
         req = Request("GET", f"{self.BASE_URL}/category/{identifier}")
         res = request_page(self.session, req)
 
@@ -122,7 +124,7 @@ class GoGoProvider(BaseProvider):
         return ep_list
 
     @memoized_method()
-    def get_info(self, identifier: str) -> ProviderInfoResult:
+    def get_info(self, identifier: str) -> 'ProviderInfoResult':
         req = Request("GET", f"{self.BASE_URL}/category/{identifier}")
         res = request_page(self.session, req)
 
@@ -143,7 +145,7 @@ class GoGoProvider(BaseProvider):
 
         return ProviderInfoResult(name, image, genres, synopsis, release_year, status)
 
-    def get_video(self, identifier: str, episode: Episode) -> List[ProviderStream]:
+    def get_video(self, identifier: str, episode: 'Episode') -> List['ProviderStream']:
         episode_url = (
             f"{self.BASE_URL}/{identifier}-episode-{str(episode).replace('.', '-')}"
         )

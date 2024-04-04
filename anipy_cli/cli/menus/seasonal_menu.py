@@ -1,27 +1,26 @@
-from typing import List
-
+from typing import TYPE_CHECKING, List
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
 
-from anipy_cli.anime import Anime
-from anipy_cli.arg_parser import CliArgs
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.cli.util import DotSpinner, pick_episode_prompt, search_show_prompt
-from anipy_cli.colors import colors
+from anipy_cli.cli.colors import colors
 from anipy_cli.config import Config
-from anipy_cli.download import Downloader
-from anipy_cli.misc import Entry, error
+from anipy_cli.misc import error
 from anipy_cli.player import get_player
 from anipy_cli.seasonal import (
     delete_seasonal,
     get_seasonals,
     update_seasonal,
 )
+from anipy_cli.anime import Anime
 
+if TYPE_CHECKING:
+    from anipy_cli.arg_parser import CliArgs
 
 class SeasonalMenu(MenuBase):
-    def __init__(self, options: CliArgs, rpc_client=None):
+    def __init__(self, options: 'CliArgs', rpc_client=None):
         self.rpc_client = rpc_client
         self.options = options
         self.entry = Entry()

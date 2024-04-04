@@ -1,26 +1,25 @@
 import sys
-import os
-from typing import List
+from typing import TYPE_CHECKING, List
 
-from anipy_cli.arg_parser import CliArgs
-from anipy_cli.colors import colors, cprint
+from anipy_cli.cli.colors import colors, cprint
 from anipy_cli.misc import error
-from anipy_cli.player import PlayerBase
-from anipy_cli.provider import ProviderStream, Episode
-from anipy_cli.download import Downloader
-from anipy_cli.config import Config
+# from anipy_cli.download import Downloader
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
-from anipy_cli.anime import Anime
 from anipy_cli.cli.util import DotSpinner, search_show_prompt, pick_episode_prompt
 
+if TYPE_CHECKING:
+    from anipy_cli.player import PlayerBase
+    from anipy_cli.provider import ProviderStream, Episode
+    from anipy_cli.cli.arg_parser import CliArgs
+    from anipy_cli.anime import Anime
 
 class Menu(MenuBase):
     def __init__(
         self,
-        options: CliArgs,
-        anime: Anime,
-        stream: ProviderStream,
-        player: PlayerBase,
+        options: 'CliArgs',
+        anime: 'Anime',
+        stream: 'ProviderStream',
+        player: 'PlayerBase',
         rpc_client=None,
     ):
         self.rpc_client = rpc_client
@@ -30,7 +29,7 @@ class Menu(MenuBase):
         self.player = player
 
     @property
-    def menu_options(self) -> List[MenuOption]:
+    def menu_options(self) -> List['MenuOption']:
         return [
             MenuOption("Next Episode", self.next_ep, "n"),
             MenuOption("Previous Episode", self.prev_ep, "p"),
@@ -54,7 +53,7 @@ class Menu(MenuBase):
             f"{self.stream.episode}/{self.anime.get_episodes()[-1]}",
         )
 
-    def _start_episode(self, episode: Episode):
+    def _start_episode(self, episode: 'Episode'):
         with DotSpinner(
             "Extracting streams for ",
             colors.BLUE,
