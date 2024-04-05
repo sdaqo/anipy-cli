@@ -1,10 +1,10 @@
-import sys
 import os
-from typing import Callable, List
-from dataclasses import dataclass
+import sys
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Callable, List
 
-from anipy_cli.cli.colors import colors, color
+from anipy_cli.cli.colors import color, colors
 from anipy_cli.cli.util import error
 
 
@@ -21,12 +21,10 @@ class MenuOption:
 class MenuBase(ABC):
     @property
     @abstractmethod
-    def menu_options(self) -> List[MenuOption]:
-        pass
+    def menu_options(self) -> List[MenuOption]: ...
 
     @abstractmethod
-    def print_header(self):
-        pass
+    def print_header(self): ...
 
     def run(self):
         self.print_options()

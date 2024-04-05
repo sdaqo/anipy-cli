@@ -11,24 +11,19 @@ class CliBase(ABC):
         self.rpc_client = rpc_client
 
     @abstractmethod
-    def print_header(self):
-        pass
+    def print_header(self): ...
 
     @abstractmethod
-    def take_input(self):
-        pass
+    def take_input(self): ...
 
     @abstractmethod
-    def process(self):
-        pass
+    def process(self): ...
 
     @abstractmethod
-    def show(self):
-        pass
+    def show(self): ...
 
     @abstractmethod
-    def post(self):
-        pass
+    def post(self): ...
 
     def run(self):
         self.print_header()

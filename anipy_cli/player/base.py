@@ -1,11 +1,11 @@
 import os
 import subprocess as sp
-from typing import TYPE_CHECKING, List
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, List
 
-from anipy_cli.history import update_history
 from anipy_cli.discord import dc_presence
 from anipy_cli.error import PlayerError
+from anipy_cli.history import update_history
 
 if TYPE_CHECKING:
     from anipy_cli.anime import Anime
@@ -15,24 +15,19 @@ if TYPE_CHECKING:
 class PlayerBase(ABC):
     @property
     @abstractmethod
-    def rpc_client(self):
-        pass
+    def rpc_client(self): ...
 
     @abstractmethod
-    def play_title(self, anime: "Anime", stream: "ProviderStream"):
-        pass
+    def play_title(self, anime: "Anime", stream: "ProviderStream"): ...
 
     @abstractmethod
-    def play_file(self, path: str):
-        pass
+    def play_file(self, path: str): ...
 
     @abstractmethod
-    def wait(self):
-        pass
+    def wait(self): ...
 
     @abstractmethod
-    def kill_player(self):
-        pass
+    def kill_player(self): ...
 
     def _start_dc_presence(self, anime: "Anime", stream: "ProviderStream"):
         if self.rpc_client:
