@@ -10,16 +10,16 @@ if TYPE_CHECKING:
 
 
 def get_player(rpc_client=None, player_override: Optional[str] = None) -> "PlayerBase":
-    cfg = Config()
+    config = Config()
 
-    player = cfg.player_path
+    player = config.player_path
 
     if player_override is not None:
         player = player_override
 
     player = Path(player)
 
-    if Path(player.name).stem == "mpv" and cfg.reuse_mpv_window:
+    if Path(player.name).stem == "mpv" and config.reuse_mpv_window:
         from anipy_cli.player.players.mpv_control import MpvControllable
 
         return MpvControllable(rpc_client=rpc_client)

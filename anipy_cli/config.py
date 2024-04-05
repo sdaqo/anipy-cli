@@ -4,11 +4,12 @@ import os
 from pathlib import Path
 from sys import platform
 from string import Template
+from appdirs import user_data_dir, user_config_dir
 
 import yaml
 
 from anipy_cli.error import SysNotFoundError
-from anipy_cli.version import __version__
+from anipy_cli.version import __version__, __appname__
 
 
 class Config:
@@ -20,8 +21,15 @@ class Config:
             self._create_config()  # Create config file
 
     @property
-    def _anipy_cli_folder(self):
-        return Path(Path(__file__).parent)
+    def user_files_path(self):
+        """
+        Path to user files, this includes history, seasonals files and more.
+        You may use `~` or environment vars in your path.
+        """
+        
+        return self._get_path_value(
+            "user_files_path", Path(user_data_dir(__appname__, appauthor=False))
+        )
 
     @property
     def download_folder_path(self):
@@ -30,7 +38,7 @@ class Config:
         You may use `~` or environment vars in your path.
         """
         return self._get_path_value(
-            "download_folder_path", self._anipy_cli_folder / "download"
+            "download_folder_path", self.user_files_path / "download"
         )
 
     @property
@@ -41,16 +49,6 @@ class Config:
         """
         return self._get_path_value(
             "seasonals_dl_path", self.download_folder_path / "seasonals"
-        )
-
-    @property
-    def user_files_path(self):
-        """
-        Path to user files, this includes history, seasonals files and more.
-        You may use `~` or environment vars in your path.
-        """
-        return self._get_path_value(
-            "user_files_path", self._anipy_cli_folder / "user_files"
         )
 
     @property
@@ -87,7 +85,7 @@ class Config:
             player_path: syncplay # if in PATH this also works
             player_path: C:\\\\Programms\\mpv\\mpv.exe # on windows path with .exe
         """
-        return self._get_value("player_path", "mpv", str)
+        return self._get_path_value("player_path", Path("mpv"))
 
     @property
     def mpv_commandline_options(self):
@@ -283,15 +281,5 @@ class Config:
 
     @staticmethod
     def _get_config_path() -> Path:
-        linux_path = Path().home() / ".config" / "anipy-cli"
-        windows_path = Path().home() / "AppData" / "Local" / "anipy-cli"
-        macos_path = Path().home() / ".config" / "anipy-cli"
+        return Path(user_config_dir(__appname__, appauthor=False))
 
-        if platform == "linux":
-            return linux_path
-        elif platform == "darwin":
-            return macos_path
-        elif platform == "win32":
-            return windows_path
-        else:
-            raise SysNotFoundError(platform)

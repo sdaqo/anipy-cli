@@ -40,7 +40,8 @@ setup(
         "yaspin",
         "InquirerPy",
         "dataclasses_json",
-        "python-ffmpeg @ git+ssh://git@github.com/sdaqo/python-ffmpeg.git"
+        "python-ffmpeg @ git+ssh://git@github.com/sdaqo/python-ffmpeg.git",
+        "appdirs"
     ],
     entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )
