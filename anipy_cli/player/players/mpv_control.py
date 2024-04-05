@@ -23,7 +23,7 @@ class MpvControllable(mpv.MPV, PlayerBase):
     def rpc_client(self):
         return self._rpc_client
 
-    def play_title(self, anime: 'Anime', stream: 'ProviderStream'):
+    def play_title(self, anime: "Anime", stream: "ProviderStream"):
         self.force_media_title = self._get_media_title(anime, stream)
 
         self.play(stream.url)

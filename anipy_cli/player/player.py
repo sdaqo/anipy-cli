@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from anipy_cli.player.players.base import PlayerBase
 
 
-def get_player(rpc_client=None, player_override: Optional[str] = None) -> 'PlayerBase':
+def get_player(rpc_client=None, player_override: Optional[str] = None) -> "PlayerBase":
     cfg = Config()
 
     player = cfg.player_path

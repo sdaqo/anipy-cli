@@ -53,14 +53,14 @@ def get_history() -> History:
     return History.read()
 
 
-def get_history_entry(anime: 'Anime') -> Optional[HistoryEntry]:
+def get_history_entry(anime: "Anime") -> Optional[HistoryEntry]:
     history = History.read()
     uniqueid = f"{anime.provider.NAME}:{anime.identifier}"
 
     return history.history.get(uniqueid, None)
 
 
-def update_history(anime: 'Anime', episode: 'Episode'):
+def update_history(anime: "Anime", episode: "Episode"):
     history = History.read()
 
     uniqueid = f"{anime.provider.NAME}:{anime.identifier}"
