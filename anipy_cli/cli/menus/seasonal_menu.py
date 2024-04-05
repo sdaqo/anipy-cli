@@ -48,7 +48,7 @@ class SeasonalMenu(MenuBase):
     def print_header(self):
         pass
 
-    def _choose_latest(self) -> List[Tuple["Anime", List["Episode"]]]:
+    def _choose_latest(self, auto_pick: bool = False) -> List[Tuple["Anime", List["Episode"]]]:
         with DotSpinner("Fetching status of shows in seasonals..."):
             choices = []
             for s in list(get_seasonals().seasonals.values()):
@@ -61,6 +61,8 @@ class SeasonalMenu(MenuBase):
                         name=f"{anime.name} (to watch: {len(to_watch)})",
                     )
                     choices.append(ch)
+        if auto_pick:
+            return [ch.value for ch in choices]
 
         style = get_style(
             {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
@@ -134,7 +136,7 @@ class SeasonalMenu(MenuBase):
             print(i)
 
     def download_latest(self):
-        choices = self._choose_latest()
+        choices = self._choose_latest(auto_pick=self.options.auto_update)
         config = Config()
         with DotSpinner("Starting Download...") as s:
 
@@ -175,7 +177,8 @@ class SeasonalMenu(MenuBase):
                     )
                     update_seasonal(anime, ep)
 
-        self.print_options(clear_screen=True)
+        if not self.options.auto_update:
+            self.print_options(clear_screen=True)
 
     def binge_latest(self):
         picked = self._choose_latest()
@@ -202,5 +205,4 @@ class SeasonalMenu(MenuBase):
         self.print_options()
 
     def quit(self):
-        self.player.kill_player()
         sys.exit(0)

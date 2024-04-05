@@ -46,6 +46,7 @@ class MenuBase(ABC):
     def print_options(self, clear_screen=True):
         if clear_screen:
             os.system("cls" if os.name == "nt" else "clear")
+
         self.print_header()
         for op in self.menu_options:
             print(op)
