@@ -23,7 +23,7 @@ class CliArgs:
     config: bool
 
 
-def parse_args() -> CliArgs:
+def parse_args(args: list[str] = None) -> CliArgs:
     parser = argparse.ArgumentParser(
         description="Play Animes from gogoanime in local video-player or Download them.",
         add_help=False,
@@ -175,4 +175,4 @@ def parse_args() -> CliArgs:
         help="Print path to the config file.",
     )
 
-    return CliArgs(**vars(parser.parse_args()))
+    return CliArgs(**vars(parser.parse_args(args=args)))
