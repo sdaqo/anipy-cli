@@ -1,0 +1,2 @@
+class query:
+    pass

@@ -1,23 +1,25 @@
+import json
 import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import TYPE_CHECKING, Optional, Protocol
 from urllib.parse import urljoin
 
 import m3u8
 import requests
-from better_ffmpeg_progress import FfmpegProcess
+from ffmpeg import FFmpeg, Progress
+from ffmpeg.utils import parse_time
 from requests.adapters import HTTPAdapter, Retry
 
 from anipy_cli.cli.colors import color, colors
 from anipy_cli.config import Config
 from anipy_cli.error import DownloadError, RequestError
 
-from typing import TYPE_CHECKING, Optional, Protocol
-
 if TYPE_CHECKING:
     from anipy_cli.anime import Anime
     from anipy_cli.provider import ProviderStream
+
 
 class ProgressCallback(Protocol):
     def __call__(self, percentage: float): ...
@@ -55,8 +57,8 @@ class Downloader:
 
     @staticmethod
     def get_download_path(
-        anime:'Anime',
-        stream: 'ProviderStream',
+        anime: "Anime",
+        stream: "ProviderStream",
         parent_directory: Optional[Path] = None,
     ) -> Path:
         download_folder = parent_directory or Config().download_folder_path
@@ -67,14 +69,18 @@ class Downloader:
             if anime_name.endswith(" (Dub)"):
                 anime_name = f"{anime_name[:-6]}"
 
-        return download_folder / anime_name / Config().download_name_format.format(
-            show_name=anime_name,
-            episode_number=stream.episode,
-            quality=stream.resolution,
+        return (
+            download_folder
+            / anime_name
+            / Config().download_name_format.format(
+                show_name=anime_name,
+                episode_number=stream.episode,
+                quality=stream.resolution,
+                provider=anime.provider.NAME,
+            )
         )
 
-    def m3u8_download(self, stream: 'ProviderStream', download_path: Path) -> Path:
-        self.info_callback(str(download_path))
+    def m3u8_download(self, stream: "ProviderStream", download_path: Path) -> Path:
         temp_folder = download_path.parent / "temp"
         temp_folder.mkdir(exist_ok=True)
 
@@ -92,8 +98,6 @@ class Downloader:
             nonlocal counter
             url = urljoin(segment.base_uri, segment.uri)
             fname = temp_folder / self._get_valid_pathname(segment.uri)
-            # self.info_callback(f"{str(url)} -> {str(fname)}")
-            # self.info_callback(f"{segment.base_uri}, {url}")
             try:
                 res = self._session.get(str(url))
                 if not res.ok:
@@ -105,18 +109,20 @@ class Downloader:
                 counter += 1
                 self.progress_callback(counter / len(m3u8_content.segments) * 100)
             except Exception as e:
-                raise DownloadError(f"Encountered this error while downloading: {str(e)}")
+                raise DownloadError(
+                    f"Encountered this error while downloading: {str(e)}"
+                )
+
         try:
             with ThreadPoolExecutor(12) as pool_video:
                 pool_video.map(download_ts, m3u8_content.segments)
 
-            self.info_callback(color(colors.CYAN, "Parts Downloaded"))
+            self.info_callback("Parts Downloaded")
 
-            self.info_callback(color(colors.CYAN, "Merging Parts"))
+            self.info_callback("Merging Parts...")
             with download_path.with_suffix(".ts").open("wb") as merged:
                 for segment in m3u8_content.segments:
-                    fname = temp_folder  / self._get_valid_pathname(segment.uri)
-                    self.info_callback(fname.__str__())
+                    fname = temp_folder / self._get_valid_pathname(segment.uri)
                     if not fname.is_file():
                         raise DownloadError(
                             f"Could not merge, missing a segment of this playlist: {stream.url}"
@@ -125,7 +131,7 @@ class Downloader:
                     with fname.open("rb") as mergefile:
                         shutil.copyfileobj(mergefile, merged)
 
-            self.info_callback(color(colors.CYAN, "Merge Finished"))
+            self.info_callback("Merge Finished")
             shutil.rmtree(temp_folder)
 
             return download_path.with_suffix(".ts")
@@ -134,7 +140,7 @@ class Downloader:
             download_path.unlink()
             shutil.rmtree(temp_folder)
 
-    def mp4_download(self, stream: 'ProviderStream', download_path: Path) -> Path:
+    def mp4_download(self, stream: "ProviderStream", download_path: Path) -> Path:
         r = self._session.get(stream.url, stream=True)
         total = int(r.headers.get("content-length", 0))
         try:
@@ -146,37 +152,36 @@ class Downloader:
             self.info_callback("Download Interrupted, deleting partial file.")
             download_path.unlink()
 
-        self.info_callback(color(colors.CYAN, "Download finished."))
+        self.info_callback("Download finished.")
 
         return download_path.with_suffix(".mp4")
 
-    def ffmpeg_download(
-        self, stream: 'ProviderStream', download_path: Path, ffmpeg_log_path: Path
-    ) -> Path:
-        ffmpeg_process = FfmpegProcess(
-            [
-                "ffmpeg",
-                "-i",
-                stream.url,
-                "-c:v",
-                "copy",
-                "-c:a",
-                "copy",
-                "-c:s",
-                "mov_text",
-                "-c",
-                "copy",
-                str(download_path),
-            ]
+    def ffmpeg_download(self, stream: "ProviderStream", download_path: Path) -> Path:
+        ffmpeg = FFmpeg(executable="ffprobe").input(
+            stream.url, print_format="json", show_format=None
+        )
+        meta = json.loads(ffmpeg.execute())
+        duration = float(meta["format"]["duration"])
+
+        ffmpeg = (
+            FFmpeg()
+            .option("y")
+            .option("v", "warning")
+            .option("stats")
+            .input(stream.url)
+            .output(
+                download_path,
+                {"c:v": "copy", "c:a": "copy", "c:s": "mov_text"},
+                format="mp4",
+            )
         )
 
+        @ffmpeg.on("progress")
+        def on_progress(progress: Progress):
+            self.progress_callback(progress.time.total_seconds() / duration * 100)
+
         try:
-            ffmpeg_process.run(
-                ffmpeg_output_file=str(
-                    ffmpeg_log_path / download_path.name.replace("mp4", "log")
-                ),
-                progress_handler=lambda p, s, a, e: self.progress_callback(p),
-            )
+            ffmpeg.execute()
         except KeyboardInterrupt:
             self.info_callback("interrupted deleting partially downloaded file")
             download_path.unlink()
@@ -185,8 +190,8 @@ class Downloader:
 
     def download(
         self,
-        stream: 'ProviderStream',
-        anime: 'Anime',
+        stream: "ProviderStream",
+        anime: "Anime",
         ffmpeg: bool = False,
         download_path: Optional[Path] = None,
     ) -> Path:
@@ -197,16 +202,14 @@ class Downloader:
 
         download_path.parent.mkdir(parents=True, exist_ok=True)
 
+        self.info_callback(f"Downloading Episode {stream.episode} from {anime.name}")
         if "m3u8" in stream.url:
             if ffmpeg or config.ffmpeg_hls:
                 self.info_callback("Using FFMPEG downloader")
-                config.ffmpeg_log_path.mkdir(exist_ok=True, parents=True)
-                return self.ffmpeg_download(
-                    stream, download_path, config.ffmpeg_log_path
-                )
+                return self.ffmpeg_download(stream, download_path)
 
             self.info_callback("Using internal M3U8 downloader")
-            return self.m3u8_download(stream, download_path)
+            path = self.m3u8_download(stream, download_path)
         elif "mp4" in stream.url:
             self.info_callback("Using internal MP4 downloader")
             return self.mp4_download(stream, download_path)
@@ -214,5 +217,4 @@ class Downloader:
             self.info_callback(
                 "No fitting downloader available for stream, using FFMPEG downloader as fallback"
             )
-            config.ffmpeg_log_path.mkdir(exist_ok=True, parents=True)
-            return self.ffmpeg_download(stream, download_path, config.ffmpeg_log_path)
+            return self.ffmpeg_download(stream, download_path)

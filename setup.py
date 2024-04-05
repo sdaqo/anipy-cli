@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-
+# TODO: move to pyproject.toml
 def read_version():
     fname = "anipy_cli/version.py"
     with open(fname) as fh:
@@ -26,7 +26,6 @@ setup(
     url="https://github.com/sdaqo/anipy-cli",
     license="GPL-3.0",
     install_requires=[
-        "better-ffmpeg-progress",
         "pycryptodomex",
         "requests",
         "python-dateutil",
@@ -40,7 +39,8 @@ setup(
         "python-mpv",
         "yaspin",
         "InquirerPy",
-        "dataclasses_json"
+        "dataclasses_json",
+        "python-ffmpeg @ git+ssh://git@github.com/sdaqo/python-ffmpeg.git"
     ],
     entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )

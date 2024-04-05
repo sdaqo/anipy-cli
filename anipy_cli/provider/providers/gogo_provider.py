@@ -58,7 +58,7 @@ def _aes_decrypt(data, key, iv):
 
 class GoGoProvider(BaseProvider):
     NAME = "gogoanime"
-    BASE_URL = Config().gogoanime_url
+    BASE_URL = "https://gogoanime3.co/"
 
     def get_search(self, query: str) -> List[ProviderSearchResult]:
         search_url = self.BASE_URL + f"/search.html?keyword={query}"

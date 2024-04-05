@@ -30,12 +30,12 @@ class History:
     history: Dict[str, HistoryEntry]
 
     def write(self):
-        hist_file = Config().history_file_path
+        hist_file = Config()._history_file_path
         hist_file.write_text(self.to_json())
 
     @staticmethod
     def read() -> "History":
-        hist_file = Config().history_file_path
+        hist_file = Config()._history_file_path
 
         if not hist_file.is_file():
             hist_file.parent.mkdir(exist_ok=True, parents=True)
@@ -86,7 +86,7 @@ def update_history(anime: 'Anime', episode: 'Episode'):
 def _migrate_history():
     import json
 
-    hist_file = Config().history_file_path
+    hist_file = Config()._history_file_path
     old_data = json.load(hist_file.open("r"))
     new_history = History({})
 
