@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 
 import m3u8
 import requests
-from ffmpeg import FFmpeg, Progress
+from ffmpeg import FFmpeg, Progress, file
 from requests.adapters import HTTPAdapter, Retry
 
 from anipy_cli.config import Config
@@ -52,31 +52,6 @@ class Downloader:
         name = "-".join(name.split())  # Clean all white spaces, including tabs and such
 
         return name
-
-    @staticmethod
-    def get_download_path(
-        anime: "Anime",
-        stream: "ProviderStream",
-        parent_directory: Optional[Path] = None,
-    ) -> Path:
-        download_folder = parent_directory or Config().download_folder_path
-
-        anime_name = Downloader._get_valid_pathname(anime.name)
-
-        if Config().download_remove_dub_from_folder_name:
-            if anime_name.endswith(" (Dub)"):
-                anime_name = f"{anime_name[:-6]}"
-
-        return (
-            download_folder
-            / anime_name
-            / Config().download_name_format.format(
-                show_name=anime_name,
-                episode_number=stream.episode,
-                quality=stream.resolution,
-                provider=anime.provider.NAME,
-            )
-        )
 
     def m3u8_download(self, stream: "ProviderStream", download_path: Path) -> Path:
         temp_folder = download_path.parent / "temp"
@@ -188,18 +163,11 @@ class Downloader:
     def download(
         self,
         stream: "ProviderStream",
-        anime: "Anime",
+        download_path: Path,
+        container: Optional[str] = None,
         ffmpeg: bool = False,
-        download_path: Optional[Path] = None,
     ) -> Path:
-        config = Config()
-
-        if not download_path:
-            download_path = self.get_download_path(anime, stream)
-
         download_path.parent.mkdir(parents=True, exist_ok=True)
-
-        self.info_callback(f"Downloading Episode {stream.episode} from {anime.name}")
 
         for p in download_path.parent.iterdir():
             if p.with_suffix("").name == download_path.name:
@@ -207,15 +175,10 @@ class Downloader:
                 return p
 
         if "m3u8" in stream.url:
-            if ffmpeg or config.ffmpeg_hls:
-                if config.remux_to:
-                    suffix = config.remux_to
-                else:
-                    suffix = ".mp4"
-
-                download_path = download_path.with_suffix(suffix)
+            if ffmpeg:
+                download_path = download_path.with_suffix(container or ".mp4")
                 self.info_callback("Using FFMPEG downloader")
-                self.info_callback(f"Saving to a {suffix} container")
+                self.info_callback(f"Saving to a {container} container")
                 path = self.ffmpeg_download(stream, download_path)
             else:
                 self.info_callback("Using internal M3U8 downloader")
@@ -229,12 +192,12 @@ class Downloader:
             )
             path = self.ffmpeg_download(stream, download_path)
 
-        if config.remux_to:
-            if config.remux_to == path.suffix:
+        if container:
+            if container == path.suffix:
                 return path
-            self.info_callback(f"Remuxing to {config.remux_to} container")
+            self.info_callback(f"Remuxing to {container} container")
             # little bit hacky...
-            new_path = path.with_suffix(config.remux_to)
+            new_path = path.with_suffix(container)
             download = self.ffmpeg_download(
                 ProviderStream(str(path), stream.resolution, stream.episode), new_path
             )
@@ -242,3 +205,5 @@ class Downloader:
             return download
 
         return path
+
+

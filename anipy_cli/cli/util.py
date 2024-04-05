@@ -1,20 +1,24 @@
+from pathlib import Path
+from typing import TYPE_CHECKING, Iterator, List, Optional
+
+from InquirerPy import inquirer
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
-from InquirerPy import inquirer
 
-from anipy_cli.cli.colors import cprint, colors, cinput, color
-from anipy_cli.misc import Entry, search_in_season_on_gogo, print_names, error
-from anipy_cli.config import Config
-from anipy_cli.mal import MAL
-from anipy_cli.provider import list_providers
-from typing import TYPE_CHECKING, Iterator, List, Optional, List
 from anipy_cli.anime import Anime
+from anipy_cli.cli.colors import cinput, color, colors, cprint
+from anipy_cli.config import Config
+from anipy_cli.download import Downloader
+from anipy_cli.mal import MAL
+from anipy_cli.misc import error, print_names, search_in_season_on_gogo
+from anipy_cli.provider import list_providers
 
 if TYPE_CHECKING:
     from anipy_cli.player import PlayerBase
-    from anipy_cli.provider import Episode, BaseProvider
+    from anipy_cli.provider import BaseProvider, Episode, ProviderStream
 
-def binge(ep_list, quality, player: 'PlayerBase', mode="", mal_class: MAL = None):
+
+def binge(ep_list, quality, player: "PlayerBase", mode="", mal_class: MAL = None):
     """
     TODO: bruh what is this, let this accept a list of Entry
     Accepts ep_list like so:
@@ -135,14 +139,21 @@ def get_season_searches(gogo=True):
 class DotSpinner(Yaspin):
     def __init__(self, *text_and_colors, **spinner_args):
         super().__init__(
-            text=color(*text_and_colors), color="cyan", spinner=Spinners.dots, **spinner_args
+            text=color(*text_and_colors),
+            color="cyan",
+            spinner=Spinners.dots,
+            **spinner_args,
         )
+
+    def __enter__(self) -> "DotSpinner":
+        self.start()
+        return self
 
     def set_text(self, *text_and_colors):
         self.text = color(*text_and_colors)
 
 
-def search_show_prompt(loop_on_nores: bool = True) -> Optional['Anime']:
+def search_show_prompt(loop_on_nores: bool = True) -> Optional["Anime"]:
     query = inquirer.text(
         "Search Anime:",
         long_instruction="To cancel this prompt press ctrl+z",
@@ -165,7 +176,7 @@ def search_show_prompt(loop_on_nores: bool = True) -> Optional['Anime']:
     if loop_on_nores:
         if len(results) == 0:
             error("no search results")
-            search_show_prompt()
+            return search_show_prompt()
 
     anime = inquirer.fuzzy(
         message="Select Show:",
@@ -177,7 +188,7 @@ def search_show_prompt(loop_on_nores: bool = True) -> Optional['Anime']:
     return anime
 
 
-def pick_episode_prompt(anime: 'Anime', instruction: str = "") -> Optional['Episode']:
+def pick_episode_prompt(anime: "Anime", instruction: str = "") -> Optional["Episode"]:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
         episodes = anime.get_episodes()
 
@@ -190,29 +201,70 @@ def pick_episode_prompt(anime: 'Anime', instruction: str = "") -> Optional['Epis
     ).execute()
 
 
-def pick_episode_range_prompt(anime: 'Anime') -> List['Episode']:
+def pick_episode_range_prompt(anime: "Anime") -> List["Episode"]:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
         episodes = anime.get_episodes()
 
-    res = inquirer.fuzzy(
-        message="Select Episode Range:",
-        choices=episodes,
-        multiselect=True,
-        validate=lambda res: len(res) == 2,
-        instruction="Use ctrl+space to select two episodes and press enter to continue",
-        long_instruction="To skip this prompt press ctrl+z",
-        invalid_message="Select two episodes!",
+    res = inquirer.text(
+        message=f"Input Episode Range(s) from episodes {episodes[0]} to {episodes[-1]}:",
+        long_instruction="Type e.g. `1-10 19-20` or `3-4` or `3`\nTo skip this prompt press ctrl+z",
         mandatory=False,
-        keybindings={"toggle": [{"key": "c-space"}]},
-        transformer=lambda res: f"{res[0]} -> {res[1]}",
     ).execute()
 
-    return episodes[episodes.index(res[0]) : episodes.index(res[1]) + 1]
+    if res is None:
+        return []
+
+    ranges = res.split()
+    picked = set()
+    for r in ranges:
+        numbers = r.split("-")
+        if numbers[0] > numbers[-1]:
+            error(f"invalid range: {r}")
+            return pick_episode_range_prompt(anime)
+
+        picked = picked | set(
+            episodes[episodes.index(parsenum(numbers[0])) : episodes.index(parsenum(numbers[-1])) + 1]
+        )
+
+    return sorted(picked)
 
 
-def get_prefered_providers() -> Iterator['BaseProvider']:
+def get_prefered_providers() -> Iterator["BaseProvider"]:
     preferred_providers = Config().providers
 
     for i in list_providers():
         if i.NAME in preferred_providers:
             yield i()
+
+
+def get_download_path(
+    anime: "Anime",
+    stream: "ProviderStream",
+    parent_directory: Optional[Path] = None,
+) -> Path:
+    config = Config()
+    download_folder = parent_directory or config.download_folder_path
+
+    anime_name = Downloader._get_valid_pathname(anime.name)
+
+    if config.download_remove_dub_from_folder_name:
+        if anime_name.endswith(" (Dub)"):
+            anime_name = f"{anime_name[:-6]}"
+
+    return (
+        download_folder
+        / anime_name
+        / config.download_name_format.format(
+            show_name=anime_name,
+            episode_number=stream.episode,
+            quality=stream.resolution,
+            provider=anime.provider.NAME,
+        )
+    )
+
+
+def parsenum(n: str):
+    try:
+        return int(n)
+    except ValueError:
+        return float(n)
