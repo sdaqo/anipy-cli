@@ -5,6 +5,7 @@ from anipy_cli.cli.clis.base_cli import CliBase
 from anipy_cli.cli.colors import colors, cprint
 from anipy_cli.cli.util import (
     DotSpinner,
+    get_download_path,
     get_season_searches,
     pick_episode_range_prompt,
     search_show_prompt,
@@ -88,6 +89,7 @@ class DownloadCli(CliBase):
         self.episodes = episodes
 
     def process(self):
+        config = Config()
         with DotSpinner("Starting Download...") as s:
             def progress_indicator(percentage: float):
                 s.set_text(f"Progress: {percentage:.1f}%")
@@ -110,8 +112,17 @@ class DownloadCli(CliBase):
 
                 stream = self.anime.get_video(e, self.options.quality)
 
+                info_display(
+                    f"Downloading Episode {stream.episode} of {self.anime.name}"
+                )
                 s.set_text("Downloading...")
-                downloader.download(stream, self.anime, ffmpeg=self.options.ffmpeg)
+
+                downloader.download(
+                    stream,
+                    get_download_path(self.anime, stream),
+                    container=config.remux_to,
+                    ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
+                )
 
     def show(self):
         pass

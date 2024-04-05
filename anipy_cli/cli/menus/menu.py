@@ -2,10 +2,11 @@ import sys
 from typing import TYPE_CHECKING, List
 
 from anipy_cli.cli.colors import colors, cprint
+from anipy_cli.download import Downloader
 from anipy_cli.misc import error
-# from anipy_cli.download import Downloader
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.cli.util import DotSpinner, search_show_prompt, pick_episode_prompt
+from anipy_cli.config import Config
 
 if TYPE_CHECKING:
     from anipy_cli.player import PlayerBase
@@ -110,11 +111,33 @@ class Menu(MenuBase):
         print(f"Quality: {self.stream.resolution}P")
 
     def download_video(self):
-        # path = download(self.entry, self.options.quality).download()
-        # if Config().auto_open_dl_defaultcli:
-        #     self.player.play_file(str(path))
-        # self.print_options()
-        ...
+        with DotSpinner("Starting Download...") as s:
+            def progress_indicator(percentage: float):
+                s.set_text(f"Downloading ({percentage:.1f}%)")
+
+            def info_display(message: str):
+                s.write(f"> {message}")
+
+            downloader = Downloader(progress_indicator, info_display)
+
+            s.set_text(
+                "Extracting streams for ",
+                colors.BLUE,
+                self.anime.name,
+                colors.END,
+                " Episode ",
+                self.stream.episode,
+                "...",
+            )
+        
+            s.set_text("Downloading...")
+            path = downloader.download(self.stream, self.anime, ffmpeg=self.options.ffmpeg)
+        if Config().auto_open_dl_defaultcli:
+            print(path)
+            exit()
+            self.player.play_file(str(path))
+
+        self.print_options()
 
     def quit(self):
         self.player.kill_player()
