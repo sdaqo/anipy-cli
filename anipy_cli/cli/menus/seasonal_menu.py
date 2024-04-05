@@ -1,29 +1,33 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Tuple
+
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
 
-from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
-from anipy_cli.cli.util import DotSpinner, pick_episode_prompt, search_show_prompt
+from anipy_cli.anime import Anime
 from anipy_cli.cli.colors import colors
+from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
+from anipy_cli.cli.util import (
+    DotSpinner,
+    get_download_path,
+    pick_episode_prompt,
+    search_show_prompt,
+)
 from anipy_cli.config import Config
+from anipy_cli.download import Downloader
 from anipy_cli.misc import error
 from anipy_cli.player import get_player
-from anipy_cli.seasonal import (
-    delete_seasonal,
-    get_seasonals,
-    update_seasonal,
-)
-from anipy_cli.anime import Anime
+from anipy_cli.provider.base import Episode
+from anipy_cli.seasonal import delete_seasonal, get_seasonals, update_seasonal
 
 if TYPE_CHECKING:
-    from anipy_cli.arg_parser import CliArgs
+    from anipy_cli.cli.arg_parser import CliArgs
+
 
 class SeasonalMenu(MenuBase):
-    def __init__(self, options: 'CliArgs', rpc_client=None):
+    def __init__(self, options: "CliArgs", rpc_client=None):
         self.rpc_client = rpc_client
         self.options = options
-        self.entry = Entry()
         self.dl_path = Config().seasonals_dl_path
         self.player = get_player(self.rpc_client, self.options.optional_player)
         if options.location:
@@ -43,7 +47,7 @@ class SeasonalMenu(MenuBase):
     def print_header(self):
         pass
 
-    def _choose_latest(self) -> List[Choice]:
+    def _choose_latest(self) -> List[Tuple["Anime", List["Episode"]]]:
         with DotSpinner("Fetching status of shows in seasonals..."):
             choices = []
             for s in list(get_seasonals().seasonals.values()):
@@ -57,7 +61,20 @@ class SeasonalMenu(MenuBase):
                     )
                     choices.append(ch)
 
-        return choices
+        style = get_style(
+            {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+        )
+
+        choices = inquirer.fuzzy(
+            message="Select Seasonals to catch up to:",
+            choices=choices,
+            multiselect=True,
+            long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
+            mandatory=False,
+            keybindings={"toggle": [{"key": "c-space"}]},
+            style=style,
+        ).execute()
+        return choices or []
 
     def add_anime(self):
         # if (
@@ -115,28 +132,47 @@ class SeasonalMenu(MenuBase):
         for i in list(get_seasonals().seasonals.values()):
             print(i)
 
-        style = get_style(
-            {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
-        )
-        return (
-            inquirer.fuzzy(
-                message="Select Seasonals to catch up to:",
-                choices=choices,
-                multiselect=True,
-                long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
-                mandatory=False,
-                keybindings={"toggle": [{"key": "c-space"}]},
-                style=style,
-            ).execute()
-            or []
-        )
-
     def download_latest(self):
         choices = self._choose_latest()
-        ...
-        # def progress_indicator():
-        #
-        # downloader = Downloader()
+        config = Config()
+        with DotSpinner("Starting Download...") as s:
+
+            def progress_indicator(percentage: float):
+                s.set_text(f"Progress: {percentage:.1f}%")
+
+            def info_display(message: str):
+                s.write(f"> {message}")
+
+            downloader = Downloader(progress_indicator, info_display)
+
+            for anime, eps in choices:
+                for ep in eps:
+                    s.set_text(
+                        "Extracting streams for ",
+                        colors.BLUE,
+                        anime.name,
+                        colors.END,
+                        " Episode ",
+                        ep,
+                        "...",
+                    )
+
+                    stream = anime.get_video(ep, self.options.quality)
+
+                    info_display(
+                        f"Downloading Episode {stream.episode} of {anime.name}"
+                    )
+                    s.set_text("Downloading...")
+
+                    downloader.download(
+                        stream,
+                        get_download_path(anime, stream, parent_directory=config.seasonals_dl_path),
+                        container=config.remux_to,
+                        ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
+                    )
+                    update_seasonal(anime, ep)
+        
+        self.print_options(clear_screen=True)
 
     def binge_latest(self):
         picked = self._choose_latest()

@@ -1,14 +1,12 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, Optional, Union
+from typing import Dict, Optional, Union
 
 from dataclasses_json import config, dataclass_json
 
 from anipy_cli.config import Config
 from anipy_cli.provider import Episode
-
-if TYPE_CHECKING:
-    from anipy_cli.anime import Anime
+from anipy_cli.anime import Anime
 
 
 @dataclass_json

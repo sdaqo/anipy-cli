@@ -42,7 +42,8 @@ def error(error: str) -> None:
     Error function for better error handling,
     that takes an error and prints it to stderr.
     """
-    sys.stderr.write(color(colors.ERROR, "anipy-cli: error: " + error) + "\n")
+    # sys.stderr.write(color(colors.ERROR, "anipy-cli: error: " + error) + "\n")
+    sys.stderr.write(f"anipy-cli: error: {error}\n")
 
 
 def response_err(req, link) -> None:

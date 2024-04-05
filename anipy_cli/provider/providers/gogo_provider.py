@@ -18,7 +18,6 @@ from anipy_cli.provider import (
 )
 from anipy_cli.error import BeautifulSoupLocationError
 from anipy_cli.provider.utils import request_page, memoized_method, parsenum
-from anipy_cli.config import Config
 
 if TYPE_CHECKING:
     from anipy_cli.provider import Episode
