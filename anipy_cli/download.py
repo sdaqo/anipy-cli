@@ -1,7 +1,7 @@
 import json
 import shutil
 import sys
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Protocol
 from urllib.parse import urljoin
@@ -56,6 +56,7 @@ class Downloader:
     def m3u8_download(self, stream: "ProviderStream", download_path: Path) -> Path:
         temp_folder = download_path.parent / "temp"
         temp_folder.mkdir(exist_ok=True)
+        download_path = download_path.with_suffix(".ts")
 
         res = self._session.get(stream.url)
         if not res.ok:
@@ -82,18 +83,26 @@ class Downloader:
                 counter += 1
                 self.progress_callback(counter / len(m3u8_content.segments) * 100)
             except Exception as e:
+                # TODO: This gets ignored, because it's in a seperate thread...
                 raise DownloadError(
                     f"Encountered this error while downloading: {str(e)}"
                 )
 
         try:
-            with ThreadPoolExecutor(12) as pool_video:
-                pool_video.map(download_ts, m3u8_content.segments)
+            with ThreadPoolExecutor(max_workers=12) as pool_video:
+                futures = [pool_video.submit(download_ts, s) for s in m3u8_content.segments]
+                try:
+                    for future in as_completed(futures):
+                        future.result()
+                except KeyboardInterrupt:
+                    self.info_callback("Download Interrupted, cancelling threads, this may take a while...")
+                    pool_video.shutdown(wait=False, cancel_futures=True)
+                    raise
 
             self.info_callback("Parts Downloaded")
 
             self.info_callback("Merging Parts...")
-            with download_path.with_suffix(".ts").open("wb") as merged:
+            with download_path.open("wb") as merged:
                 for segment in m3u8_content.segments:
                     fname = temp_folder / self._get_valid_pathname(segment.uri)
                     if not fname.is_file():
@@ -107,11 +116,12 @@ class Downloader:
             self.info_callback("Merge Finished")
             shutil.rmtree(temp_folder)
 
-            return download_path.with_suffix(".ts")
+            return download_path
         except KeyboardInterrupt:
             self.info_callback("Download Interrupted, deleting partial file.")
-            download_path.unlink()
+            download_path.unlink(missing_ok=True)
             shutil.rmtree(temp_folder)
+            raise
 
     def mp4_download(self, stream: "ProviderStream", download_path: Path) -> Path:
         r = self._session.get(stream.url, stream=True)
@@ -124,6 +134,7 @@ class Downloader:
         except KeyboardInterrupt:
             self.info_callback("Download Interrupted, deleting partial file.")
             download_path.unlink()
+            raise
 
         self.info_callback("Download finished.")
 
@@ -157,6 +168,7 @@ class Downloader:
         except KeyboardInterrupt:
             self.info_callback("interrupted deleting partially downloaded file")
             download_path.unlink()
+            raise
 
         return download_path
 
@@ -196,7 +208,6 @@ class Downloader:
             if container == path.suffix:
                 return path
             self.info_callback(f"Remuxing to {container} container")
-            # little bit hacky...
             new_path = path.with_suffix(container)
             download = self.ffmpeg_download(
                 ProviderStream(str(path), stream.resolution, stream.episode), new_path

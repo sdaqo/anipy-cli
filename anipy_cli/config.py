@@ -8,7 +8,6 @@ from appdirs import user_data_dir, user_config_dir
 
 import yaml
 
-from anipy_cli.error import SysNotFoundError
 from anipy_cli.version import __version__, __appname__
 
 

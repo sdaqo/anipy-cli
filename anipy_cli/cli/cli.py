@@ -45,5 +45,8 @@ def run_cli(override_args: Optional[list[str]] = None):
     }
 
     cli_class = clis_dict.get(True, DefaultCli)
-
-    cli_class(options=args, rpc_client=rpc_client).run()
+    
+    try:
+        cli_class(options=args, rpc_client=rpc_client).run()
+    except KeyboardInterrupt:
+        error("interrupted", fatal=True)
