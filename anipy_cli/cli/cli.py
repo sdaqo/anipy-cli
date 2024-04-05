@@ -1,27 +1,38 @@
-from anipy_cli.misc import dc_presence_connect
-from anipy_cli.error import CliError
+from typing import Optional
+from pypresence.exceptions import DiscordNotFound
+
+from anipy_cli.discord import dc_presence_connect
 from anipy_cli.cli.arg_parser import parse_args
 from anipy_cli.config import Config
+from anipy_cli.cli.util import error
 from anipy_cli.cli.colors import cprint, colors
 from anipy_cli.cli.clis import *
 
 
-def run_cli(args: list[str] = None) -> None:
-    args = parse_args(args)
+def run_cli(override_args: Optional[list[str]] = None):
+    args = parse_args(override_args)
 
     rpc_client = None
     if Config().dc_presence:
-        rpc_client = dc_presence_connect()
+        try:
+            rpc_client = dc_presence_connect()
+            # cprint(colors.GREEN, "Initialized Discord Presence Client")
+        except DiscordNotFound:
+            rpc_client = None
+            # cprint(colors.RED, "Discord is not opened, can't initialize Discord Presence")
+        except ConnectionError:
+            rpc_client = None
+            # cprint(colors.RED, "Can't Connect to discord.")
 
     if args.config:
         print(Config()._config_file)
         return
     elif args.delete:
         try:
-            Config().history_file_path.unlink()
+            Config()._history_file_path.unlink()
             cprint(colors.RED, "Done")
         except FileNotFoundError:
-            raise CliError("no history file found")
+            error("no history file found")
         return
 
     clis_dict = {

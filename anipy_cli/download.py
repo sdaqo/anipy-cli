@@ -205,5 +205,3 @@ class Downloader:
             return download
 
         return path
-
-

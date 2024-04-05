@@ -1,10 +1,12 @@
 import sys
+import os
 from typing import Callable, List
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
-from anipy_cli.misc import error, clear_console
 from anipy_cli.cli.colors import colors, color
+from anipy_cli.cli.util import error
+
 
 @dataclass(frozen=True)
 class MenuOption:
@@ -43,10 +45,7 @@ class MenuBase(ABC):
 
     def print_options(self, clear_screen=True):
         if clear_screen:
-            clear_console()
+            os.system("cls" if os.name == "nt" else "clear")
         self.print_header()
         for op in self.menu_options:
             print(op)
-
-    def quit(self):
-        sys.exit()

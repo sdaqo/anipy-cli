@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 from typing import TYPE_CHECKING, Iterator, List, Optional
 
 from InquirerPy import inquirer
@@ -9,8 +10,8 @@ from anipy_cli.anime import Anime
 from anipy_cli.cli.colors import cinput, color, colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.download import Downloader
-from anipy_cli.mal import MAL
-from anipy_cli.misc import error, print_names, search_in_season_on_gogo
+
+# from anipy_cli.mal import MAL
 from anipy_cli.provider import list_providers
 
 if TYPE_CHECKING:
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     from anipy_cli.provider import BaseProvider, Episode, ProviderStream
 
 
-def binge(ep_list, quality, player: "PlayerBase", mode="", mal_class: MAL = None):
+def binge(ep_list, quality, player: "PlayerBase", mode="", mal_class=None):
     """
     TODO: bruh what is this, let this accept a list of Entry
     Accepts ep_list like so:
@@ -95,7 +96,8 @@ def get_season_searches(gogo=True):
             anime_in_season = search_in_season_on_gogo(season_year, season_name)
 
         else:
-            anime_in_season = MAL().get_seasonal_anime(season_year, season_name)
+            # anime_in_season = MAL().get_seasonal_anime(season_year, season_name)
+            ...
 
         spinner.ok("✔")
 
@@ -223,7 +225,12 @@ def pick_episode_range_prompt(anime: "Anime") -> List["Episode"]:
             return pick_episode_range_prompt(anime)
 
         picked = picked | set(
-            episodes[episodes.index(parsenum(numbers[0])) : episodes.index(parsenum(numbers[-1])) + 1]
+            episodes[
+                episodes.index(parsenum(numbers[0])) : episodes.index(
+                    parsenum(numbers[-1])
+                )
+                + 1
+            ]
         )
 
     return sorted(picked)
@@ -268,3 +275,62 @@ def parsenum(n: str):
         return int(n)
     except ValueError:
         return float(n)
+
+
+def search_in_season_on_gogo(s_year, s_name):
+    # page = 1
+    # content = True
+    # gogo_anime_season_list = []
+    # while content:
+    #     r = requests.get(
+    #         f"{Config().gogoanime_url}/sub-category/{s_name}-{s_year}-anime",
+    #         params={"page": page},
+    #     )
+    #     soup = BeautifulSoup(r.content, "html.parser")
+    #     wrapper_div = soup.find("div", attrs={"class": "last_episodes"})
+    #     try:
+    #         anime_items = wrapper_div.findAll("li")
+    #         for link in anime_items:
+    #             link_a = link.find("p", attrs={"class": "name"}).find("a")
+    #             name = link_a.get("title")
+    #             gogo_anime_season_list.append(
+    #                 {
+    #                     "name": name,
+    #                     "category_url": "{}{}".format(
+    #                         Config().gogoanime_url, link_a.get("href")
+    #                     ),
+    #                 }
+    #             )
+    #
+    #     except AttributeError:
+    #         content = False
+    #
+    #     page += 1
+    # filtered_list = filter_anime_list_dub_sub(gogo_anime_season_list)
+    #
+    # return filtered_list
+    ...
+
+
+def filter_anime_list_dub_sub(gogo_anime_season_list):
+    if "sub" not in Config().anime_types and "dub" in Config().anime_types:
+        filtered_list = [
+            x for x in gogo_anime_season_list if "(dub)" in x["name"].lower()
+        ]
+
+    elif "dub" not in Config().anime_types and "sub" in Config().anime_types:
+        filtered_list = [
+            x for x in gogo_anime_season_list if "(dub)" not in x["name"].lower()
+        ]
+
+    else:
+        filtered_list = gogo_anime_season_list
+    return filtered_list
+
+
+def error(error: str, fatal: bool = False):
+    if not fatal:
+        sys.stderr.write(f"anipy-cli: error: {error}\n")
+    else:
+        sys.stderr.write(f"anipy-cli: fatal error: {error}, exiting\n")
+        sys.exit(1)

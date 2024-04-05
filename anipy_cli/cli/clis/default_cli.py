@@ -1,3 +1,4 @@
+import sys
 from typing import TYPE_CHECKING
 
 from anipy_cli.player import get_player
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 
 # TODO: Add Resume feature
 class DefaultCli(CliBase):
-    def __init__(self, options: 'CliArgs', rpc_client=None):
+    def __init__(self, options: "CliArgs", rpc_client=None):
         super().__init__(options, rpc_client)
 
         self.player = get_player(self.rpc_client, self.options.optional_player)
@@ -28,7 +29,7 @@ class DefaultCli(CliBase):
         anime = search_show_prompt()
 
         if anime is None:
-            self.exit("No Anime Chosen")
+            sys.exit(0)
 
         episode = pick_episode_prompt(anime)
 

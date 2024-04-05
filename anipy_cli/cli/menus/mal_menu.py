@@ -1,14 +1,15 @@
+import sys
 from typing import List
 
 from anipy_cli.cli.arg_parser import CliArgs
 from anipy_cli.cli.colors import colors, cprint, cinput
-from anipy_cli.misc import Entry, print_names, error
 from anipy_cli.player import get_player
-from os import system as query 
+from os import system as query
+
 # from anipy_cli.download import Downloader
 from anipy_cli.config import Config
 from anipy_cli.mal import MAL
-from anipy_cli.cli.util import binge, get_season_searches
+from anipy_cli.cli.util import binge, get_season_searches, error
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 
 
@@ -409,3 +410,6 @@ class MALMenu(MenuBase):
                             search_name = " ".join(search_name_parts)
         self.m_class.write_save_data()
         self.m_class.write_mal_list()
+
+    def quit(self):
+        sys.exit(0)

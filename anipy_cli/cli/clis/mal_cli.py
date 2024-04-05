@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 class MalCli(CliBase):
-    def __init__(self, options: 'CliArgs', rpc_client=None):
+    def __init__(self, options: "CliArgs", rpc_client=None):
         super().__init__(options, rpc_client)
 
     def print_header(self):

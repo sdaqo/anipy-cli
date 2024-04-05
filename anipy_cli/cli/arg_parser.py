@@ -5,6 +5,7 @@ from typing import Union, Optional
 
 from anipy_cli.version import __version__
 
+
 @dataclass(frozen=True)
 class CliArgs:
     download: bool
@@ -23,7 +24,7 @@ class CliArgs:
     config: bool
 
 
-def parse_args(args: list[str] = None) -> CliArgs:
+def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
     parser = argparse.ArgumentParser(
         description="Play Animes from gogoanime in local video-player or Download them.",
         add_help=False,
@@ -175,4 +176,4 @@ def parse_args(args: list[str] = None) -> CliArgs:
         help="Print path to the config file.",
     )
 
-    return CliArgs(**vars(parser.parse_args(args=args)))
+    return CliArgs(**vars(parser.parse_args(args=override_args)))

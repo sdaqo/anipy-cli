@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List
 from abc import ABC, abstractmethod
 
 from anipy_cli.history import update_history
-from anipy_cli.misc import dc_presence
+from anipy_cli.discord import dc_presence
 from anipy_cli.error import PlayerError
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ class PlayerBase(ABC):
         pass
 
     @abstractmethod
-    def play_title(self, anime: 'Anime', stream: 'ProviderStream'):
+    def play_title(self, anime: "Anime", stream: "ProviderStream"):
         pass
 
     @abstractmethod
@@ -34,7 +34,7 @@ class PlayerBase(ABC):
     def kill_player(self):
         pass
 
-    def _start_dc_presence(self, anime: 'Anime', stream: 'ProviderStream'):
+    def _start_dc_presence(self, anime: "Anime", stream: "ProviderStream"):
         if self.rpc_client:
             dc_media_title = (
                 f"{anime.name} | {stream.episode}/{anime.get_episodes()[-1]}"
@@ -42,11 +42,11 @@ class PlayerBase(ABC):
             dc_presence(dc_media_title, anime.get_info(), self.rpc_client)
 
     @staticmethod
-    def _write_hist(anime: 'Anime', stream: 'ProviderStream'):
+    def _write_hist(anime: "Anime", stream: "ProviderStream"):
         update_history(anime, stream.episode)
 
     @staticmethod
-    def _get_media_title(anime: 'Anime', stream: 'ProviderStream'):
+    def _get_media_title(anime: "Anime", stream: "ProviderStream"):
         return f"{anime.name} - E{stream.episode} - {stream.resolution}"
 
 
@@ -63,7 +63,7 @@ class SubProcessPlayerBase(PlayerBase):
     def rpc_client(self):
         return self._rpc_client
 
-    def play_title(self, anime: 'Anime', stream: 'ProviderStream'):
+    def play_title(self, anime: "Anime", stream: "ProviderStream"):
         player_cmd = [
             i.format(
                 media_title=self._get_media_title(anime, stream), stream_url=stream.url

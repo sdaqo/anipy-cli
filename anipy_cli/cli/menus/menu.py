@@ -2,25 +2,31 @@ import sys
 from typing import TYPE_CHECKING, List
 
 from anipy_cli.cli.colors import colors, cprint
-from anipy_cli.download import Downloader
-from anipy_cli.misc import error
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
-from anipy_cli.cli.util import DotSpinner, search_show_prompt, pick_episode_prompt
+from anipy_cli.cli.util import (
+    DotSpinner,
+    error,
+    pick_episode_prompt,
+    search_show_prompt,
+    get_download_path,
+)
 from anipy_cli.config import Config
+from anipy_cli.download import Downloader
 
 if TYPE_CHECKING:
-    from anipy_cli.player import PlayerBase
-    from anipy_cli.provider import ProviderStream, Episode
-    from anipy_cli.cli.arg_parser import CliArgs
     from anipy_cli.anime import Anime
+    from anipy_cli.cli.arg_parser import CliArgs
+    from anipy_cli.player import PlayerBase
+    from anipy_cli.provider import Episode, ProviderStream
+
 
 class Menu(MenuBase):
     def __init__(
         self,
-        options: 'CliArgs',
-        anime: 'Anime',
-        stream: 'ProviderStream',
-        player: 'PlayerBase',
+        options: "CliArgs",
+        anime: "Anime",
+        stream: "ProviderStream",
+        player: "PlayerBase",
         rpc_client=None,
     ):
         self.rpc_client = rpc_client
@@ -30,7 +36,7 @@ class Menu(MenuBase):
         self.player = player
 
     @property
-    def menu_options(self) -> List['MenuOption']:
+    def menu_options(self) -> List["MenuOption"]:
         return [
             MenuOption("Next Episode", self.next_ep, "n"),
             MenuOption("Previous Episode", self.prev_ep, "p"),
@@ -49,12 +55,12 @@ class Menu(MenuBase):
             colors.BLUE,
             self.anime.name,
             colors.GREEN,
-            f" | {self.stream.resolution} | ",
+            f" | {self.stream.resolution}P | ",
             colors.RED,
             f"{self.stream.episode}/{self.anime.get_episodes()[-1]}",
         )
 
-    def _start_episode(self, episode: 'Episode'):
+    def _start_episode(self, episode: "Episode"):
         with DotSpinner(
             "Extracting streams for ",
             colors.BLUE,
@@ -93,7 +99,10 @@ class Menu(MenuBase):
         self._start_episode(self.stream.episode)
 
     def selec_ep(self):
-        self._start_episode(pick_episode_prompt(self.anime))
+        episode = pick_episode_prompt(self.anime)
+        if episode is None:
+            return
+        self._start_episode(episode)
         self.print_options()
 
     def search(self):
@@ -101,7 +110,10 @@ class Menu(MenuBase):
         if search_result is None:
             return
         self.anime = search_result
-        self._start_episode(pick_episode_prompt(self.anime))
+        episode = pick_episode_prompt(self.anime)
+        if episode is None:
+            return
+        self._start_episode(episode)
         self.print_options(clear_screen=True)
 
     def video_info(self):
@@ -111,7 +123,9 @@ class Menu(MenuBase):
         print(f"Quality: {self.stream.resolution}P")
 
     def download_video(self):
+        config = Config()
         with DotSpinner("Starting Download...") as s:
+
             def progress_indicator(percentage: float):
                 s.set_text(f"Downloading ({percentage:.1f}%)")
 
@@ -129,12 +143,17 @@ class Menu(MenuBase):
                 self.stream.episode,
                 "...",
             )
-        
+
             s.set_text("Downloading...")
-            path = downloader.download(self.stream, self.anime, ffmpeg=self.options.ffmpeg)
+
+            path = downloader.download(
+                self.stream,
+                get_download_path(self.anime, self.stream),
+                container=config.remux_to,
+                ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
+            )
+
         if Config().auto_open_dl_defaultcli:
-            print(path)
-            exit()
             self.player.play_file(str(path))
 
         self.print_options()

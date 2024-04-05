@@ -12,11 +12,14 @@ from requests.adapters import HTTPAdapter, Retry
 
 from os import system as epHandler
 from anipy_cli.seasonal import Seasonals as Seasonal
+
 # TODO: ...
 from os import system as query
 from anipy_cli.cli.colors import colors, cprint
 from anipy_cli.config import Config
-from anipy_cli.misc import read_json, error, Entry
+
+# from anipy_cli.misc import read_json, error, Entry
+from anipy_cli.cli.util import error
 
 
 def _base64_decode(b64: str):
@@ -407,8 +410,7 @@ class MAL:
                 json.dump(self.local_mal_list_json, f, indent=4)
 
         except PermissionError:
-            error("Unable to write to local MAL-list file due permissions.")
-            sys.exit()
+            error("Unable to write to local MAL-list file due permissions.", fatal=True)
 
     def write_mal_list(self):
         for show_entry in self.anime_list["data"]:

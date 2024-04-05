@@ -1,3 +1,4 @@
+import sys
 from typing import TYPE_CHECKING, List, Tuple
 
 from InquirerPy import inquirer
@@ -12,10 +13,10 @@ from anipy_cli.cli.util import (
     get_download_path,
     pick_episode_prompt,
     search_show_prompt,
+    error,
 )
 from anipy_cli.config import Config
 from anipy_cli.download import Downloader
-from anipy_cli.misc import error
 from anipy_cli.player import get_player
 from anipy_cli.provider.base import Episode
 from anipy_cli.seasonal import delete_seasonal, get_seasonals, update_seasonal
@@ -166,12 +167,14 @@ class SeasonalMenu(MenuBase):
 
                     downloader.download(
                         stream,
-                        get_download_path(anime, stream, parent_directory=config.seasonals_dl_path),
+                        get_download_path(
+                            anime, stream, parent_directory=config.seasonals_dl_path
+                        ),
                         container=config.remux_to,
                         ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
                     )
                     update_seasonal(anime, ep)
-        
+
         self.print_options(clear_screen=True)
 
     def binge_latest(self):
@@ -197,3 +200,7 @@ class SeasonalMenu(MenuBase):
                 update_seasonal(anime, e)
 
         self.print_options()
+
+    def quit(self):
+        self.player.kill_player()
+        sys.exit(0)

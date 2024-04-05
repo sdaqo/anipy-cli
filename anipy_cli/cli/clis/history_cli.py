@@ -1,3 +1,4 @@
+import sys
 from InquirerPy import inquirer
 from typing import TYPE_CHECKING, Optional
 
@@ -16,14 +17,14 @@ if TYPE_CHECKING:
 
 
 class HistoryCli(CliBase):
-    def __init__(self, options: 'CliArgs', rpc_client=None):
+    def __init__(self, options: "CliArgs", rpc_client=None):
         super().__init__(options, rpc_client)
 
         self.player = get_player(self.rpc_client, self.options.optional_player)
 
         self.anime: Optional[Anime] = None
-        self.history_entry: Optional['HistoryEntry'] = None
-        self.stream: Optional['ProviderStream'] = None
+        self.history_entry: Optional["HistoryEntry"] = None
+        self.stream: Optional["ProviderStream"] = None
 
     def print_header(self):
         pass
@@ -33,7 +34,8 @@ class HistoryCli(CliBase):
         history.sort(key=lambda h: h.timestamp, reverse=True)
 
         if not history:
-            self.exit("You have no History")
+            print("You have no History, exiting")
+            sys.exit(0)
 
         entry = inquirer.select(
             message="Select History Entry:",

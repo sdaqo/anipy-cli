@@ -6,7 +6,7 @@ from anipy_cli.cli.colors import colors, cprint
 from anipy_cli.cli.util import (
     DotSpinner,
     get_download_path,
-    get_season_searches,
+    # get_season_searches,
     pick_episode_range_prompt,
     search_show_prompt,
 )
@@ -20,11 +20,11 @@ if TYPE_CHECKING:
 
 
 class DownloadCli(CliBase):
-    def __init__(self, options: 'CliArgs', rpc_client=None):
+    def __init__(self, options: "CliArgs", rpc_client=None):
         super().__init__(options, rpc_client)
 
-        self.anime: Optional['Anime'] = None
-        self.episodes: Optional[List['Episode']] = None
+        self.anime: Optional["Anime"] = None
+        self.episodes: Optional[List["Episode"]] = None
 
         self.dl_path = Config().download_folder_path
         if options.location:
@@ -81,7 +81,7 @@ class DownloadCli(CliBase):
         anime = search_show_prompt()
 
         if anime is None:
-            sys.exit()
+            sys.exit(0)
 
         episodes = pick_episode_range_prompt(anime)
 
@@ -91,6 +91,7 @@ class DownloadCli(CliBase):
     def process(self):
         config = Config()
         with DotSpinner("Starting Download...") as s:
+
             def progress_indicator(percentage: float):
                 s.set_text(f"Progress: {percentage:.1f}%")
 

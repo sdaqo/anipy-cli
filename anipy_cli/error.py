@@ -21,8 +21,3 @@ class DownloadError(Exception):
 class PlayerError(Exception):
     def __init__(self, message):
         super().__init__(message)
-
-class CliError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
-
