@@ -9,16 +9,14 @@ from urllib.parse import urljoin
 import m3u8
 import requests
 from ffmpeg import FFmpeg, Progress
-from ffmpeg.utils import parse_time
 from requests.adapters import HTTPAdapter, Retry
 
-from anipy_cli.cli.colors import color, colors
 from anipy_cli.config import Config
 from anipy_cli.error import DownloadError, RequestError
+from anipy_cli.provider import ProviderStream
 
 if TYPE_CHECKING:
     from anipy_cli.anime import Anime
-    from anipy_cli.provider import ProviderStream
 
 
 class ProgressCallback(Protocol):
@@ -172,7 +170,6 @@ class Downloader:
             .output(
                 download_path,
                 {"c:v": "copy", "c:a": "copy", "c:s": "mov_text"},
-                format="mp4",
             )
         )
 
@@ -203,18 +200,45 @@ class Downloader:
         download_path.parent.mkdir(parents=True, exist_ok=True)
 
         self.info_callback(f"Downloading Episode {stream.episode} from {anime.name}")
+
+        for p in download_path.parent.iterdir():
+            if p.with_suffix("").name == download_path.name:
+                self.info_callback("Episode is already downloaded, skipping")
+                return p
+
         if "m3u8" in stream.url:
             if ffmpeg or config.ffmpeg_hls:
-                self.info_callback("Using FFMPEG downloader")
-                return self.ffmpeg_download(stream, download_path)
+                if config.remux_to:
+                    suffix = config.remux_to
+                else:
+                    suffix = ".mp4"
 
-            self.info_callback("Using internal M3U8 downloader")
-            path = self.m3u8_download(stream, download_path)
+                download_path = download_path.with_suffix(suffix)
+                self.info_callback("Using FFMPEG downloader")
+                self.info_callback(f"Saving to a {suffix} container")
+                path = self.ffmpeg_download(stream, download_path)
+            else:
+                self.info_callback("Using internal M3U8 downloader")
+                path = self.m3u8_download(stream, download_path)
         elif "mp4" in stream.url:
             self.info_callback("Using internal MP4 downloader")
-            return self.mp4_download(stream, download_path)
+            path = self.mp4_download(stream, download_path.with_suffix(".mp4"))
         else:
             self.info_callback(
                 "No fitting downloader available for stream, using FFMPEG downloader as fallback"
             )
-            return self.ffmpeg_download(stream, download_path)
+            path = self.ffmpeg_download(stream, download_path)
+
+        if config.remux_to:
+            if config.remux_to == path.suffix:
+                return path
+            self.info_callback(f"Remuxing to {config.remux_to} container")
+            # little bit hacky...
+            new_path = path.with_suffix(config.remux_to)
+            download = self.ffmpeg_download(
+                ProviderStream(str(path), stream.resolution, stream.episode), new_path
+            )
+            path.unlink()
+            return download
+
+        return path

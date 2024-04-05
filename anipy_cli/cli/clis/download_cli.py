@@ -15,7 +15,7 @@ from anipy_cli.download import Downloader
 if TYPE_CHECKING:
     from anipy_cli.anime import Anime
     from anipy_cli.cli.arg_parser import CliArgs
-    from anipy_cli.provider.base_provider import Episode
+    from anipy_cli.provider import Episode
 
 
 class DownloadCli(CliBase):
@@ -90,7 +90,7 @@ class DownloadCli(CliBase):
     def process(self):
         with DotSpinner("Starting Download...") as s:
             def progress_indicator(percentage: float):
-                s.set_text(f"Downloading ({percentage:.1f}%)")
+                s.set_text(f"Progress: {percentage:.1f}%")
 
             def info_display(message: str):
                 s.write(f"> {message}")

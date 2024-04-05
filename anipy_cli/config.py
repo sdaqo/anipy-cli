@@ -131,12 +131,13 @@ class Config:
     def remux_to(self):
         """
         Remux resulting download to a specific container using ffmpeg.
+        You can use about any conatainer supported by ffmpeg: `.your-container`.
 
         Examples:
-            remux_to: mkv # remux all downloads to mkv
-            remux_to mp4 # downloads with ffmpeg default to a mp4 container,
+            remux_to: .mkv # remux all downloads to .mkv container
+            remux_to .mp4 # downloads with ffmpeg default to a .mp4 container,
             with this option the internal downloader's downloads also get remuxed
-            remux_to: None or remux_to: "" # do not remux
+            remux_to: null or remux_to: "" # do not remux
         """
         return self._get_value("remux_to", None, str)
 
