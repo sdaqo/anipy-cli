@@ -29,12 +29,12 @@ class Seasonals:
     seasonals: Dict[str, SeasonalEntry]
 
     def write(self):
-        season_file = Config()._seasonal_file_path
+        season_file = Config().seasonal_file_path
         season_file.write_text(self.to_json())
 
     @staticmethod
     def read() -> 'Seasonals':
-        season_file = Config()._seasonal_file_path
+        season_file = Config().seasonal_file_path
 
         if not season_file.is_file():
             season_file.parent.mkdir(exist_ok=True, parents=True)
@@ -102,7 +102,7 @@ def update_seasonal(anime: Union['Anime', SeasonalEntry], episode: 'Episode'):
 def _migrate_seasonals():
     import json
 
-    season_file = Config()._seasonal_file_path
+    season_file = Config().seasonal_file_path
     old_data = json.load(season_file.open("r"))
     new_seasonals = Seasonals({})
 

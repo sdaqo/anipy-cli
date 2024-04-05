@@ -132,14 +132,18 @@ def get_season_searches(gogo=True):
     return searches
 
 
-class DotSpinner(Yaspin):
-    def __init__(self, *text_and_colors, **spinner_args):
-        super().__init__(
-            text=color(*text_and_colors), color="cyan", spinner=Spinners.dots, **spinner_args
+class DotSpinner:
+    def __init__(self, *text_and_colors):
+        self.spinner = Yaspin(
+            text=color(*text_and_colors), color="cyan", spinner=Spinners.dots
         )
 
-    def set_text(self, *text_and_colors):
-        self.text = color(*text_and_colors)
+    def __enter__(self):
+        self.spinner.__enter__()
+        return self.spinner
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.spinner.__exit__(exc_type, exc_val, exc_tb)
 
 
 def search_show_prompt(loop_on_nores: bool = True) -> Optional['Anime']:

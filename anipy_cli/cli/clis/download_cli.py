@@ -1,27 +1,21 @@
 import sys
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional, List
 
-from anipy_cli.cli.clis.base_cli import CliBase
-from anipy_cli.cli.colors import colors, cprint
-from anipy_cli.cli.util import (
-    DotSpinner,
-    get_season_searches,
-    pick_episode_range_prompt,
-    search_show_prompt,
-)
 from anipy_cli.config import Config
+from anipy_cli.cli.colors import cprint, colors
 from anipy_cli.download import Downloader
+from anipy_cli.cli.util import DotSpinner, get_season_searches, pick_episode_range_prompt, search_show_prompt
+from anipy_cli.cli.clis.base_cli import CliBase
 
 if TYPE_CHECKING:
     from anipy_cli.anime import Anime
     from anipy_cli.cli.arg_parser import CliArgs
     from anipy_cli.provider.base_provider import Episode
 
-
 class DownloadCli(CliBase):
     def __init__(self, options: 'CliArgs', rpc_client=None):
         super().__init__(options, rpc_client)
-
+        
         self.anime: Optional['Anime'] = None
         self.episodes: Optional[List['Episode']] = None
 
@@ -88,31 +82,29 @@ class DownloadCli(CliBase):
         self.episodes = episodes
 
     def process(self):
-        with DotSpinner("Starting Download...") as s:
-            def progress_indicator(percentage: float):
-                s.set_text(f"Downloading ({percentage:.1f}%)")
+        def progress_indicator(percentage: float):
+            ...
 
-            def info_display(message: str):
-                s.write(f"> {message}")
+        def info_display(message: str):
+            print(message)
+        
+        downloader = Downloader(progress_indicator, info_display)
 
-            downloader = Downloader(progress_indicator, info_display)
-
-            for e in self.episodes:
-                s.set_text(
-                    "Extracting streams for ",
-                    colors.BLUE,
-                    self.anime.name,
-                    colors.END,
-                    " Episode ",
-                    e,
-                    "...",
-                )
-
+        for e in self.episodes:
+            with DotSpinner(
+                "Extracting streams for ",
+                colors.BLUE,
+                self.anime.name,
+                colors.END,
+                " Episode ",
+                e,
+                "...",
+            ) as s:
                 stream = self.anime.get_video(e, self.options.quality)
+                s.ok("✔")
 
-                s.set_text("Downloading...")
-                downloader.download(stream, self.anime, ffmpeg=self.options.ffmpeg)
-
+            downloader.download(stream, self.anime, ffmpeg=self.options.ffmpeg)
+            
     def show(self):
         pass
 

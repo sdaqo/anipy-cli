@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, no_type_check
+from typing import TYPE_CHECKING
 
 from anipy_cli.player import get_player
 from anipy_cli.cli.menus import Menu
@@ -44,12 +44,12 @@ class DefaultCli(CliBase):
             self.epsiode,
             "...",
         ):
-            self.stream = self.anime.get_video(self.epsiode, self.options.quality) 
+            self.stream = self.anime.get_video(self.epsiode, self.options.quality)
 
     def show(self):
         self.player.play_title(self.anime, self.stream)
 
-    def post(self): 
+    def post(self):
         Menu(
             options=self.options,
             anime=self.anime,

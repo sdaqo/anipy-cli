@@ -6,8 +6,8 @@ from anipy_cli.cli.colors import cprint, colors
 from anipy_cli.cli.clis import *
 
 
-def run_cli(args: list[str] = None) -> None:
-    args = parse_args(args)
+def run_cli() -> None:
+    args = parse_args()
 
     rpc_client = None
     if Config().dc_presence:
