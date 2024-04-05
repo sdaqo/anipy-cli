@@ -47,7 +47,7 @@ class PlayerBase(ABC):
 
     @staticmethod
     def _get_media_title(anime: "Anime", stream: "ProviderStream"):
-        return f"{anime.name} - E{stream.episode} - {stream.resolution}"
+        return f"[{anime.provider.NAME}] {anime.name} E{stream.episode} [{stream.resolution}p]"
 
 
 class SubProcessPlayerBase(PlayerBase):

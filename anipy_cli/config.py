@@ -152,7 +152,7 @@ class Config:
         look at the `remux_to` config option.
 
         Examples:
-            download_name_format: "[{provider}] {show_name}E{episode_number} [{quality}P]"
+            download_name_format: "[{provider}] {show_name}E{episode_number} [{quality}p]"
             download_name_format: "{show_name}_{episode_number}"
 
         """
@@ -183,7 +183,7 @@ class Config:
         This automatically opens the downloaded file if downloaded through the
         `d` option in the default cli.
         """
-        return self._get_value("auto_open_dl_defaultcli", False, bool)
+        return self._get_value("auto_open_dl_defaultcli", True, bool)
 
     @property
     def mal_local_user_list_path(self):

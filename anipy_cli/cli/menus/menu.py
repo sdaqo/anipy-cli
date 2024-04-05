@@ -55,7 +55,7 @@ class Menu(MenuBase):
             colors.BLUE,
             self.anime.name,
             colors.GREEN,
-            f" | {self.stream.resolution}P | ",
+            f" | {self.stream.resolution}p | ",
             colors.RED,
             f"{self.stream.episode}/{self.anime.get_episodes()[-1]}",
         )
@@ -120,7 +120,7 @@ class Menu(MenuBase):
         print(f"Show Name: {self.anime.name}")
         print(f"Provider: {self.anime.provider.NAME}")
         print(f"Stream Url: {self.stream.url}")
-        print(f"Quality: {self.stream.resolution}P")
+        print(f"Quality: {self.stream.resolution}p")
 
     def download_video(self):
         config = Config()
