@@ -85,8 +85,8 @@ class GoGoFilter(BaseFilter):
         )
 
     def _apply_media_type(self, media_type: List[MediaType]):
-        # I have found that gogo does not have correct media types on some accurately
-        # will leave the code if they fix it eventually...
+        # I have found that gogo's media type filter is not very accurate 
+        # will leave the code here for the time they fix this...
         # mapping = {
         #     MediaType.TV: 1,
         #     MediaType.SPECIAL: 2,

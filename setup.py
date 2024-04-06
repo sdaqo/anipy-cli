@@ -34,7 +34,6 @@ setup(
         "setuptools",
         "beautifulsoup4",
         "tqdm",
-        "moviepy",
         "pyyaml",
         "python-mpv",
         "yaspin",
