@@ -1,4 +1,9 @@
-![waving](https://capsule-render.vercel.app/api?type=waving&height=200&text=sdaqo/anipy-cli&fontAlign=60&fontAlignY=40&color=021224&fontColor=b0b8b2&animation=fadeIn)
+# ANIPY-CLI
+**Anime from the comfort of your Terminal**
+
+<p align="center"><img src="https://github.com/sdaqo/anipy-cli/assets/63876564/f0ce4cb9-ef82-4045-8392-8aefc40a7ec6" /> </p>
+
+
 
 https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-bc73-9be5dc2a4f07.mp4
 
