@@ -31,10 +31,10 @@ class MediaType(Enum):
 
 @dataclass
 class Filters:
-    year: Optional[List[int]]
-    season: Optional[List[Season]]
-    status: Optional[List[Status]]
-    media_type: Optional[List[MediaType]]
+    year: Optional[List[int]] = None
+    season: Optional[List[Season]] = None
+    status: Optional[List[Status]] = None
+    media_type: Optional[List[MediaType]] = None
 
 
 class FilterCapabilities(Flag):
@@ -74,7 +74,7 @@ class BaseFilter(ABC):
         self._apply_query(query)
 
         for filter in fields(filters):
-            value = getattr(Filters, filter.name)
+            value = getattr(filters, filter.name)
             if not value:
                 continue
 

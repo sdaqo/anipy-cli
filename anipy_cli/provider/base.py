@@ -12,17 +12,20 @@ Episode = Union[int, float]
 class ProviderSearchResult:
     identifier: str
     name: str
-    dub: Optional[bool]
+    dub: Optional[bool] = None
+
+    def __hash__(self) -> int:
+        return hash(self.identifier)
 
 
 @dataclass(frozen=True)
 class ProviderInfoResult:
     name: str
-    image: Optional[str]
-    genres: Optional[List[str]]
-    synopsis: Optional[str]
-    release_year: Optional[int]
-    status: Optional[str]
+    image: Optional[str] = None
+    genres: Optional[List[str]] = None
+    synopsis: Optional[str] = None
+    release_year: Optional[int] = None
+    status: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -50,7 +53,7 @@ class BaseProvider(ABC):
                 )
 
     @abstractmethod
-    def get_search(self, query: str, filters: Filters) -> List[ProviderSearchResult]: ...
+    def get_search(self, query: str, filters: Filters = Filters()) -> List[ProviderSearchResult]: ...
 
     @abstractmethod
     def get_episodes(self, identifier: str) -> List[Episode]: ...
