@@ -1,26 +1,24 @@
-import re
 import base64
-import json
-import m3u8
 import functools
-from urllib.parse import urlparse, parse_qsl, urlencode, urljoin
-from requests import Request, Session
-from Cryptodome.Cipher import AES
-from bs4 import BeautifulSoup
+import json
+import re
 from pathlib import Path
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
+from urllib.parse import parse_qsl, urlencode, urljoin, urlparse
 
-from anipy_cli.provider import (
-    BaseProvider,
-    ProviderSearchResult,
-    ProviderInfoResult,
-    ProviderStream,
-)
+import m3u8
+from bs4 import BeautifulSoup
+from Cryptodome.Cipher import AES
+from requests import Request, Session
+
 from anipy_cli.error import BeautifulSoupLocationError
-from anipy_cli.provider.utils import request_page, memoized_method, parsenum
+from anipy_cli.provider import (BaseProvider, ProviderInfoResult,
+                                ProviderSearchResult, ProviderStream)
+from anipy_cli.provider.filter import BaseFilter, FilterCapability, MediaType, Season, Status
+from anipy_cli.provider.utils import memoized_method, parsenum, request_page
 
 if TYPE_CHECKING:
-    from anipy_cli.provider import Episode
+    from anipy_cli.provider import Episode, Filters
 
 
 @functools.lru_cache()
@@ -56,14 +54,49 @@ def _aes_decrypt(data, key, iv):
     )
 
 
+class GoGoFilter(BaseFilter):
+    def _apply_query(self, query: str):
+        self._request.params.update({"keyword": query})
+
+    def _apply_year(self, year: List[int]):
+        self._request.params.update({"year": year})
+    
+    def _apply_season(self, season: List[Season]):
+        mapping = {v: k.lower() for k, v in Season._member_map_.items()}
+        self._request.params.update(
+            {"season": self._map_enum_members(season, mapping)}
+        )
+    
+    def _apply_status(self, status: List[Status]):
+        mapping = {v: k.capitalize() for k, v in Status._member_map_.items()}
+        self._request.params.update(
+            {"season": self._map_enum_members(status, mapping)}
+        )
+    
+    def _apply_media_type(self, media_type: List[MediaType]):
+        mapping = {
+            MediaType.TV: 1,
+            MediaType.SPECIAL: 2,
+            MediaType.MOVIE: 3,
+            MediaType.OVA: 26,
+            MediaType.ONA: 30,
+            MediaType.MUSIC: 32
+        }
+        self._request.params.update(
+            {"type": self._map_enum_members(media_type, mapping)}
+        )
+
 class GoGoProvider(BaseProvider):
     NAME = "gogoanime"
     BASE_URL = "https://gogoanime3.co/"
+    FILTER_CAPS = FilterCapability.ALL
 
-    def get_search(self, query: str) -> List[ProviderSearchResult]:
-        search_url = self.BASE_URL + f"/search.html?keyword={query}"
-
+    def get_search(self, query: str, filters: Optional[Filters] = None) -> List[ProviderSearchResult]:
+        search_url = self.BASE_URL + "/search.html"
         req = Request("GET", search_url)
+        if filters:
+            req = GoGoFilter(req).apply(query, filters)
+
         res = request_page(self.session, req)
         soup = BeautifulSoup(res.content, "html.parser")
 

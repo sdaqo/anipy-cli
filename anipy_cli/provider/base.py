@@ -3,17 +3,19 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from requests import Session
 
+from anipy_cli.provider.filter import FilterCapability, Filters
+
 Episode = Union[int, float]
 
 
-@dataclass
+@dataclass(frozen=True)
 class ProviderSearchResult:
     identifier: str
     name: str
     dub: Optional[bool]
 
 
-@dataclass
+@dataclass(frozen=True)
 class ProviderInfoResult:
     name: str
     image: Optional[str]
@@ -23,7 +25,7 @@ class ProviderInfoResult:
     status: Optional[str]
 
 
-@dataclass
+@dataclass(frozen=True)
 class ProviderStream:
     url: str
     resolution: int
@@ -33,12 +35,13 @@ class ProviderStream:
 class BaseProvider(ABC):
     NAME: str
     BASE_URL: str
+    FILTER_CAPS: FilterCapability
 
     def __init__(self):
         self.session = Session()
 
     def __init_subclass__(cls) -> None:
-        for v in ["NAME", "BASE_URL"]:
+        for v in ["NAME", "BASE_URL", "FILTER_CAPS"]:
             if not hasattr(cls, v):
                 raise NotImplementedError(
                     "Attribute '{}' has not been overriden in class '{}'".format(
@@ -47,7 +50,7 @@ class BaseProvider(ABC):
                 )
 
     @abstractmethod
-    def get_search(self, query: str) -> List[ProviderSearchResult]: ...
+    def get_search(self, query: str, filters: Filters) -> List[ProviderSearchResult]: ...
 
     @abstractmethod
     def get_episodes(self, identifier: str) -> List[Episode]: ...
