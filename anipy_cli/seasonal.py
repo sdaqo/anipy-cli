@@ -2,16 +2,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional, Union
 
-from dataclasses_json import config, dataclass_json
+from dataclasses_json import config, DataClassJsonMixin
 
 from anipy_cli.config import Config
 from anipy_cli.provider import Episode
 from anipy_cli.anime import Anime
 
 
-@dataclass_json
 @dataclass
-class SeasonalEntry:
+class SeasonalEntry(DataClassJsonMixin):
     provider: str = field(metadata=config(field_name="pv"))
     identifier: str = field(metadata=config(field_name="id"))
     name: str = field(metadata=config(field_name="na"))
@@ -21,9 +20,8 @@ class SeasonalEntry:
         return f"{self.name} Episode {self.episode}"
 
 
-@dataclass_json
 @dataclass
-class Seasonals:
+class Seasonals(DataClassJsonMixin):
     seasonals: Dict[str, SeasonalEntry]
 
     def write(self):

@@ -1,7 +1,7 @@
 from pathlib import Path
 from dataclasses import dataclass, field
 from time import time
-from dataclasses_json import dataclass_json, config
+from dataclasses_json import config, DataClassJsonMixin
 from typing import TYPE_CHECKING, Dict, Optional
 
 from anipy_cli.config import Config
@@ -11,9 +11,8 @@ if TYPE_CHECKING:
     from anipy_cli.anime import Anime
 
 
-@dataclass_json
 @dataclass
-class HistoryEntry:
+class HistoryEntry(DataClassJsonMixin):
     provider: str = field(metadata=config(field_name="pv"))
     identifier: str = field(metadata=config(field_name="id"))
     name: str = field(metadata=config(field_name="na"))
@@ -24,9 +23,8 @@ class HistoryEntry:
         return f"{self.name} episode {self.episode}"
 
 
-@dataclass_json
 @dataclass
-class History:
+class History(DataClassJsonMixin):
     history: Dict[str, HistoryEntry]
 
     def write(self):
