@@ -37,7 +37,7 @@ class Filters:
     media_type: Optional[List[MediaType]]
 
 
-class FilterCapability(Flag):
+class FilterCapabilities(Flag):
     YEAR = auto()
     SEASON = auto()
     STATUS = auto()

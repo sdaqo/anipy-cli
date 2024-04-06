@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from requests import Session
 
-from anipy_cli.provider.filter import FilterCapability, Filters
+from anipy_cli.provider.filter import FilterCapabilities, Filters
 
 Episode = Union[int, float]
 
@@ -35,7 +35,7 @@ class ProviderStream:
 class BaseProvider(ABC):
     NAME: str
     BASE_URL: str
-    FILTER_CAPS: FilterCapability
+    FILTER_CAPS: FilterCapabilities
 
     def __init__(self):
         self.session = Session()

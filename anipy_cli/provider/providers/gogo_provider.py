@@ -14,7 +14,7 @@ from requests import Request, Session
 from anipy_cli.error import BeautifulSoupLocationError
 from anipy_cli.provider import (BaseProvider, ProviderInfoResult,
                                 ProviderSearchResult, ProviderStream)
-from anipy_cli.provider.filter import BaseFilter, FilterCapability, MediaType, Season, Status
+from anipy_cli.provider.filter import BaseFilter, FilterCapabilities, MediaType, Season, Status
 from anipy_cli.provider.utils import memoized_method, parsenum, request_page
 
 if TYPE_CHECKING:
@@ -89,7 +89,7 @@ class GoGoFilter(BaseFilter):
 class GoGoProvider(BaseProvider):
     NAME = "gogoanime"
     BASE_URL = "https://gogoanime3.co/"
-    FILTER_CAPS = FilterCapability.ALL
+    FILTER_CAPS = FilterCapabilities.ALL
 
     def get_search(self, query: str, filters: Optional[Filters] = None) -> List[ProviderSearchResult]:
         search_url = self.BASE_URL + "/search.html"
