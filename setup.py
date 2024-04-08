@@ -40,7 +40,8 @@ setup(
         "InquirerPy",
         "dataclasses_json",
         "python-ffmpeg @ git+ssh://git@github.com/sdaqo/python-ffmpeg.git",
-        "appdirs"
+        "appdirs",
+        "levenshtein"
     ],
     entry_points="[console_scripts]\nanipy-cli=anipy_cli.run_anipy_cli:main",
 )

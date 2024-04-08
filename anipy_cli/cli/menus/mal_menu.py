@@ -8,73 +8,22 @@ from os import system as query
 
 # from anipy_cli.download import Downloader
 from anipy_cli.config import Config
-from anipy_cli.mal import MAL
+from anipy_cli.mal import MyAnimeList
 from anipy_cli.cli.util import binge, get_season_searches, error
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 
 
 class MALMenu(MenuBase):
-    def __init__(self, options: CliArgs, rpc_client=None):
-        self.entry = Entry()
+    def __init__(self, mal: MyAnimeList, options: CliArgs, rpc_client=None):
+        self.mal = mal
         self.options = options
         self.rpc_client = rpc_client
+
+        self.entry = Entry()
 
         self.dl_path = Config().seasonals_dl_path
         if options.location:
             self.dl_path = options.location
-
-        user = None
-        if Config().mal_user and Config().mal_user != "":
-            user = Config().mal_user
-
-        if options.mal_password is not None and options.mal_password != "":
-            password = options.mal_password
-        else:
-            password = Config().mal_password
-        if not password or password == "":
-            password = None
-
-        if user is None or password is None:
-            cprint(colors.ERROR, "Missing credentials!\n")
-            cprint(
-                colors.CYAN,
-                "In order to use the MAL-Mode, you need to specify your username and password.\n",
-            )
-            cprint(
-                colors.CYAN, "Those can be specified in the anipy-cli config file.\n"
-            )
-
-        if user is None:
-            while not user:
-                user_input = cinput(
-                    colors.CYAN,
-                    "Please enter your MyAnimeList ",
-                    colors.YELLOW,
-                    "Username ",
-                    colors.CYAN,
-                    ":\n",
-                )
-                if user_input and user_input != "":
-                    user = user_input
-
-        if password is None:
-            cprint(
-                colors.MAGENTA,
-                "The password can also be passed with the '--mal-password' parameter.",
-            )
-            while not password:
-                pw_input = cinput(
-                    colors.CYAN,
-                    "Please enter your MyAnimeList ",
-                    colors.YELLOW,
-                    "Password ",
-                    colors.CYAN,
-                    ":\n",
-                )
-                if pw_input and pw_input != "":
-                    password = pw_input
-
-        self.m_class = MAL(user, password)
 
     def print_header(self):
         pass

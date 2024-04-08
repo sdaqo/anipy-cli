@@ -2,7 +2,6 @@ import functools
 import inspect
 import os
 from pathlib import Path
-from sys import platform
 from string import Template
 from appdirs import user_data_dir, user_config_dir
 
