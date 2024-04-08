@@ -185,20 +185,22 @@ class GoGoProvider(BaseProvider):
         if info_body == None:
             raise BeautifulSoupLocationError("anime info", res.url)
 
-        name = info_body.find("h1").text
-        image = info_body.find("img").get("src").__str__()
-        other_info = info_body.find_all("p", {"class": "type"})
+        name = info_body.find("h1").text  # type: ignore
+        image = info_body.find("img").get("src").__str__()  # type: ignore
+        other_info = info_body.find_all("p", {"class": "type"})  # type: ignore
 
-        synopsis = other_info[1].text.replace("\n", "")
-        release_year = other_info[3].text.replace("Released: ", "")
-        status = other_info[4].text.replace("\n", "").replace("Status: ", "")
+        synopsis = info_body.find("div", {"class": "description"}).text.replace("\n", "")  # type: ignore
         genres = [x["title"] for x in other_info[2].find_all("a")]
+        status = other_info[4].text.replace("\n", "").replace("Status: ", "")
+        alternative_names = info_body.find("p", {"class": "other-name"}).find("a").text.split(",")  # type: ignore
 
-        return ProviderInfoResult(name, image, genres, synopsis, release_year, status)
+        try:
+            release_year = int(other_info[3].text.replace("Released: ", ""))
+        except (ValueError, TypeError):
+            release_year = None
 
-    def get_video(self, identifier: str, episode: "Episode") -> List["ProviderStream"]:
-        episode_url = (
-            f"{self.BASE_URL}/{identifier}-episode-{str(episode).replace('.', '-')}"
+        return ProviderInfoResult(
+            name, image, genres, synopsis, release_year, status, alternative_names
         )
 
         req = Request("GET", episode_url)

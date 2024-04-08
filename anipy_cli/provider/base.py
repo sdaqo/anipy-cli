@@ -26,6 +26,7 @@ class ProviderInfoResult:
     synopsis: Optional[str] = None
     release_year: Optional[int] = None
     status: Optional[str] = None
+    alternative_names: Optional[List[str]] = None
 
 
 @dataclass(frozen=True)
