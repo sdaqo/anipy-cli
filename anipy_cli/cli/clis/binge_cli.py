@@ -3,10 +3,12 @@ from typing import TYPE_CHECKING, List, Optional
 from anipy_cli.cli.colors import cprint, colors
 from anipy_cli.player import get_player
 from anipy_cli.cli.util import (
+    DotSpinner,
     error,
     search_show_prompt,
     pick_episode_range_prompt,
-    DotSpinner,
+    dub_prompt,
+    DotSpinner
 )
 from anipy_cli.cli.clis.base_cli import CliBase
 
@@ -24,6 +26,7 @@ class BingeCli(CliBase):
 
         self.anime: Optional["Anime"] = None
         self.episodes: Optional[List["Episode"]] = None
+        self.dub = False
 
     def print_header(self):
         cprint(colors.GREEN, "***Binge Mode***")
@@ -34,7 +37,9 @@ class BingeCli(CliBase):
         if anime is None:
             sys.exit(0)
 
-        episodes = pick_episode_range_prompt(anime)
+        self.dub = dub_prompt(anime)
+
+        episodes = pick_episode_range_prompt(anime, self.dub)
 
         self.anime = anime
         self.episodes = episodes
@@ -46,13 +51,13 @@ class BingeCli(CliBase):
             with DotSpinner(
                 "Extracting streams for ",
                 colors.BLUE,
-                self.anime.name,
+                f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
                 colors.END,
                 " Episode ",
                 e,
                 "...",
             ) as s:
-                stream = self.anime.get_video(e, self.options.quality)
+                stream = self.anime.get_video(e, self.options.quality, dub=self.dub)
                 s.ok("✔")
 
             self.player.play_title(self.anime, stream)

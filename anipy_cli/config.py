@@ -146,13 +146,14 @@ class Config:
             episode_number: number of the episode
             quality: quality/resolution of the video
             provider: provider used to download
+            dub: this field is populated with `dub` if the episode is in dub format
 
         The fields should be set in curly braces i.e. `{field_name}`.
         Do not add a suffix (e.g. '.mp4') here, if you want to change this
         look at the `remux_to` config option.
 
         Examples:
-            download_name_format: "[{provider}] {show_name}E{episode_number} [{quality}p]"
+            download_name_format: "[{provider}] {show_name}E{episode_number} {dub} [{quality}p]"
             download_name_format: "{show_name}_{episode_number}"
 
         """
@@ -162,13 +163,6 @@ class Config:
             "download_name_format", "{show_name}_{episode_number}", str
         )
         return Path(value).with_suffix("").__str__()
-
-    @property
-    def download_remove_dub_from_folder_name(self):
-        """
-        Remove `(dub)` from folder names.
-        """
-        return self._get_value("download_remove_dub_from_folder_name", False, bool)
 
     @property
     def dc_presence(self):
@@ -210,15 +204,17 @@ class Config:
         return self._get_value("mal_status_categories", list(["watching"]), list)
 
     @property
-    def anime_types(self):
+    def preferred_type(self):
         """
-        Specify which anime types (dub or sub) are shown in search results.
+        Specify which anime types (dub or sub) you prefer.
+        If this is specified, you will not be asked to switch to dub anymore.
+        You can however always switch to either in the menu.
 
         Examples:
-            anime_types: ["sub"] # only sub
-            anime_types: ["sub", "dub"] # both sub and dub
+            preferred_type: sub
+            preferred_type: dub
         """
-        return self._get_value("anime_types", list(["sub", "dub"]), list)
+        return self._get_value("preferred_type", None, str)
 
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)

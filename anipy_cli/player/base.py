@@ -32,17 +32,17 @@ class PlayerBase(ABC):
     def _start_dc_presence(self, anime: "Anime", stream: "ProviderStream"):
         if self.rpc_client:
             dc_media_title = (
-                f"{anime.name} | {stream.episode}/{anime.get_episodes()[-1]}"
+                f"{anime.name} | {stream.episode}/{anime.get_episodes(stream.dub)[-1]}"
             )
             dc_presence(dc_media_title, anime.get_info(), self.rpc_client)
 
     @staticmethod
     def _write_hist(anime: "Anime", stream: "ProviderStream"):
-        update_history(anime, stream.episode)
+        update_history(anime, stream.episode, stream.dub)
 
     @staticmethod
     def _get_media_title(anime: "Anime", stream: "ProviderStream"):
-        return f"[{anime.provider.NAME}] {anime.name} E{stream.episode} [{stream.resolution}p]"
+        return f"[{anime.provider.NAME}] {anime.name} E{stream.episode} [{'dub' if stream.dub else 'sub'}][{stream.resolution}p]"
 
 
 class SubProcessPlayerBase(PlayerBase):

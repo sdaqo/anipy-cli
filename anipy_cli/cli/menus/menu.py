@@ -34,6 +34,7 @@ class Menu(MenuBase):
         self.anime = anime
         self.stream = stream
         self.player = player
+        self.dub = stream.dub
 
     @property
     def menu_options(self) -> List["MenuOption"]:
@@ -41,6 +42,7 @@ class Menu(MenuBase):
             MenuOption("Next Episode", self.next_ep, "n"),
             MenuOption("Previous Episode", self.prev_ep, "p"),
             MenuOption("Replay Episode", self.repl_ep, "r"),
+            MenuOption(f"Change to {'sub' if self.dub else 'dub'}", self.change_type, "c"),
             MenuOption("Select episode", self.selec_ep, "s"),
             MenuOption("Search for Anime", self.search, "a"),
             MenuOption("Print Video Info", self.video_info, "i"),
@@ -53,28 +55,28 @@ class Menu(MenuBase):
             colors.GREEN,
             "Playing: ",
             colors.BLUE,
-            self.anime.name,
+            f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
             colors.GREEN,
             f" | {self.stream.resolution}p | ",
             colors.RED,
-            f"{self.stream.episode}/{self.anime.get_episodes()[-1]}",
+            f"{self.stream.episode}/{self.anime.get_episodes(self.dub)[-1]}",
         )
 
     def _start_episode(self, episode: "Episode"):
         with DotSpinner(
             "Extracting streams for ",
             colors.BLUE,
-            self.anime.name,
+            f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
             " Episode ",
             episode,
             "...",
         ):
-            self.stream = self.anime.get_video(episode, self.options.quality)
+            self.stream = self.anime.get_video(episode, self.options.quality, dub=self.dub)
 
         self.player.play_title(self.anime, self.stream)
 
     def next_ep(self):
-        episodes = self.anime.get_episodes()
+        episodes = self.anime.get_episodes(self.dub)
         current_episode = episodes.index(self.stream.episode)
         if len(episodes) <= current_episode + 1:
             error("no episodes after this")
@@ -85,7 +87,7 @@ class Menu(MenuBase):
         self.print_options()
 
     def prev_ep(self):
-        episodes = self.anime.get_episodes()
+        episodes = self.anime.get_episodes(self.dub)
         current_episode = episodes.index(self.stream.episode)
         if current_episode - 1 < 0:
             error("no episodes before this")
@@ -94,12 +96,27 @@ class Menu(MenuBase):
             self._start_episode(prev_episode)
 
         self.print_options()
-
+    
     def repl_ep(self):
         self._start_episode(self.stream.episode)
 
+    def change_type(self):
+
+        self.dub = not self.dub
+        if self.dub and not self.anime.has_dub:
+            error("this anime does not have a dub version")
+            return
+
+        if not self.stream.episode in self.anime.get_episodes(self.dub):
+            error(f"the current episode ({self.stream.episode}) is not available in {'dub' if self.dub else 'sub'}, switching back...")
+            self.dub = not self.dub
+            return
+        
+        self.repl_ep()
+        self.print_options()
+
     def selec_ep(self):
-        episode = pick_episode_prompt(self.anime)
+        episode = pick_episode_prompt(self.anime, self.dub)
         if episode is None:
             return
         self._start_episode(episode)
@@ -110,11 +127,11 @@ class Menu(MenuBase):
         if search_result is None:
             return
         self.anime = search_result
-        episode = pick_episode_prompt(self.anime)
+        episode = pick_episode_prompt(self.anime, self.dub)
         if episode is None:
             return
         self._start_episode(episode)
-        self.print_options(clear_screen=True)
+        self.print_options()
 
     def video_info(self):
         print(f"Show Name: {self.anime.name}")
@@ -137,7 +154,7 @@ class Menu(MenuBase):
             s.set_text(
                 "Extracting streams for ",
                 colors.BLUE,
-                self.anime.name,
+                f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
                 colors.END,
                 " Episode ",
                 self.stream.episode,

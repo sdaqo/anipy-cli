@@ -1,5 +1,5 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING, Iterator, List, Optional
 
 from InquirerPy import inquirer
@@ -183,16 +183,18 @@ def search_show_prompt(loop_on_nores: bool = True) -> Optional["Anime"]:
     anime = inquirer.fuzzy(
         message="Select Show:",
         choices=results,
-        long_instruction="To skip this prompt press ctrl+z",
+        long_instruction="\nD = Anime is available in dub (or sub)\nTo skip this prompt press ctrl+z",
         mandatory=False,
     ).execute()
 
     return anime
 
 
-def pick_episode_prompt(anime: "Anime", instruction: str = "") -> Optional["Episode"]:
+def pick_episode_prompt(
+    anime: "Anime", dub: bool, instruction: str = ""
+) -> Optional["Episode"]:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
-        episodes = anime.get_episodes()
+        episodes = anime.get_episodes(dub)
 
     return inquirer.fuzzy(
         message="Select Episode:",
@@ -203,9 +205,9 @@ def pick_episode_prompt(anime: "Anime", instruction: str = "") -> Optional["Epis
     ).execute()
 
 
-def pick_episode_range_prompt(anime: "Anime") -> List["Episode"]:
+def pick_episode_range_prompt(anime: "Anime", dub: bool) -> List["Episode"]:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
-        episodes = anime.get_episodes()
+        episodes = anime.get_episodes(dub)
 
     res = inquirer.text(
         message=f"Input Episode Range(s) from episodes {episodes[0]} to {episodes[-1]}:",
@@ -222,7 +224,7 @@ def pick_episode_range_prompt(anime: "Anime") -> List["Episode"]:
         numbers = r.split("-")
         if numbers[0] > numbers[-1]:
             error(f"invalid range: {r}")
-            return pick_episode_range_prompt(anime)
+            return pick_episode_range_prompt(anime, dub)
 
         picked = picked | set(
             episodes[
@@ -234,6 +236,21 @@ def pick_episode_range_prompt(anime: "Anime") -> List["Episode"]:
         )
 
     return sorted(picked)
+
+
+def dub_prompt(anime: "Anime") -> bool:
+    config = Config()
+
+    if not anime.has_dub or config.preferred_type == "sub":
+        return False
+
+    if config.preferred_type == "dub":
+        return True
+
+    res = inquirer.confirm("Want to watch in dub?").execute()
+    print("Hint: you can set a default in the config with `preferred_type`!")
+
+    return res
 
 
 def get_prefered_providers() -> Iterator["BaseProvider"]:
@@ -253,21 +270,23 @@ def get_download_path(
     download_folder = parent_directory or config.download_folder_path
 
     anime_name = Downloader._get_valid_pathname(anime.name)
-
-    if config.download_remove_dub_from_folder_name:
-        if anime_name.endswith(" (Dub)"):
-            anime_name = f"{anime_name[:-6]}"
-
-    return (
-        download_folder
-        / anime_name
-        / config.download_name_format.format(
+    try:
+        filename = config.download_name_format.format(
             show_name=anime_name,
             episode_number=stream.episode,
             quality=stream.resolution,
             provider=anime.provider.NAME,
+            dub="dub" if stream.dub else "",
         )
-    )
+    except KeyError:
+        error(
+            "you have not used all fields in the download_name_format, check your config",
+            fatal=True,
+        )
+
+    filename = Downloader._get_valid_pathname(filename)  # type: ignore
+
+    return download_folder / anime_name / filename
 
 
 def parsenum(n: str):

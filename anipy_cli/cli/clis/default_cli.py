@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from anipy_cli.player import get_player
 from anipy_cli.cli.menus import Menu
 from anipy_cli.cli.clis.base_cli import CliBase
-from anipy_cli.cli.util import search_show_prompt, pick_episode_prompt, DotSpinner
+from anipy_cli.cli.util import search_show_prompt, dub_prompt, pick_episode_prompt, DotSpinner
 from anipy_cli.cli.colors import colors
 
 if TYPE_CHECKING:
@@ -21,6 +21,7 @@ class DefaultCli(CliBase):
         self.anime = None
         self.epsiode = None
         self.stream = None
+        self.dub = False
 
     def print_header(self):
         pass
@@ -31,7 +32,9 @@ class DefaultCli(CliBase):
         if anime is None:
             sys.exit(0)
 
-        episode = pick_episode_prompt(anime)
+        self.dub = dub_prompt(anime)
+
+        episode = pick_episode_prompt(anime, self.dub)
 
         self.anime = anime
         self.epsiode = episode
@@ -40,12 +43,12 @@ class DefaultCli(CliBase):
         with DotSpinner(
             "Extracting streams for ",
             colors.BLUE,
-            self.anime.name,
+            f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
             " Episode ",
             self.epsiode,
             "...",
         ):
-            self.stream = self.anime.get_video(self.epsiode, self.options.quality)
+            self.stream = self.anime.get_video(self.epsiode, self.options.quality, dub=self.dub)
 
     def show(self):
         self.player.play_title(self.anime, self.stream)

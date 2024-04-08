@@ -50,13 +50,11 @@ class HistoryCli(CliBase):
         with DotSpinner(
             "Extracting streams for ",
             colors.BLUE,
-            self.anime.name,
-            " Episode ",
-            self.history_entry.episode,
+            self.history_entry,
             "...",
         ):
             self.stream = self.anime.get_video(
-                self.history_entry.episode, self.options.quality
+                self.history_entry.episode, self.options.quality, dub=self.history_entry.dub
             )
 
     def show(self):

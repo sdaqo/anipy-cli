@@ -16,31 +16,32 @@ class Anime:
     def from_search_result(
         provider: "BaseProvider", result: "ProviderSearchResult"
     ) -> "Anime":
-        return Anime(provider, result.name, result.identifier)
+        return Anime(provider, result.name, result.identifier, result.has_dub)
 
     @staticmethod
     def from_history_entry(entry: "HistoryEntry") -> "Anime":
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
-        return Anime(provider(), entry.name, entry.identifier)
+        return Anime(provider(), entry.name, entry.identifier, entry.has_dub)
 
     @staticmethod
     def from_seasonal_entry(entry: "SeasonalEntry") -> "Anime":
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
-        return Anime(provider(), entry.name, entry.identifier)
+        return Anime(provider(), entry.name, entry.identifier, entry.has_dub)
 
-    def __init__(self, provider: "BaseProvider", name: str, identifier: str):
+    def __init__(self, provider: "BaseProvider", name: str, identifier: str, has_dub: bool):
         self.provider = provider
         self.name = name
         self.identifier = identifier
+        self.has_dub = has_dub
 
-    def get_episodes(self):
-        return self.provider.get_episodes(self.identifier)
+    def get_episodes(self, dub: bool = False):
+        return self.provider.get_episodes(self.identifier, dub)
 
     def get_info(self):
         return self.provider.get_info(self.identifier)
 
-    def get_video(self, episode: Episode, preferred_quality: Optional[Union[str, int]]):
-        streams = self.provider.get_video(self.identifier, episode)
+    def get_video(self, episode: Episode, preferred_quality: Optional[Union[str, int]], dub: bool = False):
+        streams = self.provider.get_video(self.identifier, episode, dub)
         streams.sort(key=lambda s: s.resolution)
 
         if preferred_quality == "worst":
@@ -60,4 +61,4 @@ class Anime:
         return stream
 
     def __repr__(self) -> str:
-        return self.name
+        return f"{self.name} {'(D)' if self.has_dub else ''}"

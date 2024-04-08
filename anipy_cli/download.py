@@ -74,8 +74,7 @@ class Downloader:
             fname = temp_folder / self._get_valid_pathname(segment.uri)
             try:
                 res = self._session.get(str(url))
-                if not res.ok:
-                    raise RequestError(res.url, res.status_code)
+                res.raise_for_status()
 
                 with fname.open("wb") as fout:
                     fout.write(res.content)

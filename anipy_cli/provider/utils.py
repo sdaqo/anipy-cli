@@ -15,10 +15,8 @@ def request_page(session: "Session", req: "Request") -> "Response":
         "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"
     )
     res = session.send(prepped)
-    if res.ok:
-        return res
-    else:
-        raise RequestError(res.url, res.status_code)
+    res.raise_for_status()
+    return res
 
 
 def parsenum(n: str):

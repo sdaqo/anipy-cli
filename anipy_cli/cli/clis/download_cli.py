@@ -7,6 +7,7 @@ from anipy_cli.cli.util import (
     DotSpinner,
     get_download_path,
     # get_season_searches,
+    dub_prompt,
     pick_episode_range_prompt,
     search_show_prompt,
 )
@@ -25,6 +26,7 @@ class DownloadCli(CliBase):
 
         self.anime: Optional["Anime"] = None
         self.episodes: Optional[List["Episode"]] = None
+        self.dub = False
 
         self.dl_path = Config().download_folder_path
         if options.location:
@@ -82,8 +84,10 @@ class DownloadCli(CliBase):
 
         if anime is None:
             sys.exit(0)
+        
+        self.dub = dub_prompt(anime)
 
-        episodes = pick_episode_range_prompt(anime)
+        episodes = pick_episode_range_prompt(anime, self.dub)
 
         self.anime = anime
         self.episodes = episodes
@@ -104,14 +108,14 @@ class DownloadCli(CliBase):
                 s.set_text(
                     "Extracting streams for ",
                     colors.BLUE,
-                    self.anime.name,
+                    f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
                     colors.END,
                     " Episode ",
                     e,
                     "...",
                 )
 
-                stream = self.anime.get_video(e, self.options.quality)
+                stream = self.anime.get_video(e, self.options.quality, dub=self.dub)
 
                 info_display(
                     f"Downloading Episode {stream.episode} of {self.anime.name}"

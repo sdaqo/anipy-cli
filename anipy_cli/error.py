@@ -10,6 +10,10 @@ class RequestError(Exception):
     def __init__(self, url: str, status: int):
         super().__init__(f"Could not request `{url}`, status is {status}")
 
+class DubNotAvailableError(Exception):
+    def __init__(self, identifier: str, provider: str):
+        super().__init__(f"Dub is not available for identifier `{identifier}` on provider `{provider}`")
+
 class MyAnimeListError(Exception):
     def __init__(self, url: str, status: int, mal_api_error: Optional[Dict] = None) -> None:
         error_text = f"Error requesting {url}, status is {status}."
