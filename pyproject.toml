@@ -1,6 +1,37 @@
+[tool.poetry]
+name = "anipy-cli"
+version = "2.7.31"
+description = "Little tool in python to watch anime from the terminal (the better way to watch anime)"
+authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
+license = "GPL-3.0"
+repository = "https://github.com/sdaqo/anipy-cli"
+keywords = ["anime", "cli"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+python-ffmpeg = "^2.0.11"
+pycryptodomex = "^3.20.0"
+requests = "^2.31.0"
+pypresence = "^4.3.0"
+m3u8 = "^4.1.0"
+beautifulsoup4 = "^4.12.3"
+pyyaml = "^6.0.1"
+python-mpv = "^1.0.5"
+yaspin = "^3.0.2"
+inquirerpy = "^0.3.4"
+dataclasses-json = "^0.6.4"
+appdirs = "^1.4.4"
+levenshtein = "^0.25.1"
+
+[tool.poetry.scripts]
+anipy-cli = "anipy_cli.run_anipy_cli:main"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/sdaqo/anipy-cli/issues"
+
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
