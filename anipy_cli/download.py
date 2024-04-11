@@ -49,7 +49,7 @@ class Downloader:
         name = "".join(
             [i for i in name if i.isascii()]
         )  # Verify all chars are ascii (eject if not)
-        name = "-".join(name.split())  # Clean all white spaces, including tabs and such
+        # name = "-".join(name.split())  # Clean all white spaces, including tabs and such
 
         return name
 
@@ -94,7 +94,7 @@ class Downloader:
                     for future in as_completed(futures):
                         future.result()
                 except KeyboardInterrupt:
-                    self.info_callback("Download Interrupted, cancelling threads, this may take a while...")
+                    self.info_callback("Download Interrupted, cancelling futures, this may take a while...")
                     pool_video.shutdown(wait=False, cancel_futures=True)
                     raise
 
@@ -189,7 +189,7 @@ class Downloader:
             if ffmpeg:
                 download_path = download_path.with_suffix(container or ".mp4")
                 self.info_callback("Using FFMPEG downloader")
-                self.info_callback(f"Saving to a {container} container")
+                self.info_callback(f"Saving to a {container or ".mp4"} container")
                 path = self.ffmpeg_download(stream, download_path)
             else:
                 self.info_callback("Using internal M3U8 downloader")
@@ -209,7 +209,7 @@ class Downloader:
             self.info_callback(f"Remuxing to {container} container")
             new_path = path.with_suffix(container)
             download = self.ffmpeg_download(
-                ProviderStream(str(path), stream.resolution, stream.episode), new_path
+                ProviderStream(str(path), stream.resolution, stream.episode, stream.dub), new_path
             )
             path.unlink()
             return download

@@ -58,6 +58,10 @@ class Config:
         return self.user_files_path / "seasonals.json"
 
     @property
+    def _mal_local_user_list_path(self):
+        return self.user_files_path / "mal_list.json"
+
+    @property
     def providers(self):
         """
         List of providers that will be used to look up anime.
@@ -145,14 +149,14 @@ class Config:
             episode_number: number of the episode
             quality: quality/resolution of the video
             provider: provider used to download
-            dub: this field is populated with `dub` if the episode is in dub format
+            type: this field is populated with `dub` if the episode is in dub format or `sub` otherwise
 
         The fields should be set in curly braces i.e. `{field_name}`.
         Do not add a suffix (e.g. '.mp4') here, if you want to change this
         look at the `remux_to` config option.
 
         Examples:
-            download_name_format: "[{provider}] {show_name}E{episode_number} {dub} [{quality}p]"
+            download_name_format: "[{provider}] {show_name} E{episode_number} [{type}][{quality}p]"
             download_name_format: "{show_name}_{episode_number}"
 
         """
@@ -178,9 +182,6 @@ class Config:
         """
         return self._get_value("auto_open_dl_defaultcli", True, bool)
 
-    @property
-    def mal_local_user_list_path(self):
-        return self.user_files_path / "mal_list.json"
 
     @property
     def mal_user(self):

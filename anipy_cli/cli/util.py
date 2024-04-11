@@ -276,7 +276,7 @@ def get_download_path(
             episode_number=stream.episode,
             quality=stream.resolution,
             provider=anime.provider.NAME,
-            dub="dub" if stream.dub else "",
+            type="dub" if stream.dub else "sub",
         )
     except KeyError:
         error(
