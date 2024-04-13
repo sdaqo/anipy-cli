@@ -155,7 +155,7 @@ class DotSpinner(Yaspin):
         self.text = color(*text_and_colors)
 
 
-def search_show_prompt(loop_on_nores: bool = True) -> Optional["Anime"]:
+def search_show_prompt() -> Optional["Anime"]:
     query = inquirer.text(
         "Search Anime:",
         long_instruction="To cancel this prompt press ctrl+z",
@@ -175,10 +175,9 @@ def search_show_prompt(loop_on_nores: bool = True) -> Optional["Anime"]:
                 ]
             )
 
-    if loop_on_nores:
-        if len(results) == 0:
-            error("no search results")
-            return search_show_prompt()
+    if len(results) == 0:
+        error("no search results")
+        return search_show_prompt()
 
     anime = inquirer.fuzzy(
         message="Select Show:",
