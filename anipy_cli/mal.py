@@ -1,19 +1,26 @@
 import datetime
-import Levenshtein
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
-from dataclasses_json import DataClassJsonMixin, Undefined
+import Levenshtein
+from dataclasses_json import DataClassJsonMixin
 from requests import Request, Session
 
-from anipy_cli.error import MyAnimeListError
-from anipy_cli.version import __appname__, __version__
 from anipy_cli.anime import Anime
-from anipy_cli.provider import ProviderSearchResult, FilterCapabilities, Filters, MediaType, Season
+from anipy_cli.error import MyAnimeListError
+from anipy_cli.provider import (
+    FilterCapabilities,
+    Filters,
+    MediaType,
+    ProviderSearchResult,
+    Season,
+)
+from anipy_cli.version import __appname__, __version__
 
 if TYPE_CHECKING:
     from anipy_cli.provider import BaseProvider
+
 
 class MALMyListStatusEnum(Enum):
     WATCHING = "watching"
@@ -54,15 +61,22 @@ class MALSeason(DataClassJsonMixin):
     season: str
     year: int
 
+    def __repr__(self) -> str:
+        return f"{self.season.capitalize()} {self.year}"
+
 
 @dataclass
 class MALAnime(DataClassJsonMixin):
     id: int
     title: str
     media_type: MALMediaTypeEnum
-    alternative_titles: MALAlternativeTitles
-    start_season: MALSeason
+    num_episodes: int
+    alternative_titles: Optional[MALAlternativeTitles] = None
+    start_season: Optional[MALSeason] = None
     my_list_status: Optional[MALMyListStatus] = None
+
+    def __repr__(self) -> str:
+        return self.title
 
 
 @dataclass
@@ -93,6 +107,7 @@ class MyAnimeList:
         "alternative_titles",
         "start_season",
         "media_type",
+        "num_episodes",
         "my_list_status{tags,num_episodes_watched,score,status}",
     ]
 
@@ -130,10 +145,10 @@ class MyAnimeList:
 
     def get_search(self, query: str, limit: int = 20, pages: int = 1) -> List[MALAnime]:
         return self._get_resource("anime", {"q": query}, limit, pages)
-    
+
     def get_anime(self, anime_id: int) -> MALAnime:
         request = Request("GET", f"{self.API_BASE}/anime/{anime_id}")
-        return MALAnime.from_json(self._make_request(request))
+        return MALAnime.from_dict(self._make_request(request))
 
     def get_anime_list(
         self, status_filter: Optional[MALMyListStatusEnum] = None
@@ -151,22 +166,22 @@ class MyAnimeList:
         watched_episodes: Optional[int] = None,
         tags: Optional[List[str]] = None,
     ) -> MALMyListStatus:
-        request = Request("PATCH", f"{self.API_BASE}/anime/{anime_id}/my_list_status")
-        request.params.update(
-            {
-                k: v
-                for k, v in {
-                    "status": status,
-                    "num_watched_episode": watched_episodes,
-                    "tags": tags,
-                }.items()
-                if v
-            }
+        data = {
+            k: v
+            for k, v in {
+                "status": status.value if status else None,
+                "num_watched_episodes": watched_episodes,
+                "tags": tags,
+            }.items()
+            if v is not None
+        }
+        request = Request(
+            "PATCH", f"{self.API_BASE}/anime/{anime_id}/my_list_status", data=data
         )
 
-        return MALMyListStatus.schema(unknown=Undefined.EXCLUDE).loads(
+        return MALMyListStatus.schema(unknown="exclude").load(
             self._make_request(request)
-        )[0]
+        )
 
     def delete_from_anime_list(self, anime_id: int):
         request = Request("DELETE", f"{self.API_BASE}/anime/{anime_id}/my_list_status")
@@ -184,7 +199,7 @@ class MyAnimeList:
 
         while next_page:
             request.params.update({"limit": limit, "offset": offset})
-            response = MALPagingResource.from_json(self._make_request(request))
+            response = MALPagingResource.from_dict(self._make_request(request))
 
             if response.paging.next:
                 offset += limit
@@ -199,14 +214,14 @@ class MyAnimeList:
 
         return anime_list
 
-    def _make_request(self, request: Request) -> str:
+    def _make_request(self, request: Request) -> Dict[str, Any]:
         prepped = request.prepare()
         prepped.headers.update(self._session.headers)  # type: ignore
 
         response = self._session.send(prepped)
 
         if response.ok:
-            return response.text
+            return response.json()
 
         if response.status_code == 401:
             self._refresh_auth()
@@ -255,13 +270,11 @@ class MyAnimeList:
         self._refresh_token = data["refresh_token"]
 
 
-
-
 class MyAnimeListAdapter:
     def __init__(self, myanimelist: MyAnimeList, provider: "BaseProvider") -> None:
         self.mal = myanimelist
         self.provider = provider
-    
+
     @staticmethod
     def _find_best_ratio(first_set: Set[str], second_set: Set[str]) -> float:
         best_ratio = 0
@@ -294,7 +307,7 @@ class MyAnimeListAdapter:
             titles_mal = {i.title}
             titles_provider = {anime.name}
 
-            if use_alternative_names:
+            if use_alternative_names and i.alternative_titles is not None:
                 titles_mal |= {
                     i.alternative_titles.ja,
                     i.alternative_titles.en,
@@ -323,10 +336,9 @@ class MyAnimeListAdapter:
         use_alternative_names: bool = True,
     ) -> Optional[Anime]:
         mal_titles = {mal_anime.title}
-        if use_alternative_names:
+        if use_alternative_names and mal_anime.alternative_titles is not None:
             mal_titles |= set(
                 [
-                    mal_anime.title,
                     mal_anime.alternative_titles.ja,
                     mal_anime.alternative_titles.en,
                     *mal_anime.alternative_titles.synonyms,
@@ -334,10 +346,16 @@ class MyAnimeListAdapter:
             )
 
         provider_filters = Filters()
-        if self.provider.FILTER_CAPS & FilterCapabilities.YEAR:
+        if (
+            self.provider.FILTER_CAPS & FilterCapabilities.YEAR
+            and mal_anime.start_season is not None
+        ):
             provider_filters.year = [mal_anime.start_season.year]
 
-        if self.provider.FILTER_CAPS & FilterCapabilities.SEASON:
+        if (
+            self.provider.FILTER_CAPS & FilterCapabilities.SEASON
+            and mal_anime.start_season is not None
+        ):
             provider_filters.season = [Season[mal_anime.start_season.season.upper()]]
 
         if self.provider.FILTER_CAPS & FilterCapabilities.MEDIA_TYPE:
@@ -347,9 +365,7 @@ class MyAnimeListAdapter:
                 else:
                     m_type = mal_anime.media_type
 
-                provider_filters.media_type = [
-                    MediaType[m_type.value.upper()]
-                ]
+                provider_filters.media_type = [MediaType[m_type.value.upper()]]
 
         results: Set[ProviderSearchResult] = set()
         for title in mal_titles:
