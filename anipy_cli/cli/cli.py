@@ -34,6 +34,9 @@ def run_cli(override_args: Optional[list[str]] = None):
         except FileNotFoundError:
             error("no history file found")
         return
+    elif args.refresh_config:
+        Config()._create_config()
+        return
 
     clis_dict = {
         args.download: DownloadCli,
