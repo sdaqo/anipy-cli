@@ -189,7 +189,7 @@ class Downloader:
             if ffmpeg:
                 download_path = download_path.with_suffix(container or ".mp4")
                 self.info_callback("Using FFMPEG downloader")
-                self.info_callback(f"Saving to a {container or ".mp4"} container")
+                self.info_callback(f"Saving to a {container or '.mp4'} container")
                 path = self.ffmpeg_download(stream, download_path)
             else:
                 self.info_callback("Using internal M3U8 downloader")
