@@ -4,7 +4,7 @@ from InquirerPy import inquirer
 
 from anipy_cli.cli.clis.base_cli import CliBase
 from anipy_cli.cli.menus import MALMenu
-from anipy_cli.cli.util import error
+from anipy_cli.cli.util import DotSpinner, error
 from anipy_cli.config import Config
 from anipy_cli.error import MyAnimeListError
 from anipy_cli.mal import MyAnimeList
@@ -25,10 +25,10 @@ class MalCli(CliBase):
 
     def take_input(self):
         config = Config()
-        user = config.mal_user
-        password = config.mal_password or self.options.mal_password
+        self.user = config.mal_user
+        self.password = self.options.mal_password or config.mal_password
 
-        if not user:
+        if not self.user:
             self.user = inquirer.text(
                 "Your MyAnimeList Username: ",
                 validate=lambda x: len(x) > 1,
@@ -36,7 +36,7 @@ class MalCli(CliBase):
                 long_instruction="Hint: You can save your username and password in the config!"
             ).execute()
 
-        if not password:
+        if not self.password:
             self.password = inquirer.secret(
                 "Your MyAnimeList Password: ",
                 transformer=lambda _: "[hidden]",
@@ -47,7 +47,8 @@ class MalCli(CliBase):
 
     def process(self):
         try:
-            self.mal = MyAnimeList.from_password_grant(self.user, self.password)
+            with DotSpinner("Logging into MyAnimeList..."):
+                self.mal = MyAnimeList.from_password_grant(self.user, self.password)
         except MyAnimeListError as e:
             error(f"{str(e)}\nCannot login to MyAnimeList, it is likely your credentials are wrong", fatal=True)
 
