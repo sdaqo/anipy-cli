@@ -1,10 +1,11 @@
-from dataclasses import dataclass
-from typing import Dict, List, Optional
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Set
 
-from dataclasses_json import DataClassJsonMixin
+from dataclasses_json import DataClassJsonMixin, config
+from InquirerPy import inquirer
 
 from anipy_cli.anime import Anime
-from anipy_cli.cli.util import get_prefered_providers
+from anipy_cli.cli.util import error, get_prefered_providers
 from anipy_cli.config import Config
 from anipy_cli.mal import (
     MALAnime,
@@ -18,10 +19,10 @@ from anipy_cli.provider.providers import list_providers
 
 @dataclass
 class ProviderMapping(DataClassJsonMixin):
-    provider: str
-    name: str
-    identifier: str
-    has_dub: bool
+    provider: str = field(metadata=config(field_name="pv"))
+    name: str = field(metadata=config(field_name="na"))
+    identifier: str = field(metadata=config(field_name="id"))
+    has_dub: bool = field(metadata=config(field_name="hd"))
 
 
 @dataclass
@@ -49,8 +50,15 @@ class MALLocalList(DataClassJsonMixin):
         try:
             mylist: MALLocalList = MALLocalList.from_json(local_list.read_text())
         except KeyError:
-            raise
-            ...
+            choice = inquirer.confirm(
+                message=f"Your local MyAnimeList ({str(local_list)}) is not in the correct format, should it be deleted?",
+                default=False,
+            ).execute()
+            if choice:
+                local_list.unlink()
+                return MALLocalList.read()
+            else:
+                error("could not read your MyAnimeList", fatal=True)
 
         return mylist
 
@@ -61,9 +69,13 @@ class MyAnimeListProxy:
         self.local_list = MALLocalList.read()
 
     def _cache_list(self, mylist: List[MALAnime]):
+        config = Config()
         for e in mylist:
             if self.local_list.mappings.get(e.id, None):
-                self.local_list.mappings[e.id].mal_anime = e
+                if e.my_list_status and config.mal_ignore_tag in e.my_list_status.tags:
+                    self.local_list.mappings.pop(e.id)
+                else:
+                    self.local_list.mappings[e.id].mal_anime = e
             else:
                 self.local_list.mappings[e.id] = MALProviderMapping(e, {})
 
@@ -80,11 +92,21 @@ class MyAnimeListProxy:
 
         self.local_list.write()
 
-    def get_list(self) -> List[MALAnime]:
+    def get_list(
+        self, status_catagories: Optional[Set[MALMyListStatusEnum]] = None
+    ) -> List[MALAnime]:
         config = Config()
+        mylist: List[MALAnime] = []
 
-        mylist = []
-        for s in config.mal_status_categories:
+        catagories = (
+            status_catagories
+            if status_catagories is not None
+            else set(
+                [MALMyListStatusEnum[s.upper()] for s in config.mal_status_categories]
+            )
+        )
+
+        for c in catagories:
             mylist.extend(
                 filter(
                     lambda e: (
@@ -92,31 +114,34 @@ class MyAnimeListProxy:
                         if e.my_list_status
                         else True
                     ),
-                    self.mal.get_anime_list(MALMyListStatusEnum[s.upper()]),
+                    self.mal.get_anime_list(c),
                 )
             )
 
         self._cache_list(mylist)
-        return mylist
+        filterd_list = filter(
+            lambda x: (
+                x.my_list_status.status in catagories if x.my_list_status else False
+            ),
+            mylist,
+        )
+        return list(filterd_list)
 
     def update_show(
         self,
         anime: MALAnime,
         status: Optional[MALMyListStatusEnum] = None,
         episode: Optional[int] = None,
+        tags: Set[str] = set(),
     ) -> MALMyListStatus:
         config = Config()
-
-        if anime.my_list_status:
-            if status:
-                anime.my_list_status.status = status
-            if episode:
-                anime.my_list_status.num_episodes_watched = episode
-
-        self._cache_list([anime])
-        return self.mal.update_anime_list(
-            anime.id, status=status, watched_episodes=episode, tags=config.mal_tags
+        tags |= set(config.mal_tags)
+        result = self.mal.update_anime_list(
+            anime.id, status=status, watched_episodes=episode, tags=tags
         )
+        anime.my_list_status = result
+        self._cache_list([anime])
+        return result
 
     def delete_show(self, anime: MALAnime) -> None:
         self.local_list.mappings.pop(anime.id)
@@ -156,7 +181,7 @@ class MyAnimeListProxy:
         return result
 
     def map_from_provider(
-        self, anime: Anime, mapping: Optional[MALAnime]
+        self, anime: Anime, mapping: Optional[MALAnime] = None
     ) -> Optional[MALAnime]:
         if mapping is not None:
             self._write_mapping(mapping, anime)

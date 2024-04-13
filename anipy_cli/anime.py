@@ -1,14 +1,11 @@
 from typing import TYPE_CHECKING, Optional, Union
 
-from anipy_cli.provider import (
-    Episode,
-    list_providers,
-)
+from anipy_cli.provider import Episode, list_providers
 
 if TYPE_CHECKING:
     from anipy_cli.history import HistoryEntry
-    from anipy_cli.seasonal import SeasonalEntry
     from anipy_cli.provider import BaseProvider, ProviderSearchResult
+    from anipy_cli.seasonal import SeasonalEntry
 
 
 class Anime:
@@ -28,7 +25,9 @@ class Anime:
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
         return Anime(provider(), entry.name, entry.identifier, entry.has_dub)
 
-    def __init__(self, provider: "BaseProvider", name: str, identifier: str, has_dub: bool):
+    def __init__(
+        self, provider: "BaseProvider", name: str, identifier: str, has_dub: bool
+    ):
         self.provider = provider
         self.name = name
         self.identifier = identifier
@@ -40,7 +39,12 @@ class Anime:
     def get_info(self):
         return self.provider.get_info(self.identifier)
 
-    def get_video(self, episode: Episode, preferred_quality: Optional[Union[str, int]], dub: bool = False):
+    def get_video(
+        self,
+        episode: Episode,
+        preferred_quality: Optional[Union[str, int]],
+        dub: bool = False,
+    ):
         streams = self.provider.get_video(self.identifier, episode, dub)
         streams.sort(key=lambda s: s.resolution)
 

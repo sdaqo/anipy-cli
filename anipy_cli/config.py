@@ -211,10 +211,21 @@ class Config:
         return self._get_value("mal_ignore_tag", "ignore", str)
 
     @property
+    def mal_dub_tag(self):
+        """
+        All anime in your MyAnimeList with this tag will be switched over to dub in MAL mode, if the dub is available.
+        If you do not specify a tag, anipy-cli will use `preferred_type` to choose dub or sub in MAL mode.
+
+        Examples:
+            mal_dub_tag: dub # all anime with this tag will be switched to dub
+            mal_dub_tag: null or mal_dub_tag: "" # no anime will be switched to dub, except you have preferred_type on dub
+        """
+        return self._get_value("mal_dub_tag", "dub", str)
+
+    @property
     def mal_tags(self):
         """
-        A custom tag to tag all anime in your MyAnimeList that are
-        altered/added by anipy-cli
+        Custom tags to tag all anime in your MyAnimeList that are altered/added by anipy-cli
 
         Examples:
             mal_tags: ["anipy-cli"] # tag all anime with anipy-cli
@@ -285,6 +296,7 @@ class Config:
         Examples:
             preferred_type: sub
             preferred_type: dub
+            preferred_type: null or preferred_type: "" # always ask
         """
         return self._get_value("preferred_type", None, str)
 

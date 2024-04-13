@@ -21,6 +21,9 @@ class SeasonalEntry(DataClassJsonMixin):
     def __repr__(self) -> str:
         return f"{self.name} ({'dub' if self.dub else 'sub'}) Episode {self.episode}"
 
+    def __hash__(self) -> int:
+        return hash(_get_uid(self, self.dub))
+
 
 @dataclass
 class Seasonals(DataClassJsonMixin):

@@ -78,6 +78,9 @@ class MALAnime(DataClassJsonMixin):
     def __repr__(self) -> str:
         return self.title
 
+    def __hash__(self) -> int:
+        return hash(self.id)
+
 
 @dataclass
 class MALPaging(DataClassJsonMixin):
@@ -164,7 +167,7 @@ class MyAnimeList:
         anime_id: int,
         status: Optional[MALMyListStatusEnum] = None,
         watched_episodes: Optional[int] = None,
-        tags: Optional[List[str]] = None,
+        tags: Optional[Set[str]] = None,
     ) -> MALMyListStatus:
         data = {
             k: v

@@ -1,6 +1,6 @@
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 from InquirerPy import inquirer
 from InquirerPy.utils import get_style
@@ -10,19 +10,14 @@ from anipy_cli.cli.arg_parser import CliArgs
 from anipy_cli.cli.colors import colors, cprint
 from anipy_cli.cli.mal_proxy import MyAnimeListProxy
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
-from anipy_cli.cli.util import (
-    DotSpinner,
-    error,
-    get_download_path,
-    # get_season_searches,
-    search_show_prompt,
-)
-
+from anipy_cli.cli.util import error  # get_season_searches,
+from anipy_cli.cli.util import DotSpinner, get_download_path, search_show_prompt
 from anipy_cli.config import Config
 from anipy_cli.download import Downloader
 from anipy_cli.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
 from anipy_cli.player import get_player
 from anipy_cli.provider.base import Episode
+from anipy_cli.seasonal import SeasonalEntry, get_seasonals, update_seasonal
 
 
 class MALMenu(MenuBase):
@@ -51,12 +46,8 @@ class MALMenu(MenuBase):
             MenuOption("Delete one anime from mal list", self.del_anime, "e"),
             MenuOption("List anime in mal list", self.list_animes, "l"),
             MenuOption("Map MAL anime to gogo Links", self.manual_maps, "m"),
-            # MenuOption("Sync MAL list into seasonals", self.sync_mal_to_seasonals, "s"),
-            # MenuOption(
-            #     "Sync seasonals into MAL list",
-            #     self.m_class.sync_seasonals_with_mal,
-            #     "b",
-            # ),
+            MenuOption("Sync MAL list into seasonals", self.sync_mal_seasonls, "s"),
+            MenuOption("Sync seasonals into MAL list", self.sync_seasonals_mal, "b"),
             MenuOption(
                 "Download newest episodes", lambda: self.download(all=False), "d"
             ),
@@ -162,13 +153,26 @@ class MALMenu(MenuBase):
     def list_animes(self):
         with DotSpinner("Fetching your MAL..."):
             mylist = [
-                "{} | {}/{} | {}".format(
-                    e.my_list_status.status.value.capitalize(),
-                    e.my_list_status.num_episodes_watched,
-                    e.num_episodes,
+                "{:<9} | {:<7} | {}".format(
+                    (
+                        e.my_list_status.status.value.capitalize().replace("_", "")
+                        if e.my_list_status.status != MALMyListStatusEnum.PLAN_TO_WATCH
+                        else "Planning"
+                    ),
+                    f"{e.my_list_status.num_episodes_watched}/{e.num_episodes}",
                     e.title,
                 )
-                for e in self.mal_proxy.get_list()
+                for e in self.mal_proxy.get_list(
+                    status_catagories=set(
+                        [
+                            MALMyListStatusEnum.WATCHING,
+                            MALMyListStatusEnum.COMPLETED,
+                            MALMyListStatusEnum.ON_HOLD,
+                            MALMyListStatusEnum.PLAN_TO_WATCH,
+                            MALMyListStatusEnum.DROPPED,
+                        ]
+                    )
+                )
                 if e.my_list_status
             ]
 
@@ -250,18 +254,63 @@ class MALMenu(MenuBase):
                     mal_anime, status=MALMyListStatusEnum.WATCHING, episode=int(ep)
                 )
 
-    # def sync_mal_to_seasonals(self):
-    #     self.create_gogo_maps()
-    #
-    #     self.m_class.sync_mal_with_seasonal()
-
     def manual_maps(self):
         mylist = self.mal_proxy.get_list()
         self._create_maps_mal(mylist)
 
+    def sync_seasonals_mal(self):
+        seasonals = get_seasonals().seasonals.values()
+        mappings = self._create_maps_provider(list(seasonals))
+        config = Config()
+        with DotSpinner("Syncing Seasonals into MyAnimeList") as s:
+            for k, v in mappings.items():
+                tags = set()
+                if config.mal_dub_tag:
+                    if k.dub:
+                        tags |= config.mal_dub_tag
+
+                if v.my_list_status:
+                    if config.mal_ignore_tag in v.my_list_status.tags:
+                        continue
+                    tags |= set(v.my_list_status.tags)
+
+                self.mal_proxy.update_show(
+                    v,
+                    status=MALMyListStatusEnum.WATCHING,
+                    episode=int(k.episode),
+                    tags=tags,
+                )
+            s.ok("✔")
+
+    def sync_mal_seasonls(self):
+        mylist = self.mal_proxy.get_list()
+        mappings = self._create_maps_mal(mylist)
+        config = Config()
+        with DotSpinner("Syncing MyAnimeList into Seasonals") as s:
+            for k, v in mappings.items():
+                episode = k.my_list_status.num_episodes_watched if k.my_list_status else 0
+                if v.has_dub:
+                    if not config.mal_dub_tag:
+                        dub = config.preferred_type == "dub"
+                    elif k.my_list_status and config.mal_dub_tag in k.my_list_status.tags:
+                        dub = True
+                    else:
+                        dub = False
+                else:
+                    dub = False
+
+                update_seasonal(v, episode, dub)
+            s.ok("✔")
+
     def _choose_latest(
         self, all: bool = False
     ) -> List[Tuple[Anime, MALAnime, bool, List[Episode]]]:
+        cprint(
+            colors.GREEN,
+            "Hint: ",
+            colors.END,
+            "you can fine-tune mapping behaviour in your settings!",
+        )
         with DotSpinner("Fetching your MAL..."):
             mylist = self.mal_proxy.get_list()
         for i, e in enumerate(mylist):
@@ -293,9 +342,9 @@ class MALMenu(MenuBase):
         config = Config()
         to_watch: List[Tuple[Anime, MALAnime, bool, List[Episode]]] = []
 
-        with DotSpinner("Fetching latest episodes...") as s:
+        with DotSpinner("Fetching episodes...") as s:
             for e in mylist:
-                s.write(f"> Checking out latest episodes of {e.title}")
+                s.write(f"> Checking out episodes of {e.title}")
 
                 episodes_to_watch = list(
                     range(e.my_list_status.num_episodes_watched + 1, e.num_episodes + 1)  # type: ignore
@@ -310,8 +359,20 @@ class MALMenu(MenuBase):
                     continue
 
                 if result.has_dub:
-                    s.write("> Looking for dub episodes because of config preference")
-                    episodes = result.get_episodes(config.preferred_type == "dub")
+                    if not config.mal_dub_tag:
+                        s.write(
+                            "> Looking for dub episodes because of config preference"
+                        )
+                        episodes = result.get_episodes(config.preferred_type == "dub")
+                    elif (
+                        e.my_list_status and config.mal_dub_tag in e.my_list_status.tags
+                    ):
+                        s.write(
+                            "> Looking for dub episodes because of dub tag on anime"
+                        )
+                        episodes = result.get_episodes(dub=True)
+                    else:
+                        episodes = result.get_episodes()
                     dub = True
                 else:
                     episodes = result.get_episodes()
@@ -331,10 +392,16 @@ class MALMenu(MenuBase):
 
         return to_watch
 
-    def _create_maps_mal(self, to_map: List[MALAnime]) -> List[Anime]:
+    def _create_maps_mal(self, to_map: List[MALAnime]) -> Dict[MALAnime, Anime]:
+        cprint(
+            colors.GREEN,
+            "Hint: ",
+            colors.END,
+            "you can fine-tune mapping behaviour in your settings!",
+        )
         with DotSpinner("Starting Automapping...") as s:
-            mapped: List[Anime] = []
             failed: List[MALAnime] = []
+            mappings: Dict[MALAnime, Anime] = {}
             counter = 0
 
             def do_map(anime: MALAnime, to_map_length: int):
@@ -345,7 +412,7 @@ class MALMenu(MenuBase):
                         failed.append(anime)
                         s.write(f"> Failed to map {anime.id} ({anime.title})")
                     else:
-                        mapped.append(result)
+                        mappings.update({anime: result})
                         s.write(
                             f"> Successfully mapped {anime.id} to {result.identifier}"
                         )
@@ -367,7 +434,7 @@ class MALMenu(MenuBase):
         if not failed or self.options.auto_update:
             self.print_options()
             print("Everything is mapped")
-            return mapped
+            return mappings
 
         for f in failed:
             cprint("Manually mapping ", colors.BLUE, f.title)
@@ -377,11 +444,82 @@ class MALMenu(MenuBase):
 
             map = self.mal_proxy.map_from_mal(f, anime)
             if map is not None:
-                mapped.append(map)
+                mappings.update({f: map})
 
-        return mapped
+        self.print_options()
+        return mappings
 
-    def _create_maps_provider(self, to_map: List[Union[Anime, MALAnime]]): ...
+    def _create_maps_provider(
+        self, to_map: List[SeasonalEntry]
+    ) -> Dict[SeasonalEntry, MALAnime]:
+        with DotSpinner("Starting Automapping...") as s:
+            failed: List[SeasonalEntry] = []
+            mappings: Dict[SeasonalEntry, MALAnime] = {}
+            counter = 0
+
+            def do_map(entry: SeasonalEntry, to_map_length: int):
+                nonlocal failed, counter
+                try:
+                    anime = Anime.from_seasonal_entry(entry)
+                    result = self.mal_proxy.map_from_provider(anime)
+                    if result is None:
+                        failed.append(anime)
+                        s.write(f"> Failed to map {anime.identifier} ({anime.name})")
+                    else:
+                        mappings.update({entry: result})
+                        s.write(
+                            f"> Successfully mapped {anime.identifier} to {result.id}"
+                        )
+
+                    counter += 1
+                    s.set_text(f"Progress: {counter / to_map_length * 100}%")
+                except:
+                    failed.append(entry)
+
+            with ThreadPoolExecutor(max_workers=5) as pool:
+                futures = [pool.submit(do_map, a, len(to_map)) for a in to_map]
+                try:
+                    for future in as_completed(futures):
+                        future.result()
+                except KeyboardInterrupt:
+                    pool.shutdown(wait=False, cancel_futures=True)
+                    raise
+
+        if not failed or self.options.auto_update:
+            self.print_options()
+            print("Everything is mapped")
+            return mappings
+
+        for f in failed:
+            cprint("Manually mapping ", colors.BLUE, f.name)
+            query = inquirer.text(
+                "Search Anime:",
+                long_instruction="To cancel this prompt press ctrl+z",
+                mandatory=False,
+            ).execute()
+
+            if query is None:
+                continue
+
+            with DotSpinner("Searching for ", colors.BLUE, query, "..."):
+                results = self.mal.get_search(query)
+
+            anime: MALAnime = inquirer.fuzzy(
+                message="Select Show:",
+                choices=results,
+                long_instruction="To skip this prompt press crtl+z",
+                mandatory=False,
+            ).execute()
+
+            if not anime:
+                continue
+
+            map = self.mal_proxy.map_from_provider(Anime.from_seasonal_entry(f), anime)
+            if map is not None:
+                mappings.update({f: map})
+
+        self.print_options()
+        return mappings
 
     def quit(self):
         sys.exit(0)
