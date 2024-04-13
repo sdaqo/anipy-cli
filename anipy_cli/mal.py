@@ -29,6 +29,7 @@ class MALMediaTypeEnum(Enum):
     OVA = "ova"
     ONA = "ona"
     SPECIAL = "special"
+    TV_SPECIAL = "tv_special"
     MUSIC = "music"
     UNKNOWN = "unknown"
 
@@ -341,8 +342,13 @@ class MyAnimeListAdapter:
 
         if self.provider.FILTER_CAPS & FilterCapabilities.MEDIA_TYPE:
             if mal_anime.media_type != MALMediaTypeEnum.UNKNOWN:
+                if mal_anime.media_type == MALMediaTypeEnum.TV_SPECIAL:
+                    m_type = MALMediaTypeEnum.SPECIAL
+                else:
+                    m_type = mal_anime.media_type
+
                 provider_filters.media_type = [
-                    MediaType[mal_anime.media_type.value.upper()]
+                    MediaType[m_type.value.upper()]
                 ]
 
         results: Set[ProviderSearchResult] = set()
@@ -350,7 +356,7 @@ class MyAnimeListAdapter:
             results |= set(self.provider.get_search(title))
             if use_filters:
                 results |= set(self.provider.get_search(title, provider_filters))
-        
+
         best_ratio = 0
         best_anime = None
         for r in results:
