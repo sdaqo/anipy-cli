@@ -10,17 +10,22 @@ from anipy_cli.cli.colors import colors
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.cli.util import (
     DotSpinner,
+    dub_prompt,
+    error,
     get_download_path,
     pick_episode_prompt,
     search_show_prompt,
-    dub_prompt,
-    error,
 )
 from anipy_cli.config import Config
 from anipy_cli.download import Downloader
 from anipy_cli.player import get_player
 from anipy_cli.provider.base import Episode
-from anipy_cli.seasonal import SeasonalEntry, delete_seasonal, get_seasonals, update_seasonal
+from anipy_cli.seasonal import (
+    SeasonalEntry,
+    delete_seasonal,
+    get_seasonals,
+    update_seasonal,
+)
 
 if TYPE_CHECKING:
     from anipy_cli.cli.arg_parser import CliArgs
@@ -30,8 +35,8 @@ class SeasonalMenu(MenuBase):
     def __init__(self, options: "CliArgs", rpc_client=None):
         self.rpc_client = rpc_client
         self.options = options
-        self.dl_path = Config().seasonals_dl_path
         self.player = get_player(self.rpc_client, self.options.optional_player)
+        self.dl_path = Config().seasonals_dl_path
         if options.location:
             self.dl_path = options.location
 
@@ -49,7 +54,9 @@ class SeasonalMenu(MenuBase):
     def print_header(self):
         pass
 
-    def _choose_latest(self, auto_pick: bool = False) -> List[Tuple["Anime", bool, List["Episode"]]]:
+    def _choose_latest(
+        self, auto_pick: bool = False
+    ) -> List[Tuple["Anime", bool, List["Episode"]]]:
         with DotSpinner("Fetching status of shows in seasonals..."):
             choices = []
             for s in list(get_seasonals().seasonals.values()):
@@ -63,12 +70,8 @@ class SeasonalMenu(MenuBase):
                         name=f"{anime.name} (to watch: {len(to_watch)})",
                     )
                     choices.append(ch)
-        if auto_pick:
+        if self.options.auto_update:
             return [ch.value for ch in choices]
-
-        style = get_style(
-            {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
-        )
 
         choices = inquirer.fuzzy(
             message="Select Seasonals to catch up to:",
@@ -77,7 +80,9 @@ class SeasonalMenu(MenuBase):
             long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
             mandatory=False,
             keybindings={"toggle": [{"key": "c-space"}]},
-            style=style,
+            style=get_style(
+                {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+            ),
         ).execute()
         return choices or []
 
@@ -115,9 +120,6 @@ class SeasonalMenu(MenuBase):
             error("No seasonals configured.")
             return
 
-        style = get_style(
-            {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
-        )
         entries: List[SeasonalEntry] = (
             inquirer.fuzzy(
                 message="Select Seasonals to delete:",
@@ -126,7 +128,9 @@ class SeasonalMenu(MenuBase):
                 long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
                 mandatory=False,
                 keybindings={"toggle": [{"key": "c-space"}]},
-                style=style,
+                style=get_style(
+                    {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+                ),
             ).execute()
             or []
         )
@@ -141,10 +145,9 @@ class SeasonalMenu(MenuBase):
             print(i)
 
     def download_latest(self):
-        choices = self._choose_latest(auto_pick=self.options.auto_update)
+        choices = self._choose_latest()
         config = Config()
         with DotSpinner("Starting Download...") as s:
-
             def progress_indicator(percentage: float):
                 s.set_text(f"Progress: {percentage:.1f}%")
 
@@ -175,7 +178,7 @@ class SeasonalMenu(MenuBase):
                     downloader.download(
                         stream,
                         get_download_path(
-                            anime, stream, parent_directory=config.seasonals_dl_path
+                            anime, stream, parent_directory=self.dl_path
                         ),
                         container=config.remux_to,
                         ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,

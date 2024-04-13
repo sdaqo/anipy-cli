@@ -95,7 +95,6 @@ class DownloadCli(CliBase):
     def process(self):
         config = Config()
         with DotSpinner("Starting Download...") as s:
-
             def progress_indicator(percentage: float):
                 s.set_text(f"Progress: {percentage:.1f}%")
 
@@ -124,7 +123,7 @@ class DownloadCli(CliBase):
 
                 downloader.download(
                     stream,
-                    get_download_path(self.anime, stream),
+                    get_download_path(self.anime, stream, parent_directory=self.dl_path),
                     container=config.remux_to,
                     ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
                 )
