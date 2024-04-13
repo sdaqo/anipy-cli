@@ -3,11 +3,12 @@ import inspect
 import os
 from pathlib import Path
 from string import Template
-from appdirs import user_data_dir, user_config_dir
 
 import yaml
+from appdirs import user_config_dir, user_data_dir
 
-from anipy_cli.version import __version__, __appname__
+from anipy_cli import provider
+from anipy_cli.version import __appname__, __version__
 
 
 class Config:
@@ -24,10 +25,22 @@ class Config:
         Path to user files, this includes history, seasonals files and more.
         You may use `~` or environment vars in your path.
         """
-        
+
         return self._get_path_value(
             "user_files_path", Path(user_data_dir(__appname__, appauthor=False))
         )
+
+    @property
+    def _history_file_path(self):
+        return self.user_files_path / "history.json"
+
+    @property
+    def _seasonal_file_path(self):
+        return self.user_files_path / "seasonals.json"
+
+    @property
+    def _mal_local_user_list_path(self):
+        return self.user_files_path / "mal_list.json"
 
     @property
     def download_folder_path(self):
@@ -48,18 +61,6 @@ class Config:
         return self._get_path_value(
             "seasonals_dl_path", self.download_folder_path / "seasonals"
         )
-
-    @property
-    def _history_file_path(self):
-        return self.user_files_path / "history.json"
-
-    @property
-    def _seasonal_file_path(self):
-        return self.user_files_path / "seasonals.json"
-
-    @property
-    def _mal_local_user_list_path(self):
-        return self.user_files_path / "mal_list.json"
 
     @property
     def providers(self):
@@ -182,14 +183,89 @@ class Config:
         """
         return self._get_value("auto_open_dl_defaultcli", True, bool)
 
-
     @property
     def mal_user(self):
+        """
+        Your MyAnimeList username for MAL mode.
+        """
         return self._get_value("mal_user", "", str)
 
     @property
     def mal_password(self):
+        """
+        Your MyAnimeList password for MAL mode.
+        The password may also be passed via the `--mal-password <pwd>`
+        commandline option.
+        """
         return self._get_value("mal_password", "", str)
+
+    @property
+    def mal_ignore_tag(self):
+        """
+        All anime in your MyAnimeList with this tag will be ignored by anipy-cli.
+
+        Examples:
+            mal_ignore_tag: ignore # all anime with ignore tag will be ignored
+            mal_ignore_tag: null or mal_ignore_tag: "" # no anime will be ignored
+        """
+        return self._get_value("mal_ignore_tag", "ignore", str)
+
+    @property
+    def mal_tags(self):
+        """
+        A custom tag to tag all anime in your MyAnimeList that are
+        altered/added by anipy-cli
+
+        Examples:
+            mal_tags: ["anipy-cli"] # tag all anime with anipy-cli
+            mal_tags: ["anipy-cli", "important"] # tag all anime with anipy-cli and important
+            mal_tags: null or mal_tags: [] # Do not tag the anime
+        """
+        return self._get_value("mal_tags", [], list)
+
+    @property
+    def mal_status_categories(self):
+        """
+        Status categories of your MyAnimeList that anipy-cli uses for downloading/watching
+        new episodes listing anime in your list and stuff like that.
+        Normally the watching catagory should be enough as you would normally put anime you currently
+        watch in the watching catagory.
+
+        Valid values are: watching, completed, on_hold, dropped, plan_to_watch
+        """
+        return self._get_value("mal_status_categories", ["watching"], list)
+
+    @property
+    def mal_mapping_min_similarity(self):
+        """
+        The minumum similarity between titles when mapping anime in MAL mode.
+        This is a decimal number from 0 - 1, 1 meaning 100% match and 0 meaning all characters are different.
+        If the similarity of a map is below the threshold you will be prompted for a manual map.
+
+        So in summary:
+            higher number: more exact matching, but more manual mapping
+            lower number: less exact matching, but less manual mapping
+
+        If you are interested, the algorithm being used here is this: https://en.wikipedia.org/wiki/Levenshtein_distance
+        """
+        return self._get_value("mal_mapping_min_similarity", 0.8, float)
+
+    @property
+    def mal_mapping_use_alternatives(self):
+        """
+        Check alternative names when mapping anime. If turned on this will slow down mapping
+        but provide better chances of finding a match.
+        """
+        return self._get_value("mal_mapping_use_alternatives", True, bool)
+
+    @property
+    def mal_mapping_use_filters(self):
+        """
+        Use filters (e.g. year, season etc.) of providers to narrow down the results,
+        this will lead to more accurate mapping, but provide wrong results if the filters of
+        the provider do not work properly or if anime are not correctly marked with the correct data.
+        """
+        return self._get_value("mal_mapping_use_filters", True, bool)
 
     @property
     def auto_sync_mal_to_seasonals(self):
@@ -198,10 +274,6 @@ class Config:
     @property
     def auto_map_mal_to_gogo(self):
         return self._get_value("auto_map_mal_to_gogo", False, bool)
-
-    @property
-    def mal_status_categories(self):
-        return self._get_value("mal_status_categories", list(["watching"]), list)
 
     @property
     def preferred_type(self):
@@ -277,4 +349,3 @@ class Config:
     @staticmethod
     def _get_config_path() -> Path:
         return Path(user_config_dir(__appname__, appauthor=False))
-

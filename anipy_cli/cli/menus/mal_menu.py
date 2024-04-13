@@ -1,25 +1,41 @@
 import sys
-from typing import List
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import List, Tuple, Union
 
+from InquirerPy import inquirer
+from InquirerPy.utils import get_style
+
+from anipy_cli.anime import Anime
 from anipy_cli.cli.arg_parser import CliArgs
-from anipy_cli.cli.colors import colors, cprint, cinput
-from anipy_cli.player import get_player
-from os import system as query
-
-# from anipy_cli.download import Downloader
-from anipy_cli.config import Config
-from anipy_cli.mal import MyAnimeList
-from anipy_cli.cli.util import binge, get_season_searches, error
+from anipy_cli.cli.colors import colors, cprint
+from anipy_cli.cli.mal_proxy import MyAnimeListProxy
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
+from anipy_cli.cli.util import (
+    DotSpinner,
+    error,
+    get_download_path,
+    # get_season_searches,
+    search_show_prompt,
+)
+
+from anipy_cli.config import Config
+from anipy_cli.download import Downloader
+from anipy_cli.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
+from anipy_cli.player import get_player
+from anipy_cli.provider.base import Episode
 
 
 class MALMenu(MenuBase):
     def __init__(self, mal: MyAnimeList, options: CliArgs, rpc_client=None):
         self.mal = mal
+        self.mal_proxy = MyAnimeListProxy(self.mal)
+
+        with DotSpinner("Fetching your MyAnimeList..."):
+            self.mal_proxy.get_list()
+
         self.options = options
         self.rpc_client = rpc_client
-
-        self.entry = Entry()
+        self.player = get_player(self.rpc_client, self.options.optional_player)
 
         self.dl_path = Config().seasonals_dl_path
         if options.location:
@@ -34,331 +50,338 @@ class MALMenu(MenuBase):
             MenuOption("Add Anime", self.add_anime, "a"),
             MenuOption("Delete one anime from mal list", self.del_anime, "e"),
             MenuOption("List anime in mal list", self.list_animes, "l"),
-            MenuOption("Map MAL anime to gogo Links", self.create_gogo_maps, "m"),
-            MenuOption("Sync MAL list into seasonals", self.sync_mal_to_seasonals, "s"),
+            MenuOption("Map MAL anime to gogo Links", self.manual_maps, "m"),
+            # MenuOption("Sync MAL list into seasonals", self.sync_mal_to_seasonals, "s"),
+            # MenuOption(
+            #     "Sync seasonals into MAL list",
+            #     self.m_class.sync_seasonals_with_mal,
+            #     "b",
+            # ),
             MenuOption(
-                "Sync seasonals into MAL list",
-                self.m_class.sync_seasonals_with_mal,
-                "b",
+                "Download newest episodes", lambda: self.download(all=False), "d"
             ),
-            MenuOption(
-                "Download newest episodes", lambda: self.download(mode="latest"), "d"
-            ),
-            MenuOption("Download all episodes", lambda: self.download(mode="all"), "x"),
+            MenuOption("Download all episodes", lambda: self.download(all=True), "x"),
             MenuOption("Binge watch newest episodes", self.binge_latest, "w"),
             MenuOption("Quit", self.quit, "q"),
         ]
 
     def add_anime(self):
-        searches = []
-        if (
-            not self.options.no_season_search
-            and input("Search for anime in Season? (y|n): \n>> ") == "y"
-        ):
-            searches = get_season_searches(gogo=False)
-
-        else:
-            searches.append(input("Search: "))
-
-        for search in searches:
-            if isinstance(search, dict):
-                mal_entry = search
-
-            else:
-                print("\nCurrent: ", search)
-                temp_search = self.m_class.get_anime(search)
-                names = [item["node"]["title"] for item in temp_search]
-                print_names(names)
-                selected = False
-                skip = False
-                while selected is False:
-                    try:
-                        sel_index = input("Select show (Number or c for cancel):\n")
-                        if sel_index == "c":
-                            skip = True
-                            break
-                        selected = int(sel_index) - 1
-                    except ValueError:
-                        print("Please enter a valid number.")
-                if skip:
-                    continue
-                mal_entry = temp_search[selected]
-
-            self.m_class.update_anime_list(
-                mal_entry["node"]["id"], {"status": "watching"}
-            )
-            self.create_gogo_maps()
-
-        self.print_options()
-
-    def del_anime(self):
-        mal_list = self.m_class.get_anime_list()
-        mal_list = [x for x in mal_list]
-        mal_names = [n["node"]["title"] for n in mal_list]
-        print_names(mal_names)
-        while True:
-            inp = cinput(colors.CYAN, "Enter Number: ")
-            try:
-                picked = mal_list[int(inp) - 1]["node"]["id"]
-                break
-            except:
-                error("Invalid Input")
-
-        self.m_class.del_show(picked)
-        self.print_options()
-
-    def list_animes(self):
-        mal_list = self.m_class.get_anime_list()
-        for i in mal_list:
-            status = i["node"]["my_list_status"]["status"]
-
-            if status == "completed":
-                color = colors.MAGENTA
-            elif status == "on_hold":
-                color = colors.YELLOW
-            elif status == "plan_to_watch":
-                color = colors.BLUE
-            elif status == "dropped":
-                color = colors.ERROR
-            else:
-                color = colors.GREEN
-
-            cprint(
-                colors.CYAN,
-                "==> Last watched EP: {}".format(
-                    i["node"]["my_list_status"]["num_episodes_watched"]
-                ),
-                color,
-                " | ({}) | ".format(status),
-                colors.CYAN,
-                i["node"]["title"],
-            )
-        # List is empty
-        if not mal_list:
-            cprint(colors.YELLOW, "No anime found.\nAdd an anime to your list first.")
-
-        input("Enter to continue")
-        self.print_options()
-
-    def list_possible(self, latest_urls):
-        for i in latest_urls:
-            cprint(colors.RED, f"{i}:")
-            for j in latest_urls[i]["ep_list"]:
-                cprint(colors.CYAN, f"==> EP: {j[0]}")
-
-    def download(self, mode="all"):
-        ...
-        # print("Preparing list of episodes...")
-        # if mode == "latest":
-        #     urls = self.m_class.latest_eps()
+        # searches = []
+        # if (
+        #     not self.options.no_season_search
+        #     and input("Search for anime in Season? (y|n): \n>> ") == "y"
+        # ):
+        #     searches = get_season_searches(gogo=False)
         #
         # else:
-        #     urls = self.m_class.latest_eps(all_eps=True)
+        #     searches.append(input("Search: "))
         #
-        # if not urls:
-        #     error("Nothing to download")
-        #     return
+        # for search in searches:
+        #     if isinstance(search, dict):
+        #         mal_entry = search
         #
-        # cprint(colors.CYAN, "Stuff to be downloaded:")
-        # self.list_possible(urls)
-        # if not self.options.auto_update:
-        #     cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
+        #     else:
+        #         print("\nCurrent: ", search)
+        #         temp_search = self.m_class.get_anime(search)
+        #         names = [item["node"]["title"] for item in temp_search]
+        #         print_names(names)
+        #         selected = False
+        #         skip = False
+        #         while selected is False:
+        #             try:
+        #                 sel_index = input("Select show (Number or c for cancel):\n")
+        #                 if sel_index == "c":
+        #                     skip = True
+        #                     break
+        #                 selected = int(sel_index) - 1
+        #             except ValueError:
+        #                 print("Please enter a valid number.")
+        #         if skip:
+        #             continue
+        #         mal_entry = temp_search[selected]
         #
-        # for i in urls:
-        #     cprint(f"Downloading newest urls for {i}", colors.CYAN)
-        #     show_entry = Entry()
-        #     show_entry.show_name = i
-        #     for j in urls[i]["ep_list"]:
-        #         show_entry.embed_url = ""
-        #         show_entry.ep = j[0]
-        #         show_entry.ep_url = j[1]
-        #         url_class = videourl(show_entry, self.options.quality)
-        #         url_class.stream_url()
-        #         show_entry = url_class.get_entry()
-        #         download(
-        #             show_entry, self.options.quality, self.options.ffmpeg, self.dl_path
-        #         ).download()
+        #     self.m_class.update_anime_list(
+        #         mal_entry["node"]["id"], {"status": "watching"}
+        #     )
+        #     self.create_gogo_maps()
         #
-        # if not self.options.auto_update:
-        #     self.print_options()
-
-    def binge_latest(self):
-        latest_eps = self.m_class.latest_eps()
-        cprint(colors.CYAN, "Stuff to be watched:")
-        self.list_possible(latest_eps)
-        cinput(colors.RED, "Enter to continue or CTRL+C to abort.")
-        ep_list = []
-        ep_urls = []
-        ep_dic = {}
-        for i in latest_eps:
-            for j in latest_eps[i]["ep_list"]:
-                ep_list.append(j[0])
-                ep_urls.append(j[1])
-
-            ep_dic.update(
-                {
-                    i: {
-                        "ep_urls": [x for x in ep_urls],
-                        "eps": [x for x in ep_list],
-                        "category_url": latest_eps[i]["category_url"],
-                    }
-                }
-            )
-            ep_list.clear()
-            ep_urls.clear()
-
-        player = get_player(self.rpc_client, self.options.optional_player)
-        binge(
-            ep_dic,
-            self.options.quality,
-            player=player,
-            mode="mal",
-            mal_class=self.m_class,
-        )
-        player.kill_player()
+        # self.print_options()
         self.print_options()
 
-    def sync_mal_to_seasonals(self):
-        self.create_gogo_maps()
+        query = inquirer.text(
+            "Search Anime:",
+            long_instruction="To cancel this prompt press ctrl+z",
+            mandatory=False,
+        ).execute()
 
-        self.m_class.sync_mal_with_seasonal()
+        if query is None:
+            return
 
-    def manual_gogomap(self):
-        self.create_gogo_maps()
+        with DotSpinner("Searching for ", colors.BLUE, query, "..."):
+            results = self.mal.get_search(query)
 
-    def create_gogo_maps(self):
-        if not self.options.auto_update and input(
-            "Try auto mapping MAL to gogo format? (y/n):\n"
-        ).lower() in ["y", "yes"]:
-            self.m_class.auto_map_all_without_map()
-        failed_to_map = list(self.m_class.get_all_without_gogo_map())
-        failed_to_map.sort(key=len, reverse=True)
-        if not self.options.auto_update and len(failed_to_map) > 0:
-            cprint(colors.YELLOW, "Some Anime failed auto-mapping...")
-            cprint(colors.GREEN, "Select Anime for manual mapping:\n")
-            selected = []
-            searches = []
+        anime: MALAnime = inquirer.fuzzy(
+            message="Select Show:",
+            choices=results,
+            long_instruction="To skip this prompt press crtl+z",
+            mandatory=False,
+        ).execute()
 
-            print_names(failed_to_map)
-            print("Selection: (e.g. 1, 1  3, 1-3 or * [for all]) \n")
-            cprint(colors.YELLOW, "Enter or n to skip...")
-            selection = cinput(colors.GREEN, ">>")
-            if selection.__contains__("-"):
-                selection_range = selection.strip(" ").split("-")
-                for i in range(
-                    int(selection_range[0]) - 1, int(selection_range[1]) - 1, 1
-                ):
-                    selected.append(i)
+        if anime is None:
+            return
 
-            elif selection in ["all", "*"]:
-                selected = range(0, len(failed_to_map) - 1)
-            elif selection in ["", "n", "N"]:
-                selected = []
+        with DotSpinner("Adding ", colors.BLUE, anime.title, "to your MAL...") as s:
+            self.mal_proxy.update_show(anime, MALMyListStatusEnum.WATCHING)
+            s.ok("✔")
 
-            else:
-                for i in selection.strip(" ").split(" "):
-                    selected.append(int(i) - 1)
+    def del_anime(self):
+        self.print_options()
+        with DotSpinner("Fetching your MAL..."):
+            mylist = self.mal_proxy.get_list()
 
-            for value in selected:
-                show_entries = []
-                done = False
-                search_name = failed_to_map[value]
-                while not done:
-                    cprint(
-                        colors.GREEN,
-                        "Current: ",
-                        colors.CYAN,
-                        f"{failed_to_map[value]}\n",
+        entries: List[MALAnime] = (
+            inquirer.fuzzy(
+                message="Select Seasonals to delete:",
+                choices=mylist,
+                multiselect=True,
+                long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
+                mandatory=False,
+                keybindings={"toggle": [{"key": "c-space"}]},
+                style=get_style(
+                    {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+                ),
+            ).execute()
+            or []
+        )
+
+        with DotSpinner("Deleting anime from your MAL...") as s:
+            for e in entries:
+                self.mal_proxy.delete_show(e)
+            s.ok("✔")
+
+    def list_animes(self):
+        with DotSpinner("Fetching your MAL..."):
+            mylist = [
+                "{} | {}/{} | {}".format(
+                    e.my_list_status.status.value.capitalize(),
+                    e.my_list_status.num_episodes_watched,
+                    e.num_episodes,
+                    e.title,
+                )
+                for e in self.mal_proxy.get_list()
+                if e.my_list_status
+            ]
+
+        if not mylist:
+            error("your list is empty")
+            return
+
+        inquirer.fuzzy(
+            message="View your List",
+            choices=mylist,
+            long_instruction="To skip this prompt press ctrl+z",
+        ).execute()
+
+        self.print_options()
+
+    def download(self, all: bool = False):
+        picked = self._choose_latest(all=all)
+        config = Config()
+        with DotSpinner("Starting Download...") as s:
+
+            def progress_indicator(percentage: float):
+                s.set_text(f"Progress: {percentage:.1f}%")
+
+            def info_display(message: str):
+                s.write(f"> {message}")
+
+            downloader = Downloader(progress_indicator, info_display)
+
+            for anime, mal_anime, dub, eps in picked:
+                for ep in eps:
+                    s.set_text(
+                        "Extracting streams for ",
+                        colors.BLUE,
+                        f"{anime.name} ({'dub' if dub else 'sub'})",
+                        colors.END,
+                        " Episode ",
+                        ep,
+                        "...",
                     )
-                    show_entry = Entry()
-                    query_class = query(search_name, show_entry)
-                    links_query = query_class.get_links()
 
-                    if not links_query:
-                        skip = False
-                        while not links_query and not skip:
-                            cprint(
-                                colors.ERROR,
-                                "No search results for ",
-                                colors.YELLOW,
-                                failed_to_map[value],
-                            )
-                            cprint(
-                                colors.GREEN,
-                                "Sometimes the names on GoGo are too different from the ones on MAL.\n",
-                            )
-                            cprint(colors.CYAN, "Try custom name for mapping? (Y/N):\n")
-                            if input().lower() == "y":
-                                query_class = query(
-                                    cinput(
-                                        colors.GREEN,
-                                        "Enter Search String to search on GoGo:\n",
-                                    ),
-                                    show_entry,
-                                )
-                                links_query = query_class.get_links()
-                                if links_query:
-                                    show = query_class.pick_show(cancelable=True)
-                                    if show:
-                                        show_entries.append(show_entry)
-                                        mapped = self.m_class.manual_map_gogo_mal(
-                                            failed_to_map[value],
-                                            {
-                                                "link": show_entry.category_url,
-                                                "name": show_entry.show_name,
-                                            },
-                                        )
-                                        if mapped:
-                                            del failed_to_map[value]
-                                            del selected[value]
-                            else:
-                                print("Skipping show")
-                                skip = True
-                                done = True
-                    elif links_query[0] != 0:
-                        links, names = links_query
-                        search_another = True
-                        while search_another and len(links) > 0:
-                            show = query_class.pick_show(cancelable=True)
-                            if show:
-                                show_entries.append(show_entry)
-                                self.m_class.manual_map_gogo_mal(
-                                    failed_to_map[value],
-                                    {
-                                        "link": show_entry.category_url,
-                                        "name": show_entry.show_name,
-                                    },
-                                )
+                    stream = anime.get_video(ep, self.options.quality, dub=dub)
 
-                                links.remove(
-                                    "/category/"
-                                    + show_entry.category_url.split("/category/")[1]
-                                )
-                                names.remove(show_entry.show_name)
-                                print(
-                                    f"{colors.GREEN} Added {show_entry.show_name} ...{colors.END}"
-                                )
-                                if input(
-                                    f"Add another show map to {failed_to_map[value]}? (y/n):\n"
-                                ).lower() not in ["y", "yes"]:
-                                    search_another = False
-                        done = True
+                    info_display(
+                        f"Downloading Episode {stream.episode} of {anime.name}"
+                    )
+                    s.set_text("Downloading...")
+
+                    downloader.download(
+                        stream,
+                        get_download_path(anime, stream, parent_directory=self.dl_path),
+                        container=config.remux_to,
+                        ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
+                    )
+                    self.mal_proxy.update_show(
+                        mal_anime, status=MALMyListStatusEnum.WATCHING, episode=int(ep)
+                    )
+
+    def binge_latest(self):
+        picked = self._choose_latest()
+
+        for anime, mal_anime, dub, eps in picked:
+            for ep in eps:
+                with DotSpinner(
+                    "Extracting streams for ",
+                    colors.BLUE,
+                    f"{anime.name} ({'dub' if dub else 'sub'})",
+                    colors.END,
+                    " Episode ",
+                    ep,
+                    "...",
+                ) as s:
+                    stream = anime.get_video(ep, self.options.quality, dub=dub)
+                    s.ok("✔")
+
+                self.player.play_title(anime, stream)
+                self.player.wait()
+
+                self.mal_proxy.update_show(
+                    mal_anime, status=MALMyListStatusEnum.WATCHING, episode=int(ep)
+                )
+
+    # def sync_mal_to_seasonals(self):
+    #     self.create_gogo_maps()
+    #
+    #     self.m_class.sync_mal_with_seasonal()
+
+    def manual_maps(self):
+        mylist = self.mal_proxy.get_list()
+        self._create_maps_mal(mylist)
+
+    def _choose_latest(
+        self, all: bool = False
+    ) -> List[Tuple[Anime, MALAnime, bool, List[Episode]]]:
+        with DotSpinner("Fetching your MAL..."):
+            mylist = self.mal_proxy.get_list()
+        for i, e in enumerate(mylist):
+            if e.my_list_status is None:
+                mylist.pop(i)
+                continue
+
+            if e.my_list_status.num_episodes_watched == e.num_episodes:
+                mylist.pop(i)
+
+        if not all or self.options.auto_update:
+            choices = inquirer.fuzzy(
+                message="Select shows to catch up to:",
+                choices=mylist,
+                multiselect=True,
+                long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
+                mandatory=False,
+                keybindings={"toggle": [{"key": "c-space"}]},
+                style=get_style(
+                    {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+                ),
+            ).execute()
+
+            if choices is None:
+                return []
+
+            mylist = list(choices)
+
+        config = Config()
+        to_watch: List[Tuple[Anime, MALAnime, bool, List[Episode]]] = []
+
+        with DotSpinner("Fetching latest episodes...") as s:
+            for e in mylist:
+                s.write(f"> Checking out latest episodes of {e.title}")
+
+                episodes_to_watch = list(
+                    range(e.my_list_status.num_episodes_watched + 1, e.num_episodes + 1)  # type: ignore
+                )
+
+                result = self.mal_proxy.map_from_mal(e)
+
+                if result is None:
+                    s.write(
+                        f"> No mapping found for {e.title} please use the `m` option to map it"
+                    )
+                    continue
+
+                if result.has_dub:
+                    s.write("> Looking for dub episodes because of config preference")
+                    episodes = result.get_episodes(config.preferred_type == "dub")
+                    dub = True
+                else:
+                    episodes = result.get_episodes()
+                    dub = False
+
+                will_watch = []
+                for ep in episodes_to_watch:
+                    try:
+                        idx = episodes.index(ep)
+                        will_watch.append(episodes[idx])
+                    except ValueError:
+                        s.write(f"> Episode {ep} not found in provider, skipping...")
+
+                to_watch.append((result, e, dub, will_watch))
+
+            s.ok("✔")
+
+        return to_watch
+
+    def _create_maps_mal(self, to_map: List[MALAnime]) -> List[Anime]:
+        with DotSpinner("Starting Automapping...") as s:
+            mapped: List[Anime] = []
+            failed: List[MALAnime] = []
+            counter = 0
+
+            def do_map(anime: MALAnime, to_map_length: int):
+                nonlocal failed, counter
+                try:
+                    result = self.mal_proxy.map_from_mal(anime)
+                    if result is None:
+                        failed.append(anime)
+                        s.write(f"> Failed to map {anime.id} ({anime.title})")
                     else:
-                        search_name_parts = search_name.split(" ")
-                        if len(search_name_parts) <= 1:
-                            print(
-                                f"{colors.YELLOW}Could not find {failed_to_map[value]} on gogo.{colors.END}"
-                            )
-                            done = True
-                        else:
-                            print(
-                                f"{colors.YELLOW} Nothing found. Trying to shorten name...{colors.END}"
-                            )
+                        mapped.append(result)
+                        s.write(
+                            f"> Successfully mapped {anime.id} to {result.identifier}"
+                        )
 
-                            search_name_parts.pop()
-                            search_name = " ".join(search_name_parts)
-        self.m_class.write_save_data()
-        self.m_class.write_mal_list()
+                    counter += 1
+                    s.set_text(f"Progress: {counter / to_map_length * 100}%")
+                except:
+                    failed.append(anime)
+
+            with ThreadPoolExecutor(max_workers=5) as pool:
+                futures = [pool.submit(do_map, a, len(to_map)) for a in to_map]
+                try:
+                    for future in as_completed(futures):
+                        future.result()
+                except KeyboardInterrupt:
+                    pool.shutdown(wait=False, cancel_futures=True)
+                    raise
+
+        if not failed or self.options.auto_update:
+            self.print_options()
+            print("Everything is mapped")
+            return mapped
+
+        for f in failed:
+            cprint("Manually mapping ", colors.BLUE, f.title)
+            anime = search_show_prompt()
+            if not anime:
+                continue
+
+            map = self.mal_proxy.map_from_mal(f, anime)
+            if map is not None:
+                mapped.append(map)
+
+        return mapped
+
+    def _create_maps_provider(self, to_map: List[Union[Anime, MALAnime]]): ...
 
     def quit(self):
         sys.exit(0)
