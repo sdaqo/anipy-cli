@@ -518,7 +518,7 @@ class MALMenu(MenuBase):
                     pool.shutdown(wait=False, cancel_futures=True)
                     raise
 
-        if not failed or self.options.auto_update:
+        if not failed or self.options.auto_update or self.options.mal_sync_seasonals:
             self.print_options()
             print("Everything is mapped")
             return mappings

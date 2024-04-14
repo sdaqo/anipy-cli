@@ -333,6 +333,17 @@ def parsenum(n: str):
         return float(n)
 
 
+def find_closest(episodes: List["Episode"], target: int) -> "Episode":
+    left, right = 0, len(episodes) - 1
+    while left < right:
+        if abs(episodes[left] - target) <= abs(episodes[right] - target):
+            right -= 1
+        else:
+            left += 1
+
+    return episodes[left]
+
+
 def search_in_season_on_gogo(s_year, s_name):
     # page = 1
     # content = True

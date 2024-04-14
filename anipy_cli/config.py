@@ -280,6 +280,13 @@ class Config:
 
     @property
     def auto_sync_mal_to_seasonals(self):
+        """
+        DEPRECATED
+        This option was deprecated in 3.0.0, please consider using the `--mal-sync-seasonals`
+        cli option in compination with `-M` instead.
+
+        Automatically sync MyAnimeList to Seasonals list.
+        """
         return self._get_value("auto_sync_mal_to_seasonals", False, bool)
 
     @property

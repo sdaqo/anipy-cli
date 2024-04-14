@@ -59,6 +59,8 @@ class MalCli(CliBase):
         menu = MALMenu(mal=self.mal, options=self.options, rpc_client=self.rpc_client)
 
         if self.options.auto_update:
-            menu.download(mode="all")
+            menu.download()
+        elif self.options.mal_sync_seasonals:
+            menu.sync_mal_seasonls()
         else:
             menu.run()

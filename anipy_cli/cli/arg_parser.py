@@ -18,6 +18,7 @@ class CliArgs:
     ffmpeg: bool
     no_season_search: bool
     auto_update: bool
+    mal_sync_seasonals: bool
     optional_player: Optional[str]
     search: Optional[str]
     location: Optional[Path]
@@ -143,7 +144,7 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         required=False,
         dest="auto_update",
         action="store_true",
-        help="Automatically update and download all Anime in seasonals list from start EP to newest.",
+        help="Automatically update and download all Anime in seasonals or mal mode from start EP to newest.",
     )
 
     options_group.add_argument(
@@ -171,6 +172,14 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         dest="mal_password",
         action="store",
         help="Provide password for MAL login (overrides password set in config)",
+    )
+
+    options_group.add_argument(
+        "--mal-sync-to-seasonals",
+        required=False,
+        dest="mal_sync_seasonals",
+        action="store_true",
+        help="Automatically sync myanimelist to seasonals (only works with `-M`)",
     )
 
     info_group.add_argument(
