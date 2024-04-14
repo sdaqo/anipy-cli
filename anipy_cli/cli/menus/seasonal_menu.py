@@ -145,8 +145,14 @@ class SeasonalMenu(MenuBase):
             print(i)
 
     def download_latest(self):
-        choices = self._choose_latest()
+        picked = self._choose_latest()
         config = Config()
+        total_eps = sum([len(e) for a,d,e in picked])
+        if total_eps == 0:
+            print("Nothing to download, returning...")
+            return
+        else:
+            print(f"Downloading a total of {total_eps} episode(s)")
         with DotSpinner("Starting Download...") as s:
             def progress_indicator(percentage: float):
                 s.set_text(f"Progress: {percentage:.1f}%")
@@ -156,7 +162,7 @@ class SeasonalMenu(MenuBase):
 
             downloader = Downloader(progress_indicator, info_display)
 
-            for anime, dub, eps in choices:
+            for anime, dub, eps in picked:
                 for ep in eps:
                     s.set_text(
                         "Extracting streams for ",
@@ -190,7 +196,12 @@ class SeasonalMenu(MenuBase):
 
     def binge_latest(self):
         picked = self._choose_latest()
-
+        total_eps = sum([len(e) for a,d,e in picked])
+        if total_eps == 0:
+            print("Nothing to watch, returning...")
+            return
+        else:
+            print(f"Playing a total of {total_eps} episode(s)")
         for anime, dub, eps in picked:
             for e in eps:
                 with DotSpinner(

@@ -191,6 +191,13 @@ class MALMenu(MenuBase):
     def download(self, all: bool = False):
         picked = self._choose_latest(all=all)
         config = Config()
+        total_eps = sum([len(e) for a,m,d,e in picked])
+        if total_eps == 0:
+            print("Nothing to download, returning...")
+            return
+        else:
+            print(f"Downloading a total of {total_eps} episode(s)")
+
         with DotSpinner("Starting Download...") as s:
 
             def progress_indicator(percentage: float):
@@ -216,7 +223,7 @@ class MALMenu(MenuBase):
                     stream = anime.get_video(ep, self.options.quality, dub=dub)
 
                     info_display(
-                        f"Downloading Episode {stream.episode} of {anime.name}"
+                        f"Downloading Episode {stream.episode} of {anime.name} ({'dub' if dub else 'sub'})"
                     )
                     s.set_text("Downloading...")
 
@@ -235,6 +242,12 @@ class MALMenu(MenuBase):
 
     def binge_latest(self):
         picked = self._choose_latest()
+        total_eps = sum([len(e) for a,m,d,e in picked])
+        if total_eps == 0:
+            print("Nothing to watch, returning...")
+            return
+        else:
+            print(f"Playing a total of {total_eps} episode(s)")
 
         for anime, mal_anime, dub, eps in picked:
             for ep in eps:
