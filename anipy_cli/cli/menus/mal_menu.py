@@ -226,9 +226,12 @@ class MALMenu(MenuBase):
                         container=config.remux_to,
                         ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
                     )
-                    self.mal_proxy.update_show(
-                        mal_anime, status=MALMyListStatusEnum.WATCHING, episode=int(ep)
-                    )
+                    if not all:
+                        self.mal_proxy.update_show(
+                            mal_anime,
+                            status=MALMyListStatusEnum.WATCHING,
+                            episode=int(ep),
+                        )
 
     def binge_latest(self):
         picked = self._choose_latest()
@@ -313,6 +316,7 @@ class MALMenu(MenuBase):
         )
         with DotSpinner("Fetching your MAL..."):
             mylist = self.mal_proxy.get_list()
+
         for i, e in enumerate(mylist):
             if e.my_list_status is None:
                 mylist.pop(i)
@@ -321,7 +325,7 @@ class MALMenu(MenuBase):
             if e.my_list_status.num_episodes_watched == e.num_episodes:
                 mylist.pop(i)
 
-        if not all or self.options.auto_update:
+        if not (all or self.options.auto_update):
             choices = inquirer.fuzzy(
                 message="Select shows to catch up to:",
                 choices=mylist,
@@ -360,31 +364,32 @@ class MALMenu(MenuBase):
 
                 if result.has_dub:
                     if not config.mal_dub_tag:
-                        s.write(
-                            "> Looking for dub episodes because of config preference"
-                        )
-                        episodes = result.get_episodes(config.preferred_type == "dub")
+                        dub = config.preferred_type == "dub"
                     elif (
                         e.my_list_status and config.mal_dub_tag in e.my_list_status.tags
                     ):
-                        s.write(
-                            "> Looking for dub episodes because of dub tag on anime"
-                        )
-                        episodes = result.get_episodes(dub=True)
+                        dub = True
                     else:
-                        episodes = result.get_episodes()
-                    dub = True
+                        dub = False
                 else:
-                    episodes = result.get_episodes()
                     dub = False
 
+                if dub:
+                    s.write("> Looking for dub episodes because of config preference")
+                episodes = result.get_episodes(dub=dub)
+
                 will_watch = []
-                for ep in episodes_to_watch:
-                    try:
-                        idx = episodes.index(ep)
-                        will_watch.append(episodes[idx])
-                    except ValueError:
-                        s.write(f"> Episode {ep} not found in provider, skipping...")
+                if all:
+                    will_watch.extend(episodes)
+                else:
+                    for ep in episodes_to_watch:
+                        try:
+                            idx = episodes.index(ep)
+                            will_watch.append(episodes[idx])
+                        except ValueError:
+                            s.write(
+                                f"> Episode {ep} not found in provider, skipping..."
+                            )
 
                 to_watch.append((result, e, dub, will_watch))
 
