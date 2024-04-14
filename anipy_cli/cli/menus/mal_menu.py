@@ -1,6 +1,6 @@
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 from InquirerPy import inquirer
 from InquirerPy.utils import get_style
@@ -11,7 +11,12 @@ from anipy_cli.cli.colors import colors, cprint
 from anipy_cli.cli.mal_proxy import MyAnimeListProxy
 from anipy_cli.cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.cli.util import error  # get_season_searches,
-from anipy_cli.cli.util import DotSpinner, get_download_path, search_show_prompt
+from anipy_cli.cli.util import (
+    DotSpinner,
+    find_closest,
+    get_download_path,
+    search_show_prompt,
+)
 from anipy_cli.config import Config
 from anipy_cli.download import Downloader
 from anipy_cli.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
@@ -304,16 +309,26 @@ class MALMenu(MenuBase):
         config = Config()
         with DotSpinner("Syncing MyAnimeList into Seasonals") as s:
             for k, v in mappings.items():
-                episode = k.my_list_status.num_episodes_watched if k.my_list_status else 0
+                provider_episodes = v.get_episodes()
+                episode = (
+                    k.my_list_status.num_episodes_watched if k.my_list_status else 0
+                )
                 if v.has_dub:
                     if not config.mal_dub_tag:
                         dub = config.preferred_type == "dub"
-                    elif k.my_list_status and config.mal_dub_tag in k.my_list_status.tags:
+                    elif (
+                        k.my_list_status and config.mal_dub_tag in k.my_list_status.tags
+                    ):
                         dub = True
                     else:
                         dub = False
                 else:
                     dub = False
+
+                if episode == 0:
+                    episode = provider_episodes[0]
+                else:
+                    episode = find_closest(provider_episodes, episode)
 
                 update_seasonal(v, episode, dub)
             s.ok("✔")
