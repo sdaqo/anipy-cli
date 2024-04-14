@@ -8,6 +8,7 @@ from anipy_cli.cli.util import (
     get_download_path,
     # get_season_searches,
     dub_prompt,
+    parse_auto_search,
     pick_episode_range_prompt,
     search_show_prompt,
 )
@@ -80,6 +81,10 @@ class DownloadCli(CliBase):
         # self.show_entries.append(
         #     {"show_entry": deepcopy(self.entry), "ep_list": deepcopy(ep_list)}
         # )
+        if self.options.search is not None:
+            self.anime, self.dub, self.episodes = parse_auto_search(self.options.search)
+            return
+
         anime = search_show_prompt()
 
         if anime is None:

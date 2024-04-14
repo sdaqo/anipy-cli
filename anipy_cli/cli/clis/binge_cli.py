@@ -1,21 +1,22 @@
 import sys
 from typing import TYPE_CHECKING, List, Optional
-from anipy_cli.cli.colors import cprint, colors
-from anipy_cli.player import get_player
+
+from anipy_cli.cli.clis.base_cli import CliBase
+from anipy_cli.cli.colors import colors, cprint
 from anipy_cli.cli.util import (
     DotSpinner,
-    error,
-    search_show_prompt,
-    pick_episode_range_prompt,
     dub_prompt,
-    DotSpinner
+    error,
+    parse_auto_search,
+    pick_episode_range_prompt,
+    search_show_prompt,
 )
-from anipy_cli.cli.clis.base_cli import CliBase
+from anipy_cli.player import get_player
 
 if TYPE_CHECKING:
     from anipy_cli.anime import Anime
-    from anipy_cli.provider import Episode
     from anipy_cli.cli.arg_parser import CliArgs
+    from anipy_cli.provider import Episode
 
 
 class BingeCli(CliBase):
@@ -32,6 +33,10 @@ class BingeCli(CliBase):
         cprint(colors.GREEN, "***Binge Mode***")
 
     def take_input(self):
+        if self.options.search is not None:
+            self.anime, self.dub, self.episodes = parse_auto_search(self.options.search)
+            return
+
         anime = search_show_prompt()
 
         if anime is None:

@@ -83,10 +83,12 @@ class SubProcessPlayerBase(PlayerBase):
         self._sub_proc = self._open_sproc(player_cmd)
 
     def wait(self):
-        self._sub_proc.wait()
+        if self._sub_proc is not None:
+            self._sub_proc.wait()
 
     def kill_player(self):
-        self._sub_proc.kill()
+        if self._sub_proc is not None:
+            self._sub_proc.kill()
 
     @staticmethod
     def _open_sproc(player_command: List[str]) -> sp.Popen:
@@ -95,7 +97,7 @@ class SubProcessPlayerBase(PlayerBase):
                 sub_proc = sp.Popen(player_command)
             else:
                 sub_proc = sp.Popen(player_command, stdout=sp.PIPE, stderr=sp.DEVNULL)
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             raise PlayerError(f"Executable {player_command[0]} was not found")
 
         return sub_proc

@@ -19,6 +19,7 @@ class CliArgs:
     no_season_search: bool
     auto_update: bool
     optional_player: Optional[str]
+    search: Optional[str]
     location: Optional[Path]
     mal_password: Optional[str]
     config: bool
@@ -96,6 +97,15 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         dest="delete",
         action="store_true",
         help="Delete your History.",
+    )
+
+    options_group.add_argument(
+        "-s",
+        "--search",
+        required=False,
+        dest="search",
+        action="store",
+        help="Provide a search term to the Download or Binge mode in this format: {query}:{episode range}:{dub/sub}. Examples: 'frieren:1-10:sub' or 'frieren:1:sub' or 'frieren:1-3 7-12:dub'",
     )
 
     options_group.add_argument(

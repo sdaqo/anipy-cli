@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, List, Optional
+from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple
 
 from InquirerPy import inquirer
 from yaspin.core import Yaspin
@@ -217,24 +217,7 @@ def pick_episode_range_prompt(anime: "Anime", dub: bool) -> List["Episode"]:
     if res is None:
         return []
 
-    ranges = res.split()
-    picked = set()
-    for r in ranges:
-        numbers = r.split("-")
-        if numbers[0] > numbers[-1]:
-            error(f"invalid range: {r}")
-            return pick_episode_range_prompt(anime, dub)
-
-        picked = picked | set(
-            episodes[
-                episodes.index(parsenum(numbers[0])) : episodes.index(
-                    parsenum(numbers[-1])
-                )
-                + 1
-            ]
-        )
-
-    return sorted(picked)
+    return parse_episode_ranges(res, episodes)
 
 
 def dub_prompt(anime: "Anime") -> bool:
@@ -288,6 +271,61 @@ def get_download_path(
     return download_folder / anime_name / filename
 
 
+def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episode"]:
+    picked = set()
+    for r in ranges.split():
+        numbers = r.split("-")
+        if numbers[0] > numbers[-1]:
+            error(f"invalid range: {r}")
+            continue
+            # return pick_episode_range_prompt(anime, dub)
+
+        picked = picked | set(
+            episodes[
+                episodes.index(parsenum(numbers[0])) : episodes.index(
+                    parsenum(numbers[-1])
+                )
+                + 1
+            ]
+        )
+
+    return sorted(picked)
+
+
+def parse_auto_search(passed: str) -> Tuple["Anime", bool, List["Episode"]]:
+    options = iter(passed.split(":"))
+    query = next(options, None)
+    ranges = next(options, None)
+    ltype = next(options, None)
+
+    if not query:
+        error("you provided the search parameter but no query", fatal=True)
+
+    if not ranges:
+        error("you provided the search parameter but no episode ranges", fatal=True)
+
+
+    if not (ltype == "sub" or ltype == "dub"):
+        ltype = Config().preferred_type
+    
+    with DotSpinner("Searching for ", colors.BLUE, query, "..."):
+        results: List[Anime] = []
+        for provider in get_prefered_providers():
+            results.extend(
+                [
+                    Anime.from_search_result(provider, x)
+                    for x in provider.get_search(query)
+                ]
+            )
+    if len(results) == 0:
+        error(f"no anime found for query {query}", fatal=True)
+
+    result = results[0]
+    episodes = result.get_episodes(dub=ltype == "dub")
+    choosen = parse_episode_ranges(ranges, episodes)
+
+    return result, ltype == "dub", choosen
+
 def parsenum(n: str):
     try:
         return int(n)
@@ -328,22 +366,6 @@ def search_in_season_on_gogo(s_year, s_name):
     #
     # return filtered_list
     ...
-
-
-def filter_anime_list_dub_sub(gogo_anime_season_list):
-    if "sub" not in Config().anime_types and "dub" in Config().anime_types:
-        filtered_list = [
-            x for x in gogo_anime_season_list if "(dub)" in x["name"].lower()
-        ]
-
-    elif "dub" not in Config().anime_types and "sub" in Config().anime_types:
-        filtered_list = [
-            x for x in gogo_anime_season_list if "(dub)" not in x["name"].lower()
-        ]
-
-    else:
-        filtered_list = gogo_anime_season_list
-    return filtered_list
 
 
 def error(error: str, fatal: bool = False):
