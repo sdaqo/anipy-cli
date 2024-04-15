@@ -156,6 +156,9 @@ class Config:
         Do not add a suffix (e.g. '.mp4') here, if you want to change this
         look at the `remux_to` config option.
 
+        You have to at least use episode_number in the format or else, while downloading, 
+        perceding episodes of the same series will be skipped because the file name will be the same.
+
         Examples:
             download_name_format: "[{provider}] {show_name} E{episode_number} [{type}][{quality}p]"
             download_name_format: "{show_name}_{episode_number}"

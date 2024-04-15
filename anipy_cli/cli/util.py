@@ -19,55 +19,6 @@ if TYPE_CHECKING:
     from anipy_cli.provider import BaseProvider, Episode, ProviderStream
 
 
-def binge(ep_list, quality, player: "PlayerBase", mode="", mal_class=None):
-    """
-    TODO: bruh what is this, let this accept a list of Entry
-    Accepts ep_list like so:
-        {"name" {'ep_urls': [], 'eps': [], 'category_url': }, "next_anime"...}
-    """
-    # cprint(colors.RED, "To quit press CTRL+C")
-    # try:
-    #     for i in ep_list:
-    #         print(i)
-    #         show_entry = Entry()
-    #         show_entry.show_name = i
-    #         show_entry.category_url = ep_list[i]["category_url"]
-    #         show_entry.latest_ep = epHandler(show_entry).get_latest()
-    #         for url, ep in zip(ep_list[i]["ep_urls"], ep_list[i]["eps"]):
-    #             show_entry.ep = ep
-    #             show_entry.embed_url = ""
-    #             show_entry.ep_url = url
-    #             cprint(
-    #                 colors.GREEN,
-    #                 "Fetching links for: ",
-    #                 colors.END,
-    #                 show_entry.show_name,
-    #                 colors.RED,
-    #                 f""" | EP: {
-    #                 show_entry.ep
-    #                 }/{
-    #                 show_entry.latest_ep
-    #                 }""",
-    #             )
-    #
-    #             url_class = videourl(show_entry, quality)
-    #             url_class.stream_url()
-    #             show_entry = url_class.get_entry()
-    #             player.play_title(show_entry)
-    #             player.wait()
-    #
-    #             if mode == "seasonal":
-    #                 Seasonal().update_show(
-    #                     show_entry.show_name, show_entry.category_url, show_entry.ep
-    #                 )
-    #             elif mode == "mal":
-    #                 mal_class.update_watched(show_entry.show_name, show_entry.ep)
-    #
-    # except KeyboardInterrupt:
-    #     player.kill_player()
-    ...
-
-
 def get_season_searches(gogo=True):
     searches = []
     selected = []
@@ -252,19 +203,14 @@ def get_download_path(
     download_folder = parent_directory or config.download_folder_path
 
     anime_name = Downloader._get_valid_pathname(anime.name)
-    try:
-        filename = config.download_name_format.format(
-            show_name=anime_name,
-            episode_number=stream.episode,
-            quality=stream.resolution,
-            provider=anime.provider.NAME,
-            type="dub" if stream.dub else "sub",
-        )
-    except KeyError:
-        error(
-            "you have not used all fields in the download_name_format, check your config",
-            fatal=True,
-        )
+    filename = config.download_name_format.format(
+        show_name=anime_name,
+        episode_number=stream.episode,
+        quality=stream.resolution,
+        provider=anime.provider.NAME,
+        type="dub" if stream.dub else "sub",
+
+    )
 
     filename = Downloader._get_valid_pathname(filename)  # type: ignore
 
