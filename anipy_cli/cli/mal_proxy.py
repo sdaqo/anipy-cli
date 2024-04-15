@@ -119,13 +119,13 @@ class MyAnimeListProxy:
             )
 
         self._cache_list(mylist)
-        filterd_list = filter(
+        filtered_list = filter(
             lambda x: (
                 x.my_list_status.status in catagories if x.my_list_status else False
             ),
             mylist,
         )
-        return list(filterd_list)
+        return list(filtered_list)
 
     def update_show(
         self,

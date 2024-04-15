@@ -48,11 +48,12 @@ class MALMenu(MenuBase):
     def menu_options(self) -> List[MenuOption]:
         return [
             MenuOption("Add Anime", self.add_anime, "a"),
-            MenuOption("Delete one anime from mal list", self.del_anime, "e"),
-            MenuOption("List anime in mal list", self.list_animes, "l"),
-            MenuOption("Map MAL anime to gogo Links", self.manual_maps, "m"),
-            MenuOption("Sync MAL list into seasonals", self.sync_mal_seasonls, "s"),
-            MenuOption("Sync seasonals into MAL list", self.sync_seasonals_mal, "b"),
+            MenuOption("Delete one anime from MyAnimeList", self.del_anime, "e"),
+            MenuOption("List anime in MyAnimeList", self.list_anime, "l"),
+            MenuOption("Tag anime in MyAnimeList (dub/ignore)", self.tag_anime, "t"),
+            MenuOption("Map MyAnimeList anime to providers", self.manual_maps, "m"),
+            MenuOption("Sync MyAnimeList into seasonals", self.sync_mal_seasonls, "s"),
+            MenuOption("Sync seasonals into MyAnimeList", self.sync_seasonals_mal, "b"),
             MenuOption(
                 "Download newest episodes", lambda: self.download(all=False), "d"
             ),
@@ -155,7 +156,7 @@ class MALMenu(MenuBase):
                 self.mal_proxy.delete_show(e)
             s.ok("✔")
 
-    def list_animes(self):
+    def list_anime(self):
         with DotSpinner("Fetching your MAL..."):
             mylist = [
                 "{:<9} | {:<7} | {}".format(
@@ -193,10 +194,12 @@ class MALMenu(MenuBase):
 
         self.print_options()
 
+    def tag_anime(self): ...
+
     def download(self, all: bool = False):
         picked = self._choose_latest(all=all)
         config = Config()
-        total_eps = sum([len(e) for a,m,d,e in picked])
+        total_eps = sum([len(e) for a, m, d, e in picked])
         if total_eps == 0:
             print("Nothing to download, returning...")
             return
@@ -247,7 +250,7 @@ class MALMenu(MenuBase):
 
     def binge_latest(self):
         picked = self._choose_latest()
-        total_eps = sum([len(e) for a,m,d,e in picked])
+        total_eps = sum([len(e) for a, m, d, e in picked])
         if total_eps == 0:
             print("Nothing to watch, returning...")
             return
