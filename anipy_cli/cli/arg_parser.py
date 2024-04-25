@@ -29,7 +29,7 @@ class CliArgs:
 
 def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
     parser = argparse.ArgumentParser(
-        description="Play Animes from gogoanime in local video-player or Download them.",
+        description="Play Animes from online anime providers locally or download them, and much more.",
         add_help=False,
     )
 

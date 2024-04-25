@@ -454,7 +454,7 @@ class MALMenu(MenuBase):
                         )
 
                     counter += 1
-                    s.set_text(f"Progress: {counter / to_map_length * 100}%")
+                    s.set_text(f"Progress: {counter / to_map_length * 100:.1f}%")
                 except:
                     failed.append(anime)
 
