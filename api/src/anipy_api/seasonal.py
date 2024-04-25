@@ -49,7 +49,9 @@ def get_seasonals(file: Path) -> Seasonals:
     return Seasonals.read(file)
 
 
-def get_seasonal_entry(file: Path, anime: "Anime", dub: bool) -> Optional[SeasonalEntry]:
+def get_seasonal_entry(
+    file: Path, anime: "Anime", dub: bool
+) -> Optional[SeasonalEntry]:
     seasonals = Seasonals.read(file)
 
     return seasonals.seasonals.get(_get_uid(anime, dub), None)

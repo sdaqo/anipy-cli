@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class MpvControllable(mpv.MPV, PlayerBase):
-    def __init__(self, rpc_client = None):
+    def __init__(self, rpc_client=None):
         super().__init__(
             input_default_bindings=True,
             input_vo_keyboard=True,

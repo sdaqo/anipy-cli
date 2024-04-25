@@ -1,12 +1,13 @@
 from typing import List
 from anipy_api.player.base import SubProcessPlayerBase
 
+
 class Vlc(SubProcessPlayerBase):
-    def __init__(self, player_path: str, extra_args: List[str] = [], rpc_client = None):
+    def __init__(self, player_path: str, extra_args: List[str] = [], rpc_client=None):
         player_args_template = [
             "--meta-title='{media_title}'",
             "{stream_url}",
-            *extra_args
+            *extra_args,
         ]
 
         super().__init__(

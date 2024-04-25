@@ -1,6 +1,7 @@
 from typing import List
 from anipy_api.player.base import SubProcessPlayerBase
 
+
 class Syncplay(SubProcessPlayerBase):
     def __init__(self, player_path: str, extra_args: List[str] = [], rpc_client=None):
         self.player_exec = "syncplay"
@@ -8,7 +9,7 @@ class Syncplay(SubProcessPlayerBase):
             "--",
             "--meta-title='{media_title}'",
             "{stream_url}",
-            *extra_args
+            *extra_args,
         ]
 
         super().__init__(

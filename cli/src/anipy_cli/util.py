@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple
 
 from InquirerPy import inquirer
-from anipy_api.player import  get_player
+from anipy_api.player import get_player
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
 
@@ -16,6 +16,7 @@ from anipy_cli.colors import cinput, color, colors, cprint
 if TYPE_CHECKING:
     from anipy_api.provider import BaseProvider, Episode, ProviderStream
     from anipy_api.player import PlayerBase
+
 
 def get_season_searches(gogo=True):
     searches = []
@@ -207,7 +208,6 @@ def get_download_path(
         quality=stream.resolution,
         provider=anime.provider.NAME,
         type="dub" if stream.dub else "sub",
-
     )
 
     filename = Downloader._get_valid_pathname(filename)  # type: ignore
@@ -248,10 +248,9 @@ def parse_auto_search(passed: str) -> Tuple["Anime", bool, List["Episode"]]:
     if not ranges:
         error("you provided the search parameter but no episode ranges", fatal=True)
 
-
     if not (ltype == "sub" or ltype == "dub"):
         ltype = Config().preferred_type
-    
+
     with DotSpinner("Searching for ", colors.BLUE, query, "..."):
         results: List[Anime] = []
         for provider in get_prefered_providers():
@@ -269,6 +268,7 @@ def parse_auto_search(passed: str) -> Tuple["Anime", bool, List["Episode"]]:
     choosen = parse_episode_ranges(ranges, episodes)
 
     return result, ltype == "dub", choosen
+
 
 def parsenum(n: str):
     try:
@@ -330,7 +330,10 @@ def error(error: str, fatal: bool = False):
         sys.stderr.write(f"anipy-cli: fatal error: {error}, exiting\n")
         sys.exit(1)
 
-def get_configured_player(player_override: Optional[str] = None, rpc_client=None) -> "PlayerBase":
+
+def get_configured_player(
+    player_override: Optional[str] = None, rpc_client=None
+) -> "PlayerBase":
     config = Config()
     player = Path(player_override or config.player_path)
 
@@ -338,7 +341,7 @@ def get_configured_player(player_override: Optional[str] = None, rpc_client=None
         args = config.mpv_commandline_options
     elif "vlc" in player.stem:
         args = config.vlc_commandline_options
-    else: 
+    else:
         args = []
 
     return get_player(player, args, rpc_client)

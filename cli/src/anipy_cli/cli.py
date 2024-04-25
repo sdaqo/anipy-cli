@@ -58,4 +58,3 @@ def run_cli(override_args: Optional[list[str]] = None):
 
 if __name__ == "__main__":
     run_cli()
-

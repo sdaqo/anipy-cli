@@ -249,7 +249,8 @@ class GoGoProvider(BaseProvider):
 
                 try:
                     req = Request(
-                        "GET", f"{self.BASE_URL}/{identifier}-japanese-dub-episode-{ep_str}"
+                        "GET",
+                        f"{self.BASE_URL}/{identifier}-japanese-dub-episode-{ep_str}",
                     )
                     res = request_page(self.session, req)
                 except HTTPError as err:

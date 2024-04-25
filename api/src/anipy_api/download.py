@@ -84,12 +84,16 @@ class Downloader:
 
         try:
             with ThreadPoolExecutor(max_workers=12) as pool_video:
-                futures = [pool_video.submit(download_ts, s) for s in m3u8_content.segments]
+                futures = [
+                    pool_video.submit(download_ts, s) for s in m3u8_content.segments
+                ]
                 try:
                     for future in as_completed(futures):
                         future.result()
                 except KeyboardInterrupt:
-                    self.info_callback("Download Interrupted, cancelling futures, this may take a while...")
+                    self.info_callback(
+                        "Download Interrupted, cancelling futures, this may take a while..."
+                    )
                     pool_video.shutdown(wait=False, cancel_futures=True)
                     raise
 
@@ -204,7 +208,10 @@ class Downloader:
             self.info_callback(f"Remuxing to {container} container")
             new_path = path.with_suffix(container)
             download = self.ffmpeg_download(
-                ProviderStream(str(path), stream.resolution, stream.episode, stream.dub), new_path
+                ProviderStream(
+                    str(path), stream.resolution, stream.episode, stream.dub
+                ),
+                new_path,
             )
             path.unlink()
             return download

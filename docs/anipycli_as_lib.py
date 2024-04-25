@@ -4,6 +4,7 @@ anipy-cli as library.
 More descriptions can be
 found by the functions/classes itself.
 """
+
 # Don't run this file, it won't work, it is only for demonstration purposes
 
 import anipy_cli

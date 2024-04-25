@@ -16,7 +16,7 @@ from anipy_cli.util import (
     get_download_path,
     search_show_prompt,
     error,
-    get_configured_player
+    get_configured_player,
 )
 from anipy_cli.config import Config
 from anipy_api.download import Downloader
@@ -35,7 +35,9 @@ class MALMenu(MenuBase):
 
         self.options = options
         self.rpc_client = rpc_client
-        self.player = get_configured_player(self.rpc_client, self.options.optional_player)
+        self.player = get_configured_player(
+            self.rpc_client, self.options.optional_player
+        )
 
         self.dl_path = Config().seasonals_dl_path
         if options.location:

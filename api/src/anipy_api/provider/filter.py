@@ -44,6 +44,7 @@ class FilterCapabilities(Flag):
     MEDIA_TYPE = auto()
     ALL = YEAR | SEASON | STATUS | MEDIA_TYPE
 
+
 class BaseFilter(ABC):
     def __init__(self, request: "Request"):
         self._request = request

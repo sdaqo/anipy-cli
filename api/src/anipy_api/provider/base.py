@@ -7,6 +7,7 @@ from anipy_api.provider.filter import FilterCapabilities, Filters
 
 Episode = Union[int, float]
 
+
 @dataclass(frozen=True)
 class ProviderSearchResult:
     identifier: str
@@ -54,7 +55,9 @@ class BaseProvider(ABC):
                 )
 
     @abstractmethod
-    def get_search(self, query: str, filters: Filters = Filters()) -> List[ProviderSearchResult]: ...
+    def get_search(
+        self, query: str, filters: Filters = Filters()
+    ) -> List[ProviderSearchResult]: ...
 
     @abstractmethod
     def get_info(self, identifier: str) -> ProviderInfoResult: ...
@@ -63,4 +66,6 @@ class BaseProvider(ABC):
     def get_episodes(self, identifier: str, dub: bool = False) -> List[Episode]: ...
 
     @abstractmethod
-    def get_video(self, identifier: str, episode: Episode, dub: bool = False) -> List[ProviderStream]: ...
+    def get_video(
+        self, identifier: str, episode: Episode, dub: bool = False
+    ) -> List[ProviderStream]: ...
