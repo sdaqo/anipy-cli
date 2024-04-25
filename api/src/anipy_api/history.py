@@ -24,6 +24,9 @@ class HistoryEntry(DataClassJsonMixin):
     def __repr__(self) -> str:
         return f"{self.name} ({'dub' if self.dub else 'sub'}) Episode {self.episode}"
 
+    def __hash__(self) -> int:
+        return hash(f"{self.provider}:{'dub' if self.dub else 'sub'}:{self.identifier}")
+
 
 @dataclass
 class History(DataClassJsonMixin):

@@ -66,3 +66,6 @@ class Anime:
 
     def __repr__(self) -> str:
         return f"{self.name} {'(D)' if self.has_dub else ''}"
+
+    def __hash__(self) -> int:
+        return hash(self.provider.NAME + self.identifier)

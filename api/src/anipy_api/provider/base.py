@@ -1,6 +1,7 @@
-from typing import Union, List, Optional
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import List, Optional, Union
+
 from requests import Session
 
 from anipy_api.provider.filter import FilterCapabilities, Filters
@@ -35,6 +36,9 @@ class ProviderStream:
     resolution: int
     episode: Episode
     dub: bool
+
+    def __hash__(self) -> int:
+        return hash(self.url)
 
 
 class BaseProvider(ABC):
