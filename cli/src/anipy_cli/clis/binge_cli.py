@@ -2,14 +2,14 @@ import sys
 from typing import TYPE_CHECKING, List, Optional
 
 from anipy_api.history import update_history
-from anipy_api.player import get_player
 
-from anipy_cli.clis import CliBase
+from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.util import (
     DotSpinner,
     dub_prompt,
+    get_configured_player,
     parse_auto_search,
     pick_episode_range_prompt,
     search_show_prompt,
@@ -26,7 +26,9 @@ class BingeCli(CliBase):
     def __init__(self, options: "CliArgs", rpc_client=None):
         super().__init__(options, rpc_client)
 
-        self.player = get_player(self.rpc_client, self.options.optional_player)
+        self.player = get_configured_player(
+            self.rpc_client, self.options.optional_player
+        )
 
         self.anime: Optional["Anime"] = None
         self.episodes: Optional[List["Episode"]] = None

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
-from anipy_cli.version import __version__
+from anipy_cli import __version__
 
 
 @dataclass(frozen=True)

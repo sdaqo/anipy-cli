@@ -9,18 +9,18 @@ from anipy_api.anime import Anime
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint
 from anipy_cli.mal_proxy import MyAnimeListProxy
-from anipy_cli.menus import MenuBase, MenuOption
+from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
     find_closest,
     get_download_path,
     search_show_prompt,
-    error
+    error,
+    get_configured_player
 )
 from anipy_cli.config import Config
 from anipy_api.download import Downloader
 from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
-from anipy_api.player import get_player
 from anipy_api.provider.base import Episode
 from anipy_api.seasonal import SeasonalEntry, get_seasonals, update_seasonal
 
@@ -35,7 +35,7 @@ class MALMenu(MenuBase):
 
         self.options = options
         self.rpc_client = rpc_client
-        self.player = get_player(self.rpc_client, self.options.optional_player)
+        self.player = get_configured_player(self.rpc_client, self.options.optional_player)
 
         self.dl_path = Config().seasonals_dl_path
         if options.location:
@@ -283,9 +283,9 @@ class MALMenu(MenuBase):
         self._create_maps_mal(mylist)
 
     def sync_seasonals_mal(self):
-        seasonals = get_seasonals().seasonals.values()
-        mappings = self._create_maps_provider(list(seasonals))
         config = Config()
+        seasonals = get_seasonals(config._seasonal_file_path).seasonals.values()
+        mappings = self._create_maps_provider(list(seasonals))
         with DotSpinner("Syncing Seasonals into MyAnimeList") as s:
             for k, v in mappings.items():
                 tags = set()
@@ -307,9 +307,9 @@ class MALMenu(MenuBase):
             s.ok("✔")
 
     def sync_mal_seasonls(self):
+        config = Config()
         mylist = self.mal_proxy.get_list()
         mappings = self._create_maps_mal(mylist)
-        config = Config()
         with DotSpinner("Syncing MyAnimeList into Seasonals") as s:
             for k, v in mappings.items():
                 provider_episodes = v.get_episodes()
@@ -333,7 +333,7 @@ class MALMenu(MenuBase):
                 else:
                     episode = find_closest(provider_episodes, episode)
 
-                update_seasonal(v, episode, dub)
+                update_seasonal(config._seasonal_file_path, v, episode, dub)
             s.ok("✔")
 
     def _choose_latest(
@@ -499,7 +499,7 @@ class MALMenu(MenuBase):
                     anime = Anime.from_seasonal_entry(entry)
                     result = self.mal_proxy.map_from_provider(anime)
                     if result is None:
-                        failed.append(anime)
+                        failed.append(entry)
                         s.write(f"> Failed to map {anime.identifier} ({anime.name})")
                     else:
                         mappings.update({entry: result})

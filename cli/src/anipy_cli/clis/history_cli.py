@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING, Optional
 
 from anipy_api.anime import Anime
 from anipy_api.history import get_history
-from anipy_api.player import get_player
 from InquirerPy import inquirer
 
-from anipy_cli.clis import CliBase
+from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors
+from anipy_cli.config import Config
 from anipy_cli.menus import Menu
-from anipy_cli.util import DotSpinner
+from anipy_cli.util import DotSpinner, get_configured_player
 
 if TYPE_CHECKING:
     from anipy_api.history import HistoryEntry
@@ -22,7 +22,9 @@ class HistoryCli(CliBase):
     def __init__(self, options: "CliArgs", rpc_client=None):
         super().__init__(options, rpc_client)
 
-        self.player = get_player(self.rpc_client, self.options.optional_player)
+        self.player = get_configured_player(
+            self.rpc_client, self.options.optional_player
+        )
 
         self.anime: Optional[Anime] = None
         self.history_entry: Optional["HistoryEntry"] = None
@@ -32,7 +34,8 @@ class HistoryCli(CliBase):
         pass
 
     def take_input(self):
-        history = list(get_history().history.values())
+        config = Config()
+        history = list(get_history(config._history_file_path).history.values())
         history.sort(key=lambda h: h.timestamp, reverse=True)
 
         if not history:
@@ -62,6 +65,10 @@ class HistoryCli(CliBase):
             )
 
     def show(self):
+        config = Config()
+        update_history(
+            config._history_file_path, self.anime, self.stream.episode, self.stream.dub
+        )
         self.player.play_title(self.anime, self.stream)
 
     def post(self):

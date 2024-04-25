@@ -2,10 +2,11 @@ import sys
 from typing import TYPE_CHECKING, List
 
 from anipy_api.download import Downloader
+from anipy_api.history import update_history
 
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
-from anipy_cli.menus import MenuBase, MenuOption
+from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
     error,
@@ -78,7 +79,8 @@ class Menu(MenuBase):
             self.stream = self.anime.get_video(
                 episode, self.options.quality, dub=self.dub
             )
-
+        config = Config()
+        update_history(config._history_file_path, self.anime, episode, self.dub)
         self.player.play_title(self.anime, self.stream)
 
     def next_ep(self):

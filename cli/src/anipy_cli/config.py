@@ -7,7 +7,7 @@ from string import Template
 import yaml
 from appdirs import user_config_dir, user_data_dir
 
-from anipy_cli.version import __appname__, __version__
+from anipy_cli import __appname__, __version__
 
 
 class Config:

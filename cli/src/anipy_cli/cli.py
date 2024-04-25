@@ -55,6 +55,7 @@ def run_cli(override_args: Optional[list[str]] = None):
     except KeyboardInterrupt:
         error("interrupted", fatal=True)
 
+
 if __name__ == "__main__":
     run_cli()
 

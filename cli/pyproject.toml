@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "anipy-cli"
-version = "0"
+version = "3.0.0"
 description = "Watch and Download anime from the comfort of your Terminal"
 authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
 license = "GPL-3.0"
@@ -8,7 +8,7 @@ repository = "https://github.com/sdaqo/anipy-cli"
 keywords = ["anime", "cli"]
 readme = "../README.md"
 packages = [
-  { include = "anipy_cli", from = "src" } 
+  {include = "anipy_cli", from = "src"} 
 ]
 
 [tool.poetry.dependencies]
@@ -17,10 +17,10 @@ pyyaml = "^6.0.1"
 yaspin = "^3.0.2"
 inquirerpy = "^0.3.4"
 appdirs = "^1.4.4"
-anipy-api = { path = "../api" }
+anipy-api = {path = "../api", develop = true}
 
 [tool.poetry.scripts]
-anipy-cli = "anipy_cli.run_anipy_cli:main"
+anipy-cli = "anipy_cli.cli:run_cli"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/sdaqo/anipy-cli/issues"
@@ -28,6 +28,3 @@ anipy-cli = "anipy_cli.run_anipy_cli:main"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry-version-plugin]
-source = "version"

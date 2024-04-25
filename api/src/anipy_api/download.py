@@ -11,7 +11,7 @@ import requests
 from ffmpeg import FFmpeg, Progress
 from requests.adapters import HTTPAdapter, Retry
 
-from anipy_api.error import DownloadError, RequestError
+from anipy_api.error import DownloadError
 from anipy_api.provider import ProviderStream
 
 

@@ -4,7 +4,7 @@ from anipy_api.error import MyAnimeListError
 from anipy_api.mal import MyAnimeList
 from InquirerPy import inquirer
 
-from anipy_cli.clis import CliBase
+from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.config import Config
 from anipy_cli.menus import MALMenu
 from anipy_cli.util import DotSpinner, error

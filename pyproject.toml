@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "anipy-cli"
-version = "2.7.31"
+version = "3.0.0"
 description = "Little tool in python to watch anime from the terminal (the better way to watch anime)"
 authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
 license = "GPL-3.0"
 repository = "https://github.com/sdaqo/anipy-cli"
 keywords = ["anime", "cli"]
 readme = "README.md"
+non-package = true
 
 [tool.poetry.scripts]
 anipy-cli = "anipy_cli.run_anipy_cli:main"

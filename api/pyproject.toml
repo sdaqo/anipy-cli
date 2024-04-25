@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "anipy-api"
-version = "0"
+version = "3.0.0"
 description = "api for anipy-cli"
 authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
 license = "GPL-3.0"
@@ -8,7 +8,7 @@ repository = "https://github.com/sdaqo/anipy-cli"
 keywords = ["anime", "api"]
 # readme = "README.md"
 packages = [
-  { include = "anipy_api", from = "src" }
+  {include = "anipy_api", from = "src"}
 ]
 
 [tool.poetry.dependencies]
@@ -25,9 +25,6 @@ levenshtein = "^0.25.1"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/sdaqo/anipy-cli/issues"
-
-[tool.poetry-version-plugin]
-source = "version"
 
 [build-system]
 requires = ["poetry-core"]

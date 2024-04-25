@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 from anipy_api.download import Downloader
 
-from anipy_cli.clis import CliBase
+from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.util import (

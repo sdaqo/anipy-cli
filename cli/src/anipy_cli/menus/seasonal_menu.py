@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, List, Tuple
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
-from anipy_api.player import get_player
 from anipy_api.provider.base import Episode
 from anipy_api.seasonal import (
     SeasonalEntry,
@@ -17,11 +16,12 @@ from InquirerPy.utils import get_style
 
 from anipy_cli.colors import colors
 from anipy_cli.config import Config
-from anipy_cli.menus import MenuBase, MenuOption
+from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
     dub_prompt,
     error,
+    get_configured_player,
     get_download_path,
     pick_episode_prompt,
     search_show_prompt,
@@ -35,7 +35,9 @@ class SeasonalMenu(MenuBase):
     def __init__(self, options: "CliArgs", rpc_client=None):
         self.rpc_client = rpc_client
         self.options = options
-        self.player = get_player(self.rpc_client, self.options.optional_player)
+        self.player = get_configured_player(
+            self.rpc_client, self.options.optional_player
+        )
         self.dl_path = Config().seasonals_dl_path
         if options.location:
             self.dl_path = options.location
@@ -54,12 +56,11 @@ class SeasonalMenu(MenuBase):
     def print_header(self):
         pass
 
-    def _choose_latest(
-        self, auto_pick: bool = False
-    ) -> List[Tuple["Anime", bool, List["Episode"]]]:
+    def _choose_latest(self) -> List[Tuple["Anime", bool, List["Episode"]]]:
+        config = Config()
         with DotSpinner("Fetching status of shows in seasonals..."):
             choices = []
-            for s in list(get_seasonals().seasonals.values()):
+            for s in list(get_seasonals(config._seasonal_file_path).seasonals.values()):
                 anime = Anime.from_seasonal_entry(s)
                 dub = s.dub
                 episodes = anime.get_episodes(dub)
@@ -109,12 +110,14 @@ class SeasonalMenu(MenuBase):
         if episode is None:
             episode = anime.get_episodes(dub)[0]
 
-        update_seasonal(anime, episode, dub)
+        config = Config()
+        update_seasonal(config._seasonal_file_path, anime, episode, dub)
 
         self.print_options()
 
     def del_anime(self):
-        seasonals = list(get_seasonals().seasonals.values())
+        config = Config()
+        seasonals = list(get_seasonals(config._seasonal_file_path).seasonals.values())
 
         if len(seasonals) == 0:
             error("No seasonals configured.")
@@ -136,12 +139,13 @@ class SeasonalMenu(MenuBase):
         )
 
         for e in entries:
-            delete_seasonal(e, e.dub)
+            delete_seasonal(config._seasonal_file_path, e, e.dub)
 
         self.print_options()
 
     def list_animes(self):
-        for i in list(get_seasonals().seasonals.values()):
+        config = Config()
+        for i in list(get_seasonals(config._seasonal_file_path).seasonals.values()):
             print(i)
 
     def download_latest(self):
@@ -188,12 +192,13 @@ class SeasonalMenu(MenuBase):
                         container=config.remux_to,
                         ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
                     )
-                    update_seasonal(anime, ep, dub)
+                    update_seasonal(config._seasonal_file_path, anime, ep, dub)
 
         if not self.options.auto_update:
             self.print_options(clear_screen=True)
 
     def binge_latest(self):
+        config = Config()
         picked = self._choose_latest()
         total_eps = sum([len(e) for a, d, e in picked])
         if total_eps == 0:
@@ -217,8 +222,7 @@ class SeasonalMenu(MenuBase):
 
                 self.player.play_title(anime, stream)
                 self.player.wait()
-
-                update_seasonal(anime, e, dub)
+                update_seasonal(config._seasonal_file_path, anime, e, dub)
 
         self.print_options()
 
