@@ -38,6 +38,7 @@ class MALMediaTypeEnum(Enum):
     SPECIAL = "special"
     TV_SPECIAL = "tv_special"
     MUSIC = "music"
+    CM = "cm"
     UNKNOWN = "unknown"
 
 
@@ -362,7 +363,7 @@ class MyAnimeListAdapter:
             provider_filters.season = [Season[mal_anime.start_season.season.upper()]]
 
         if self.provider.FILTER_CAPS & FilterCapabilities.MEDIA_TYPE:
-            if mal_anime.media_type != MALMediaTypeEnum.UNKNOWN:
+            if mal_anime.media_type not in (MALMediaTypeEnum.UNKNOWN, MALMediaTypeEnum.CM):
                 if mal_anime.media_type == MALMediaTypeEnum.TV_SPECIAL:
                     m_type = MALMediaTypeEnum.SPECIAL
                 else:
