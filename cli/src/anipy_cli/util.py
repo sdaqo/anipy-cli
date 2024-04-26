@@ -2,20 +2,20 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple
 
-from InquirerPy import inquirer
+from anipy_api.anime import Anime
+from anipy_api.download import Downloader
 from anipy_api.player import get_player
+from anipy_api.provider import LanguageTypeEnum, list_providers
+from InquirerPy import inquirer
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
 
-from anipy_api.anime import Anime
-from anipy_api.provider import list_providers
-from anipy_api.download import Downloader
-from anipy_cli.config import Config
 from anipy_cli.colors import cinput, color, colors, cprint
+from anipy_cli.config import Config
 
 if TYPE_CHECKING:
-    from anipy_api.provider import BaseProvider, Episode, ProviderStream
     from anipy_api.player import PlayerBase
+    from anipy_api.provider import BaseProvider, Episode, ProviderStream
 
 
 def get_season_searches(gogo=True):
@@ -132,7 +132,7 @@ def search_show_prompt() -> Optional["Anime"]:
     anime = inquirer.fuzzy(
         message="Select Show:",
         choices=results,
-        long_instruction="\nD = Anime is available in dub (or sub)\nTo skip this prompt press ctrl+z",
+        long_instruction="\nS = Anime is available in sub\nD = Anime is available in dub\nTo skip this prompt press ctrl+z",
         mandatory=False,
     ).execute()
 
@@ -140,10 +140,10 @@ def search_show_prompt() -> Optional["Anime"]:
 
 
 def pick_episode_prompt(
-    anime: "Anime", dub: bool, instruction: str = ""
+    anime: "Anime", lang: LanguageTypeEnum, instruction: str = ""
 ) -> Optional["Episode"]:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
-        episodes = anime.get_episodes(dub)
+        episodes = anime.get_episodes(lang)
 
     return inquirer.fuzzy(
         message="Select Episode:",
@@ -154,9 +154,11 @@ def pick_episode_prompt(
     ).execute()
 
 
-def pick_episode_range_prompt(anime: "Anime", dub: bool) -> List["Episode"]:
+def pick_episode_range_prompt(
+    anime: "Anime", lang: LanguageTypeEnum
+) -> List["Episode"]:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
-        episodes = anime.get_episodes(dub)
+        episodes = anime.get_episodes(lang)
 
     res = inquirer.text(
         message=f"Input Episode Range(s) from episodes {episodes[0]} to {episodes[-1]}:",
@@ -170,19 +172,30 @@ def pick_episode_range_prompt(anime: "Anime", dub: bool) -> List["Episode"]:
     return parse_episode_ranges(res, episodes)
 
 
-def dub_prompt(anime: "Anime") -> bool:
+def lang_prompt(anime: "Anime") -> LanguageTypeEnum:
     config = Config()
+    preferred = (
+        LanguageTypeEnum[config.preferred_type.upper()]
+        if config.preferred_type is not None
+        else None
+    )
 
-    if not anime.has_dub or config.preferred_type == "sub":
-        return False
+    if preferred in anime.languages:
+        return preferred
 
-    if config.preferred_type == "dub":
-        return True
+    if LanguageTypeEnum.DUB not in anime.languages:
+        return LanguageTypeEnum.SUB
 
-    res = inquirer.confirm("Want to watch in dub?").execute()
-    print("Hint: you can set a default in the config with `preferred_type`!")
+    if len(anime.languages) == 2:
+        res = inquirer.confirm("Want to watch in dub?").execute()
+        print("Hint: you can set a default in the config with `preferred_type`!")
 
-    return res
+        if res:
+            return LanguageTypeEnum.DUB
+        else:
+            return LanguageTypeEnum.SUB
+    else:
+        return next(iter(anime.languages))
 
 
 def get_prefered_providers() -> Iterator["BaseProvider"]:
@@ -207,7 +220,7 @@ def get_download_path(
         episode_number=stream.episode,
         quality=stream.resolution,
         provider=anime.provider.NAME,
-        type="dub" if stream.dub else "sub",
+        type=stream.language,
     )
 
     filename = Downloader._get_valid_pathname(filename)  # type: ignore
@@ -236,7 +249,7 @@ def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episod
     return sorted(picked)
 
 
-def parse_auto_search(passed: str) -> Tuple["Anime", bool, List["Episode"]]:
+def parse_auto_search(passed: str) -> Tuple["Anime", LanguageTypeEnum, List["Episode"]]:
     options = iter(passed.split(":"))
     query = next(options, None)
     ranges = next(options, None)
@@ -264,10 +277,11 @@ def parse_auto_search(passed: str) -> Tuple["Anime", bool, List["Episode"]]:
         error(f"no anime found for query {query}", fatal=True)
 
     result = results[0]
-    episodes = result.get_episodes(dub=ltype == "dub")
+    lang = LanguageTypeEnum[ltype.upper()]
+    episodes = result.get_episodes(lang)
     choosen = parse_episode_ranges(ranges, episodes)
 
-    return result, ltype == "dub", choosen
+    return result, lang, choosen
 
 
 def parsenum(n: str):

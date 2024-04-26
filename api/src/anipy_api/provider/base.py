@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from enum import Enum
+from typing import List, Optional, Union, Set
 
 from requests import Session
 
@@ -8,18 +9,27 @@ from anipy_api.provider.filter import FilterCapabilities, Filters
 
 Episode = Union[int, float]
 
+class LanguageTypeEnum(Enum):
+    SUB = "sub"
+    DUB = "dub"
 
-@dataclass(frozen=True)
+    def __repr__(self) -> str:
+        return self.value
+    
+    def __str__(self) -> str:
+        return self.value
+
+@dataclass
 class ProviderSearchResult:
     identifier: str
     name: str
-    has_dub: bool
+    languages: Set[LanguageTypeEnum]
 
     def __hash__(self) -> int:
         return hash(self.identifier)
 
 
-@dataclass(frozen=True)
+@dataclass
 class ProviderInfoResult:
     name: str
     image: Optional[str] = None
@@ -30,12 +40,12 @@ class ProviderInfoResult:
     alternative_names: Optional[List[str]] = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class ProviderStream:
     url: str
     resolution: int
     episode: Episode
-    dub: bool
+    language: LanguageTypeEnum
 
     def __hash__(self) -> int:
         return hash(self.url)
@@ -67,9 +77,9 @@ class BaseProvider(ABC):
     def get_info(self, identifier: str) -> ProviderInfoResult: ...
 
     @abstractmethod
-    def get_episodes(self, identifier: str, dub: bool = False) -> List[Episode]: ...
+    def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List[Episode]: ...
 
     @abstractmethod
     def get_video(
-        self, identifier: str, episode: Episode, dub: bool = False
+        self, identifier: str, episode: Episode, lang: LanguageTypeEnum 
     ) -> List[ProviderStream]: ...

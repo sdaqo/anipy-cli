@@ -1,4 +1,7 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from anipy_api.provider.base import LanguageTypeEnum
 
 
 class BeautifulSoupLocationError(Exception):
@@ -6,10 +9,10 @@ class BeautifulSoupLocationError(Exception):
         super().__init__(f"Could not locate {what} at {where}")
 
 
-class DubNotAvailableError(Exception):
-    def __init__(self, identifier: str, provider: str):
+class LangTypeNotAvailableError(Exception):
+    def __init__(self, identifier: str, provider: str, lang: "LanguageTypeEnum"):
         super().__init__(
-            f"Dub is not available for identifier `{identifier}` on provider `{provider}`"
+            f"{str(lang).capitalize()} is not available for identifier `{identifier}` on provider `{provider}`"
         )
 
 

@@ -9,7 +9,7 @@ from anipy_api.mal import (
     MyAnimeList,
     MyAnimeListAdapter,
 )
-from anipy_api.provider import list_providers
+from anipy_api.provider import LanguageTypeEnum, list_providers
 from dataclasses_json import DataClassJsonMixin, config
 from InquirerPy import inquirer
 
@@ -22,7 +22,7 @@ class ProviderMapping(DataClassJsonMixin):
     provider: str = field(metadata=config(field_name="pv"))
     name: str = field(metadata=config(field_name="na"))
     identifier: str = field(metadata=config(field_name="id"))
-    has_dub: bool = field(metadata=config(field_name="hd"))
+    languages: Set[LanguageTypeEnum] = field(metadata=config(field_name="la"))
 
 
 @dataclass
@@ -87,7 +87,7 @@ class MyAnimeListProxy:
         self.local_list.mappings[mal_anime.id].mappings[
             f"{mapping.provider.NAME}:{mapping.identifier}"
         ] = ProviderMapping(
-            mapping.provider.NAME, mapping.name, mapping.identifier, mapping.has_dub
+            mapping.provider.NAME, mapping.name, mapping.identifier, mapping.languages
         )
 
         self.local_list.write()
@@ -159,7 +159,7 @@ class MyAnimeListProxy:
         if self.local_list.mappings[anime.id].mappings:
             map = list(self.local_list.mappings[anime.id].mappings.values())[0]
             provider = next(filter(lambda x: x.NAME == map.provider, list_providers()))
-            return Anime(provider(), map.name, map.identifier, map.has_dub)
+            return Anime(provider(), map.name, map.identifier, map.languages)
 
         config = Config()
         result = None

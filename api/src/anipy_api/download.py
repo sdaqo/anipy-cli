@@ -209,7 +209,7 @@ class Downloader:
             new_path = path.with_suffix(container)
             download = self.ffmpeg_download(
                 ProviderStream(
-                    str(path), stream.resolution, stream.episode, stream.dub
+                    str(path), stream.resolution, stream.episode, stream.language
                 ),
                 new_path,
             )

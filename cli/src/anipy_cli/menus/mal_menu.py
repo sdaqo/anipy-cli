@@ -6,6 +6,7 @@ from InquirerPy import inquirer
 from InquirerPy.utils import get_style
 
 from anipy_api.anime import Anime
+from anipy_api.provider import LanguageTypeEnum
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint
 from anipy_cli.mal_proxy import MyAnimeListProxy
@@ -201,7 +202,7 @@ class MALMenu(MenuBase):
     def download(self, all: bool = False):
         picked = self._choose_latest(all=all)
         config = Config()
-        total_eps = sum([len(e) for a, m, d, e in picked])
+        total_eps = sum([len(e) for a, m, l, e in picked])
         if total_eps == 0:
             print("Nothing to download, returning...")
             return
@@ -218,22 +219,22 @@ class MALMenu(MenuBase):
 
             downloader = Downloader(progress_indicator, info_display)
 
-            for anime, mal_anime, dub, eps in picked:
+            for anime, mal_anime, lang, eps in picked:
                 for ep in eps:
                     s.set_text(
                         "Extracting streams for ",
                         colors.BLUE,
-                        f"{anime.name} ({'dub' if dub else 'sub'})",
+                        f"{anime.name} ({lang})",
                         colors.END,
                         " Episode ",
                         ep,
                         "...",
                     )
 
-                    stream = anime.get_video(ep, self.options.quality, dub=dub)
+                    stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
 
                     info_display(
-                        f"Downloading Episode {stream.episode} of {anime.name} ({'dub' if dub else 'sub'})"
+                        f"Downloading Episode {stream.episode} of {anime.name} ({lang})"
                     )
                     s.set_text("Downloading...")
 
@@ -252,25 +253,25 @@ class MALMenu(MenuBase):
 
     def binge_latest(self):
         picked = self._choose_latest()
-        total_eps = sum([len(e) for a, m, d, e in picked])
+        total_eps = sum([len(e) for a, m, l, e in picked])
         if total_eps == 0:
             print("Nothing to watch, returning...")
             return
         else:
             print(f"Playing a total of {total_eps} episode(s)")
 
-        for anime, mal_anime, dub, eps in picked:
+        for anime, mal_anime, lang, eps in picked:
             for ep in eps:
                 with DotSpinner(
                     "Extracting streams for ",
                     colors.BLUE,
-                    f"{anime.name} ({'dub' if dub else 'sub'})",
+                    f"{anime.name} ({lang})",
                     colors.END,
                     " Episode ",
                     ep,
                     "...",
                 ) as s:
-                    stream = anime.get_video(ep, self.options.quality, dub=dub)
+                    stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
                     s.ok("✔")
 
                 self.player.play_title(anime, stream)
@@ -292,7 +293,7 @@ class MALMenu(MenuBase):
             for k, v in mappings.items():
                 tags = set()
                 if config.mal_dub_tag:
-                    if k.dub:
+                    if k.language == LanguageTypeEnum.DUB:
                         tags |= config.mal_dub_tag
 
                 if v.my_list_status:
@@ -314,33 +315,35 @@ class MALMenu(MenuBase):
         mappings = self._create_maps_mal(mylist)
         with DotSpinner("Syncing MyAnimeList into Seasonals") as s:
             for k, v in mappings.items():
-                provider_episodes = v.get_episodes()
+                if config.mal_dub_tag:
+                    if k.my_list_status and config.mal_dub_tag in k.my_list_status.tags:
+                        pref_lang = LanguageTypeEnum.DUB
+                    else:
+                        pref_lang = LanguageTypeEnum.SUB
+                else:
+                    pref_lang = LanguageTypeEnum.DUB if config.preferred_type == "dub" else LanguageTypeEnum.SUB
+
+                if pref_lang in v.languages:
+                    lang = pref_lang
+                else:
+                    lang = next(iter(v.languages))
+
+                provider_episodes = v.get_episodes(lang)
                 episode = (
                     k.my_list_status.num_episodes_watched if k.my_list_status else 0
                 )
-                if v.has_dub:
-                    if not config.mal_dub_tag:
-                        dub = config.preferred_type == "dub"
-                    elif (
-                        k.my_list_status and config.mal_dub_tag in k.my_list_status.tags
-                    ):
-                        dub = True
-                    else:
-                        dub = False
-                else:
-                    dub = False
 
                 if episode == 0:
                     episode = provider_episodes[0]
                 else:
                     episode = find_closest(provider_episodes, episode)
 
-                update_seasonal(config._seasonal_file_path, v, episode, dub)
+                update_seasonal(config._seasonal_file_path, v, episode, lang)
             s.ok("✔")
 
     def _choose_latest(
         self, all: bool = False
-    ) -> List[Tuple[Anime, MALAnime, bool, List[Episode]]]:
+    ) -> List[Tuple[Anime, MALAnime, LanguageTypeEnum, List[Episode]]]:
         cprint(
             colors.GREEN,
             "Hint: ",
@@ -377,7 +380,7 @@ class MALMenu(MenuBase):
             mylist = list(choices)
 
         config = Config()
-        to_watch: List[Tuple[Anime, MALAnime, bool, List[Episode]]] = []
+        to_watch: List[Tuple[Anime, MALAnime, LanguageTypeEnum, List[Episode]]] = []
 
         with DotSpinner("Fetching episodes...") as s:
             for e in mylist:
@@ -394,22 +397,23 @@ class MALMenu(MenuBase):
                         f"> No mapping found for {e.title} please use the `m` option to map it"
                     )
                     continue
-
-                if result.has_dub:
-                    if not config.mal_dub_tag:
-                        dub = config.preferred_type == "dub"
-                    elif (
-                        e.my_list_status and config.mal_dub_tag in e.my_list_status.tags
-                    ):
-                        dub = True
+                
+                if config.mal_dub_tag:
+                    if e.my_list_status and config.mal_dub_tag in e.my_list_status.tags:
+                        pref_lang = LanguageTypeEnum.DUB
                     else:
-                        dub = False
+                        pref_lang = LanguageTypeEnum.SUB
                 else:
-                    dub = False
+                    pref_lang = LanguageTypeEnum.DUB if config.preferred_type == "dub" else LanguageTypeEnum.SUB
 
-                if dub:
-                    s.write("> Looking for dub episodes because of config preference")
-                episodes = result.get_episodes(dub=dub)
+                if pref_lang in result.languages:
+                    lang = pref_lang
+                    s.write(f"> Looking for {lang} episodes because of config/tag preference")
+                else:
+                    lang = next(iter(result.languages))
+                    s.write(f"> Looking for {lang} episodes because your preferred type is not available")
+
+                episodes = result.get_episodes(lang)
 
                 will_watch = []
                 if all:
@@ -424,7 +428,7 @@ class MALMenu(MenuBase):
                                 f"> Episode {ep} not found in provider, skipping..."
                             )
 
-                to_watch.append((result, e, dub, will_watch))
+                to_watch.append((result, e, lang, will_watch))
 
             s.ok("✔")
 

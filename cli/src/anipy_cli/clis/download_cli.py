@@ -1,5 +1,5 @@
 import sys
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 from anipy_api.download import Downloader
 
@@ -8,8 +8,8 @@ from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.util import (
     DotSpinner,
-    dub_prompt,
     get_download_path,
+    lang_prompt,
     parse_auto_search,
     pick_episode_range_prompt,
     search_show_prompt,
@@ -17,7 +17,7 @@ from anipy_cli.util import (
 
 if TYPE_CHECKING:
     from anipy_api.anime import Anime
-    from anipy_api.provider import Episode
+    from anipy_api.provider import Episode, LanguageTypeEnum
 
     from anipy_cli.arg_parser import CliArgs
 
@@ -27,8 +27,8 @@ class DownloadCli(CliBase):
         super().__init__(options, rpc_client)
 
         self.anime: Optional["Anime"] = None
-        self.episodes: Optional[List["Episode"]] = None
-        self.dub = False
+        self.episodes: Optional["Episode"] = None
+        self.lang: Optional["LanguageTypeEnum"] = None
 
         self.dl_path = Config().download_folder_path
         if options.location:
@@ -83,7 +83,9 @@ class DownloadCli(CliBase):
         #     {"show_entry": deepcopy(self.entry), "ep_list": deepcopy(ep_list)}
         # )
         if self.options.search is not None:
-            self.anime, self.dub, self.episodes = parse_auto_search(self.options.search)
+            self.anime, self.lang, self.episodes = parse_auto_search(
+                self.options.search
+            )
             return
 
         anime = search_show_prompt()
@@ -91,9 +93,9 @@ class DownloadCli(CliBase):
         if anime is None:
             sys.exit(0)
 
-        self.dub = dub_prompt(anime)
+        self.lang = lang_prompt(anime)
 
-        episodes = pick_episode_range_prompt(anime, self.dub)
+        episodes = pick_episode_range_prompt(anime, self.lang)
 
         self.anime = anime
         self.episodes = episodes
@@ -114,17 +116,19 @@ class DownloadCli(CliBase):
                 s.set_text(
                     "Extracting streams for ",
                     colors.BLUE,
-                    f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
+                    f"{self.anime.name} ({self.lang})",
                     colors.END,
                     " Episode ",
                     e,
                     "...",
                 )
 
-                stream = self.anime.get_video(e, self.options.quality, dub=self.dub)
+                stream = self.anime.get_video(
+                    e, self.lang, preferred_quality=self.options.quality
+                )
 
                 info_display(
-                    f"Downloading Episode {stream.episode} of {self.anime.name}"
+                    f"Downloading Episode {stream.episode} of {self.anime.name} ({self.lang})"
                 )
                 s.set_text("Downloading...")
 

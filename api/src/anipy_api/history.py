@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import time
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional, Set
 
 from dataclasses_json import DataClassJsonMixin, config
 
-from anipy_api.provider import Episode
+from anipy_api.provider import Episode, LanguageTypeEnum
 
 if TYPE_CHECKING:
     from anipy_api.anime import Anime
@@ -18,14 +18,14 @@ class HistoryEntry(DataClassJsonMixin):
     name: str = field(metadata=config(field_name="na"))
     episode: Episode = field(metadata=config(field_name="ep"))
     timestamp: int = field(metadata=config(field_name="ts"))
-    dub: bool = field(metadata=config(field_name="d"))
-    has_dub: bool = field(metadata=config(field_name="hd"))
+    language: LanguageTypeEnum = field(metadata=config(field_name="lg"))
+    languages: Set[LanguageTypeEnum] = field(metadata=config(field_name="ls"))
 
     def __repr__(self) -> str:
-        return f"{self.name} ({'dub' if self.dub else 'sub'}) Episode {self.episode}"
+        return f"{self.name} ({self.language}) Episode {self.episode}"
 
     def __hash__(self) -> int:
-        return hash(f"{self.provider}:{'dub' if self.dub else 'sub'}:{self.identifier}")
+        return hash(f"{self.provider}:{self.language}:{self.identifier}")
 
 
 @dataclass
@@ -53,17 +53,17 @@ def get_history(file: Path) -> History:
     return History.read(file)
 
 
-def get_history_entry(file: Path, anime: "Anime", dub: bool) -> Optional[HistoryEntry]:
+def get_history_entry(file: Path, anime: "Anime", lang: LanguageTypeEnum) -> Optional[HistoryEntry]:
     history = History.read(file)
-    uniqueid = _get_uid(anime, dub)
+    uniqueid = _get_uid(anime, lang)
 
     return history.history.get(uniqueid, None)
 
 
-def update_history(file: Path, anime: "Anime", episode: "Episode", dub: bool):
+def update_history(file: Path, anime: "Anime", episode: "Episode", lang: LanguageTypeEnum):
     history = History.read(file)
 
-    uniqueid = _get_uid(anime, dub)
+    uniqueid = _get_uid(anime, lang)
     entry = history.history.get(uniqueid, None)
 
     if entry is None:
@@ -73,8 +73,8 @@ def update_history(file: Path, anime: "Anime", episode: "Episode", dub: bool):
             name=anime.name,
             episode=episode,
             timestamp=int(time()),
-            has_dub=anime.has_dub,
-            dub=dub,
+            language=lang,
+            languages=anime.languages
         )
     else:
         entry.episode = episode
@@ -85,8 +85,8 @@ def update_history(file: Path, anime: "Anime", episode: "Episode", dub: bool):
     history.write(file)
 
 
-def _get_uid(anime: "Anime", dub: bool):
-    return f"{anime.provider.NAME}:{'dub' if dub else 'sub'}:{anime.identifier}"
+def _get_uid(anime: "Anime", lang: LanguageTypeEnum):
+    return f"{anime.provider.NAME}:{lang}:{anime.identifier}"
 
 
 def _migrate_history(file):
@@ -102,18 +102,18 @@ def _migrate_history(file):
         identifier = Path(v["category-link"]).name
         is_dub = identifier.endswith("-dub") or identifier.endswith("-japanese-dub")
         identifier = identifier.removesuffix("-dub").removesuffix("-japanese-dub")
-
         episode = v["ep"]
         timestamp = int(time())
         unique_id = f"gogoanime:{'dub' if is_dub else 'sub'}:{identifier}"
+
         new_entry = HistoryEntry(
             provider="gogoanmie",
             name=name,
             identifier=identifier,
             episode=episode,
             timestamp=timestamp,
-            has_dub=is_dub,
-            dub=is_dub,
+            language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
+            languages={LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB}
         )
 
         new_history.history[unique_id] = new_entry

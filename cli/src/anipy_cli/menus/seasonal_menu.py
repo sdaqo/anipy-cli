@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, List, Tuple
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
+from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
 from anipy_api.seasonal import (
     SeasonalEntry,
@@ -19,7 +20,7 @@ from anipy_cli.config import Config
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
-    dub_prompt,
+    lang_prompt,
     error,
     get_configured_player,
     get_download_path,
@@ -56,18 +57,18 @@ class SeasonalMenu(MenuBase):
     def print_header(self):
         pass
 
-    def _choose_latest(self) -> List[Tuple["Anime", bool, List["Episode"]]]:
+    def _choose_latest(self) -> List[Tuple["Anime", LanguageTypeEnum, List["Episode"]]]:
         config = Config()
         with DotSpinner("Fetching status of shows in seasonals..."):
             choices = []
             for s in list(get_seasonals(config._seasonal_file_path).seasonals.values()):
                 anime = Anime.from_seasonal_entry(s)
-                dub = s.dub
-                episodes = anime.get_episodes(dub)
+                lang = s.language
+                episodes = anime.get_episodes(lang)
                 to_watch = episodes[episodes.index(s.episode) + 1 :]
                 if len(to_watch) > 0:
                     ch = Choice(
-                        value=(anime, dub, to_watch),
+                        value=(anime, lang, to_watch),
                         name=f"{anime.name} (to watch: {len(to_watch)})",
                     )
                     choices.append(ch)
@@ -101,17 +102,17 @@ class SeasonalMenu(MenuBase):
         if anime is None:
             return
 
-        dub = dub_prompt(anime)
+        lang = lang_prompt(anime)
 
         episode = pick_episode_prompt(
-            anime, dub, instruction="To start from the beginning skip this Prompt"
+            anime, lang, instruction="To start from the beginning skip this Prompt"
         )
 
         if episode is None:
-            episode = anime.get_episodes(dub)[0]
+            episode = anime.get_episodes(lang)[0]
 
         config = Config()
-        update_seasonal(config._seasonal_file_path, anime, episode, dub)
+        update_seasonal(config._seasonal_file_path, anime, episode, lang)
 
         self.print_options()
 
@@ -139,7 +140,7 @@ class SeasonalMenu(MenuBase):
         )
 
         for e in entries:
-            delete_seasonal(config._seasonal_file_path, e, e.dub)
+            delete_seasonal(config._seasonal_file_path, e, e.language)
 
         self.print_options()
 
@@ -167,19 +168,19 @@ class SeasonalMenu(MenuBase):
 
             downloader = Downloader(progress_indicator, info_display)
 
-            for anime, dub, eps in picked:
+            for anime, lang, eps in picked:
                 for ep in eps:
                     s.set_text(
                         "Extracting streams for ",
                         colors.BLUE,
-                        f"{anime.name} ({'dub' if dub else 'sub'})",
+                        f"{anime.name} ({lang})",
                         colors.END,
                         " Episode ",
                         ep,
                         "...",
                     )
 
-                    stream = anime.get_video(ep, self.options.quality, dub=dub)
+                    stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
 
                     info_display(
                         f"Downloading Episode {stream.episode} of {anime.name}"
@@ -192,7 +193,7 @@ class SeasonalMenu(MenuBase):
                         container=config.remux_to,
                         ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
                     )
-                    update_seasonal(config._seasonal_file_path, anime, ep, dub)
+                    update_seasonal(config._seasonal_file_path, anime, ep, lang)
 
         if not self.options.auto_update:
             self.print_options(clear_screen=True)
@@ -206,23 +207,23 @@ class SeasonalMenu(MenuBase):
             return
         else:
             print(f"Playing a total of {total_eps} episode(s)")
-        for anime, dub, eps in picked:
+        for anime, lang, eps in picked:
             for e in eps:
                 with DotSpinner(
                     "Extracting streams for ",
                     colors.BLUE,
-                    f"{anime.name} ({'dub' if dub else 'sub'})",
+                    f"{anime.name} ({lang})",
                     colors.END,
                     " Episode ",
                     e,
                     "...",
                 ) as s:
-                    stream = anime.get_video(e, self.options.quality, dub=dub)
+                    stream = anime.get_video(e, lang, preferred_quality=self.options.quality)
                     s.ok("✔")
 
                 self.player.play_title(anime, stream)
                 self.player.wait()
-                update_seasonal(config._seasonal_file_path, anime, e, dub)
+                update_seasonal(config._seasonal_file_path, anime, e, lang)
 
         self.print_options()
 

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, List
 
 from anipy_api.download import Downloader
 from anipy_api.history import update_history
+from anipy_api.provider import LanguageTypeEnum
 
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
@@ -37,7 +38,7 @@ class Menu(MenuBase):
         self.anime = anime
         self.stream = stream
         self.player = player
-        self.dub = stream.dub
+        self.lang = stream.language
 
     @property
     def menu_options(self) -> List["MenuOption"]:
@@ -46,7 +47,9 @@ class Menu(MenuBase):
             MenuOption("Previous Episode", self.prev_ep, "p"),
             MenuOption("Replay Episode", self.repl_ep, "r"),
             MenuOption(
-                f"Change to {'sub' if self.dub else 'dub'}", self.change_type, "c"
+                f"Change to {'sub' if self.lang == LanguageTypeEnum.DUB else 'dub'}",
+                self.change_type,
+                "c",
             ),
             MenuOption("Select episode", self.selec_ep, "s"),
             MenuOption("Search for Anime", self.search, "a"),
@@ -60,31 +63,31 @@ class Menu(MenuBase):
             colors.GREEN,
             "Playing: ",
             colors.BLUE,
-            f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
+            f"{self.anime.name} ({self.lang})",
             colors.GREEN,
             f" | {self.stream.resolution}p | ",
             colors.RED,
-            f"{self.stream.episode}/{self.anime.get_episodes(self.dub)[-1]}",
+            f"{self.stream.episode}/{self.anime.get_episodes(self.lang)[-1]}",
         )
 
     def _start_episode(self, episode: "Episode"):
         with DotSpinner(
             "Extracting streams for ",
             colors.BLUE,
-            f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
+            f"{self.anime.name} ({self.lang})",
             " Episode ",
             episode,
             "...",
         ):
             self.stream = self.anime.get_video(
-                episode, self.options.quality, dub=self.dub
+                episode, self.lang, preferred_quality=self.options.quality
             )
         config = Config()
-        update_history(config._history_file_path, self.anime, episode, self.dub)
+        update_history(config._history_file_path, self.anime, episode, self.lang)
         self.player.play_title(self.anime, self.stream)
 
     def next_ep(self):
-        episodes = self.anime.get_episodes(self.dub)
+        episodes = self.anime.get_episodes(self.lang)
         current_episode = episodes.index(self.stream.episode)
         if len(episodes) <= current_episode + 1:
             error("no episodes after this")
@@ -95,7 +98,7 @@ class Menu(MenuBase):
         self.print_options()
 
     def prev_ep(self):
-        episodes = self.anime.get_episodes(self.dub)
+        episodes = self.anime.get_episodes(self.lang)
         current_episode = episodes.index(self.stream.episode)
         if current_episode - 1 < 0:
             error("no episodes before this")
@@ -109,24 +112,28 @@ class Menu(MenuBase):
         self._start_episode(self.stream.episode)
 
     def change_type(self):
+        to_change = (
+            LanguageTypeEnum.DUB
+            if self.lang == LanguageTypeEnum.SUB
+            else LanguageTypeEnum.SUB
+        )
 
-        self.dub = not self.dub
-        if self.dub and not self.anime.has_dub:
-            error("this anime does not have a dub version")
+        if to_change not in self.anime.languages:
+            error(f"this anime does not have a {to_change} version")
             return
 
-        if not self.stream.episode in self.anime.get_episodes(self.dub):
+        if not self.stream.episode in self.anime.get_episodes(to_change):
             error(
-                f"the current episode ({self.stream.episode}) is not available in {'dub' if self.dub else 'sub'}, switching back..."
+                f"the current episode ({self.stream.episode}) is not available in {to_change}, not switching..."
             )
-            self.dub = not self.dub
             return
 
+        self.lang = to_change
         self.repl_ep()
         self.print_options()
 
     def selec_ep(self):
-        episode = pick_episode_prompt(self.anime, self.dub)
+        episode = pick_episode_prompt(self.anime, self.lang)
         if episode is None:
             return
         self._start_episode(episode)
@@ -137,7 +144,7 @@ class Menu(MenuBase):
         if search_result is None:
             return
         self.anime = search_result
-        episode = pick_episode_prompt(self.anime, self.dub)
+        episode = pick_episode_prompt(self.anime, self.lang)
         if episode is None:
             return
         self._start_episode(episode)
@@ -164,7 +171,7 @@ class Menu(MenuBase):
             s.set_text(
                 "Extracting streams for ",
                 colors.BLUE,
-                f"{self.anime.name} ({'dub' if self.dub else 'sub'})",
+                f"{self.anime.name} ({self.lang})",
                 colors.END,
                 " Episode ",
                 self.stream.episode,

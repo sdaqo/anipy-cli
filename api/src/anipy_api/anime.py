@@ -1,10 +1,10 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Set, Union
 
 from anipy_api.provider import Episode, list_providers
 
 if TYPE_CHECKING:
     from anipy_api.history import HistoryEntry
-    from anipy_api.provider import BaseProvider, ProviderSearchResult
+    from anipy_api.provider import BaseProvider, LanguageTypeEnum, ProviderSearchResult
     from anipy_api.seasonal import SeasonalEntry
 
 
@@ -13,28 +13,32 @@ class Anime:
     def from_search_result(
         provider: "BaseProvider", result: "ProviderSearchResult"
     ) -> "Anime":
-        return Anime(provider, result.name, result.identifier, result.has_dub)
+        return Anime(provider, result.name, result.identifier, result.languages)
 
     @staticmethod
     def from_history_entry(entry: "HistoryEntry") -> "Anime":
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
-        return Anime(provider(), entry.name, entry.identifier, entry.has_dub)
+        return Anime(provider(), entry.name, entry.identifier, entry.languages)
 
     @staticmethod
     def from_seasonal_entry(entry: "SeasonalEntry") -> "Anime":
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
-        return Anime(provider(), entry.name, entry.identifier, entry.has_dub)
+        return Anime(provider(), entry.name, entry.identifier, entry.languages)
 
     def __init__(
-        self, provider: "BaseProvider", name: str, identifier: str, has_dub: bool
+        self,
+        provider: "BaseProvider",
+        name: str,
+        identifier: str,
+        languages: Set["LanguageTypeEnum"],
     ):
         self.provider = provider
         self.name = name
         self.identifier = identifier
-        self.has_dub = has_dub
+        self.languages = languages
 
-    def get_episodes(self, dub: bool = False):
-        return self.provider.get_episodes(self.identifier, dub)
+    def get_episodes(self, lang: "LanguageTypeEnum"):
+        return self.provider.get_episodes(self.identifier, lang)
 
     def get_info(self):
         return self.provider.get_info(self.identifier)
@@ -42,10 +46,10 @@ class Anime:
     def get_video(
         self,
         episode: Episode,
-        preferred_quality: Optional[Union[str, int]],
-        dub: bool = False,
+        lang: "LanguageTypeEnum",
+        preferred_quality: Optional[Union[str, int]] = None,
     ):
-        streams = self.provider.get_video(self.identifier, episode, dub)
+        streams = self.provider.get_video(self.identifier, episode, lang)
         streams.sort(key=lambda s: s.resolution)
 
         if preferred_quality == "worst":
@@ -65,7 +69,8 @@ class Anime:
         return stream
 
     def __repr__(self) -> str:
-        return f"{self.name} {'(D)' if self.has_dub else ''}"
+        available_langs = "/".join([l.value.capitalize()[0] for l in self.languages])
+        return f"{self.name} ({available_langs})"
 
     def __hash__(self) -> int:
         return hash(self.provider.NAME + self.identifier)

@@ -60,14 +60,17 @@ class HistoryCli(CliBase):
         ):
             self.stream = self.anime.get_video(
                 self.history_entry.episode,
-                self.options.quality,
-                dub=self.history_entry.dub,
+                self.history_entry.language,
+                preferred_quality=self.options.quality,
             )
 
     def show(self):
         config = Config()
         update_history(
-            config._history_file_path, self.anime, self.stream.episode, self.stream.dub
+            config._history_file_path,
+            self.anime,
+            self.stream.episode,
+            self.stream.language,
         )
         self.player.play_title(self.anime, self.stream)
 

@@ -392,6 +392,13 @@ class MyAnimeListAdapter:
             if ratio > best_ratio:
                 best_ratio = ratio
                 best_anime = anime
+            elif (
+                best_anime is not None
+                and ratio == best_ratio
+                and len(anime.languages) > len(best_anime.languages)
+            ):
+                # prefer anime with more language options
+                best_anime = anime
 
             if best_ratio == 1:
                 break

@@ -3,7 +3,7 @@ import functools
 import json
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List
 from urllib.parse import parse_qsl, urlencode, urljoin, urlparse
 
 import m3u8
@@ -12,9 +12,13 @@ from Cryptodome.Cipher import AES
 from requests import Request, Session
 from requests.exceptions import HTTPError
 
-from anipy_api.error import BeautifulSoupLocationError, DubNotAvailableError
+from anipy_api.error import (
+    BeautifulSoupLocationError,
+    LangTypeNotAvailableError,
+)
 from anipy_api.provider import (
     BaseProvider,
+    LanguageTypeEnum,
     ProviderInfoResult,
     ProviderSearchResult,
     ProviderStream,
@@ -149,37 +153,43 @@ class GoGoProvider(BaseProvider):
                 if identifier.endswith("-dub"):
                     identifier = identifier.removesuffix("-dub")
                     identifier = identifier.removesuffix("-japanese-dub")
-                    results[identifier] = ProviderSearchResult(
-                        identifier, name, has_dub=True
-                    )
+                    if not identifier in results:
+                        results[identifier] = ProviderSearchResult(
+                            identifier, name, languages={LanguageTypeEnum.DUB}
+                        )
+                    else:
+                        results[identifier].languages.add(LanguageTypeEnum.DUB)
                 else:
                     if not identifier in results:
                         results[identifier] = ProviderSearchResult(
-                            identifier, name, has_dub=False
+                            identifier, name, languages={LanguageTypeEnum.SUB}
                         )
+                    else:
+                        results[identifier].languages.add(LanguageTypeEnum.SUB)
 
         return list(results.values())
 
     @memoized_method()
-    def get_episodes(self, identifier: str, dub: bool = False) -> List["Episode"]:
-        if dub:
-            try:
-                req = Request("GET", f"{self.BASE_URL}/category/{identifier}-dub")
-                res = request_page(self.session, req)
-            except HTTPError as err:
-                if err.response.status_code != 404:
-                    raise
-                try:
-                    req = Request(
-                        "GET", f"{self.BASE_URL}/category/{identifier}-japanese-dub"
-                    )
-                    res = request_page(self.session, req)
-                except HTTPError as err:
-                    if err.response.status_code == 404:
-                        raise DubNotAvailableError(identifier, self.NAME)
+    def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List["Episode"]:
+        if lang == LanguageTypeEnum.DUB:
+            urls = [
+                f"{self.BASE_URL}/category/{identifier}-dub",
+                f"{self.BASE_URL}/category/{identifier}-japanese-dub",
+            ]
         else:
-            req = Request("GET", f"{self.BASE_URL}/category/{identifier}")
-            res = request_page(self.session, req)
+            urls = [f"{self.BASE_URL}/category/{identifier}"]
+
+        res = None
+        for u in urls:
+            try:
+                req = Request("GET", u)
+                res = request_page(self.session, req)
+                break
+            except HTTPError:
+                continue
+
+        if res is None:
+            raise LangTypeNotAvailableError(identifier, self.NAME, lang)
 
         self.movie_id = re.search(
             r'<input.+?value="(\d+)" id="movie_id"', res.text
@@ -234,31 +244,28 @@ class GoGoProvider(BaseProvider):
         )
 
     def get_video(
-        self, identifier: str, episode: "Episode", dub: bool = False
+        self, identifier: str, episode: "Episode", lang: LanguageTypeEnum
     ) -> List["ProviderStream"]:
         ep_str = str(episode).replace(".", "-")
-        if dub:
-            try:
-                req = Request(
-                    "GET", f"{self.BASE_URL}/{identifier}-dub-episode-{ep_str}"
-                )
-                res = request_page(self.session, req)
-            except HTTPError as err:
-                if err.response.status_code != 404:
-                    raise
-
-                try:
-                    req = Request(
-                        "GET",
-                        f"{self.BASE_URL}/{identifier}-japanese-dub-episode-{ep_str}",
-                    )
-                    res = request_page(self.session, req)
-                except HTTPError as err:
-                    if err.response.status_code == 404:
-                        raise DubNotAvailableError(identifier, self.NAME)
+        if lang == LanguageTypeEnum.DUB:
+            urls = [
+                f"{self.BASE_URL}/{identifier}-dub-episode-{ep_str}",
+                f"{self.BASE_URL}/{identifier}-japanese-dub-episode-{ep_str}",
+            ]
         else:
-            req = Request("GET", f"{self.BASE_URL}/{identifier}-episode-{ep_str}")
-            res = request_page(self.session, req)
+            urls = [f"{self.BASE_URL}/{identifier}-episode-{ep_str}"]
+
+        res = None
+        for u in urls:
+            try:
+                req = Request("GET", u)
+                res = request_page(self.session, req)
+                break
+            except HTTPError:
+                continue
+
+        if res is None:
+            raise LangTypeNotAvailableError(identifier, self.NAME, lang)
 
         soup = BeautifulSoup(res.content, "html.parser")
         link = soup.find("a", {"class": "active", "rel": "1"})
@@ -314,7 +321,10 @@ class GoGoProvider(BaseProvider):
                 if len(content.playlists) == 0:
                     streams.append(
                         ProviderStream(
-                            url=s["file"], resolution=1080, episode=episode, dub=dub
+                            url=s["file"],
+                            resolution=1080,
+                            episode=episode,
+                            language=lang,
                         )
                     )
 
@@ -324,14 +334,17 @@ class GoGoProvider(BaseProvider):
                             url=urljoin(content.base_uri, playlist.uri),
                             resolution=playlist.stream_info.resolution[1],
                             episode=episode,
-                            dub=dub,
+                            language=lang,
                         )
                     )
             else:
                 resolution = int(re.search(r"\d+", s["label"]).group(0))
                 streams.append(
                     ProviderStream(
-                        url=s["file"], resolution=resolution, episode=episode, dub=dub
+                        url=s["file"],
+                        resolution=resolution,
+                        episode=episode,
+                        language=lang,
                     )
                 )
 
