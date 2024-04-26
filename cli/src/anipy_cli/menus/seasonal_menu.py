@@ -48,7 +48,8 @@ class SeasonalMenu(MenuBase):
         return [
             MenuOption("Add Anime", self.add_anime, "a"),
             MenuOption("Delete one anime from seasonals", self.del_anime, "e"),
-            MenuOption("List anime in seasonals file", self.list_animes, "l"),
+            MenuOption("List anime in seasonals", self.list_animes, "l"),
+            MenuOption("Change dub/sub of anime in seasonals", self.change_lang, "c"),
             MenuOption("Download newest episodes", self.download_latest, "d"),
             MenuOption("Binge watch newest episodes", self.binge_latest, "w"),
             MenuOption("Quit", self.quit, "q"),
@@ -143,6 +144,52 @@ class SeasonalMenu(MenuBase):
             delete_seasonal(config._seasonal_file_path, e, e.language)
 
         self.print_options()
+
+    def change_lang(self):
+        config = Config()
+        seasonals = list(get_seasonals(config._seasonal_file_path).seasonals.values())
+
+        if len(seasonals) == 0:
+            error("No seasonals configured.")
+            return
+
+        entries: List[SeasonalEntry] = (
+            inquirer.fuzzy(
+                message="Select Seasonals to delete:",
+                choices=seasonals,
+                multiselect=True,
+                long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
+                mandatory=False,
+                keybindings={"toggle": [{"key": "c-space"}]},
+                style=get_style(
+                    {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+                ),
+            ).execute()
+            or []
+        )
+
+        if not entries:
+            return
+
+        action: str = inquirer.select(
+            message="Switch to:",
+            choices=["Sub", "Dub"],
+            long_instruction="To skip this prompt press ctrl+z",
+            mandatory=False,
+        ).execute()
+
+        if not action:
+            return
+
+        for e in entries:
+            if e.language == LanguageTypeEnum.DUB:
+                new_lang = LanguageTypeEnum.SUB
+            else:
+                new_lang = LanguageTypeEnum.DUB
+            if new_lang in e.languages:
+                update_seasonal(config._seasonal_file_path, e, e.episode, new_lang)
+            else:
+                print(f"> {new_lang} is for {e.name} not available")
 
     def list_animes(self):
         config = Config()

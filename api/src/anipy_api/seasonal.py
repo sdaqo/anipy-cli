@@ -21,7 +21,7 @@ class SeasonalEntry(DataClassJsonMixin):
         return f"{self.name} ({self.language}) Episode {self.episode}"
 
     def __hash__(self) -> int:
-        return hash(_get_uid(self, self.language))
+        return hash(_get_uid(self))
 
 
 @dataclass
@@ -49,23 +49,24 @@ def get_seasonals(file: Path) -> Seasonals:
     return Seasonals.read(file)
 
 
-def get_seasonal_entry(
-    file: Path, anime: "Anime", lang: LanguageTypeEnum
-) -> Optional[SeasonalEntry]:
+def get_seasonal_entry(file: Path, anime: "Anime") -> Optional[SeasonalEntry]:
     seasonals = Seasonals.read(file)
 
-    return seasonals.seasonals.get(_get_uid(anime, lang), None)
+    return seasonals.seasonals.get(_get_uid(anime), None)
 
 
-def delete_seasonal(file: Path, anime: Union["Anime", SeasonalEntry], lang: LanguageTypeEnum):
+def delete_seasonal(file: Path, anime: Union["Anime", SeasonalEntry]):
     seasonals = Seasonals.read(file)
 
-    seasonals.seasonals.pop(_get_uid(anime, lang))
+    seasonals.seasonals.pop(_get_uid(anime))
     seasonals.write(file)
 
 
 def update_seasonal(
-    file: Path, anime: Union["Anime", SeasonalEntry], episode: "Episode", lang: LanguageTypeEnum
+    file: Path,
+    anime: Union["Anime", SeasonalEntry],
+    episode: "Episode",
+    lang: LanguageTypeEnum,
 ):
     seasonals = Seasonals.read(file)
 
@@ -76,7 +77,7 @@ def update_seasonal(
         provider = anime.provider
         identifier = anime.identifier
 
-    uniqueid = _get_uid(anime, lang)
+    uniqueid = _get_uid(anime)
     entry = seasonals.seasonals.get(uniqueid, None)
 
     if entry is None:
@@ -86,20 +87,21 @@ def update_seasonal(
             name=anime.name,
             episode=episode,
             language=lang,
-            languages=anime.languages
+            languages=anime.languages,
         )
     else:
         entry.episode = episode
+        entry.language = lang
 
     seasonals.seasonals[uniqueid] = entry
     seasonals.write(file)
 
 
-def _get_uid(anime: Union["Anime", SeasonalEntry], lang: LanguageTypeEnum):
+def _get_uid(anime: Union["Anime", SeasonalEntry]):
     if isinstance(anime, Anime):
-        return f"{anime.provider.NAME}:{lang}:{anime.identifier}"
+        return f"{anime.provider.NAME}:{anime.identifier}"
     else:
-        return f"{anime.provider}:{lang}:{anime.identifier}"
+        return f"{anime.provider}:{anime.identifier}"
 
 
 def _migrate_seasonals(file):
@@ -116,7 +118,7 @@ def _migrate_seasonals(file):
         is_dub = identifier.endswith("-dub") or identifier.endswith("-japanese-dub")
         identifier = identifier.removesuffix("-dub").removesuffix("-japanese-dub")
         episode = v["ep"]
-        unique_id = f"gogoanime:{'dub' if is_dub else 'sub'}:{identifier}"
+        unique_id = f"gogoanime:{identifier}"
 
         new_entry = SeasonalEntry(
             provider="gogoanmie",
@@ -124,7 +126,7 @@ def _migrate_seasonals(file):
             identifier=identifier,
             episode=episode,
             language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
-            languages={LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB}
+            languages={LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB},
         )
 
         new_seasonals.seasonals[unique_id] = new_entry

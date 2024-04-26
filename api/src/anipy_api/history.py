@@ -25,7 +25,7 @@ class HistoryEntry(DataClassJsonMixin):
         return f"{self.name} ({self.language}) Episode {self.episode}"
 
     def __hash__(self) -> int:
-        return hash(f"{self.provider}:{self.language}:{self.identifier}")
+        return hash(f"{self.provider}:{self.identifier}")
 
 
 @dataclass
@@ -53,9 +53,9 @@ def get_history(file: Path) -> History:
     return History.read(file)
 
 
-def get_history_entry(file: Path, anime: "Anime", lang: LanguageTypeEnum) -> Optional[HistoryEntry]:
+def get_history_entry(file: Path, anime: "Anime") -> Optional[HistoryEntry]:
     history = History.read(file)
-    uniqueid = _get_uid(anime, lang)
+    uniqueid = _get_uid(anime)
 
     return history.history.get(uniqueid, None)
 
@@ -63,7 +63,7 @@ def get_history_entry(file: Path, anime: "Anime", lang: LanguageTypeEnum) -> Opt
 def update_history(file: Path, anime: "Anime", episode: "Episode", lang: LanguageTypeEnum):
     history = History.read(file)
 
-    uniqueid = _get_uid(anime, lang)
+    uniqueid = _get_uid(anime)
     entry = history.history.get(uniqueid, None)
 
     if entry is None:
@@ -79,14 +79,15 @@ def update_history(file: Path, anime: "Anime", episode: "Episode", lang: Languag
     else:
         entry.episode = episode
         entry.timestamp = int(time())
+        entry.language = lang
 
     history.history[uniqueid] = entry
 
     history.write(file)
 
 
-def _get_uid(anime: "Anime", lang: LanguageTypeEnum):
-    return f"{anime.provider.NAME}:{lang}:{anime.identifier}"
+def _get_uid(anime: "Anime"):
+    return f"{anime.provider.NAME}:{anime.identifier}"
 
 
 def _migrate_history(file):
