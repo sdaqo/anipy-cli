@@ -140,7 +140,7 @@ class Menu(MenuBase):
         self.print_options()
 
     def search(self):
-        search_result = search_show_prompt()
+        search_result = search_show_prompt("default")
         if search_result is None:
             return
         self.anime = search_result

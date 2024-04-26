@@ -163,7 +163,7 @@ class MyAnimeListProxy:
 
         config = Config()
         result = None
-        for p in get_prefered_providers():
+        for p in get_prefered_providers("mal"):
             adapter = MyAnimeListAdapter(self.mal, p)
             result = adapter.from_myanimelist(
                 anime,

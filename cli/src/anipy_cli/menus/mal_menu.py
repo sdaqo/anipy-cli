@@ -130,7 +130,7 @@ class MALMenu(MenuBase):
         if anime is None:
             return
 
-        with DotSpinner("Adding ", colors.BLUE, anime.title, "to your MAL...") as s:
+        with DotSpinner("Adding ", colors.BLUE, anime.title, " to your MAL...") as s:
             self.mal_proxy.update_show(anime, MALMyListStatusEnum.WATCHING)
             s.ok("✔")
 
@@ -480,7 +480,7 @@ class MALMenu(MenuBase):
 
         for f in failed:
             cprint("Manually mapping ", colors.BLUE, f.title)
-            anime = search_show_prompt()
+            anime = search_show_prompt("mal")
             if not anime:
                 continue
 

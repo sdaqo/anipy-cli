@@ -105,7 +105,7 @@ class DotSpinner(Yaspin):
         self.text = color(*text_and_colors)
 
 
-def search_show_prompt() -> Optional["Anime"]:
+def search_show_prompt(mode: str) -> Optional["Anime"]:
     query = inquirer.text(
         "Search Anime:",
         long_instruction="To cancel this prompt press ctrl+z",
@@ -117,7 +117,7 @@ def search_show_prompt() -> Optional["Anime"]:
 
     with DotSpinner("Searching for ", colors.BLUE, query, "..."):
         results: List[Anime] = []
-        for provider in get_prefered_providers():
+        for provider in get_prefered_providers(mode):
             results.extend(
                 [
                     Anime.from_search_result(provider, x)
@@ -198,12 +198,17 @@ def lang_prompt(anime: "Anime") -> LanguageTypeEnum:
         return next(iter(anime.languages))
 
 
-def get_prefered_providers() -> Iterator["BaseProvider"]:
-    preferred_providers = Config().providers
+def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
+    config = Config()
+    preferred_providers = config.providers[mode]
+
+    if not preferred_providers:
+        error(f"you have no providers set for {mode} mode, look into your config", fatal=True)
 
     for i in list_providers():
         if i.NAME in preferred_providers:
-            yield i()
+            url_override = config.provider_urls.get(i.NAME, None)
+            yield i(url_override)
 
 
 def get_download_path(
@@ -249,7 +254,7 @@ def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episod
     return sorted(picked)
 
 
-def parse_auto_search(passed: str) -> Tuple["Anime", LanguageTypeEnum, List["Episode"]]:
+def parse_auto_search(mode: str, passed: str) -> Tuple["Anime", LanguageTypeEnum, List["Episode"]]:
     options = iter(passed.split(":"))
     query = next(options, None)
     ranges = next(options, None)
@@ -266,7 +271,7 @@ def parse_auto_search(passed: str) -> Tuple["Anime", LanguageTypeEnum, List["Epi
 
     with DotSpinner("Searching for ", colors.BLUE, query, "..."):
         results: List[Anime] = []
-        for provider in get_prefered_providers():
+        for provider in get_prefered_providers(mode):
             results.extend(
                 [
                     Anime.from_search_result(provider, x)

@@ -64,15 +64,50 @@ class Config:
     @property
     def providers(self):
         """
-        List of providers that will be used to look up anime.
+        A list of pairs that define where in the programm which provider
+        will be used to look up anime. Configurable areas are as follows:
+        default (and history), download (-D), seasonal (-S), binge (-B) and mal (-M)
+        The example will show you how it is done!
+
         For a updated list of providers look here:
 
         Supported providers (as of $version): gogoanime
 
         Examples:
-            providers: ["provider1", "provider2"]
+            providers:
+                default: ["provider1"] # used in default mode and for the history
+                download: ["provider2"]
+                seasonal: ["provider3"]
+                binge: ["provider4"]
+                mal: ["provider2", "provider3"]
         """
-        return self._get_value("providers", ["gogoanime"], list)
+        defaults = {
+            "default": ["gogoanime"],
+            "download": ["gogoanime"],
+            "history": ["gogoanime"],
+            "seasonal": ["gogoanime"],
+            "binge": ["gogoanime"],
+            "mal": ["gogoanime"],
+        }
+
+        value = self._get_value("providers", defaults, dict)
+
+        # Merge Dicts
+        defaults.update(value)
+        return defaults
+
+    @property
+    def provider_urls(self):
+        """
+        A list of pairs to override the default urls that providers use.
+
+        Examples:
+            provider_urls:
+              gogoanime: "https://gogoanime3.co"
+            provider_urls: {} # do not override any urls
+        """
+
+        return self._get_value("provider_urls", {}, dict)
 
     @property
     def player_path(self):

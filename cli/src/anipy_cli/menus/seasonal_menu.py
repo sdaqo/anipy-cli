@@ -20,10 +20,10 @@ from anipy_cli.config import Config
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
-    lang_prompt,
     error,
     get_configured_player,
     get_download_path,
+    lang_prompt,
     pick_episode_prompt,
     search_show_prompt,
 )
@@ -97,7 +97,7 @@ class SeasonalMenu(MenuBase):
         # else:
         #     searches.append(input("Search: "))
 
-        anime = search_show_prompt()
+        anime = search_show_prompt("default")
 
         if anime is None:
             return
@@ -180,7 +180,9 @@ class SeasonalMenu(MenuBase):
                         "...",
                     )
 
-                    stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
+                    stream = anime.get_video(
+                        ep, lang, preferred_quality=self.options.quality
+                    )
 
                     info_display(
                         f"Downloading Episode {stream.episode} of {anime.name}"
@@ -218,7 +220,9 @@ class SeasonalMenu(MenuBase):
                     e,
                     "...",
                 ) as s:
-                    stream = anime.get_video(e, lang, preferred_quality=self.options.quality)
+                    stream = anime.get_video(
+                        e, lang, preferred_quality=self.options.quality
+                    )
                     s.ok("✔")
 
                 self.player.play_title(anime, stream)

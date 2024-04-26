@@ -36,10 +36,10 @@ class BingeCli(CliBase):
 
     def take_input(self):
         if self.options.search is not None:
-            self.anime, self.lang, self.episodes = parse_auto_search(self.options.search)
+            self.anime, self.lang, self.episodes = parse_auto_search("binge", self.options.search)
             return
 
-        anime = search_show_prompt()
+        anime = search_show_prompt("binge")
 
         if anime is None:
             sys.exit(0)

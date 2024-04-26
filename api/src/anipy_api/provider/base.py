@@ -56,7 +56,10 @@ class BaseProvider(ABC):
     BASE_URL: str
     FILTER_CAPS: FilterCapabilities
 
-    def __init__(self):
+    def __init__(self, base_url_override: Optional[str] = None):
+        if base_url_override is not None:
+            self.BASE_URL = base_url_override
+
         self.session = Session()
 
     def __init_subclass__(cls) -> None:
