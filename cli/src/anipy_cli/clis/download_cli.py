@@ -84,8 +84,7 @@ class DownloadCli(CliBase):
         # )
         if self.options.search is not None:
             self.anime, self.lang, self.episodes = parse_auto_search(
-                "download",
-                self.options.search
+                "download", self.options.search
             )
             return
 

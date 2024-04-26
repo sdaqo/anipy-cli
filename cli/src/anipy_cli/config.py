@@ -253,7 +253,7 @@ class Config:
 
         Examples:
             mal_ignore_tag: ignore # all anime with ignore tag will be ignored
-            mal_ignore_tag: null or mal_ignore_tag: "" # no anime will be ignored
+            mal_ignore_tag: "" # no anime will be ignored
         """
         return self._get_value("mal_ignore_tag", "ignore", str)
 
@@ -265,7 +265,7 @@ class Config:
 
         Examples:
             mal_dub_tag: dub # all anime with this tag will be switched to dub
-            mal_dub_tag: null or mal_dub_tag: "" # no anime will be switched to dub, except you have preferred_type on dub
+            mal_dub_tag: "" # no anime will be switched to dub, except you have preferred_type on dub
         """
         return self._get_value("mal_dub_tag", "dub", str)
 

@@ -2,28 +2,29 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple
 
+from anipy_api.anime import Anime
+from anipy_api.download import Downloader
+from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
+from anipy_api.provider import LanguageTypeEnum
+from anipy_api.provider.base import Episode
+from anipy_api.seasonal import SeasonalEntry, get_seasonals, update_seasonal
 from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
 
-from anipy_api.anime import Anime
-from anipy_api.provider import LanguageTypeEnum
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint
+from anipy_cli.config import Config
 from anipy_cli.mal_proxy import MyAnimeListProxy
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
+    error,
     find_closest,
+    get_configured_player,
     get_download_path,
     search_show_prompt,
-    error,
-    get_configured_player,
 )
-from anipy_cli.config import Config
-from anipy_api.download import Downloader
-from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
-from anipy_api.provider.base import Episode
-from anipy_api.seasonal import SeasonalEntry, get_seasonals, update_seasonal
 
 
 class MALMenu(MenuBase):
@@ -120,9 +121,10 @@ class MALMenu(MenuBase):
         with DotSpinner("Searching for ", colors.BLUE, query, "..."):
             results = self.mal.get_search(query)
 
-        anime: MALAnime = inquirer.fuzzy(
+        anime = inquirer.fuzzy(
             message="Select Show:",
-            choices=results,
+            choices=[Choice(value=r, name=self._format_mal_anime(r)) for r in results],
+            transformer=lambda x: [e.split("|")[-1].strip() for e in x],
             long_instruction="To skip this prompt press crtl+z",
             mandatory=False,
         ).execute()
@@ -130,6 +132,7 @@ class MALMenu(MenuBase):
         if anime is None:
             return
 
+        anime = MALAnime.from_dict(anime)
         with DotSpinner("Adding ", colors.BLUE, anime.title, " to your MAL...") as s:
             self.mal_proxy.update_show(anime, MALMyListStatusEnum.WATCHING)
             s.ok("✔")
@@ -139,11 +142,14 @@ class MALMenu(MenuBase):
         with DotSpinner("Fetching your MAL..."):
             mylist = self.mal_proxy.get_list()
 
-        entries: List[MALAnime] = (
+        entries = (
             inquirer.fuzzy(
                 message="Select Seasonals to delete:",
-                choices=mylist,
+                choices=[
+                    Choice(value=e, name=self._format_mal_anime(e)) for e in mylist
+                ],
                 multiselect=True,
+                transformer=lambda x: [e.split("|")[-1].strip() for e in x],
                 long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
                 mandatory=False,
                 keybindings={"toggle": [{"key": "c-space"}]},
@@ -156,21 +162,13 @@ class MALMenu(MenuBase):
 
         with DotSpinner("Deleting anime from your MAL...") as s:
             for e in entries:
-                self.mal_proxy.delete_show(e)
+                self.mal_proxy.delete_show(MALAnime.from_dict(e))
             s.ok("✔")
 
     def list_anime(self):
         with DotSpinner("Fetching your MAL..."):
             mylist = [
-                "{:<9} | {:<7} | {}".format(
-                    (
-                        e.my_list_status.status.value.capitalize().replace("_", "")
-                        if e.my_list_status.status != MALMyListStatusEnum.PLAN_TO_WATCH
-                        else "Planning"
-                    ),
-                    f"{e.my_list_status.num_episodes_watched}/{e.num_episodes}",
-                    e.title,
-                )
+                self._format_mal_anime(e)
                 for e in self.mal_proxy.get_list(
                     status_catagories=set(
                         [
@@ -192,12 +190,100 @@ class MALMenu(MenuBase):
         inquirer.fuzzy(
             message="View your List",
             choices=mylist,
+            mandatory=False,
+            transformer=lambda x: [e.split("|")[-1].strip() for e in x],
             long_instruction="To skip this prompt press ctrl+z",
         ).execute()
 
         self.print_options()
 
-    def tag_anime(self): ...
+    def tag_anime(self):
+        with DotSpinner("Fetching your MAL..."):
+            mylist = [
+                Choice(value=e, name=self._format_mal_anime(e))
+                for e in self.mal_proxy.get_list()
+            ]
+
+        entries = (
+            inquirer.fuzzy(
+                message="Select Anime to change tags of:",
+                choices=mylist,
+                multiselect=True,
+                long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
+                transformer=lambda x: [e.split("|")[-1].strip() for e in x],
+                mandatory=False,
+                keybindings={"toggle": [{"key": "c-space"}]},
+                style=get_style(
+                    {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+                ),
+            ).execute()
+            or []
+        )
+        entries = [MALAnime.from_dict(e) for e in entries]
+
+        if not entries:
+            return
+
+        config = Config()
+
+        choices = []
+        if config.mal_dub_tag:
+            choices.append(
+                Choice(
+                    value=config.mal_dub_tag,
+                    name=f"{config.mal_dub_tag} (sets wheter you prefer to watch a particular anime in dub)",
+                )
+            )
+
+        if config.mal_ignore_tag:
+            choices.append(
+                Choice(
+                    value=config.mal_ignore_tag,
+                    name=f"{config.mal_ignore_tag} (sets wheter anipy-cli will ignore a particular anime)",
+                )
+            )
+
+        if not choices:
+            error("no tags to configure, check your config")
+            return
+
+        tags: List[str] = inquirer.select(
+            message="Select tags to add/remove:",
+            choices=choices,
+            multiselect=True,
+            long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
+            mandatory=False,
+            keybindings={"toggle": [{"key": "c-space"}]},
+            style=get_style(
+                {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
+            ),
+        ).execute()
+
+        if not tags:
+            return
+
+        action: str = inquirer.select(
+            message="Choose which Action to apply:",
+            choices=["Add", "Remove"],
+            long_instruction="To skip this prompt press ctrl+z",
+            mandatory=False,
+        ).execute()
+
+        if not action:
+            return
+
+        for e in entries:
+            if action == "Add":
+                self.mal_proxy.update_show(e, tags=set(tags))
+            else:
+                current_tags = e.my_list_status.tags if e.my_list_status else []
+                for t in tags:
+                    try:
+                        current_tags.remove(t)
+                    except ValueError:
+                        continue
+
+                self.mal_proxy.update_show(e, tags=set(current_tags))
 
     def download(self, all: bool = False):
         picked = self._choose_latest(all=all)
@@ -231,7 +317,9 @@ class MALMenu(MenuBase):
                         "...",
                     )
 
-                    stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
+                    stream = anime.get_video(
+                        ep, lang, preferred_quality=self.options.quality
+                    )
 
                     info_display(
                         f"Downloading Episode {stream.episode} of {anime.name} ({lang})"
@@ -271,7 +359,9 @@ class MALMenu(MenuBase):
                     ep,
                     "...",
                 ) as s:
-                    stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
+                    stream = anime.get_video(
+                        ep, lang, preferred_quality=self.options.quality
+                    )
                     s.ok("✔")
 
                 self.player.play_title(anime, stream)
@@ -321,7 +411,11 @@ class MALMenu(MenuBase):
                     else:
                         pref_lang = LanguageTypeEnum.SUB
                 else:
-                    pref_lang = LanguageTypeEnum.DUB if config.preferred_type == "dub" else LanguageTypeEnum.SUB
+                    pref_lang = (
+                        LanguageTypeEnum.DUB
+                        if config.preferred_type == "dub"
+                        else LanguageTypeEnum.SUB
+                    )
 
                 if pref_lang in v.languages:
                     lang = pref_lang
@@ -364,8 +458,11 @@ class MALMenu(MenuBase):
         if not (all or self.options.auto_update):
             choices = inquirer.fuzzy(
                 message="Select shows to catch up to:",
-                choices=mylist,
+                choices=[
+                    Choice(value=e, name=self._format_mal_anime(e)) for e in mylist
+                ],
                 multiselect=True,
+                transformer=lambda x: [e.split("|")[-1].strip() for e in x],
                 long_instruction="| skip prompt: ctrl+z | toggle: ctrl+space | toggle all: ctrl+a | continue: enter |",
                 mandatory=False,
                 keybindings={"toggle": [{"key": "c-space"}]},
@@ -377,7 +474,7 @@ class MALMenu(MenuBase):
             if choices is None:
                 return []
 
-            mylist = list(choices)
+            mylist = [MALAnime.from_dict(c) for c in choices]
 
         config = Config()
         to_watch: List[Tuple[Anime, MALAnime, LanguageTypeEnum, List[Episode]]] = []
@@ -397,21 +494,29 @@ class MALMenu(MenuBase):
                         f"> No mapping found for {e.title} please use the `m` option to map it"
                     )
                     continue
-                
+
                 if config.mal_dub_tag:
                     if e.my_list_status and config.mal_dub_tag in e.my_list_status.tags:
                         pref_lang = LanguageTypeEnum.DUB
                     else:
                         pref_lang = LanguageTypeEnum.SUB
                 else:
-                    pref_lang = LanguageTypeEnum.DUB if config.preferred_type == "dub" else LanguageTypeEnum.SUB
+                    pref_lang = (
+                        LanguageTypeEnum.DUB
+                        if config.preferred_type == "dub"
+                        else LanguageTypeEnum.SUB
+                    )
 
                 if pref_lang in result.languages:
                     lang = pref_lang
-                    s.write(f"> Looking for {lang} episodes because of config/tag preference")
+                    s.write(
+                        f"> Looking for {lang} episodes because of config/tag preference"
+                    )
                 else:
                     lang = next(iter(result.languages))
-                    s.write(f"> Looking for {lang} episodes because your preferred type is not available")
+                    s.write(
+                        f"> Looking for {lang} episodes because your preferred type is not available"
+                    )
 
                 episodes = result.get_episodes(lang)
 
@@ -536,7 +641,7 @@ class MALMenu(MenuBase):
             cprint("Manually mapping ", colors.BLUE, f.name)
             query = inquirer.text(
                 "Search Anime:",
-                long_instruction="To cancel this prompt press ctrl+z",
+                long_instruction="To skip this prompt press ctrl+z",
                 mandatory=False,
             ).execute()
 
@@ -546,9 +651,10 @@ class MALMenu(MenuBase):
             with DotSpinner("Searching for ", colors.BLUE, query, "..."):
                 results = self.mal.get_search(query)
 
-            anime: MALAnime = inquirer.fuzzy(
+            anime = inquirer.fuzzy(
                 message="Select Show:",
-                choices=results,
+                choices=[Choice(value=r, name=self._format_mal_anime(r)) for r in results],
+                transformer=lambda x: [e.split("|")[-1].strip() for e in x],
                 long_instruction="To skip this prompt press crtl+z",
                 mandatory=False,
             ).execute()
@@ -556,12 +662,36 @@ class MALMenu(MenuBase):
             if not anime:
                 continue
 
+            anime = MALAnime.from_dict(anime)
             map = self.mal_proxy.map_from_provider(Anime.from_seasonal_entry(f), anime)
             if map is not None:
                 mappings.update({f: map})
 
         self.print_options()
         return mappings
+
+    @staticmethod
+    def _format_mal_anime(anime: MALAnime) -> str:
+        config = Config()
+        dub = (
+            config.mal_dub_tag in anime.my_list_status.tags
+            if anime.my_list_status
+            else False
+        )
+
+        return "{:<9} | {:<7} | {}".format(
+            (
+                (
+                    anime.my_list_status.status.value.capitalize().replace("_", "")
+                    if anime.my_list_status.status != MALMyListStatusEnum.PLAN_TO_WATCH
+                    else "Planning"
+                )
+                if anime.my_list_status
+                else "Not Added"
+            ),
+            f"{anime.my_list_status.num_episodes_watched if anime.my_list_status else 0}/{anime.num_episodes}",
+            f"{anime.title} {'(dub)' if dub else ''}",
+        )
 
     def quit(self):
         sys.exit(0)
