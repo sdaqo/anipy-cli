@@ -45,7 +45,6 @@ class Downloader:
         name = "".join(
             [i for i in name if i.isascii()]
         )  # Verify all chars are ascii (eject if not)
-        # name = "-".join(name.split())  # Clean all white spaces, including tabs and such
 
         return name
 

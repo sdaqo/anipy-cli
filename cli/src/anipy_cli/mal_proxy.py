@@ -35,13 +35,19 @@ class MALProviderMapping(DataClassJsonMixin):
 class MALLocalList(DataClassJsonMixin):
     mappings: Dict[int, MALProviderMapping]
 
-    def write(self):
-        local_list = Config()._mal_local_user_list_path
+    def write(self, user_id: int):
+        config = Config()
+        local_list = config._mal_local_user_list_path.with_stem(
+            f"{config._mal_local_user_list_path}_{user_id}"
+        )
         local_list.write_text(self.to_json())
 
     @staticmethod
-    def read() -> "MALLocalList":
-        local_list = Config()._mal_local_user_list_path
+    def read(user_id: int) -> "MALLocalList":
+        config = Config()
+        local_list = config._mal_local_user_list_path.with_stem(
+            f"{config._mal_local_user_list_path}_{user_id}"
+        )
 
         if not local_list.is_file():
             local_list.parent.mkdir(exist_ok=True, parents=True)
@@ -56,7 +62,7 @@ class MALLocalList(DataClassJsonMixin):
             ).execute()
             if choice:
                 local_list.unlink()
-                return MALLocalList.read()
+                return MALLocalList.read(user_id)
             else:
                 error("could not read your MyAnimeList", fatal=True)
 
@@ -66,7 +72,8 @@ class MALLocalList(DataClassJsonMixin):
 class MyAnimeListProxy:
     def __init__(self, mal: MyAnimeList):
         self.mal = mal
-        self.local_list = MALLocalList.read()
+        self.user_id = mal.get_user().id
+        self.local_list = MALLocalList.read(self.user_id)
 
     def _cache_list(self, mylist: List[MALAnime]):
         config = Config()
@@ -79,7 +86,7 @@ class MyAnimeListProxy:
             else:
                 self.local_list.mappings[e.id] = MALProviderMapping(e, {})
 
-        self.local_list.write()
+        self.local_list.write(self.user_id)
 
     def _write_mapping(self, mal_anime: MALAnime, mapping: Anime):
         self._cache_list([mal_anime])
@@ -90,7 +97,7 @@ class MyAnimeListProxy:
             mapping.provider.NAME, mapping.name, mapping.identifier, mapping.languages
         )
 
-        self.local_list.write()
+        self.local_list.write(self.user_id)
 
     def get_list(
         self, status_catagories: Optional[Set[MALMyListStatusEnum]] = None
@@ -137,7 +144,7 @@ class MyAnimeListProxy:
         config = Config()
         tags |= set(config.mal_tags)
         result = self.mal.update_anime_list(
-            anime.id, status=status, watched_episodes=episode, tags=tags
+            anime.id, status=status, watched_episodes=episode, tags=list(tags)
         )
         anime.my_list_status = result
         self._cache_list([anime])
@@ -145,7 +152,7 @@ class MyAnimeListProxy:
 
     def delete_show(self, anime: MALAnime) -> None:
         self.local_list.mappings.pop(anime.id)
-        self.local_list.write()
+        self.local_list.write(self.user_id)
 
         self.mal.delete_from_anime_list(anime.id)
 

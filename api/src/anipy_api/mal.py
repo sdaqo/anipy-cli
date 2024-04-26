@@ -42,6 +42,13 @@ class MALMediaTypeEnum(Enum):
 
 
 @dataclass
+class MALUser(DataClassJsonMixin):
+    id: int
+    name: str
+    picture: str
+
+
+@dataclass
 class MALMyListStatus(DataClassJsonMixin):
     num_episodes_watched: int
     tags: List[str]
@@ -152,6 +159,12 @@ class MyAnimeList:
         request = Request("GET", f"{self.API_BASE}/anime/{anime_id}")
         return MALAnime.from_dict(self._make_request(request))
 
+    def get_user(self) -> MALUser:
+        request = Request(
+            "GET", f"{self.API_BASE}/users/@me", params={"fields": "id,name,picture"}
+        )
+        return MALUser.from_dict(self._make_request(request))
+
     def get_anime_list(
         self, status_filter: Optional[MALMyListStatusEnum] = None
     ) -> List[MALAnime]:
@@ -166,14 +179,14 @@ class MyAnimeList:
         anime_id: int,
         status: Optional[MALMyListStatusEnum] = None,
         watched_episodes: Optional[int] = None,
-        tags: Optional[Set[str]] = None,
+        tags: Optional[List[str]] = None,
     ) -> MALMyListStatus:
         data = {
             k: v
             for k, v in {
                 "status": status.value if status else None,
                 "num_watched_episodes": watched_episodes,
-                "tags": tags,
+                "tags": ",".join(tags) if tags is not None else None,
             }.items()
             if v is not None
         }
