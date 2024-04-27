@@ -41,7 +41,9 @@ class DefaultCli(CliBase):
 
     def take_input(self):
         if self.options.search is not None:
-            self.anime, self.lang, episodes = parse_auto_search("default", self.options.search)
+            self.anime, self.lang, episodes = parse_auto_search(
+                "default", self.options.search
+            )
             self.epsiode = episodes[0]
             return
 

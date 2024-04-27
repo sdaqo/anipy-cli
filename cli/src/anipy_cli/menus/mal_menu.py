@@ -653,7 +653,9 @@ class MALMenu(MenuBase):
 
             anime = inquirer.fuzzy(
                 message="Select Show:",
-                choices=[Choice(value=r, name=self._format_mal_anime(r)) for r in results],
+                choices=[
+                    Choice(value=r, name=self._format_mal_anime(r)) for r in results
+                ],
                 transformer=lambda x: [e.split("|")[-1].strip() for e in x],
                 long_instruction="To skip this prompt press crtl+z",
                 mandatory=False,

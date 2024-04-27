@@ -9,18 +9,15 @@ if TYPE_CHECKING:
 
 
 class Anime:
-    """
-    A wrapper class that represents a Anime, it is pretty useful, but you can also just use the Provider without wrapper.
-
-    Example:
-        Do this and this and get that! [Look here for more!](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types)
-    """
+    """A wrapper class that represents a Anime, it is pretty useful, but you
+    can also just use the [Provider][anipy_api.provider] without the
+    wrapper."""
 
     @staticmethod
     def from_search_result(
         provider: "BaseProvider", result: "ProviderSearchResult"
     ) -> "Anime":
-        """Get Anime object from ProviderSearchResult
+        """Get Anime object from ProviderSearchResult.
 
         Args:
             provider: The provider from which the search result stems from
@@ -28,7 +25,6 @@ class Anime:
 
         Returns:
             Anime object
-
         """
         return Anime(provider, result.name, result.identifier, result.languages)
 
@@ -41,20 +37,19 @@ class Anime:
 
         Returns:
             Anime Object
-
         """
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
         return Anime(provider(), entry.name, entry.identifier, entry.languages)
 
     @staticmethod
     def from_seasonal_entry(entry: "SeasonalEntry") -> "Anime":
-        """Get Anime object from [SeasonalEntry][anipy_api.seasonal.SeasonalEntry]
+        """Get Anime object from
+        [SeasonalEntry][anipy_api.seasonal.SeasonalEntry]
 
         Args:
-            entry: 
+            entry:
 
         Returns:
-            
         """
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
         return Anime(provider(), entry.name, entry.identifier, entry.languages)

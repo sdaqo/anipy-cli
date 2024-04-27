@@ -122,58 +122,56 @@ class BaseProvider(ABC):
     @abstractmethod
     def get_search(
         self, query: str, filters: Filters = Filters()
-    ) -> List[ProviderSearchResult]: 
+    ) -> List[ProviderSearchResult]:
         """
 
         Args:
-            query: 
-            filters: 
+            query:
+            filters:
 
         Returns:
-            
+
         """
         ...
 
     @abstractmethod
-    def get_info(self, identifier: str) -> ProviderInfoResult: 
+    def get_info(self, identifier: str) -> ProviderInfoResult:
         """
 
         Args:
-            identifier: 
+            identifier:
 
         Returns:
-            
+
         """
         ...
 
     @abstractmethod
-    def get_episodes(
-        self, identifier: str, lang: LanguageTypeEnum
-    ) -> List[Episode]: 
+    def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List[Episode]:
         """
 
         Args:
-            identifier: 
-            lang: 
+            identifier:
+            lang:
 
         Returns:
             dasda
-            
+
         """
         ...
 
     @abstractmethod
     def get_video(
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
-    ) -> List[ProviderStream]: 
+    ) -> List[ProviderStream]:
         """
 
         Args:
-            identifier: 
-            episode: 
-            lang: 
+            identifier:
+            episode:
+            lang:
 
         Returns:
-            
+
         """
         ...

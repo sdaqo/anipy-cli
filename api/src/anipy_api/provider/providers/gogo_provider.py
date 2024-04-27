@@ -106,11 +106,12 @@ class GoGoFilter(BaseFilter):
 class GoGoProvider(BaseProvider):
     """
 
-    Attributes: 
-        NAME: 
-        BASE_URL: 
-        FILTER_CAPS: 
+    Attributes:
+        NAME:
+        BASE_URL:
+        FILTER_CAPS:
     """
+
     NAME = "gogoanime"
     BASE_URL = "https://gogoanime3.co"
     FILTER_CAPS = (

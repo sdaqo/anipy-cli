@@ -12,14 +12,15 @@ from anipy_api.provider import Episode, LanguageTypeEnum
 class SeasonalEntry(DataClassJsonMixin):
     """
 
-    Attributes: 
-        provider: 
-        identifier: 
-        name: 
-        episode: 
-        language: 
-        languages: 
+    Attributes:
+        provider:
+        identifier:
+        name:
+        episode:
+        language:
+        languages:
     """
+
     provider: str = field(metadata=config(field_name="pv"))
     identifier: str = field(metadata=config(field_name="id"))
     name: str = field(metadata=config(field_name="na"))
@@ -38,9 +39,10 @@ class SeasonalEntry(DataClassJsonMixin):
 class Seasonals(DataClassJsonMixin):
     """
 
-    Attributes: 
-        seasonals: 
+    Attributes:
+        seasonals:
     """
+
     seasonals: Dict[str, SeasonalEntry]
 
     def write(self, file: Path):
@@ -64,10 +66,10 @@ def get_seasonals(file: Path) -> Seasonals:
     """
 
     Args:
-        file: 
+        file:
 
     Returns:
-        
+
     """
     return Seasonals.read(file)
 
@@ -76,11 +78,11 @@ def get_seasonal_entry(file: Path, anime: "Anime") -> Optional[SeasonalEntry]:
     """
 
     Args:
-        file: 
-        anime: 
+        file:
+        anime:
 
     Returns:
-        
+
     """
     seasonals = Seasonals.read(file)
 
@@ -91,8 +93,8 @@ def delete_seasonal(file: Path, anime: Union["Anime", SeasonalEntry]):
     """
 
     Args:
-        file: 
-        anime: 
+        file:
+        anime:
     """
     """
 
@@ -115,10 +117,10 @@ def update_seasonal(
     """
 
     Args:
-        file: 
-        anime: 
-        episode: 
-        lang: 
+        file:
+        anime:
+        episode:
+        lang:
     """
     seasonals = Seasonals.read(file)
 

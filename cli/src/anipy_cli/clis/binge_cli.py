@@ -36,7 +36,9 @@ class BingeCli(CliBase):
 
     def take_input(self):
         if self.options.search is not None:
-            self.anime, self.lang, self.episodes = parse_auto_search("binge", self.options.search)
+            self.anime, self.lang, self.episodes = parse_auto_search(
+                "binge", self.options.search
+            )
             return
 
         anime = search_show_prompt("binge")
@@ -65,7 +67,9 @@ class BingeCli(CliBase):
                 e,
                 "...",
             ) as s:
-                stream = self.anime.get_video(e, self.lang, preferred_quality=self.options.quality)
+                stream = self.anime.get_video(
+                    e, self.lang, preferred_quality=self.options.quality
+                )
                 s.ok("✔")
 
             update_history(config._history_file_path, self.anime, e, self.lang)

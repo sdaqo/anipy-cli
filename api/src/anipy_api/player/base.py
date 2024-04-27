@@ -31,9 +31,7 @@ class PlayerBase(ABC):
 
     def _start_dc_presence(self, anime: "Anime", stream: "ProviderStream"):
         if self.rpc_client:
-            dc_media_title = (
-                f"{anime.name} | {stream.episode}/{anime.get_episodes(stream.language)[-1]}"
-            )
+            dc_media_title = f"{anime.name} | {stream.episode}/{anime.get_episodes(stream.language)[-1]}"
             dc_presence(dc_media_title, anime.get_info(), self.rpc_client)
 
     @staticmethod

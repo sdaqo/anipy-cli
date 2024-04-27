@@ -20,8 +20,8 @@ class Config:
 
     @property
     def user_files_path(self):
-        """
-        Path to user files, this includes history, seasonals files and more.
+        """Path to user files, this includes history, seasonals files and more.
+
         You may use `~` or environment vars in your path.
         """
 
@@ -43,8 +43,8 @@ class Config:
 
     @property
     def download_folder_path(self):
-        """
-        Path to your download folder/directory.
+        """Path to your download folder/directory.
+
         You may use `~` or environment vars in your path.
         """
         return self._get_path_value(
@@ -53,8 +53,8 @@ class Config:
 
     @property
     def seasonals_dl_path(self):
-        """
-        Path to your seasonal downloads directory.
+        """Path to your seasonal downloads directory.
+
         You may use `~` or environment vars in your path.
         """
         return self._get_path_value(
@@ -63,11 +63,10 @@ class Config:
 
     @property
     def providers(self):
-        """
-        A list of pairs that define where in the programm which provider
+        """A list of pairs that define where in the programm which provider
         will be used to look up anime. Configurable areas are as follows:
-        default (and history), download (-D), seasonal (-S), binge (-B) and mal (-M)
-        The example will show you how it is done!
+        default (and history), download (-D), seasonal (-S), binge (-B) and mal
+        (-M) The example will show you how it is done!
 
         For a updated list of providers look here:
 
@@ -98,8 +97,7 @@ class Config:
 
     @property
     def provider_urls(self):
-        """
-        A list of pairs to override the default urls that providers use.
+        """A list of pairs to override the default urls that providers use.
 
         Examples:
             provider_urls:
@@ -133,8 +131,7 @@ class Config:
 
     @property
     def mpv_commandline_options(self):
-        """
-        Extra commandline arguments for mpv and derivative.
+        """Extra commandline arguments for mpv and derivative.
 
         Examples:
             mpv_commandline_options: ["--keep-open=no", "--fs=yes"]
@@ -143,8 +140,7 @@ class Config:
 
     @property
     def vlc_commandline_options(self):
-        """
-        Extra commandline arguments for vlc.
+        """Extra commandline arguments for vlc.
 
         Examples:
             vlc_commandline_options: ["--fullscreen"]
@@ -153,21 +149,22 @@ class Config:
 
     @property
     def reuse_mpv_window(self):
-        """
-        DEPRECATED
-        This option was deprecated in 3.0.0, please use `mpv-controlled` in the `player_path` instead!
+        """DEPRECATED This option was deprecated in 3.0.0, please use `mpv-
+        controlled` in the `player_path` instead!
 
-        Reuse the mpv window instead of closing and reopening.
-        This uses python-mpv, which uses libmpv, on linux this is (normally) preinstalled
-        with mpv, on windows you have to get the mpv-2.dll file from here:
+        Reuse the mpv window instead of closing and reopening. This uses
+        python-mpv, which uses libmpv, on linux this is (normally)
+        preinstalled with mpv, on windows you have to get the mpv-2.dll
+        file from here:
         https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
         """
         return self._get_value("reuse_mpv_window", False, bool)
 
     @property
     def ffmpeg_hls(self):
-        """
-        Always use ffmpeg to download m3u8 playlists instead of the internal downloader.
+        """Always use ffmpeg to download m3u8 playlists instead of the internal
+        downloader.
+
         To temporarily enable this use the `--ffmpeg` command line flag.
         """
         return self._get_value("ffmpeg_hls", False, bool)
@@ -217,30 +214,24 @@ class Config:
 
     @property
     def dc_presence(self):
-        """
-        Activate discord presence, only works with discord open.
-        """
+        """Activate discord presence, only works with discord open."""
         return self._get_value("dc_presence", False, bool)
 
     @property
     def auto_open_dl_defaultcli(self):
-        """
-        This automatically opens the downloaded file if downloaded through the
-        `d` option in the default cli.
-        """
+        """This automatically opens the downloaded file if downloaded through
+        the `d` option in the default cli."""
         return self._get_value("auto_open_dl_defaultcli", True, bool)
 
     @property
     def mal_user(self):
-        """
-        Your MyAnimeList username for MAL mode.
-        """
+        """Your MyAnimeList username for MAL mode."""
         return self._get_value("mal_user", "", str)
 
     @property
     def mal_password(self):
-        """
-        Your MyAnimeList password for MAL mode.
+        """Your MyAnimeList password for MAL mode.
+
         The password may also be passed via the `--mal-password <pwd>`
         commandline option.
         """
@@ -248,8 +239,8 @@ class Config:
 
     @property
     def mal_ignore_tag(self):
-        """
-        All anime in your MyAnimeList with this tag will be ignored by anipy-cli.
+        """All anime in your MyAnimeList with this tag will be ignored by
+        anipy-cli.
 
         Examples:
             mal_ignore_tag: ignore # all anime with ignore tag will be ignored
@@ -259,9 +250,9 @@ class Config:
 
     @property
     def mal_dub_tag(self):
-        """
-        All anime in your MyAnimeList with this tag will be switched over to dub in MAL mode, if the dub is available.
-        If you do not specify a tag, anipy-cli will use `preferred_type` to choose dub or sub in MAL mode.
+        """All anime in your MyAnimeList with this tag will be switched over to
+        dub in MAL mode, if the dub is available. If you do not specify a tag,
+        anipy-cli will use `preferred_type` to choose dub or sub in MAL mode.
 
         Examples:
             mal_dub_tag: dub # all anime with this tag will be switched to dub
@@ -271,8 +262,8 @@ class Config:
 
     @property
     def mal_tags(self):
-        """
-        Custom tags to tag all anime in your MyAnimeList that are altered/added by anipy-cli
+        """Custom tags to tag all anime in your MyAnimeList that are
+        altered/added by anipy-cli.
 
         Examples:
             mal_tags: ["anipy-cli"] # tag all anime with anipy-cli
@@ -283,11 +274,10 @@ class Config:
 
     @property
     def mal_status_categories(self):
-        """
-        Status categories of your MyAnimeList that anipy-cli uses for downloading/watching
-        new episodes listing anime in your list and stuff like that.
-        Normally the watching catagory should be enough as you would normally put anime you currently
-        watch in the watching catagory.
+        """Status categories of your MyAnimeList that anipy-cli uses for
+        downloading/watching new episodes listing anime in your list and stuff
+        like that. Normally the watching catagory should be enough as you would
+        normally put anime you currently watch in the watching catagory.
 
         Valid values are: watching, completed, on_hold, dropped, plan_to_watch
         """
@@ -310,27 +300,26 @@ class Config:
 
     @property
     def mal_mapping_use_alternatives(self):
-        """
-        Check alternative names when mapping anime. If turned on this will slow down mapping
-        but provide better chances of finding a match.
+        """Check alternative names when mapping anime.
+
+        If turned on this will slow down mapping but provide better
+        chances of finding a match.
         """
         return self._get_value("mal_mapping_use_alternatives", True, bool)
 
     @property
     def mal_mapping_use_filters(self):
-        """
-        Use filters (e.g. year, season etc.) of providers to narrow down the results,
-        this will lead to more accurate mapping, but provide wrong results if the filters of
-        the provider do not work properly or if anime are not correctly marked with the correct data.
-        """
+        """Use filters (e.g. year, season etc.) of providers to narrow down the
+        results, this will lead to more accurate mapping, but provide wrong
+        results if the filters of the provider do not work properly or if anime
+        are not correctly marked with the correct data."""
         return self._get_value("mal_mapping_use_filters", True, bool)
 
     @property
     def auto_sync_mal_to_seasonals(self):
-        """
-        DEPRECATED
-        This option was deprecated in 3.0.0, please consider using the `--mal-sync-seasonals`
-        cli option in compination with `-M` instead.
+        """DEPRECATED This option was deprecated in 3.0.0, please consider
+        using the `--mal-sync-seasonals` cli option in compination with `-M`
+        instead.
 
         Automatically sync MyAnimeList to Seasonals list.
         """
@@ -342,10 +331,9 @@ class Config:
 
     @property
     def preferred_type(self):
-        """
-        Specify which anime types (dub or sub) you prefer.
-        If this is specified, you will not be asked to switch to dub anymore.
-        You can however always switch to either in the menu.
+        """Specify which anime types (dub or sub) you prefer. If this is
+        specified, you will not be asked to switch to dub anymore. You can
+        however always switch to either in the menu.
 
         Examples:
             preferred_type: sub

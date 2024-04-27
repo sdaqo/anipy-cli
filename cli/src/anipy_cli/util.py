@@ -203,7 +203,10 @@ def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
     preferred_providers = config.providers[mode]
 
     if not preferred_providers:
-        error(f"you have no providers set for {mode} mode, look into your config", fatal=True)
+        error(
+            f"you have no providers set for {mode} mode, look into your config",
+            fatal=True,
+        )
 
     for i in list_providers():
         if i.NAME in preferred_providers:
@@ -254,7 +257,9 @@ def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episod
     return sorted(picked)
 
 
-def parse_auto_search(mode: str, passed: str) -> Tuple["Anime", LanguageTypeEnum, List["Episode"]]:
+def parse_auto_search(
+    mode: str, passed: str
+) -> Tuple["Anime", LanguageTypeEnum, List["Episode"]]:
     options = iter(passed.split(":"))
     query = next(options, None)
     ranges = next(options, None)

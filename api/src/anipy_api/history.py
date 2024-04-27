@@ -15,15 +15,16 @@ if TYPE_CHECKING:
 class HistoryEntry(DataClassJsonMixin):
     """
 
-    Attributes: 
-        provider: 
-        identifier: 
-        name: 
-        episode: 
-        timestamp: 
-        language: 
-        languages: 
+    Attributes:
+        provider:
+        identifier:
+        name:
+        episode:
+        timestamp:
+        language:
+        languages:
     """
+
     provider: str = field(metadata=config(field_name="pv"))
     identifier: str = field(metadata=config(field_name="id"))
     name: str = field(metadata=config(field_name="na"))
@@ -71,7 +72,9 @@ def get_history_entry(file: Path, anime: "Anime") -> Optional[HistoryEntry]:
     return history.history.get(uniqueid, None)
 
 
-def update_history(file: Path, anime: "Anime", episode: "Episode", lang: LanguageTypeEnum):
+def update_history(
+    file: Path, anime: "Anime", episode: "Episode", lang: LanguageTypeEnum
+):
     history = History.read(file)
 
     uniqueid = _get_uid(anime)
@@ -85,7 +88,7 @@ def update_history(file: Path, anime: "Anime", episode: "Episode", lang: Languag
             episode=episode,
             timestamp=int(time()),
             language=lang,
-            languages=anime.languages
+            languages=anime.languages,
         )
     else:
         entry.episode = episode
@@ -125,7 +128,7 @@ def _migrate_history(file):
             episode=episode,
             timestamp=timestamp,
             language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
-            languages={LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB}
+            languages={LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB},
         )
 
         new_history.history[unique_id] = new_entry
