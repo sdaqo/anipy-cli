@@ -10,6 +10,16 @@ from anipy_api.provider import Episode, LanguageTypeEnum
 
 @dataclass
 class SeasonalEntry(DataClassJsonMixin):
+    """
+
+    Attributes: 
+        provider: 
+        identifier: 
+        name: 
+        episode: 
+        language: 
+        languages: 
+    """
     provider: str = field(metadata=config(field_name="pv"))
     identifier: str = field(metadata=config(field_name="id"))
     name: str = field(metadata=config(field_name="na"))
@@ -26,6 +36,11 @@ class SeasonalEntry(DataClassJsonMixin):
 
 @dataclass
 class Seasonals(DataClassJsonMixin):
+    """
+
+    Attributes: 
+        seasonals: 
+    """
     seasonals: Dict[str, SeasonalEntry]
 
     def write(self, file: Path):
@@ -46,16 +61,45 @@ class Seasonals(DataClassJsonMixin):
 
 
 def get_seasonals(file: Path) -> Seasonals:
+    """
+
+    Args:
+        file: 
+
+    Returns:
+        
+    """
     return Seasonals.read(file)
 
 
 def get_seasonal_entry(file: Path, anime: "Anime") -> Optional[SeasonalEntry]:
+    """
+
+    Args:
+        file: 
+        anime: 
+
+    Returns:
+        
+    """
     seasonals = Seasonals.read(file)
 
     return seasonals.seasonals.get(_get_uid(anime), None)
 
 
 def delete_seasonal(file: Path, anime: Union["Anime", SeasonalEntry]):
+    """
+
+    Args:
+        file: 
+        anime: 
+    """
+    """
+
+    Args:
+        file: 
+        anime: 
+    """
     seasonals = Seasonals.read(file)
 
     seasonals.seasonals.pop(_get_uid(anime))
@@ -68,6 +112,14 @@ def update_seasonal(
     episode: "Episode",
     lang: LanguageTypeEnum,
 ):
+    """
+
+    Args:
+        file: 
+        anime: 
+        episode: 
+        lang: 
+    """
     seasonals = Seasonals.read(file)
 
     if isinstance(anime, Anime):

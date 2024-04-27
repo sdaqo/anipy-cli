@@ -8,6 +8,14 @@ if TYPE_CHECKING:
 
 
 class Season(Enum):
+    """
+
+    Attributes: 
+        SPRING: 
+        SUMMER: 
+        FALL: 
+        WINTER: 
+    """
     SPRING = auto()
     SUMMER = auto()
     FALL = auto()
@@ -15,12 +23,29 @@ class Season(Enum):
 
 
 class Status(Enum):
+    """
+
+    Attributes: 
+        UPCOMING: 
+        ONGOING: 
+        COMPLETED: 
+    """
     UPCOMING = auto()
     ONGOING = auto()
     COMPLETED = auto()
 
 
 class MediaType(Enum):
+    """
+
+    Attributes: 
+        TV: 
+        MOVIE: 
+        OVA: 
+        ONA: 
+        SPECIAL: 
+        MUSIC: 
+    """
     TV = auto()
     MOVIE = auto()
     OVA = auto()
@@ -31,6 +56,14 @@ class MediaType(Enum):
 
 @dataclass
 class Filters:
+    """
+
+    Attributes: 
+        year: 
+        season: 
+        status: 
+        media_type: 
+    """
     year: Optional[List[int]] = None
     season: Optional[List[Season]] = None
     status: Optional[List[Status]] = None
@@ -38,6 +71,15 @@ class Filters:
 
 
 class FilterCapabilities(Flag):
+    """
+
+    Attributes: 
+        YEAR: 
+        SEASON: 
+        STATUS: 
+        MEDIA_TYPE: 
+        ALL: 
+    """
     YEAR = auto()
     SEASON = auto()
     STATUS = auto()
@@ -46,6 +88,7 @@ class FilterCapabilities(Flag):
 
 
 class BaseFilter(ABC):
+    """"""
     def __init__(self, request: "Request"):
         self._request = request
 

@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+site_name: anipy-cli api docs
+site_author: sdaqo
+site_description: >-
+  This is the full Documentation for the api from anipy-cli.
+
+repo_name: sdaqo/anipy-cli
+repo_url: https://github.com/sdaqo/anipy-cli
+
+theme:
+  name: material
+  logo: /assets/anipy-logo-dark-compact.svg
+
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/link
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off
+        name: Switch to system preference
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+
+nav:
+  - Code Reference: reference/
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_pages.py  
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [api/src]
+          options:
+            docstring_options:
+                ignore_init_summary: true
+            merge_init_into_class: true
+            allow_inspection: true
+            show_source: false
+

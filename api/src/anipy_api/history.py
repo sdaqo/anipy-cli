@@ -13,6 +13,17 @@ if TYPE_CHECKING:
 
 @dataclass
 class HistoryEntry(DataClassJsonMixin):
+    """
+
+    Attributes: 
+        provider: 
+        identifier: 
+        name: 
+        episode: 
+        timestamp: 
+        language: 
+        languages: 
+    """
     provider: str = field(metadata=config(field_name="pv"))
     identifier: str = field(metadata=config(field_name="id"))
     name: str = field(metadata=config(field_name="na"))

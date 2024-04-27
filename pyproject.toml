@@ -12,5 +12,12 @@ non-package = true
 [tool.poetry.scripts]
 anipy-cli = "anipy_cli.run_anipy_cli:main"
 
+# mkdocs
+# mkdocs-material
+# mkdocs-gen-files
+# mkdocs-literate-nav
+# mkdocs-section-index
+# mkdocstrings[python]
+
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/sdaqo/anipy-cli/issues"
