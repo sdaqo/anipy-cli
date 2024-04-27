@@ -1,23 +1,42 @@
 [tool.poetry]
-name = "anipy-cli"
-version = "3.0.0"
-description = "Little tool in python to watch anime from the terminal (the better way to watch anime)"
 authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
 license = "GPL-3.0"
 repository = "https://github.com/sdaqo/anipy-cli"
-keywords = ["anime", "cli"]
-readme = "README.md"
-non-package = true
+package-mode = false
 
-[tool.poetry.scripts]
-anipy-cli = "anipy_cli.run_anipy_cli:main"
+[tool.poetry.dependencies]
+python = "^3.9"
+anipy-cli = {path = "cli/", develop = true}
 
-# mkdocs
-# mkdocs-material
-# mkdocs-gen-files
-# mkdocs-literate-nav
-# mkdocs-section-index
-# mkdocstrings[python]
+[tool.poetry.group.dev]
+optional = true
 
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/sdaqo/anipy-cli/issues"
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+poethepoet = "^0.25.1"
+docformatter = {extras = ["tomli"], version = "^1.7.5"}
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.19"
+mkdocs-gen-files = "^0.5.0"
+mkdocs-literate-nav = "^0.6.1"
+mkdocs-section-index = "^0.3.9"
+mkdocstrings-python = "^1.10.0"
+
+[tool.poe.tasks]
+format.sequence = [
+  { cmd = "black api/src cli/src" },
+  { cmd = "docformatter --in-place -r api/src cli/src" }
+]
+# docformatter returns non-zero even if it does not fail
+format.ignore_fail = "return_zero"
+docs-serve = "mkdocs serve -w api/src"
+docs-build = "mkdocs build"
+publish = ""
+
+[tool.docformatter]
+style = "black"
