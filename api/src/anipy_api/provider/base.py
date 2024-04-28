@@ -98,7 +98,9 @@ class BaseProvider(ABC):
     use this as documentation to know how to use the providers. 
     
     To get a list of Providers use the 
-    [list_providers][anipy_api.provider.base.list_providers] function.
+    [list_providers][anipy_api.provider.provider.list_providers] function 
+    or use [get_provider][anipy_api.provider.provider.get_provider] to get a 
+    provider by name.
 
     Attributes:
         NAME: The name of the provider
@@ -186,35 +188,3 @@ class BaseProvider(ABC):
             A list of video streams
         """
         ...
-
-@functools.lru_cache
-def list_providers() -> Iterator[Type["BaseProvider"]]:
-    """List all available providers.
-
-    Yields:
-        Provider classes (that still need to be instantiated)
-
-    Example:
-        Here is how the cli uses this:
-        ```python hl_lines="11-14"
-        def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
-            config = Config()
-            preferred_providers = config.providers[mode]
-
-            if not preferred_providers:
-                error(
-                    f"you have no providers set for {mode} mode, look into your config",
-                    fatal=True,
-                )
-
-            for i in list_providers():
-                if i.NAME in preferred_providers:
-                    url_override = config.provider_urls.get(i.NAME, None)
-                    yield i(url_override)
-        ```
-        
-    """
-    import anipy_api.provider.providers
-    from anipy_api.provider.providers import __all__
-    for p in __all__:
-        yield anipy_api.provider.providers.__dict__[p]

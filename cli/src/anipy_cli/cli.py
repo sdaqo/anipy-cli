@@ -7,23 +7,20 @@ from anipy_cli.clis import *
 from anipy_cli.colors import colors, cprint
 from anipy_cli.util import error
 from anipy_cli.config import Config
-from anipy_api.discord import dc_presence_connect
+from anipy_cli.discord import DiscordPresence
 
 
 def run_cli(override_args: Optional[list[str]] = None):
     args = parse_args(override_args)
     config = Config()
 
-    rpc_client = None
     if config.dc_presence:
         try:
-            rpc_client = dc_presence_connect()
+            dc_instance = DiscordPresence.instance()
             cprint(colors.GREEN, "Initialized Discord Presence Client")
         except DiscordNotFound:
-            rpc_client = None
             error("Discord is not opened, can't initialize Discord Presence")
         except ConnectionError:
-            rpc_client = None
             error("Can't Connect to discord, can't initialize Discord Presence")
 
     if args.config:
@@ -51,7 +48,7 @@ def run_cli(override_args: Optional[list[str]] = None):
     cli_class = clis_dict.get(True, DefaultCli)
 
     try:
-        cli_class(options=args, rpc_client=rpc_client).run()
+        cli_class(options=args).run()
     except KeyboardInterrupt:
         error("interrupted", fatal=True)
 

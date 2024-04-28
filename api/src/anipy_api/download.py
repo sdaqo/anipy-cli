@@ -18,22 +18,27 @@ from anipy_api.provider import ProviderStream
 class ProgressCallback(Protocol):
     """Callback that accepts a percentage argument."""
 
-    def __call__(self, percentage: float): ...
+    def __call__(self, percentage: float): 
+        """
+        Args:
+            percentage: Percentage argument passed to the callback
+        """
+        ...
 
 
 class InfoCallback(Protocol):
     """Callback that accepts a message argument."""
 
-    def __call__(self, message: str): ...
+    def __call__(self, message: str): 
+        """
+        Args:
+            message: Message argument passed to the callback
+        """
+        ...
 
 
 class Downloader:
-    """Downloader class to download streams retrieved by the Providers.
-
-    Attributes:
-        progress_callback: A callback with an percentage argument, that gets called on download progress.
-        info_callback:  A callback with an message argument, that gets called on certain events.
-    """
+    """Downloader class to download streams retrieved by the Providers."""
 
     def __init__(
         self, progress_callback: ProgressCallback, info_callback: InfoCallback
@@ -44,8 +49,8 @@ class Downloader:
             progress_callback: A callback with an percentage argument, that gets called on download progress.
             info_callback: A callback with an message argument, that gets called on certain events.
         """
-        self.progress_callback: ProgressCallback = progress_callback
-        self.info_callback: InfoCallback = info_callback
+        self._progress_callback: ProgressCallback = progress_callback
+        self._info_callback: InfoCallback = info_callback
 
         self._session = requests.Session()
 
@@ -106,7 +111,7 @@ class Downloader:
                     fout.write(res.content)
 
                 counter += 1
-                self.progress_callback(counter / len(m3u8_content.segments) * 100)
+                self._progress_callback(counter / len(m3u8_content.segments) * 100)
             except Exception as e:
                 # TODO: This gets ignored, because it's in a seperate thread...
                 raise DownloadError(
@@ -122,15 +127,15 @@ class Downloader:
                     for future in as_completed(futures):
                         future.result()
                 except KeyboardInterrupt:
-                    self.info_callback(
+                    self._info_callback(
                         "Download Interrupted, cancelling futures, this may take a while..."
                     )
                     pool_video.shutdown(wait=False, cancel_futures=True)
                     raise
 
-            self.info_callback("Parts Downloaded")
+            self._info_callback("Parts Downloaded")
 
-            self.info_callback("Merging Parts...")
+            self._info_callback("Merging Parts...")
             with download_path.open("wb") as merged:
                 for segment in m3u8_content.segments:
                     fname = temp_folder / self._get_valid_pathname(segment.uri)
@@ -142,12 +147,12 @@ class Downloader:
                     with fname.open("rb") as mergefile:
                         shutil.copyfileobj(mergefile, merged)
 
-            self.info_callback("Merge Finished")
+            self._info_callback("Merge Finished")
             shutil.rmtree(temp_folder)
 
             return download_path
         except KeyboardInterrupt:
-            self.info_callback("Download Interrupted, deleting partial file.")
+            self._info_callback("Download Interrupted, deleting partial file.")
             download_path.unlink(missing_ok=True)
             shutil.rmtree(temp_folder)
             raise
@@ -172,13 +177,13 @@ class Downloader:
             file_handle = download_path.with_suffix(".mp4").open("w")
             for data in r.iter_content(chunk_size=1024):
                 size = file_handle.write(data)
-                self.progress_callback(size / total * 100)
+                self._progress_callback(size / total * 100)
         except KeyboardInterrupt:
-            self.info_callback("Download Interrupted, deleting partial file.")
+            self._info_callback("Download Interrupted, deleting partial file.")
             download_path.unlink()
             raise
 
-        self.info_callback("Download finished.")
+        self._info_callback("Download finished.")
 
         return download_path.with_suffix(".mp4")
 
@@ -217,12 +222,12 @@ class Downloader:
 
         @ffmpeg.on("progress")
         def on_progress(progress: Progress):
-            self.progress_callback(progress.time.total_seconds() / duration * 100)
+            self._progress_callback(progress.time.total_seconds() / duration * 100)
 
         try:
             ffmpeg.execute()
         except KeyboardInterrupt:
-            self.info_callback("interrupted deleting partially downloaded file")
+            self._info_callback("interrupted deleting partially downloaded file")
             download_path.unlink()
             raise
 
@@ -259,23 +264,23 @@ class Downloader:
 
         for p in download_path.parent.iterdir():
             if p.with_suffix("").name == download_path.name:
-                self.info_callback("Episode is already downloaded, skipping")
+                self._info_callback("Episode is already downloaded, skipping")
                 return p
 
         if "m3u8" in stream.url:
             if ffmpeg:
                 download_path = download_path.with_suffix(container or ".mp4")
-                self.info_callback("Using FFMPEG downloader")
-                self.info_callback(f"Saving to a {container or '.mp4'} container")
+                self._info_callback("Using FFMPEG downloader")
+                self._info_callback(f"Saving to a {container or '.mp4'} container")
                 path = self.ffmpeg_download(stream, download_path)
             else:
-                self.info_callback("Using internal M3U8 downloader")
+                self._info_callback("Using internal M3U8 downloader")
                 path = self.m3u8_download(stream, download_path)
         elif "mp4" in stream.url:
-            self.info_callback("Using internal MP4 downloader")
+            self._info_callback("Using internal MP4 downloader")
             path = self.mp4_download(stream, download_path.with_suffix(".mp4"))
         else:
-            self.info_callback(
+            self._info_callback(
                 "No fitting downloader available for stream, using FFMPEG downloader as fallback"
             )
             path = self.ffmpeg_download(stream, download_path)
@@ -283,7 +288,7 @@ class Downloader:
         if container:
             if container == path.suffix:
                 return path
-            self.info_callback(f"Remuxing to {container} container")
+            self._info_callback(f"Remuxing to {container} container")
             new_path = path.with_suffix(container)
             download = self.ffmpeg_download(
                 ProviderStream(

@@ -23,8 +23,8 @@ if TYPE_CHECKING:
 
 
 class DownloadCli(CliBase):
-    def __init__(self, options: "CliArgs", rpc_client=None):
-        super().__init__(options, rpc_client)
+    def __init__(self, options: "CliArgs"):
+        super().__init__(options)
 
         self.anime: Optional["Anime"] = None
         self.episodes: Optional["Episode"] = None

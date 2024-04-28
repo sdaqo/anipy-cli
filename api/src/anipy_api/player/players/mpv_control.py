@@ -1,54 +1,56 @@
-import mpv
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from anipy_api.player.base import PlayerBase
+from anipy_api.player.base import PlayCallback, PlayerBase
 
 if TYPE_CHECKING:
     from anipy_api.provider import ProviderStream
     from anipy_api.anime import Anime
 
 
-class MpvControllable(mpv.MPV, PlayerBase):
+class MpvControllable(PlayerBase):
     """This player can be controlled and it also does not close if 
     the media is changed, the window stays open until `kill_player` is called.
 
-    For detailed documentation have a look at the [base class][anipy_api.player.base.PlayerBase].
+    For detailed documentation about the functions have a look at the [base class][anipy_api.player.base.PlayerBase].
 
     If you want to use the extra features of the controllable player look 
     [here](https://github.com/jaseg/python-mpv?tab=readme-ov-file#usage)
-    for documentation (or use your LSP). 
+    for documentation (or use your LSP), the python-mpv mpv instance lives in the mpv attribute.
+
+    Attributes:
+        mpv: The python-mpv mpv instance
     """
-    def __init__(self, rpc_client=None):
+    def __init__(self, play_callback: Optional[PlayCallback] = None):
         """__init__ of MpvControllable
 
         Args:
-            rpc_client: Discord RPC client
+            play_callback: Callback called upon starting to play a title with `play_title`
         """
-        super().__init__(
+
+        # I know this is a crime, but pytohn-mpv loads the so/dll on import and this will break all the stuff for people that do not have that.
+        from mpv import MPV
+
+        super().__init__(play_callback=play_callback)
+        self.mpv = MPV(
             input_default_bindings=True,
             input_vo_keyboard=True,
             force_window="immediate",
             title="MPV - Receiving Links from anipy-cli",
             osc=True,
         )
-        self._rpc_client = rpc_client
-
-    @property
-    def rpc_client(self):
-        return self._rpc_client
 
     def play_title(self, anime: "Anime", stream: "ProviderStream"):
         self.force_media_title = self._get_media_title(anime, stream)
 
-        self.play(stream.url)
+        self.mpv.play(stream.url)
 
-        self._start_dc_presence(anime, stream)
+        self._call_play_callback(anime, stream)
 
     def play_file(self, path: str):
-        self.play(path)
+        self.mpv.play(path)
 
     def wait(self):
-        self.wait_for_playback()
+        self.mpv.wait_for_playback()
 
     def kill_player(self):
-        self.terminate()
+        self.mpv.terminate()

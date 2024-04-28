@@ -12,6 +12,7 @@ from yaspin.spinners import Spinners
 
 from anipy_cli.colors import cinput, color, colors, cprint
 from anipy_cli.config import Config
+from anipy_cli.discord import DiscordPresence
 
 if TYPE_CHECKING:
     from anipy_api.player import PlayerBase
@@ -355,11 +356,13 @@ def error(error: str, fatal: bool = False):
         sys.exit(1)
 
 
-def get_configured_player(
-    player_override: Optional[str] = None, rpc_client=None
-) -> "PlayerBase":
+def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase":
     config = Config()
     player = Path(player_override or config.player_path)
+    if config.dc_presence:
+        discord_cb = DiscordPresence.instance().dc_presence_callback
+    else:
+        discord_cb = None
 
     if "mpv" in player.stem:
         args = config.mpv_commandline_options
@@ -368,4 +371,4 @@ def get_configured_player(
     else:
         args = []
 
-    return get_player(player, args, rpc_client)
+    return get_player(player, args, discord_cb)

@@ -28,7 +28,7 @@ from anipy_cli.util import (
 
 
 class MALMenu(MenuBase):
-    def __init__(self, mal: MyAnimeList, options: CliArgs, rpc_client=None):
+    def __init__(self, mal: MyAnimeList, options: CliArgs):
         self.mal = mal
         self.mal_proxy = MyAnimeListProxy(self.mal)
 
@@ -36,10 +36,7 @@ class MALMenu(MenuBase):
             self.mal_proxy.get_list()
 
         self.options = options
-        self.rpc_client = rpc_client
-        self.player = get_configured_player(
-            self.rpc_client, self.options.optional_player
-        )
+        self.player = get_configured_player(self.options.optional_player)
 
         self.dl_path = Config().seasonals_dl_path
         if options.location:

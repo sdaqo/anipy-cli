@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 
 class MalCli(CliBase):
-    def __init__(self, options: "CliArgs", rpc_client=None):
-        super().__init__(options, rpc_client)
+    def __init__(self, options: "CliArgs"):
+        super().__init__(options)
         self.user = ""
         self.password = ""
         self.mal = None
@@ -59,7 +59,7 @@ class MalCli(CliBase):
         pass
 
     def post(self):
-        menu = MALMenu(mal=self.mal, options=self.options, rpc_client=self.rpc_client)
+        menu = MALMenu(mal=self.mal, options=self.options)
 
         if self.options.auto_update:
             menu.download()
