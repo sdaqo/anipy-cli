@@ -5,8 +5,8 @@ from anipy_api.provider.base import (
     ProviderStream,
     Episode,
     LanguageTypeEnum,
+    list_providers
 )
-from anipy_api.provider.providers import list_providers
 from anipy_api.provider.filter import (
     Filters,
     FilterCapabilities,

@@ -1,14 +1,22 @@
+"""These are only internal utils, which are not made to be used outside"""
 import functools
 import weakref
 from typing import TYPE_CHECKING
-
-from anipy_api.provider.providers import *
 
 if TYPE_CHECKING:
     from requests import Request, Session, Response
 
 
 def request_page(session: "Session", req: "Request") -> "Response":
+    """Prepare a request and send it.
+
+    Args:
+        session: The requests session
+        req: The request
+
+    Returns:
+        Response of the request
+    """
     prepped = req.prepare()
     prepped.headers["User-Agent"] = (
         "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"
@@ -19,6 +27,14 @@ def request_page(session: "Session", req: "Request") -> "Response":
 
 
 def parsenum(n: str):
+    """Parse a number be it a integer or float
+
+    Args:
+        n: Number as a string
+
+    Returns:
+        
+    """
     try:
         return int(n)
     except ValueError:
@@ -26,6 +42,12 @@ def parsenum(n: str):
 
 
 def memoized_method(*lru_args, **lru_kwargs):
+    """Decorator to memoize a class method (see: [https://stackoverflow.com/a/33672499](https://stackoverflow.com/a/33672499))
+
+    Args:
+        *lru_args: Args to pass to `functools.lru_cache`.
+        **lru_kwargs: Kwargs to pass to `functools.lru_cache`
+    """
     def decorator(func):
         @functools.wraps(func)
         def wrapped_func(self, *args, **kwargs):

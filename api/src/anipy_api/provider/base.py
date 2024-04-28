@@ -1,17 +1,19 @@
+import functools
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Set, Union
+from typing import List, Optional, Set, Union, Iterator, Type
 
 from requests import Session
 
-from anipy_api.provider.filter import FilterCapabilities, Filters
+from anipy_api.provider.filter import FilterCapabilities, Filters, Status
 
 Episode = Union[int, float]
+"""Episode type, float or integer."""
 
 
 class LanguageTypeEnum(Enum):
-    """
+    """A enum that of possible language types of anime.
 
     Attributes:
         SUB:
@@ -30,12 +32,12 @@ class LanguageTypeEnum(Enum):
 
 @dataclass
 class ProviderSearchResult:
-    """
+    """A class that contains information about a search result.
 
     Attributes:
-        identifier:
-        name:
-        languages:
+        identifier: The identifier of the anime
+        name: The name of the anime
+        languages: A set of supported language types for that anime
     """
 
     identifier: str
@@ -48,16 +50,16 @@ class ProviderSearchResult:
 
 @dataclass
 class ProviderInfoResult:
-    """
+    """A class that contains detailed information about an anime.
 
     Attributes:
-        name:
-        image:
-        genres:
-        synopsis:
-        release_year:
-        status:
-        alternative_names:
+        name: Name of the Anime
+        image: Image of the Anime
+        genres: Genres of the Anime
+        synopsis: Synopsis of the Anime
+        release_year: Release year of the Anime
+        status: Status of the anime
+        alternative_names: List of alternative names
     """
 
     name: str
@@ -65,19 +67,19 @@ class ProviderInfoResult:
     genres: Optional[List[str]] = None
     synopsis: Optional[str] = None
     release_year: Optional[int] = None
-    status: Optional[str] = None
+    status: Optional[Status] = None
     alternative_names: Optional[List[str]] = None
 
 
 @dataclass
 class ProviderStream:
-    """
+    """A class that contains information about a video stream.
 
     Attributes:
-        url:
-        resolution:
-        episode:
-        language:
+        url: The url of the stream.
+        resolution: The resolution (actually the width) of the stream. (e.g. 1080, 720 etc.)
+        episode: The episode this stream is from
+        language: The language type this stream is in
     """
 
     url: str
@@ -91,13 +93,14 @@ class ProviderStream:
 
 class BaseProvider(ABC):
     """
-    Args:
-        base_url_override: Override the url used by the provider.
+    This is the abstract base class for all the providers, use this as documentation to know how to use the providers. 
+    
+    To get a list of Providers use the [list_providers][anipy_api.provider.base.list_providers] function.
 
     Attributes:
-        NAME:
-        BASE_URL:
-        FILTER_CAPS:
+        NAME: The name of the provider
+        BASE_URL: The base url of the provider
+        FILTER_CAPS: The filter filter capabilities of the provider
     """
 
     NAME: str
@@ -105,6 +108,11 @@ class BaseProvider(ABC):
     FILTER_CAPS: FilterCapabilities
 
     def __init__(self, base_url_override: Optional[str] = None):
+        """__init__ of BaseProvider
+
+        Args:
+            base_url_override: Override the url used by the provider.
+        """
         if base_url_override is not None:
             self.BASE_URL = base_url_override
 
@@ -123,40 +131,39 @@ class BaseProvider(ABC):
     def get_search(
         self, query: str, filters: Filters = Filters()
     ) -> List[ProviderSearchResult]:
-        """
+        """Search in the Provider.
 
         Args:
-            query:
-            filters:
+            query: The search query
+            filters: The filter object, check FILTER_CAPS to see which filters this provider supports
 
         Returns:
-
+            A list of search results
         """
         ...
 
     @abstractmethod
     def get_info(self, identifier: str) -> ProviderInfoResult:
-        """
+        """Get detailed information about an anime.
 
         Args:
-            identifier:
+            identifier: The identifier of the anime
 
         Returns:
-
+            A information object
         """
         ...
 
     @abstractmethod
     def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List[Episode]:
-        """
+        """Get a list of episodes of an anime.
 
         Args:
-            identifier:
-            lang:
+            identifier: The identifier of the anime
+            lang: The language type used to look up the episode list
 
         Returns:
-            dasda
-
+            A list of episodes
         """
         ...
 
@@ -164,14 +171,46 @@ class BaseProvider(ABC):
     def get_video(
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
     ) -> List[ProviderStream]:
-        """
+        """Get a list of video streams for a anime episode.
 
         Args:
-            identifier:
-            episode:
-            lang:
+            identifier: The identifier of the anime
+            episode: The episode to get the streams from
+            lang: The language type used to look up the streams
 
         Returns:
-
+            A list of video streams
         """
         ...
+
+@functools.lru_cache
+def list_providers() -> Iterator[Type["BaseProvider"]]:
+    """List all available providers.
+
+    Yields:
+        Provider classes (that still need to be instantiated)
+
+    Example:
+        Here is how the cli uses this:
+        ```python hl_lines="11-14"
+        def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
+            config = Config()
+            preferred_providers = config.providers[mode]
+
+            if not preferred_providers:
+                error(
+                    f"you have no providers set for {mode} mode, look into your config",
+                    fatal=True,
+                )
+
+            for i in list_providers():
+                if i.NAME in preferred_providers:
+                    url_override = config.provider_urls.get(i.NAME, None)
+                    yield i(url_override)
+        ```
+        
+    """
+    import anipy_api.provider.providers
+    from anipy_api.provider.providers import __all__
+    for p in __all__:
+        yield anipy_api.provider.providers.__dict__[p]

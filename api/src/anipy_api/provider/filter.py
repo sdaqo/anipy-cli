@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class Season(Enum):
-    """
+    """A enum of seasons to filter by
 
     Attributes:
         SPRING:
@@ -24,7 +24,7 @@ class Season(Enum):
 
 
 class Status(Enum):
-    """
+    """A enum of anime states to filter by
 
     Attributes:
         UPCOMING:
@@ -38,7 +38,7 @@ class Status(Enum):
 
 
 class MediaType(Enum):
-    """
+    """A enum of mediatypes to filter by
 
     Attributes:
         TV:
@@ -59,13 +59,13 @@ class MediaType(Enum):
 
 @dataclass
 class Filters:
-    """
+    """A flter class that acts as a filter collection
 
     Attributes:
-        year:
-        season:
-        status:
-        media_type:
+        year: The year to filter by
+        season: The season to filter by
+        status: The status to filter by
+        media_type: The media type to filter by
     """
 
     year: Optional[List[int]] = None
@@ -75,7 +75,7 @@ class Filters:
 
 
 class FilterCapabilities(Flag):
-    """
+    """A Flag class that describes the filter capabilities of a provider. Look [here](https://docs.python.org/3/library/enum.html#enum.Flag) to learn how to use this.
 
     Attributes:
         YEAR:
@@ -93,8 +93,6 @@ class FilterCapabilities(Flag):
 
 
 class BaseFilter(ABC):
-    """"""
-
     def __init__(self, request: "Request"):
         self._request = request
 

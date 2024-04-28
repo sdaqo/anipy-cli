@@ -16,19 +16,36 @@ from anipy_api.provider import ProviderStream
 
 
 class ProgressCallback(Protocol):
+    """Callback that accepts a percentage argument."""
+
     def __call__(self, percentage: float): ...
 
 
 class InfoCallback(Protocol):
+    """Callback that accepts a message argument."""
+
     def __call__(self, message: str): ...
 
 
 class Downloader:
+    """
+
+    Attributes:
+        progress_callback:
+        info_callback:
+    """
+
     def __init__(
         self, progress_callback: ProgressCallback, info_callback: InfoCallback
     ):
-        self.progress_callback = progress_callback
-        self.info_callback = info_callback
+        """__init__ of Downloader.
+
+        Args:
+            progress_callback: A callback with an percentage argument, that gets called on download progress.
+            info_callback: A callback with an message argument, that gets called on certain events.
+        """
+        self.progress_callback: ProgressCallback = progress_callback
+        self.info_callback: InfoCallback = info_callback
 
         self._session = requests.Session()
 
@@ -49,6 +66,21 @@ class Downloader:
         return name
 
     def m3u8_download(self, stream: "ProviderStream", download_path: Path) -> Path:
+        """Download a m3u8/hls stream to a specified download path in ts
+        format.
+
+        The suffix of the download path will be replaced (or added) with ".ts", use the path returned instead of the passed path.
+
+        Args:
+            stream: The m3u8/hls stream
+            download_path: The path to save the downloaded stream to
+
+        Raises:
+            DownloadError: Raised on download error
+
+        Returns:
+            The path with a ".ts" suffix
+        """
         temp_folder = download_path.parent / "temp"
         temp_folder.mkdir(exist_ok=True)
         download_path = download_path.with_suffix(".ts")
@@ -121,7 +153,19 @@ class Downloader:
             raise
 
     def mp4_download(self, stream: "ProviderStream", download_path: Path) -> Path:
+        """Download a mp4 stream to a specified download path.
+
+        The suffix of the download path will be replaced (or added) with ".mp4", use the path returned instead of the passed path.
+
+        Args:
+            stream: The mp4 stream
+            download_path: The path to download the stream to
+
+        Returns:
+            The download path with a ".mp4" suffix
+        """
         r = self._session.get(stream.url, stream=True)
+        r.raise_for_status()
         total = int(r.headers.get("content-length", 0))
         try:
             file_handle = download_path.with_suffix(".mp4").open("w")
@@ -138,6 +182,19 @@ class Downloader:
         return download_path.with_suffix(".mp4")
 
     def ffmpeg_download(self, stream: "ProviderStream", download_path: Path) -> Path:
+        """Download a stream with FFmpeg, FFmpeg needs to be installed on the
+        system. FFmpeg will be able to handle about any stream and it is also
+        able to remux the resulting video. By changing the suffix of the
+        `download_path` you are able to tell ffmpeg to remux to a specific
+        container.
+
+        Args:
+            stream: The stream
+            download_path: The path to download to including a specific suffix.
+
+        Returns:
+            The download path, this should be the same as the passed one as ffmpeg will remux to about any container.
+        """
         ffmpeg = FFmpeg(executable="ffprobe").input(
             stream.url, print_format="json", show_format=None
         )
@@ -176,6 +233,22 @@ class Downloader:
         container: Optional[str] = None,
         ffmpeg: bool = False,
     ) -> Path:
+        """Generic download function that determines the best way to download a
+        specific stream and downloads it. The suffix should be omitted here,
+        you can instead use the `container` argument to remux the stream after
+        the download, note that this will trigger the `progress_callback`
+        again. This function assumes that ffmpeg is installed on the system,
+        because if the stream is neither m3u8 or mp4 it will default to
+        [ffmpeg_download][anipy_api.download.Downloader.ffmpeg_download].
+
+        Args:
+            stream: The stream to download
+            download_path: The path to download the stream to.
+            container: The container to remux the video to if it is not already correctly muxed, the user must have ffmpeg installed on the system. Containers may include all containers supported by FFmpeg e.g. ".mp4", ".mkv" etc...
+            ffmpeg: Wheter to automatically default to [ffmpeg_download][anipy_api.download.Downloader.ffmpeg_download] for m3u8/hls streams.
+
+        Returns:
+        """
         download_path.parent.mkdir(parents=True, exist_ok=True)
 
         for p in download_path.parent.iterdir():

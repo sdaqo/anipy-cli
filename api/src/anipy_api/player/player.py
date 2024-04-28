@@ -15,6 +15,19 @@ def get_player(
     extra_args: List[str] = [],
     rpc_client: Optional["Presence"] = None,
 ) -> "PlayerBase":
+    """Get a fitting player class based on a player path.
+
+    Args:
+        player: Path to the player
+        extra_args: Extra arguments to pass to players that support it
+        rpc_client: The discord RPC Client
+
+    Raises:
+        PlayerError: If the player is not found
+
+    Returns:
+        The player class
+    """
     if Path(player.name).stem == "mpv-controlled":
         from anipy_api.player.players.mpv_control import MpvControllable
 

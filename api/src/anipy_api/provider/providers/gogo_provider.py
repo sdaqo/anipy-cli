@@ -100,16 +100,16 @@ class GoGoFilter(BaseFilter):
         # self._request.params.update(
         #     {"type[]": self._map_enum_members(media_type, mapping)}
         # )
-        return
+        ...
 
 
 class GoGoProvider(BaseProvider):
-    """
-
+    """For detailed documentation have a look at the [base class][anipy_api.provider.base.BaseProvider].
+    
     Attributes:
-        NAME:
-        BASE_URL:
-        FILTER_CAPS:
+        NAME: gogoanime
+        BASE_URL: https://gogoanime3.co
+        FILTER_CAPS: YEAR, SEASON, STATUS
     """
 
     NAME = "gogoanime"
@@ -237,6 +237,11 @@ class GoGoProvider(BaseProvider):
         synopsis = info_body.find("div", {"class": "description"}).text.replace("\n", "")  # type: ignore
         genres = [x["title"] for x in other_info[2].find_all("a")]
         status = other_info[4].text.replace("\n", "").replace("Status: ", "")
+        try:
+            status = Status[status.upper()]
+        except KeyError:
+            status = None
+
         alternative_names = info_body.find("p", {"class": "other-name"}).find("a").text.split(",")  # type: ignore
 
         try:

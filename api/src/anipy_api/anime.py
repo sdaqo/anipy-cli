@@ -1,17 +1,35 @@
-from typing import TYPE_CHECKING, Optional, Set, Union
+from typing import TYPE_CHECKING, Optional, Set, Union, List
 
 from anipy_api.provider import Episode, list_providers
 
 if TYPE_CHECKING:
     from anipy_api.history import HistoryEntry
-    from anipy_api.provider import BaseProvider, LanguageTypeEnum, ProviderSearchResult
+    from anipy_api.provider import (
+        BaseProvider,
+        LanguageTypeEnum,
+        ProviderSearchResult,
+        ProviderInfoResult,
+        ProviderStream,
+    )
     from anipy_api.seasonal import SeasonalEntry
 
 
 class Anime:
-    """A wrapper class that represents a Anime, it is pretty useful, but you
-    can also just use the [Provider][anipy_api.provider] without the
-    wrapper."""
+    """A wrapper class that represents an anime, it is pretty useful, but you
+    can also just use the [Provider][anipy_api.provider] without the wrapper.
+
+    Args:
+        provider: The provider from which the identifier was retrieved
+        name: The name of the Anime
+        identifier: The identifier of the Anime
+        languages: Supported Language types of the Anime
+
+    Attributes:
+        provider: The from which the Anime comes from
+        name: The name of the Anime
+        identifier: The identifier of the Anime
+        languages: Set of supported Language types of the Anime
+    """
 
     @staticmethod
     def from_search_result(
@@ -47,9 +65,10 @@ class Anime:
         [SeasonalEntry][anipy_api.seasonal.SeasonalEntry]
 
         Args:
-            entry:
+            entry: The seasonal entry
 
         Returns:
+            Anime object
         """
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
         return Anime(provider(), entry.name, entry.identifier, entry.languages)
@@ -61,15 +80,28 @@ class Anime:
         identifier: str,
         languages: Set["LanguageTypeEnum"],
     ):
-        self.provider = provider
-        self.name = name
-        self.identifier = identifier
-        self.languages = languages
+        self.provider: "BaseProvider" = provider
+        self.name: str = name
+        self.identifier: str = identifier
+        self.languages: Set["LanguageTypeEnum"] = languages
 
-    def get_episodes(self, lang: "LanguageTypeEnum"):
+    def get_episodes(self, lang: "LanguageTypeEnum") -> List["Episode"]:
+        """Get a list of episodes from the Anime.
+
+        Args:
+            lang: Language type that determines if episodes are searched for the dub or sub version of the Anime. Use the `languages` attribute to get supported languages for this Anime.
+
+        Returns:
+            List of Episodes
+        """
         return self.provider.get_episodes(self.identifier, lang)
 
-    def get_info(self):
+    def get_info(self) -> "ProviderInfoResult":
+        """Get information about the Anime.
+
+        Returns:
+            ProviderInfoResult object
+        """
         return self.provider.get_info(self.identifier)
 
     def get_video(
@@ -77,7 +109,20 @@ class Anime:
         episode: Episode,
         lang: "LanguageTypeEnum",
         preferred_quality: Optional[Union[str, int]] = None,
-    ):
+    ) -> "ProviderStream":
+        """Get a video stream for the specified episode, the quality to return
+        is determined by the `preferred_quality` argument or if this is not
+        defined the best quality found. To get a list of streams use
+        [get_videos][anipy_api.anime.Anime.get_videos].
+
+        Args:
+            episode: The episode to get the stream for
+            lang: Language type that determines if streams are searched for the dub or sub version of the Anime. Use the `languages` attribute to get supported languages for this Anime.
+            preferred_quality: This may be a integer (e.g. 1080, 720 etc.) or the string "worst" or "best".
+
+        Returns:
+            A stream
+        """
         streams = self.provider.get_video(self.identifier, episode, lang)
         streams.sort(key=lambda s: s.resolution)
 
@@ -96,6 +141,23 @@ class Anime:
                 stream = streams[-1]
 
         return stream
+
+    def get_videos(
+        self, episode: Episode, lang: "LanguageTypeEnum"
+    ) -> List["ProviderStream"]:
+        """Get a list of video streams for the specified Episode.
+
+        Args:
+            episode: The episode to get the streams for
+            lang: Language type that determines if streams are searched for the dub or sub version of the Anime. Use the `languages` attribute to get supported languages for this Anime.
+
+        Returns:
+            A list of streams sorted by quality
+        """
+        streams = self.provider.get_video(self.identifier, episode, lang)
+        streams.sort(key=lambda s: s.resolution)
+
+        return streams
 
     def __repr__(self) -> str:
         available_langs = "/".join([l.value.capitalize()[0] for l in self.languages])

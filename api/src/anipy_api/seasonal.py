@@ -1,3 +1,9 @@
+"""Manage seasonals data.
+
+This is more thought for the cli, but it may also be used in a library
+for easy (de)serialization of Anime objects
+"""
+
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Optional, Set, Union
@@ -10,15 +16,17 @@ from anipy_api.provider import Episode, LanguageTypeEnum
 
 @dataclass
 class SeasonalEntry(DataClassJsonMixin):
-    """
+    """A json-serializable seasonal entry class that is saved to a seasonals
+    file and includes various information to rebuild the state after
+    deserializing.
 
     Attributes:
-        provider:
-        identifier:
-        name:
-        episode:
-        language:
-        languages:
+        provider: The provider of the anime
+        identifier: The identifier of the anime
+        name: The name of the anime
+        episode: The current episode
+        language: The language that the anime was in
+        languages: A list of languages the anime supports
     """
 
     provider: str = field(metadata=config(field_name="pv"))
@@ -37,19 +45,33 @@ class SeasonalEntry(DataClassJsonMixin):
 
 @dataclass
 class Seasonals(DataClassJsonMixin):
-    """
+    """A json-serializable seasonals class that holds a dictonary of seasonal
+    entries.
 
     Attributes:
-        seasonals:
+        seasonals: A dict of seasonal entries. The key is composed of the name of the provider and the anime identifier creating a "unique id" the format is this: "{provider_name}:{anime_identifier}"
     """
 
     seasonals: Dict[str, SeasonalEntry]
 
     def write(self, file: Path):
+        """Writes the seasonals of the current Seasonals object to a file.
+
+        Args:
+            file: Seasonals file path (this should be a .json file)
+        """
         file.write_text(self.to_json())
 
     @staticmethod
     def read(file: Path) -> "Seasonals":
+        """Read the contents of a seasonals file.
+
+        Args:
+            file: Seasonals file path (this should be a .json file)
+
+        Returns:
+            Seasonals object
+        """
         if not file.is_file():
             file.parent.mkdir(exist_ok=True, parents=True)
             return Seasonals({})
@@ -63,26 +85,26 @@ class Seasonals(DataClassJsonMixin):
 
 
 def get_seasonals(file: Path) -> Seasonals:
-    """
+    """Same as Seasonals.read(file)
 
     Args:
-        file:
+        file: Seasonals file path (this should be a .json file)
 
     Returns:
-
+        Seasonals object
     """
     return Seasonals.read(file)
 
 
 def get_seasonal_entry(file: Path, anime: "Anime") -> Optional[SeasonalEntry]:
-    """
+    """Get a specific seasonal entry.
 
     Args:
-        file:
-        anime:
+        file: Seasonals file path (this should be a .json file)
+        anime: Anime to get the seasonal entry from
 
     Returns:
-
+        A SeasonlEntry object if the anime is in history, returns None otherwise
     """
     seasonals = Seasonals.read(file)
 
@@ -90,17 +112,11 @@ def get_seasonal_entry(file: Path, anime: "Anime") -> Optional[SeasonalEntry]:
 
 
 def delete_seasonal(file: Path, anime: Union["Anime", SeasonalEntry]):
-    """
+    """Delete a seasonal from a file.
 
     Args:
-        file:
-        anime:
-    """
-    """
-
-    Args:
-        file: 
-        anime: 
+        file: Seasonals file path (this should be a .json file)
+        anime: Anime to delete
     """
     seasonals = Seasonals.read(file)
 
@@ -114,13 +130,13 @@ def update_seasonal(
     episode: "Episode",
     lang: LanguageTypeEnum,
 ):
-    """
+    """Update a specific history entry's episode and language.
 
     Args:
-        file:
-        anime:
-        episode:
-        lang:
+        file: Seasonals file path (this should be a .json file)
+        anime: Anime to update
+        episode: Updated episode
+        lang: Updated language of the anime
     """
     seasonals = Seasonals.read(file)
 

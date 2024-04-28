@@ -1,3 +1,9 @@
+"""Manage history data.
+
+This is more thought for the cli, but it may also be used in a library
+for easy (de)serialization of Anime objects
+"""
+
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import time
@@ -13,16 +19,17 @@ if TYPE_CHECKING:
 
 @dataclass
 class HistoryEntry(DataClassJsonMixin):
-    """
+    """A json-serializable history entry class that is saved to a history file
+    and includes various information to rebuild the state after deserializing.
 
     Attributes:
-        provider:
-        identifier:
-        name:
-        episode:
-        timestamp:
-        language:
-        languages:
+        provider: The provider of the anime
+        identifier: The identifier of the anime
+        name: The name of the anime
+        episode: The current episode
+        timestamp: The timestamp when this entry got updated/created (for sorting)
+        language: The language that the anime was in
+        languages: A list of languages the anime supports
     """
 
     provider: str = field(metadata=config(field_name="pv"))
@@ -42,13 +49,33 @@ class HistoryEntry(DataClassJsonMixin):
 
 @dataclass
 class History(DataClassJsonMixin):
+    """A json-serializable history class that holds a dictonary of history
+    entries.
+
+    Attributes:
+        history: A dict of history entries. The key is composed of the name of the provider and the anime identifier creating a "unique id" the format is this: "{provider_name}:{anime_identifier}"
+    """
+
     history: Dict[str, HistoryEntry]
 
     def write(self, file: Path):
+        """Writes the history of the current History object to a file.
+
+        Args:
+            file: History file path (this should be a .json file)
+        """
         file.write_text(self.to_json())
 
     @staticmethod
     def read(file: Path) -> "History":
+        """Read the contents of a history file.
+
+        Args:
+            file: History file path (this should be a .json file)
+
+        Returns:
+            History object
+        """
         if not file.is_file():
             file.parent.mkdir(exist_ok=True, parents=True)
             return History({})
@@ -62,10 +89,27 @@ class History(DataClassJsonMixin):
 
 
 def get_history(file: Path) -> History:
+    """Same as History.read(file)
+
+    Args:
+        file: History file path (this should be a .json file)
+
+    Returns:
+        History object
+    """
     return History.read(file)
 
 
 def get_history_entry(file: Path, anime: "Anime") -> Optional[HistoryEntry]:
+    """Get a specific history entry.
+
+    Args:
+        file: History file path (this should be a .json file)
+        anime: Anime to get the history entry from
+
+    Returns:
+        A HistoryEntry object if the anime is in history, returns None otherwise
+    """
     history = History.read(file)
     uniqueid = _get_uid(anime)
 
@@ -75,6 +119,14 @@ def get_history_entry(file: Path, anime: "Anime") -> Optional[HistoryEntry]:
 def update_history(
     file: Path, anime: "Anime", episode: "Episode", lang: LanguageTypeEnum
 ):
+    """Update a specific history entry's episode and language.
+
+    Args:
+        file: History file path (this should be a .json file)
+        anime: Anime to update the history of
+        episode: Updated episode
+        lang: Updated language of the anime
+    """
     history = History.read(file)
 
     uniqueid = _get_uid(anime)

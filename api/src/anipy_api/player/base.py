@@ -13,21 +13,39 @@ if TYPE_CHECKING:
 
 
 class PlayerBase(ABC):
+    """The abstract base class for all the players."""
     @property
     @abstractmethod
     def rpc_client(self) -> Optional["Presence"]: ...
 
     @abstractmethod
-    def play_title(self, anime: "Anime", stream: "ProviderStream"): ...
+    def play_title(self, anime: "Anime", stream: "ProviderStream"):
+        """Play a stream of an anime.
+
+        Args:
+            anime: The anime
+            stream: The stream
+        """
+        ...
 
     @abstractmethod
-    def play_file(self, path: str): ...
+    def play_file(self, path: str): 
+        """Play any file.
+
+        Args:
+            path: The path to the file
+        """
+        ...
 
     @abstractmethod
-    def wait(self): ...
+    def wait(self): 
+        """Wait for the player to stop/close."""
+        ...
 
     @abstractmethod
-    def kill_player(self): ...
+    def kill_player(self): 
+        """Kill the player."""
+        ...
 
     def _start_dc_presence(self, anime: "Anime", stream: "ProviderStream"):
         if self.rpc_client:
@@ -40,15 +58,52 @@ class PlayerBase(ABC):
 
 
 class SubProcessPlayerBase(PlayerBase):
+    """The base class for all players that are run through a sub process. 
+    
+    For documentation of the other functions look at the [base class][anipy_api.player.base.PlayerBase].
+
+    Example:
+        Here is how you might implement such a player on your own:
+        ```python
+        class Mpv(SubProcessPlayerBase):
+            def __init__(self, player_path: str, extra_args: List[str] = [], rpc_client=None):
+                self.player_args_template = [ # (1)
+                    "{stream_url}",
+                    "--force-media-title={media_title}",
+                    "--force-window=immediate",
+                    *extra_args,
+                ]
+
+                super().__init__(
+                    rpc_client=rpc_client,
+                    player_path=player_path,
+                    extra_args=extra_args
+                )
+        ```
+
+        1. This is the important part, those arguments will later be passed to the player. There are two format fields you can use `{stream_url}` and `{media_title}`.
+    Attributes:
+        player_args_template: A list of arguments that are passed to the player command. Fields that are replaced are `{media_title}` and `{stream_url}`. This is only important if you are implementing your own player.
+
+    """
+    player_args_template: List[str]
+
+    @abstractmethod
     def __init__(
         self,
-        player_args_template: List[str],
         player_path: str,
+        extra_args: List[str],
         rpc_client: Optional["Presence"] = None,
     ):
+        """__init__ for SubProcessPlayerBase
+
+        Args:
+            player_path: The path to the player's executable
+            extra_args: Extra arguments to be passed to the player
+            rpc_client: The Discord rpc client
+        """
         self._rpc_client = rpc_client
         self._sub_proc = None
-        self._player_args_template = player_args_template
         self._player_exec = player_path
 
     @property
@@ -60,7 +115,7 @@ class SubProcessPlayerBase(PlayerBase):
             i.format(
                 media_title=self._get_media_title(anime, stream), stream_url=stream.url
             )
-            for i in self._player_args_template
+            for i in self.player_args_template
         ]
         player_cmd.insert(0, self._player_exec)
 

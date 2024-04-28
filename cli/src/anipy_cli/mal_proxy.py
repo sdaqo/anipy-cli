@@ -154,7 +154,7 @@ class MyAnimeListProxy:
         self.local_list.mappings.pop(anime.id)
         self.local_list.write(self.user_id)
 
-        self.mal.delete_from_anime_list(anime.id)
+        self.mal.remove_from_anime_list(anime.id)
 
     def map_from_mal(
         self, anime: MALAnime, mapping: Optional[Anime] = None

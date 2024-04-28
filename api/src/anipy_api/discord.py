@@ -1,5 +1,5 @@
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from pypresence import Presence
 
@@ -7,10 +7,8 @@ if TYPE_CHECKING:
     from anipy_api.provider import ProviderInfoResult
 
 
-def dc_presence_connect():
-    CLIENT_ID = 966365883691855942
-    rpc_client = None
-    rpc_client = Presence(CLIENT_ID)
+def dc_presence_connect() -> Presence:
+    rpc_client = Presence(966365883691855942)
     rpc_client.connect()
 
     return rpc_client

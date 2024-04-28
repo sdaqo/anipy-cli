@@ -3,9 +3,12 @@ from anipy_api.player.base import SubProcessPlayerBase
 
 
 class Syncplay(SubProcessPlayerBase):
+    """The [syncplay](https://syncplay.pl) subprocess player class.
+
+    For detailed documentation have a look at the [base class][anipy_api.player.base.SubProcessPlayerBase].
+    """
     def __init__(self, player_path: str, extra_args: List[str] = [], rpc_client=None):
-        self.player_exec = "syncplay"
-        player_args_template = [
+        self.player_args_template = [
             "--",
             "--meta-title='{media_title}'",
             "{stream_url}",
@@ -15,5 +18,5 @@ class Syncplay(SubProcessPlayerBase):
         super().__init__(
             rpc_client=rpc_client,
             player_path=player_path,
-            player_args_template=player_args_template,
+            extra_args=extra_args
         )
