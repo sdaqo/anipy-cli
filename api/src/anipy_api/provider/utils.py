@@ -1,4 +1,5 @@
 """These are only internal utils, which are not made to be used outside"""
+
 import functools
 import weakref
 from typing import TYPE_CHECKING
@@ -33,7 +34,7 @@ def parsenum(n: str):
         n: Number as a string
 
     Returns:
-        
+
     """
     try:
         return int(n)
@@ -41,27 +42,23 @@ def parsenum(n: str):
         return float(n)
 
 
-def memoized_method(*lru_args, **lru_kwargs):
-    """Decorator to memoize a class method 
-    (see: [https://stackoverflow.com/a/33672499](https://stackoverflow.com/a/33672499))
+def weak_lru(maxsize: int = 128):
+    """Decorator to memoize a class method
+    (see: [https://stackoverflow.com/a/68052994](https://stackoverflow.com/a/68052994))
 
     Args:
-        *lru_args: Args to pass to `functools.lru_cache`.
-        **lru_kwargs: Kwargs to pass to `functools.lru_cache`
+        maxsize: Maximum cache size
     """
-    def decorator(func):
+
+    def wrapper(func):
+        @functools.lru_cache(maxsize)
+        def _func(_self, *args, **kwargs):
+            return func(_self(), *args, **kwargs)
+
         @functools.wraps(func)
-        def wrapped_func(self, *args, **kwargs):
-            self_weak = weakref.ref(self)
+        def inner(self, *args, **kwargs):
+            return _func(weakref.ref(self), *args, **kwargs)
 
-            @functools.wraps(func)
-            @functools.lru_cache(*lru_args, **lru_kwargs)
-            def cached_method(*args, **kwargs):
-                return func(self_weak(), *args, **kwargs)
+        return inner
 
-            setattr(self, func.__name__, cached_method)
-            return cached_method(*args, **kwargs)
-
-        return wrapped_func
-
-    return decorator
+    return wrapper

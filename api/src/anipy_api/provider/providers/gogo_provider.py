@@ -28,7 +28,7 @@ from anipy_api.provider.filter import (
     Season,
     Status,
 )
-from anipy_api.provider.utils import memoized_method, parsenum, request_page
+from anipy_api.provider.utils import weak_lru, parsenum, request_page
 
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
@@ -175,7 +175,7 @@ class GoGoProvider(BaseProvider):
 
         return list(results.values())
 
-    @memoized_method()
+    @weak_lru()
     def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List["Episode"]:
         if lang == LanguageTypeEnum.DUB:
             urls = [
@@ -220,7 +220,7 @@ class GoGoProvider(BaseProvider):
 
         return ep_list
 
-    @memoized_method()
+    @weak_lru()
     def get_info(self, identifier: str) -> "ProviderInfoResult":
         req = Request("GET", f"{self.BASE_URL}/category/{identifier}")
         res = request_page(self.session, req)
