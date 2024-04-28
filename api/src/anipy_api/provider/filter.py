@@ -75,7 +75,8 @@ class Filters:
 
 
 class FilterCapabilities(Flag):
-    """A Flag class that describes the filter capabilities of a provider. Look [here](https://docs.python.org/3/library/enum.html#enum.Flag) to learn how to use this.
+    """A Flag class that describes the filter capabilities of a provider. 
+    Look [here](https://docs.python.org/3/library/enum.html#enum.Flag) to learn how to use this.
 
     Attributes:
         YEAR:

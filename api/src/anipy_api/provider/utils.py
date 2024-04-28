@@ -42,7 +42,8 @@ def parsenum(n: str):
 
 
 def memoized_method(*lru_args, **lru_kwargs):
-    """Decorator to memoize a class method (see: [https://stackoverflow.com/a/33672499](https://stackoverflow.com/a/33672499))
+    """Decorator to memoize a class method 
+    (see: [https://stackoverflow.com/a/33672499](https://stackoverflow.com/a/33672499))
 
     Args:
         *lru_args: Args to pass to `functools.lru_cache`.

@@ -77,7 +77,8 @@ class ProviderStream:
 
     Attributes:
         url: The url of the stream.
-        resolution: The resolution (actually the width) of the stream. (e.g. 1080, 720 etc.)
+        resolution: The resolution (actually the width) 
+            of the stream. (e.g. 1080, 720 etc.)
         episode: The episode this stream is from
         language: The language type this stream is in
     """
@@ -93,9 +94,11 @@ class ProviderStream:
 
 class BaseProvider(ABC):
     """
-    This is the abstract base class for all the providers, use this as documentation to know how to use the providers. 
+    This is the abstract base class for all the providers, 
+    use this as documentation to know how to use the providers. 
     
-    To get a list of Providers use the [list_providers][anipy_api.provider.base.list_providers] function.
+    To get a list of Providers use the 
+    [list_providers][anipy_api.provider.base.list_providers] function.
 
     Attributes:
         NAME: The name of the provider
@@ -135,7 +138,8 @@ class BaseProvider(ABC):
 
         Args:
             query: The search query
-            filters: The filter object, check FILTER_CAPS to see which filters this provider supports
+            filters: The filter object, check FILTER_CAPS 
+                to see which filters this provider supports
 
         Returns:
             A list of search results

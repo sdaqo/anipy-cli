@@ -9,11 +9,14 @@ if TYPE_CHECKING:
 
 
 class MpvControllable(mpv.MPV, PlayerBase):
-    """This player can be controlled and it also does not close if the media is changed, the window stays open until `kill_player` is called.
+    """This player can be controlled and it also does not close if 
+    the media is changed, the window stays open until `kill_player` is called.
 
     For detailed documentation have a look at the [base class][anipy_api.player.base.PlayerBase].
 
-    If you want to use the extra features of the controllable player look [here](https://github.com/jaseg/python-mpv?tab=readme-ov-file#usage) for documentation (or use your LSP). 
+    If you want to use the extra features of the controllable player look 
+    [here](https://github.com/jaseg/python-mpv?tab=readme-ov-file#usage)
+    for documentation (or use your LSP). 
     """
     def __init__(self, rpc_client=None):
         """__init__ of MpvControllable

@@ -81,9 +81,13 @@ class SubProcessPlayerBase(PlayerBase):
                 )
         ```
 
-        1. This is the important part, those arguments will later be passed to the player. There are two format fields you can use `{stream_url}` and `{media_title}`.
+        1. This is the important part, those arguments will later be passed to the player.
+        There are two format fields you can use `{stream_url}` and `{media_title}`.
+
     Attributes:
-        player_args_template: A list of arguments that are passed to the player command. Fields that are replaced are `{media_title}` and `{stream_url}`. This is only important if you are implementing your own player.
+        player_args_template: A list of arguments that are passed to the player command.
+            Fields that are replaced are `{media_title}` and `{stream_url}`. 
+            This is only important if you are implementing your own player.
 
     """
     player_args_template: List[str]

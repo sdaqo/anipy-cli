@@ -3,7 +3,8 @@ from anipy_api.player.base import SubProcessPlayerBase
 
 
 class Mpv(SubProcessPlayerBase):
-    """The [mpv](https://mpv.io/) subprocess player class. For a controllable mpv look [here][anipy_api.player.players.mpv_control].
+    """The [mpv](https://mpv.io/) subprocess player class. 
+    For a controllable mpv look [here][anipy_api.player.players.mpv_control].
 
     Info:
         Not only mpv works but mpv forks like [mpv.net](https://github.com/mpvnet-player/mpv.net) also work.

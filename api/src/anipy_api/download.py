@@ -28,11 +28,11 @@ class InfoCallback(Protocol):
 
 
 class Downloader:
-    """
+    """Downloader class to download streams retrieved by the Providers.
 
     Attributes:
-        progress_callback:
-        info_callback:
+        progress_callback: A callback with an percentage argument, that gets called on download progress.
+        info_callback:  A callback with an message argument, that gets called on certain events.
     """
 
     def __init__(
@@ -66,10 +66,10 @@ class Downloader:
         return name
 
     def m3u8_download(self, stream: "ProviderStream", download_path: Path) -> Path:
-        """Download a m3u8/hls stream to a specified download path in ts
-        format.
+        """Download a m3u8/hls stream to a specified download path in a ts container.
 
-        The suffix of the download path will be replaced (or added) with ".ts", use the path returned instead of the passed path.
+        The suffix of the download path will be replaced (or added) with
+        ".ts", use the path returned instead of the passed path.
 
         Args:
             stream: The m3u8/hls stream
@@ -155,7 +155,8 @@ class Downloader:
     def mp4_download(self, stream: "ProviderStream", download_path: Path) -> Path:
         """Download a mp4 stream to a specified download path.
 
-        The suffix of the download path will be replaced (or added) with ".mp4", use the path returned instead of the passed path.
+        The suffix of the download path will be replaced (or added) 
+        with ".mp4", use the path returned instead of the passed path.
 
         Args:
             stream: The mp4 stream
@@ -193,7 +194,8 @@ class Downloader:
             download_path: The path to download to including a specific suffix.
 
         Returns:
-            The download path, this should be the same as the passed one as ffmpeg will remux to about any container.
+            The download path, this should be the same as the 
+            passed one as ffmpeg will remux to about any container.
         """
         ffmpeg = FFmpeg(executable="ffprobe").input(
             stream.url, print_format="json", show_format=None
@@ -244,10 +246,14 @@ class Downloader:
         Args:
             stream: The stream to download
             download_path: The path to download the stream to.
-            container: The container to remux the video to if it is not already correctly muxed, the user must have ffmpeg installed on the system. Containers may include all containers supported by FFmpeg e.g. ".mp4", ".mkv" etc...
-            ffmpeg: Wheter to automatically default to [ffmpeg_download][anipy_api.download.Downloader.ffmpeg_download] for m3u8/hls streams.
+            container: The container to remux the video to if it is not already
+                correctly muxed, the user must have ffmpeg installed on the system.
+                Containers may include all containers supported by FFmpeg e.g. ".mp4", ".mkv" etc...
+            ffmpeg: Wheter to automatically default to 
+                [ffmpeg_download][anipy_api.download.Downloader.ffmpeg_download] for m3u8/hls streams.
 
         Returns:
+            The path of the resulting file
         """
         download_path.parent.mkdir(parents=True, exist_ok=True)
 

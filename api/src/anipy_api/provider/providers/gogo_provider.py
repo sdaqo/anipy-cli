@@ -104,7 +104,8 @@ class GoGoFilter(BaseFilter):
 
 
 class GoGoProvider(BaseProvider):
-    """For detailed documentation have a look at the [base class][anipy_api.provider.base.BaseProvider].
+    """For detailed documentation have a look
+    at the [base class][anipy_api.provider.base.BaseProvider].
     
     Attributes:
         NAME: gogoanime

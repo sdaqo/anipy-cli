@@ -1,6 +1,4 @@
-"""Manage seasonals data.
-
-This is more thought for the cli, but it may also be used in a library
+"""Manage seasonals data. This is more thought for the cli, but it may also be used in a library
 for easy (de)serialization of Anime objects
 """
 
@@ -49,7 +47,9 @@ class Seasonals(DataClassJsonMixin):
     entries.
 
     Attributes:
-        seasonals: A dict of seasonal entries. The key is composed of the name of the provider and the anime identifier creating a "unique id" the format is this: "{provider_name}:{anime_identifier}"
+        seasonals: A dict of seasonal entries. The key is composed of the name 
+            of the provider and the anime identifier creating a "unique id" the 
+        format is this: "{provider_name}:{anime_identifier}"
     """
 
     seasonals: Dict[str, SeasonalEntry]

@@ -103,7 +103,9 @@ class MALMyListStatus(DataClassJsonMixin):
     accompanies [MALAnime][anipy_api.mal.MALAnime].
 
     Attributes:
-        num_episodes_watched: Watched episodes, this number may exceed that of the `num_episodes` in [MALAnime][anipy_api.mal.MALAnime] as it can be abitrarily large.
+        num_episodes_watched: Watched episodes, this number may exceed 
+            that of the `num_episodes` in [MALAnime][anipy_api.mal.MALAnime]
+            as it can be abitrarily large.
         tags: List of tags associated with the anime
         status: Current status of the anime
         score: The user's score of the anime
@@ -159,7 +161,8 @@ class MALAnime(DataClassJsonMixin):
         num_episodes: Number of episodes the anime has, if unknown it is 0
         alternative_titles: Alternative titles for an anime
         start_season: Season/Year the anime started in
-        my_list_status: If the anime is in the user's list, this holds the information of the list status
+        my_list_status: If the anime is in the user's list, 
+            this holds the information of the list status
     """
 
     id: int
@@ -200,7 +203,9 @@ class MyAnimeList:
     Attributes:
         API_BASE: The base url of the api (https://api.myanimelist.net/v2)
         CLIENT_ID: The client being used to access the api
-        RESPONSE_FIELDS: Corresponds to fields of MALAnime object (read [here](https://myanimelist.net/apiconfig/references/api/v2#section/Common-parameters) for explaination)
+        RESPONSE_FIELDS: Corresponds to fields of MALAnime object 
+            (read [here](https://myanimelist.net/apiconfig/references/api/v2#section/Common-parameters) 
+            for explaination)
     """
 
     API_BASE = "https://api.myanimelist.net/v2"
@@ -287,7 +292,8 @@ class MyAnimeList:
         Args:
             query: Search query
             limit: The amount of results per page
-            pages: The amount of pages to return, note the total number of results is limit times pages
+            pages: The amount of pages to return, 
+                note the total number of results is limit times pages
 
         Returns:
             A list of search results
@@ -348,7 +354,9 @@ class MyAnimeList:
             anime_id: The anime id of the anime to update
             status: Updated status of the anime
             watched_episodes: Updated watched episodes
-            tags: Updated list of tags, note that this **ovewrites** the already existing tags, if you want to retain the old ones you have to merge the old ones with the new ones yourself.
+            tags: Updated list of tags, note that this **ovewrites** the already
+                existing tags, if you want to retain the old ones you have to merge 
+                the old ones with the new ones yourself.
 
         Returns:
             Object of the updated anime
@@ -502,16 +510,18 @@ class MyAnimeListAdapter:
         minimum_similarity_ratio: float = 0.8,
         use_alternative_names: bool = True,
     ) -> Optional[MALAnime]:
-        """Adapt an anime from provider [Anime][anipy_api.anime.Anime] to a [MALAnime][anipy_api.mal.MALAnime]. This uses [Levenshtein Distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to calculate the similarity of names.
+        """Adapt an anime from provider [Anime][anipy_api.anime.Anime] to a [MALAnime][anipy_api.mal.MALAnime].
+        This uses [Levenshtein Distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to calculate the similarity of names.
 
         Args:
             anime: The anime to adapt from
-            minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1, 1 meaning the names are identical 0 meaning there are no identical charachters whatsoever.
-            use_alternative_names: Use alternative names for matching, this may yield a higher chance of finding a match but takes more time.
+            minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1, 
+                1 meaning the names are identical 0 meaning there are no identical charachters whatsoever.
+            use_alternative_names: Use alternative names for matching, this may yield a higher chance of finding
+                a match but takes more time.
 
         Returns:
             A MALAnime object if adapting was successfull
-
         """
         results = self.mal.get_search(anime.name)
         if use_alternative_names:
@@ -555,11 +565,13 @@ class MyAnimeListAdapter:
         use_filters: bool = True,
         use_alternative_names: bool = True,
     ) -> Optional[Anime]:
-        """Adapt an anime from a [MALAnime][anipy_api.mal.MALAnime] to a provider [Anime][anipy_api.anime.Anime]. This uses [Levenshtein Distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to calculate the similarity of names.
+        """Adapt an anime from a [MALAnime][anipy_api.mal.MALAnime] to a provider [Anime][anipy_api.anime.Anime]. 
+        This uses [Levenshtein Distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to calculate the similarity of names.
 
         Args:
             mal_anime: The mal anime to adapt from
-            minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1, 1 meaning the names are identical 0 meaning there are no identical charachters whatsoever.
+            minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1, 
+                1 meaning the names are identical 0 meaning there are no identical charachters whatsoever.
             use_filters: Use filters for the provider to cut down on possible wrong results, do note that this will take more time.
             use_alternative_names: Use alternative names for matching, this may yield a higher chance of finding a match but takes more time.
 

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 class Anime:
     """A wrapper class that represents an anime, it is pretty useful, but you
-    can also just use the [Provider][anipy_api.provider] without the wrapper.
+    can also just use the [Provider][anipy_api.provider.base.BaseProvider] without the wrapper.
 
     Args:
         provider: The provider from which the identifier was retrieved
@@ -89,7 +89,9 @@ class Anime:
         """Get a list of episodes from the Anime.
 
         Args:
-            lang: Language type that determines if episodes are searched for the dub or sub version of the Anime. Use the `languages` attribute to get supported languages for this Anime.
+            lang: Language type that determines if episodes are searched 
+                for the dub or sub version of the Anime. Use the `languages`
+                attribute to get supported languages for this Anime.
 
         Returns:
             List of Episodes
@@ -112,13 +114,16 @@ class Anime:
     ) -> "ProviderStream":
         """Get a video stream for the specified episode, the quality to return
         is determined by the `preferred_quality` argument or if this is not
-        defined the best quality found. To get a list of streams use
+        defined by the best quality found. To get a list of streams use
         [get_videos][anipy_api.anime.Anime.get_videos].
 
         Args:
             episode: The episode to get the stream for
-            lang: Language type that determines if streams are searched for the dub or sub version of the Anime. Use the `languages` attribute to get supported languages for this Anime.
-            preferred_quality: This may be a integer (e.g. 1080, 720 etc.) or the string "worst" or "best".
+            lang: Language type that determines if streams are searched for
+                the dub or sub version of the Anime. Use the `languages` 
+                attribute to get supported languages for this Anime.
+            preferred_quality: This may be a integer (e.g. 1080, 720 etc.)
+                or the string "worst" or "best".
 
         Returns:
             A stream
@@ -149,7 +154,9 @@ class Anime:
 
         Args:
             episode: The episode to get the streams for
-            lang: Language type that determines if streams are searched for the dub or sub version of the Anime. Use the `languages` attribute to get supported languages for this Anime.
+            lang: Language type that determines if streams are searched for
+                the dub or sub version of the Anime. Use the `languages` 
+                attribute to get supported languages for this Anime.
 
         Returns:
             A list of streams sorted by quality

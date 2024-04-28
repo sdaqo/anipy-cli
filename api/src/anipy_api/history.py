@@ -1,6 +1,4 @@
-"""Manage history data.
-
-This is more thought for the cli, but it may also be used in a library
+"""Manage history data. This is more thought for the cli, but it may also be used in a library
 for easy (de)serialization of Anime objects
 """
 
@@ -53,7 +51,9 @@ class History(DataClassJsonMixin):
     entries.
 
     Attributes:
-        history: A dict of history entries. The key is composed of the name of the provider and the anime identifier creating a "unique id" the format is this: "{provider_name}:{anime_identifier}"
+        history: A dict of history entries. The key is composed of the name of 
+            the provider and the anime identifier creating a "unique id" the 
+            format is this: "{provider_name}:{anime_identifier}"
     """
 
     history: Dict[str, HistoryEntry]
