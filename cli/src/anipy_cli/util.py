@@ -257,15 +257,19 @@ def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episod
             error(f"invalid range: {r}")
             continue
             # return pick_episode_range_prompt(anime, dub)
-
-        picked = picked | set(
-            episodes[
-                episodes.index(parsenum(numbers[0])) : episodes.index(
-                    parsenum(numbers[-1])
-                )
-                + 1
-            ]
-        )
+        
+        try:
+            picked = picked | set(
+                episodes[
+                    episodes.index(parsenum(numbers[0])) : episodes.index(
+                        parsenum(numbers[-1])
+                    )
+                    + 1
+                ]
+            )
+        except ValueError:
+            error(f"range `{r}` is not contained in episodes {episodes}")
+            continue
 
     return sorted(picked)
 
@@ -298,13 +302,22 @@ def parse_auto_search(
             )
     if len(results) == 0:
         error(f"no anime found for query {query}", fatal=True)
-
+    
     result = results[0]
-    lang = LanguageTypeEnum[ltype.upper()]
-    episodes = result.get_episodes(lang)
-    choosen = parse_episode_ranges(ranges, episodes)
+    if ltype is None:
+        lang = lang_prompt(result)
+    else:
+        lang = LanguageTypeEnum[ltype.upper()]
 
-    return result, lang, choosen
+    if lang not in result.languages:
+        error(f"{lang} is not available for {result.name}", fatal=True)
+
+    episodes = result.get_episodes(lang)
+    chosen = parse_episode_ranges(ranges, episodes)
+    if not chosen:
+        error("could not determine any epiosdes from search parameter", fatal=True)
+
+    return result, lang, chosen
 
 
 def parsenum(n: str):
@@ -362,9 +375,9 @@ def search_in_season_on_gogo(s_year, s_name):
 
 def error(error: str, fatal: bool = False):
     if not fatal:
-        sys.stderr.write(f"anipy-cli: error: {error}\n")
+        sys.stderr.write(color(colors.RED, f"anipy-cli: error: ", colors.END, f"{error}\n"))
     else:
-        sys.stderr.write(f"anipy-cli: fatal error: {error}, exiting\n")
+        sys.stderr.write(color(colors.RED, "anipy-cli: fatal error: ", colors.END, f"{error}, exiting\n"))
         sys.exit(1)
 
 
