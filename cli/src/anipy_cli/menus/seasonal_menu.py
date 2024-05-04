@@ -33,12 +33,9 @@ if TYPE_CHECKING:
 
 
 class SeasonalMenu(MenuBase):
-    def __init__(self, options: "CliArgs", rpc_client=None):
-        self.rpc_client = rpc_client
+    def __init__(self, options: "CliArgs"):
         self.options = options
-        self.player = get_configured_player(
-            self.rpc_client, self.options.optional_player
-        )
+        self.player = get_configured_player(self.options.optional_player)
         self.dl_path = Config().seasonals_dl_path
         if options.location:
             self.dl_path = options.location

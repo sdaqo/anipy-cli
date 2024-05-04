@@ -32,11 +32,25 @@ theme:
         icon: material/toggle-switch-off
         name: Switch to system preference
   features:
-    - navigation.instant
-    - navigation.instant.progress
+    # - navigation.instant
+    # - navigation.instant.progress
+    - navigation.footer
+    - navigation.indexes
+
+    - navigation.tabs
+    - navigation.sections
+    # - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+
     - content.code.annotate
 
 nav:
+  - Home:
+    - Hello World: index.md
+    - Changelog: abc.md
+  - Getting Started - CLI: /getting-started-cli
+  - Getting Started - API: /getting-started-api
   - Code Reference: reference/
 
 markdown_extensions:

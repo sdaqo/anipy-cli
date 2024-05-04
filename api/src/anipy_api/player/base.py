@@ -1,22 +1,42 @@
 import os
 import subprocess as sp
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Protocol
 
-from anipy_api.discord import dc_presence
 from anipy_api.error import PlayerError
 
 if TYPE_CHECKING:
-    from pypresence import Presence
     from anipy_api.anime import Anime
-    from anipy_api.provider import ProviderStream
+    from anipy_api.provider import ProviderStream, ProviderInfoResult
 
+class PlayCallback(Protocol):
+    """Callback that gets called upon playing a title, it accepts some information about the anime.
+    """
+
+    def __call__(self, media_title: str, anime_info: "ProviderInfoResult"): 
+        """
+        Args:
+            media_title: Media title argument passed to the callback. 
+                This is the title that is shown in the players.
+            anime_info: Anime info argument passed to the callback.
+        """
+        ...
 
 class PlayerBase(ABC):
-    """The abstract base class for all the players."""
-    @property
-    @abstractmethod
-    def rpc_client(self) -> Optional["Presence"]: ...
+    """The abstract base class for all the players.
+    
+    To list available players or get one by name, use 
+    [list_players][anipy_api.player.player.list_players] 
+    and [get_player][anipy_api.player.player.get_player] respectively.
+    """
+
+    def __init__(self, play_callback: Optional[PlayCallback] = None): 
+        """__init__ of PlayerBase
+
+        Args:
+            play_callback: Callback called upon starting to play a title with `play_title`
+        """
+        self._play_callback = play_callback
 
     @abstractmethod
     def play_title(self, anime: "Anime", stream: "ProviderStream"):
@@ -47,10 +67,9 @@ class PlayerBase(ABC):
         """Kill the player."""
         ...
 
-    def _start_dc_presence(self, anime: "Anime", stream: "ProviderStream"):
-        if self.rpc_client:
-            dc_media_title = f"{anime.name} | {stream.episode}/{anime.get_episodes(stream.language)[-1]}"
-            dc_presence(dc_media_title, anime.get_info(), self.rpc_client)
+    def _call_play_callback(self, anime: "Anime", stream: "ProviderStream"):
+        if self._play_callback:
+            self._play_callback(self._get_media_title(anime, stream), anime.get_info())
 
     @staticmethod
     def _get_media_title(anime: "Anime", stream: "ProviderStream"):
@@ -97,22 +116,19 @@ class SubProcessPlayerBase(PlayerBase):
         self,
         player_path: str,
         extra_args: List[str],
-        rpc_client: Optional["Presence"] = None,
+        play_callback: Optional[PlayCallback] = None
     ):
         """__init__ for SubProcessPlayerBase
 
         Args:
             player_path: The path to the player's executable
             extra_args: Extra arguments to be passed to the player
-            rpc_client: The Discord rpc client
+            play_callback: Callback called upon starting to play a title with `play_title`
         """
-        self._rpc_client = rpc_client
+        super().__init__(play_callback)
+
         self._sub_proc = None
         self._player_exec = player_path
-
-    @property
-    def rpc_client(self) -> Optional["Presence"]:
-        return self._rpc_client
 
     def play_title(self, anime: "Anime", stream: "ProviderStream"):
         player_cmd = [
@@ -127,7 +143,7 @@ class SubProcessPlayerBase(PlayerBase):
             self.kill_player()
 
         self._sub_proc = self._open_sproc(player_cmd)
-        self._start_dc_presence(anime, stream)
+        self._call_play_callback(anime, stream)
 
     def play_file(self, path):
         if isinstance(self._sub_proc, sp.Popen):

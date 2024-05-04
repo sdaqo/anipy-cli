@@ -1,5 +1,6 @@
 import functools
 import sys
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple
 
@@ -7,12 +8,14 @@ from anipy_api.anime import Anime
 from anipy_api.download import Downloader
 from anipy_api.player import get_player
 from anipy_api.provider import LanguageTypeEnum, list_providers
+from anipy_api.locallist import LocalList, LocalListData, LocalListEntry
 from InquirerPy import inquirer
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
 
 from anipy_cli.colors import cinput, color, colors, cprint
 from anipy_cli.config import Config
+from anipy_cli.discord import DiscordPresence
 
 if TYPE_CHECKING:
     from anipy_api.player import PlayerBase
@@ -364,11 +367,13 @@ def error(error: str, fatal: bool = False):
         sys.exit(1)
 
 
-def get_configured_player(
-    player_override: Optional[str] = None, rpc_client=None
-) -> "PlayerBase":
+def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase":
     config = Config()
     player = Path(player_override or config.player_path)
+    if config.dc_presence:
+        discord_cb = DiscordPresence.instance().dc_presence_callback
+    else:
+        discord_cb = None
 
     if "mpv" in player.stem:
         args = config.mpv_commandline_options
@@ -377,4 +382,71 @@ def get_configured_player(
     else:
         args = []
 
-    return get_player(player, args, rpc_client)
+    return get_player(player, args, discord_cb)
+
+
+
+def migrate_seasonals(file):
+    import json
+    import re
+
+    old_data = json.load(file.open("r"))
+    new_seasonals = LocalListData({})
+
+    for k, v in old_data.items():
+        name = k
+        name = re.sub(r"\s?\((dub|japanese\sdub)\)", "", name, flags=re.IGNORECASE)
+        identifier = Path(v["category_url"]).name
+        is_dub = identifier.endswith("-dub") or identifier.endswith("-japanese-dub")
+        identifier = identifier.removesuffix("-dub").removesuffix("-japanese-dub")
+        episode = v["ep"]
+        unique_id = f"gogoanime:{identifier}"
+
+        new_entry = LocalListEntry(
+            provider="gogoanmie",
+            name=name,
+            identifier=identifier,
+            episode=episode,
+            language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
+            languages={LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB},
+            timestamp=int(time.time())
+        )
+
+        new_seasonals.seasonals[unique_id] = new_entry
+
+    new_seasonals.write(file)
+    return new_seasonals
+
+def migrate_history(file):
+    import json
+    import re
+
+    old_data = json.load(file.open("r"))
+    new_history = History({})
+
+    for k, v in old_data.items():
+        name = k
+        name = re.sub(r"\s?\((dub|japanese\sdub)\)", "", name, flags=re.IGNORECASE)
+        identifier = Path(v["category-link"]).name
+        is_dub = identifier.endswith("-dub") or identifier.endswith("-japanese-dub")
+        identifier = identifier.removesuffix("-dub").removesuffix("-japanese-dub")
+        episode = v["ep"]
+        timestamp = int(time())
+        unique_id = f"gogoanime:{'dub' if is_dub else 'sub'}:{identifier}"
+
+        new_entry = HistoryEntry(
+            provider="gogoanmie",
+            name=name,
+            identifier=identifier,
+            episode=episode,
+            timestamp=timestamp,
+            language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
+            languages={LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB},
+        )
+
+        new_history.history[unique_id] = new_entry
+
+    new_history.write(file)
+    return new_history
+
+

@@ -31,9 +31,7 @@ class Menu(MenuBase):
         anime: "Anime",
         stream: "ProviderStream",
         player: "PlayerBase",
-        rpc_client=None,
     ):
-        self.rpc_client = rpc_client
         self.options = options
         self.anime = anime
         self.stream = stream

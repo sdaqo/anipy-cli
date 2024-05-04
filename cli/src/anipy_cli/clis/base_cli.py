@@ -6,9 +6,8 @@ if TYPE_CHECKING:
 
 
 class CliBase(ABC):
-    def __init__(self, options: "CliArgs", rpc_client=None):
+    def __init__(self, options: "CliArgs"):
         self.options = options
-        self.rpc_client = rpc_client
 
     @abstractmethod
     def print_header(self): ...

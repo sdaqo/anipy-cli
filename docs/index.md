@@ -1,17 +1,13 @@
-# Welcome to the anipy-cli api documentation! 
+# Welcome to the anipy-cli documentation!
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+### You can find both documentation for the api and the cli here!
 
-## Commands
+This api is part of the cli project [anipy-cli](https://github.com/sdaqo/anipy-cli), if you are not sure about specific use cases, please do check the cli.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+## Installation
 
-## Project layout
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+
+## Examples usecases for the API
+
+
