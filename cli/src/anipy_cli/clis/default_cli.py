@@ -56,6 +56,9 @@ class DefaultCli(CliBase):
 
         episode = pick_episode_prompt(anime, self.lang)
 
+        if episode is None:
+            sys.exit(0)
+
         self.anime = anime
         self.epsiode = episode
 

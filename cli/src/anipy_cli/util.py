@@ -1,3 +1,4 @@
+import functools
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple
@@ -125,9 +126,10 @@ def search_show_prompt(mode: str) -> Optional["Anime"]:
                 ]
             )
 
+    print(mode)
     if len(results) == 0:
         error("no search results")
-        return search_show_prompt()
+        return search_show_prompt(mode)
 
     anime = inquirer.fuzzy(
         message="Select Show:",
@@ -145,6 +147,10 @@ def pick_episode_prompt(
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
         episodes = anime.get_episodes(lang)
 
+    if not episodes:
+        error(f"No episodes available for {anime.name}")
+        return None
+
     return inquirer.fuzzy(
         message="Select Episode:",
         instruction=instruction,
@@ -159,6 +165,10 @@ def pick_episode_range_prompt(
 ) -> List["Episode"]:
     with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
         episodes = anime.get_episodes(lang)
+
+    if not episodes:
+        error(f"No episodes available for {anime.name}")
+        return []
 
     res = inquirer.text(
         message=f"Input Episode Range(s) from episodes {episodes[0]} to {episodes[-1]}:",
@@ -196,7 +206,6 @@ def lang_prompt(anime: "Anime") -> LanguageTypeEnum:
             return LanguageTypeEnum.SUB
     else:
         return next(iter(anime.languages))
-
 
 def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
     config = Config()
