@@ -51,7 +51,10 @@ class MALLocalList(DataClassJsonMixin):
 
         if not local_list.is_file():
             local_list.parent.mkdir(exist_ok=True, parents=True)
-            return MALLocalList({})
+            local_list.touch()
+            mylist = MALLocalList({})
+            mylist.write(user_id)
+            return mylist
 
         try:
             mylist: MALLocalList = MALLocalList.from_json(local_list.read_text())

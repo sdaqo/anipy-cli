@@ -2,8 +2,8 @@ import sys
 from typing import TYPE_CHECKING, List
 
 from anipy_api.download import Downloader
-from anipy_api.history import update_history
 from anipy_api.provider import LanguageTypeEnum
+from anipy_api.locallist import LocalList
 
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
@@ -14,6 +14,7 @@ from anipy_cli.util import (
     get_download_path,
     pick_episode_prompt,
     search_show_prompt,
+    migrate_locallist
 )
 
 if TYPE_CHECKING:
@@ -37,6 +38,7 @@ class Menu(MenuBase):
         self.stream = stream
         self.player = player
         self.lang = stream.language
+        self.history_list = LocalList(Config()._history_file_path, migrate_cb=migrate_locallist)
 
     @property
     def menu_options(self) -> List["MenuOption"]:
@@ -80,8 +82,8 @@ class Menu(MenuBase):
             self.stream = self.anime.get_video(
                 episode, self.lang, preferred_quality=self.options.quality
             )
-        config = Config()
-        update_history(config._history_file_path, self.anime, episode, self.lang)
+
+        self.history_list.update(self.anime, episode=episode, language=self.lang)
         self.player.play_title(self.anime, self.stream)
 
     def next_ep(self):

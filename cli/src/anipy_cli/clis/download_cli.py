@@ -1,5 +1,5 @@
 import sys
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 from anipy_api.download import Downloader
 
@@ -27,7 +27,7 @@ class DownloadCli(CliBase):
         super().__init__(options)
 
         self.anime: Optional["Anime"] = None
-        self.episodes: Optional["Episode"] = None
+        self.episodes: Optional[List["Episode"]] = None
         self.lang: Optional["LanguageTypeEnum"] = None
 
         self.dl_path = Config().download_folder_path
@@ -101,6 +101,10 @@ class DownloadCli(CliBase):
         self.episodes = episodes
 
     def process(self):
+        assert self.episodes is not None
+        assert self.anime is not None
+        assert self.lang is not None
+
         config = Config()
         with DotSpinner("Starting Download...") as s:
 

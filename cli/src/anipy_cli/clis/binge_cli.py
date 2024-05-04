@@ -1,7 +1,7 @@
 import sys
 from typing import TYPE_CHECKING
 
-from anipy_api.history import update_history
+from anipy_api.locallist import LocalList
 
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
@@ -13,6 +13,7 @@ from anipy_cli.util import (
     parse_auto_search,
     pick_episode_range_prompt,
     search_show_prompt,
+    migrate_locallist
 )
 
 if TYPE_CHECKING:
@@ -24,6 +25,7 @@ class BingeCli(CliBase):
         super().__init__(options)
 
         self.player = get_configured_player(self.options.optional_player)
+        self.history_list = LocalList(Config()._history_file_path, migrate_cb=migrate_locallist)
 
         self.anime = None
         self.episodes = None
@@ -54,7 +56,10 @@ class BingeCli(CliBase):
     def process(self): ...
 
     def show(self):
-        config = Config()
+        assert self.episodes is not None
+        assert self.anime is not None
+        assert self.lang is not None
+
         for e in self.episodes:
             with DotSpinner(
                 "Extracting streams for ",
@@ -70,7 +75,7 @@ class BingeCli(CliBase):
                 )
                 s.ok("✔")
 
-            update_history(config._history_file_path, self.anime, e, self.lang)
+            self.history_list.update(self.anime, episode=e, language=self.lang)
             self.player.play_title(self.anime, stream)
             self.player.wait()
 

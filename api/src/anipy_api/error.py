@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 
 class BeautifulSoupLocationError(Exception):
-    """Error that gets thrown in the Provider if there are errors with parsing
+    """Error that gets raised in the Provider if there are errors with parsing
     HTML content."""
 
     def __init__(self, what: str, where: str):
@@ -19,7 +19,7 @@ class BeautifulSoupLocationError(Exception):
 
 
 class LangTypeNotAvailableError(Exception):
-    """Error that gets thrown in the Provider if the specified language type is
+    """Error that gets raised in the Provider if the specified language type is
     not available."""
 
     def __init__(self, identifier: str, provider: str, lang: "LanguageTypeEnum"):
@@ -36,7 +36,7 @@ class LangTypeNotAvailableError(Exception):
 
 
 class MyAnimeListError(Exception):
-    """Error that gets thrown by [MyAnimeList][anipy_api.mal.MyAnimeList], this
+    """Error that gets raised by [MyAnimeList][anipy_api.mal.MyAnimeList], this
     may include authentication errors or other HTTP errors."""
 
     def __init__(
@@ -57,7 +57,7 @@ class MyAnimeListError(Exception):
 
 
 class DownloadError(Exception):
-    """Error that gets thrown by
+    """Error that gets raised by
     [Downloader][anipy_api.download.Downloader]."""
 
     def __init__(self, message: str):
@@ -79,3 +79,17 @@ class PlayerError(Exception):
             message: Failure reason
         """
         super().__init__(message)
+
+
+class ArgumentError(Exception):
+    """Error that gets raised if something is wrong with the arguments provided to a callable."""
+
+    def __init__(self, message: str):
+        """__init__ for ArgumentError
+
+        Args:
+            message: Failure reason
+        """
+        super().__init__(message)
+
+

@@ -7,8 +7,9 @@ from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
 from anipy_api.player import get_player
-from anipy_api.provider import LanguageTypeEnum, list_providers
+from anipy_api.provider import LanguageTypeEnum, list_providers, get_provider
 from anipy_api.locallist import LocalList, LocalListData, LocalListEntry
+from anipy_api.error import LangTypeNotAvailableError
 from InquirerPy import inquirer
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
@@ -386,67 +387,71 @@ def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase"
 
 
 
-def migrate_seasonals(file):
+def migrate_locallist(file):
     import json
     import re
+    
+    error(f"{file} is in an unsuported format, trying to migrate the old gogoanime entries...")
 
     old_data = json.load(file.open("r"))
-    new_seasonals = LocalListData({})
+    new_list = LocalListData({})
+    gogo = get_provider(
+        "gogoanime", base_url_override=Config().provider_urls.get("gogoanime", None)
+    )
+    assert gogo is not None
 
-    for k, v in old_data.items():
-        name = k
-        name = re.sub(r"\s?\((dub|japanese\sdub)\)", "", name, flags=re.IGNORECASE)
-        identifier = Path(v["category_url"]).name
-        is_dub = identifier.endswith("-dub") or identifier.endswith("-japanese-dub")
-        identifier = identifier.removesuffix("-dub").removesuffix("-japanese-dub")
-        episode = v["ep"]
-        unique_id = f"gogoanime:{identifier}"
+    try:
+        for k, v in old_data.items():
+            name = k
+            name = re.sub(r"\s?\((dub|japanese\sdub)\)", "", name, flags=re.IGNORECASE)
+            identifier = Path(v.get("category_url", v["category-link"])).name
+            is_dub = identifier.endswith("-dub") or identifier.endswith("-japanese-dub")
+            identifier = identifier.removesuffix("-dub").removesuffix("-japanese-dub")
+            episode = v["ep"]
+            unique_id = f"gogoanime:{identifier}"
+            
+            langs = set()
 
-        new_entry = LocalListEntry(
-            provider="gogoanmie",
-            name=name,
-            identifier=identifier,
-            episode=episode,
-            language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
-            languages={LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB},
-            timestamp=int(time.time())
-        )
+            try:
+                gogo.get_episodes(identifier, lang=LanguageTypeEnum.DUB)
+                langs.add(LanguageTypeEnum.DUB)
+                gogo.get_episodes(identifier, lang=LanguageTypeEnum.SUB)
+                langs.add(LanguageTypeEnum.SUB)
+            except LangTypeNotAvailableError:
+                pass
 
-        new_seasonals.seasonals[unique_id] = new_entry
+            if not langs:
+                error(f"> failed to migrate {name}, as it was not found in gogoanime")
 
-    new_seasonals.write(file)
-    return new_seasonals
-
-def migrate_history(file):
-    import json
-    import re
-
-    old_data = json.load(file.open("r"))
-    new_history = History({})
-
-    for k, v in old_data.items():
-        name = k
-        name = re.sub(r"\s?\((dub|japanese\sdub)\)", "", name, flags=re.IGNORECASE)
-        identifier = Path(v["category-link"]).name
-        is_dub = identifier.endswith("-dub") or identifier.endswith("-japanese-dub")
-        identifier = identifier.removesuffix("-dub").removesuffix("-japanese-dub")
-        episode = v["ep"]
-        timestamp = int(time())
-        unique_id = f"gogoanime:{'dub' if is_dub else 'sub'}:{identifier}"
-
-        new_entry = HistoryEntry(
-            provider="gogoanmie",
-            name=name,
-            identifier=identifier,
-            episode=episode,
-            timestamp=timestamp,
-            language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
-            languages={LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB},
-        )
-
-        new_history.history[unique_id] = new_entry
-
-    new_history.write(file)
-    return new_history
+            if is_dub and LanguageTypeEnum.DUB not in langs:
+                error(
+                    f"> failed to migrate {name}, as it was configured as dub but"
+                    f"{gogo.BASE_URL}/category/{identifier}-dub or {gogo.BASE_URL}/category/{identifier}-japanese-dub was not found!"
+                )
+                continue
 
 
+            new_entry = LocalListEntry(
+                provider="gogoanmie",
+                name=name,
+                identifier=identifier,
+                episode=episode,
+                language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
+                languages=langs,
+                timestamp=int(time.time())
+            )
+
+            new_list.data[unique_id] = new_entry
+
+        new_list.write(file)
+        return new_list
+    except KeyError:
+        choice = inquirer.confirm(
+            message=f"Can not migrate {file}, should it be delted?",
+            default=False,
+        ).execute()
+        if choice:
+            file.unlink()
+            return new_list
+        else:
+            error("could not read {file}", fatal=True)

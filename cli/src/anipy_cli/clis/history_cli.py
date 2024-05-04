@@ -2,14 +2,14 @@ import sys
 from typing import TYPE_CHECKING, Optional
 
 from anipy_api.anime import Anime
-from anipy_api.history import get_history
+from anipy_api.locallist import LocalList, LocalListEntry
 from InquirerPy import inquirer
 
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors
 from anipy_cli.config import Config
 from anipy_cli.menus import Menu
-from anipy_cli.util import DotSpinner, get_configured_player
+from anipy_cli.util import DotSpinner, get_configured_player, migrate_locallist
 
 if TYPE_CHECKING:
     from anipy_api.history import HistoryEntry
@@ -23,17 +23,17 @@ class HistoryCli(CliBase):
         super().__init__(options)
 
         self.player = get_configured_player(self.options.optional_player)
+        self.history_list = LocalList(Config()._history_file_path, migrate_cb=migrate_locallist)
 
         self.anime: Optional[Anime] = None
-        self.history_entry: Optional["HistoryEntry"] = None
+        self.history_entry: Optional["LocalListEntry"] = None
         self.stream: Optional["ProviderStream"] = None
 
     def print_header(self):
         pass
 
     def take_input(self):
-        config = Config()
-        history = list(get_history(config._history_file_path).history.values())
+        history = self.history_list.get_all()
         history.sort(key=lambda h: h.timestamp, reverse=True)
 
         if not history:
@@ -47,9 +47,12 @@ class HistoryCli(CliBase):
         ).execute()
 
         self.history_entry = entry
-        self.anime = Anime.from_history_entry(entry)
+        self.anime = Anime.from_local_list_entry(entry)
 
     def process(self):
+        assert self.anime is not None
+        assert self.history_entry is not None
+
         with DotSpinner(
             "Extracting streams for ",
             colors.BLUE,
@@ -63,16 +66,20 @@ class HistoryCli(CliBase):
             )
 
     def show(self):
-        config = Config()
-        update_history(
-            config._history_file_path,
-            self.anime,
-            self.stream.episode,
-            self.stream.language,
-        )
+        assert self.anime is not None
+        assert self.stream is not None
+
         self.player.play_title(self.anime, self.stream)
+        self.history_list.update(
+            self.anime,
+            episode=self.stream.episode,
+            language=self.stream.language,
+        )
 
     def post(self):
+        assert self.anime is not None
+        assert self.stream is not None
+
         Menu(
             options=self.options,
             anime=self.anime,

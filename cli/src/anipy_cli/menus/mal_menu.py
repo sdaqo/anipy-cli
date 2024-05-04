@@ -7,7 +7,8 @@ from anipy_api.download import Downloader
 from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
-from anipy_api.seasonal import SeasonalEntry, get_seasonals, update_seasonal
+# from anipy_api.seasonal import SeasonalEntry, get_seasonals, update_seasonal
+from anipy_api.locallist import LocalList, LocalListEntry
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
@@ -24,6 +25,7 @@ from anipy_cli.util import (
     get_configured_player,
     get_download_path,
     search_show_prompt,
+    migrate_locallist
 )
 
 
@@ -37,6 +39,7 @@ class MALMenu(MenuBase):
 
         self.options = options
         self.player = get_configured_player(self.options.optional_player)
+        self.seasonals_list = LocalList(Config()._seasonal_file_path, migrate_cb=migrate_locallist)
 
         self.dl_path = Config().seasonals_dl_path
         if options.location:
@@ -60,7 +63,7 @@ class MALMenu(MenuBase):
             ),
             MenuOption("Download all episodes", lambda: self.download(all=True), "x"),
             MenuOption("Binge watch newest episodes", self.binge_latest, "w"),
-            MenuOption("Quit", self.quit, "q"),
+            MenuOption("Quit", sys.exit, "q"),
         ]
 
     def add_anime(self):
@@ -374,8 +377,8 @@ class MALMenu(MenuBase):
 
     def sync_seasonals_mal(self):
         config = Config()
-        seasonals = get_seasonals(config._seasonal_file_path).seasonals.values()
-        mappings = self._create_maps_provider(list(seasonals))
+        seasonals = self.seasonals_list.get_all()
+        mappings = self._create_maps_provider(seasonals)
         with DotSpinner("Syncing Seasonals into MyAnimeList") as s:
             for k, v in mappings.items():
                 tags = set()
@@ -429,7 +432,7 @@ class MALMenu(MenuBase):
                 else:
                     episode = find_closest(provider_episodes, episode)
 
-                update_seasonal(config._seasonal_file_path, v, episode, lang)
+                self.seasonals_list.update(v, episode=episode, language=lang)
             s.ok("✔")
 
     def _choose_latest(
@@ -594,17 +597,17 @@ class MALMenu(MenuBase):
         return mappings
 
     def _create_maps_provider(
-        self, to_map: List[SeasonalEntry]
-    ) -> Dict[SeasonalEntry, MALAnime]:
+        self, to_map: List[LocalListEntry]
+    ) -> Dict[LocalListEntry, MALAnime]:
         with DotSpinner("Starting Automapping...") as s:
-            failed: List[SeasonalEntry] = []
-            mappings: Dict[SeasonalEntry, MALAnime] = {}
+            failed: List[LocalListEntry] = []
+            mappings: Dict[LocalListEntry, MALAnime] = {}
             counter = 0
 
-            def do_map(entry: SeasonalEntry, to_map_length: int):
+            def do_map(entry: LocalListEntry, to_map_length: int):
                 nonlocal failed, counter
                 try:
-                    anime = Anime.from_seasonal_entry(entry)
+                    anime = Anime.from_local_list_entry(entry)
                     result = self.mal_proxy.map_from_provider(anime)
                     if result is None:
                         failed.append(entry)
@@ -662,7 +665,7 @@ class MALMenu(MenuBase):
                 continue
 
             anime = MALAnime.from_dict(anime)
-            map = self.mal_proxy.map_from_provider(Anime.from_seasonal_entry(f), anime)
+            map = self.mal_proxy.map_from_provider(Anime.from_local_list_entry(f), anime)
             if map is not None:
                 mappings.update({f: map})
 
@@ -691,6 +694,3 @@ class MALMenu(MenuBase):
             f"{anime.my_list_status.num_episodes_watched if anime.my_list_status else 0}/{anime.num_episodes}",
             f"{anime.title} {'(dub)' if dub else ''}",
         )
-
-    def quit(self):
-        sys.exit(0)

@@ -170,6 +170,10 @@ class BaseProvider(ABC):
 
         Returns:
             A list of episodes
+
+        Raises:
+            LangTypeNotAvailableError: Raised when the language provided is 
+                not available for the anime
         """
         ...
 
@@ -186,5 +190,12 @@ class BaseProvider(ABC):
 
         Returns:
             A list of video streams
+
+        Raises:
+            LangTypeNotAvailableError: Raised when the language provided is 
+                not available for the anime
         """
         ...
+
+    def __str__(self) -> str:
+        return self.NAME

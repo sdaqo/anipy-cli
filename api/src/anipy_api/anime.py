@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional, Set, Union, List
 from anipy_api.provider import Episode, list_providers
 
 if TYPE_CHECKING:
-    from anipy_api.history import HistoryEntry
+    from anipy_api.locallist import LocalListEntry
     from anipy_api.provider import (
         BaseProvider,
         LanguageTypeEnum,
@@ -11,7 +11,6 @@ if TYPE_CHECKING:
         ProviderInfoResult,
         ProviderStream,
     )
-    from anipy_api.seasonal import SeasonalEntry
 
 
 class Anime:
@@ -47,28 +46,14 @@ class Anime:
         return Anime(provider, result.name, result.identifier, result.languages)
 
     @staticmethod
-    def from_history_entry(entry: "HistoryEntry") -> "Anime":
-        """Get Anime object from [HistoryEntry][anipy_api.history.HistoryEntry]
+    def from_local_list_entry(entry: "LocalListEntry") -> "Anime":
+        """Get Anime object from [LocalListEntry][anipy_api.locallist.LocalListEntry]
 
         Args:
-            entry: The history entry
+            entry: The local list entry
 
         Returns:
             Anime Object
-        """
-        provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
-        return Anime(provider(), entry.name, entry.identifier, entry.languages)
-
-    @staticmethod
-    def from_seasonal_entry(entry: "SeasonalEntry") -> "Anime":
-        """Get Anime object from
-        [SeasonalEntry][anipy_api.seasonal.SeasonalEntry]
-
-        Args:
-            entry: The seasonal entry
-
-        Returns:
-            Anime object
         """
         provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
         return Anime(provider(), entry.name, entry.identifier, entry.languages)

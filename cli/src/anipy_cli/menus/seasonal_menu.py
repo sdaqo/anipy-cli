@@ -5,12 +5,7 @@ from anipy_api.anime import Anime
 from anipy_api.download import Downloader
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
-from anipy_api.seasonal import (
-    SeasonalEntry,
-    delete_seasonal,
-    get_seasonals,
-    update_seasonal,
-)
+from anipy_api.locallist import LocalList, LocalListEntry
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
@@ -26,6 +21,7 @@ from anipy_cli.util import (
     lang_prompt,
     pick_episode_prompt,
     search_show_prompt,
+    migrate_locallist,
 )
 
 if TYPE_CHECKING:
@@ -36,7 +32,10 @@ class SeasonalMenu(MenuBase):
     def __init__(self, options: "CliArgs"):
         self.options = options
         self.player = get_configured_player(self.options.optional_player)
-        self.dl_path = Config().seasonals_dl_path
+
+        config = Config()
+        self.dl_path = config.seasonals_dl_path
+        self.seasonal_list = LocalList(config._seasonal_file_path, migrate_locallist)
         if options.location:
             self.dl_path = options.location
 
@@ -56,11 +55,10 @@ class SeasonalMenu(MenuBase):
         pass
 
     def _choose_latest(self) -> List[Tuple["Anime", LanguageTypeEnum, List["Episode"]]]:
-        config = Config()
         with DotSpinner("Fetching status of shows in seasonals..."):
             choices = []
-            for s in list(get_seasonals(config._seasonal_file_path).seasonals.values()):
-                anime = Anime.from_seasonal_entry(s)
+            for s in self.seasonal_list.get_all():
+                anime = Anime.from_local_list_entry(s)
                 lang = s.language
                 episodes = anime.get_episodes(lang)
                 to_watch = episodes[episodes.index(s.episode) + 1 :]
@@ -70,6 +68,7 @@ class SeasonalMenu(MenuBase):
                         name=f"{anime.name} (to watch: {len(to_watch)})",
                     )
                     choices.append(ch)
+
         if self.options.auto_update:
             return [ch.value for ch in choices]
 
@@ -109,20 +108,18 @@ class SeasonalMenu(MenuBase):
         if episode is None:
             episode = anime.get_episodes(lang)[0]
 
-        config = Config()
-        update_seasonal(config._seasonal_file_path, anime, episode, lang)
+        self.seasonal_list.update(anime, episode=episode, language=lang)
 
         self.print_options()
 
     def del_anime(self):
-        config = Config()
-        seasonals = list(get_seasonals(config._seasonal_file_path).seasonals.values())
+        seasonals = self.seasonal_list.get_all()
 
         if len(seasonals) == 0:
             error("No seasonals configured.")
             return
 
-        entries: List[SeasonalEntry] = (
+        entries: List[LocalListEntry] = (
             inquirer.fuzzy(
                 message="Select Seasonals to delete:",
                 choices=seasonals,
@@ -138,19 +135,18 @@ class SeasonalMenu(MenuBase):
         )
 
         for e in entries:
-            delete_seasonal(config._seasonal_file_path, e, e.language)
+            self.seasonal_list.delete(e)
 
         self.print_options()
 
     def change_lang(self):
-        config = Config()
-        seasonals = list(get_seasonals(config._seasonal_file_path).seasonals.values())
+        seasonals = self.seasonal_list.get_all()
 
         if len(seasonals) == 0:
             error("No seasonals configured.")
             return
 
-        entries: List[SeasonalEntry] = (
+        entries: List[LocalListEntry] = (
             inquirer.fuzzy(
                 message="Select Seasonals to delete:",
                 choices=seasonals,
@@ -184,19 +180,18 @@ class SeasonalMenu(MenuBase):
             else:
                 new_lang = LanguageTypeEnum.DUB
             if new_lang in e.languages:
-                update_seasonal(config._seasonal_file_path, e, e.episode, new_lang)
+                self.seasonal_list.update(e, language=new_lang)
             else:
                 print(f"> {new_lang} is for {e.name} not available")
 
     def list_animes(self):
-        config = Config()
-        for i in list(get_seasonals(config._seasonal_file_path).seasonals.values()):
+        for i in self.seasonal_list.get_all():
             print(i)
 
     def download_latest(self):
         picked = self._choose_latest()
         config = Config()
-        total_eps = sum([len(e) for a, d, e in picked])
+        total_eps = sum([len(e) for _a, _d, e in picked])
         if total_eps == 0:
             print("Nothing to download, returning...")
             return
@@ -239,39 +234,38 @@ class SeasonalMenu(MenuBase):
                         container=config.remux_to,
                         ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
                     )
-                    update_seasonal(config._seasonal_file_path, anime, ep, lang)
+                    self.seasonal_list.update(anime, episode=ep, language=lang)
 
         if not self.options.auto_update:
             self.print_options(clear_screen=True)
 
     def binge_latest(self):
-        config = Config()
         picked = self._choose_latest()
-        total_eps = sum([len(e) for a, d, e in picked])
+        total_eps = sum([len(e) for _a, _d, e in picked])
         if total_eps == 0:
             print("Nothing to watch, returning...")
             return
         else:
             print(f"Playing a total of {total_eps} episode(s)")
         for anime, lang, eps in picked:
-            for e in eps:
+            for ep in eps:
                 with DotSpinner(
                     "Extracting streams for ",
                     colors.BLUE,
                     f"{anime.name} ({lang})",
                     colors.END,
                     " Episode ",
-                    e,
+                    ep,
                     "...",
                 ) as s:
                     stream = anime.get_video(
-                        e, lang, preferred_quality=self.options.quality
+                        ep, lang, preferred_quality=self.options.quality
                     )
                     s.ok("✔")
 
                 self.player.play_title(anime, stream)
                 self.player.wait()
-                update_seasonal(config._seasonal_file_path, anime, e, lang)
+                self.seasonal_list.update(anime, episode=ep, language=lang)
 
         self.print_options()
 

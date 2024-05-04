@@ -59,6 +59,8 @@ class MalCli(CliBase):
         pass
 
     def post(self):
+        assert self.mal is not None
+
         menu = MALMenu(mal=self.mal, options=self.options)
 
         if self.options.auto_update:
