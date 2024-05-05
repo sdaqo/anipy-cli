@@ -19,7 +19,7 @@ requests = "^2.31.0"
 pypresence = "^4.3.0"
 m3u8 = "^4.1.0"
 beautifulsoup4 = "^4.12.3"
-python-mpv = "^1.0.5"
+python-mpv = "^1.0.6"
 dataclasses-json = "^0.6.4"
 levenshtein = "^0.25.1"
 

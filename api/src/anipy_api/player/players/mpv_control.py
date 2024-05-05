@@ -26,31 +26,30 @@ class MpvControllable(PlayerBase):
         Args:
             play_callback: Callback called upon starting to play a title with `play_title`
         """
+        super().__init__(play_callback=play_callback)
 
         # I know this is a crime, but pytohn-mpv loads the so/dll on import and this will break all the stuff for people that do not have that.
         from mpv import MPV
-
-        super().__init__(play_callback=play_callback)
-        self.mpv = MPV(
+        self._mpv = MPV(
             input_default_bindings=True,
             input_vo_keyboard=True,
             force_window="immediate",
             title="MPV - Receiving Links from anipy-cli",
-            osc=True,
+            osc=True
         )
 
     def play_title(self, anime: "Anime", stream: "ProviderStream"):
-        self.force_media_title = self._get_media_title(anime, stream)
+        self._mpv.force_media_title = self._get_media_title(anime, stream)
 
-        self.mpv.play(stream.url)
+        self._mpv.play(stream.url)
 
         self._call_play_callback(anime, stream)
 
     def play_file(self, path: str):
-        self.mpv.play(path)
+        self._mpv.play(path)
 
     def wait(self):
-        self.mpv.wait_for_playback()
+        self._mpv.wait_for_playback()
 
     def kill_player(self):
-        self.mpv.terminate()
+        self._mpv.terminate()
