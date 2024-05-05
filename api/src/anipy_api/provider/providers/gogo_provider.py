@@ -113,9 +113,9 @@ class GoGoProvider(BaseProvider):
         FILTER_CAPS: YEAR, SEASON, STATUS
     """
 
-    NAME = "gogoanime"
-    BASE_URL = "https://gogoanime3.co"
-    FILTER_CAPS = (
+    NAME: str = "gogoanime"
+    BASE_URL: str = "https://gogoanime3.co"
+    FILTER_CAPS: FilterCapabilities = (
         FilterCapabilities.YEAR | FilterCapabilities.SEASON | FilterCapabilities.STATUS
     )
 

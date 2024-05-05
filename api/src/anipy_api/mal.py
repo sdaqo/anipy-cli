@@ -517,6 +517,7 @@ class MyAnimeListAdapter:
             anime: The anime to adapt from
             minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1, 
                 1 meaning the names are identical 0 meaning there are no identical charachters whatsoever.
+                If it is not met the function will return None.
             use_alternative_names: Use alternative names for matching, this may yield a higher chance of finding
                 a match but takes more time.
 
@@ -571,7 +572,8 @@ class MyAnimeListAdapter:
         Args:
             mal_anime: The mal anime to adapt from
             minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1, 
-                1 meaning the names are identical 0 meaning there are no identical charachters whatsoever.
+                1 meaning the names are identical 0 meaning there are no identical charachters whatsoever. 
+                If it is not met the function will return None.
             use_filters: Use filters for the provider to cut down on possible wrong results, do note that this will take more time.
             use_alternative_names: Use alternative names for matching, this may yield a higher chance of finding a match but takes more time.
 

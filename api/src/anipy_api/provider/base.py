@@ -2,7 +2,7 @@ import functools
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Set, Union, Iterator, Type
+from typing import List, Optional, Set, Union
 
 from requests import Session
 
@@ -13,7 +13,7 @@ Episode = Union[int, float]
 
 
 class LanguageTypeEnum(Enum):
-    """A enum that of possible language types of anime.
+    """A enum that contains possible language types of anime.
 
     Attributes:
         SUB:
@@ -105,7 +105,7 @@ class BaseProvider(ABC):
     Attributes:
         NAME: The name of the provider
         BASE_URL: The base url of the provider
-        FILTER_CAPS: The filter filter capabilities of the provider
+        FILTER_CAPS: The filter capabilities of the provider
     """
 
     NAME: str

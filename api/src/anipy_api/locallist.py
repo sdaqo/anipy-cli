@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 from pathlib import Path
 from time import time
 from typing import Dict, Optional, Protocol, Set, Union, List
@@ -84,7 +84,7 @@ class LocalList:
 
         Args:
             file: Path of the list
-            migrate_cb: Migration callback, look at [anipy_api.locallist.MigrateCallback][]
+            migrate_cb: Migration callback, look at [MigrateCallback][anipy_api.locallist.MigrateCallback]
         """
 
         self.file = file
@@ -123,11 +123,11 @@ class LocalList:
             ```
 
             1. When adding a anime make sure you are always passing at least the `episode` and `language` fields.
-            2. When the anime is already added you can pass any update fields specified in the [anipy_api.locallist.LocalListEntry][] class.
+            2. When the anime is already added you can pass any update fields specified in the [LocalListEntry][anipy_api.locallist.LocalListEntry] class.
 
         Args:
-            anime: The anime to update/add, this can be a [anipy_api.anime.Anime][] or [anipy_api.locallist.LocalListEntry][] object
-            **update_fields: The fields to update, they correspond to the fields in [anipy_api.locallist.LocalListEntry][]
+            anime: The anime to update/add, this can be a [Anime][anipy_api.anime.Anime] or [LocalListEntry][anipy_api.locallist.LocalListEntry] object
+            **update_fields: The fields to update, they correspond to the fields in [LocalListEntry][anipy_api.locallist.LocalListEntry]
 
         Returns:
             The updated entry
@@ -143,8 +143,7 @@ class LocalList:
             if not ("episode" in update_fields and "language" in update_fields):
                 raise ArgumentError(
                     "The anime you are trying to update is not added to the list and you are not"
-                    "providing the neccessary update_fields `episode` and `language` for the occassion that"
-                    "the anime is not added, this can not be processed"
+                    "providing the neccessary update_fields `episode` and `language`, this can not be processed"
                 )
 
             entry = LocalListEntry(
@@ -177,7 +176,7 @@ class LocalList:
         """Delete a entry from the local list.
 
         Args:
-            anime: The anime to delete this can be a [anipy_api.anime.Anime][] or [anipy_api.locallist.LocalListEntry][] object
+            anime: The anime to delete this can be a [Anime][anipy_api.anime.Anime] or [LocalListEntry][anipy_api.locallist.LocalListEntry] object
 
         Returns:
             The deleted object or None if the anime to delete was not found in the local list
@@ -217,7 +216,7 @@ class LocalList:
             identifier = anime.identifier
         else:
             raise TypeError(
-                f"{type(anime)} can not be interpreted as a Anime or LocalListEntry"
+                f"{type(anime)} can not be interpreted as a Anime or LocalListEntry object"
             )
 
         return f"{provider}:{identifier}"

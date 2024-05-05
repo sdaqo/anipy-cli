@@ -36,8 +36,9 @@ def list_providers() -> Iterator[Type["BaseProvider"]]:
         yield globals()[p]
 
 
-def get_provider(name: str, base_url_override: Optional[str]) -> Optional["BaseProvider"]:
-    """
+def get_provider(name: str, base_url_override: Optional[str] = None) -> Optional["BaseProvider"]:
+    """Get a provider by name.
+
     Arguments:
         name: Name of the provider to get
         base_url_override: Override the url used by the provider.

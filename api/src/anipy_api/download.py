@@ -18,7 +18,7 @@ from anipy_api.provider import ProviderStream
 class ProgressCallback(Protocol):
     """Callback that accepts a percentage argument."""
 
-    def __call__(self, percentage: float): 
+    def __call__(self, percentage: float):
         """
         Args:
             percentage: Percentage argument passed to the callback
@@ -29,7 +29,7 @@ class ProgressCallback(Protocol):
 class InfoCallback(Protocol):
     """Callback that accepts a message argument."""
 
-    def __call__(self, message: str): 
+    def __call__(self, message: str):
         """
         Args:
             message: Message argument passed to the callback
@@ -41,7 +41,9 @@ class Downloader:
     """Downloader class to download streams retrieved by the Providers."""
 
     def __init__(
-        self, progress_callback: ProgressCallback, info_callback: InfoCallback
+        self,
+        progress_callback: Optional[ProgressCallback] = None,
+        info_callback: Optional[InfoCallback] = None
     ):
         """__init__ of Downloader.
 
@@ -49,8 +51,8 @@ class Downloader:
             progress_callback: A callback with an percentage argument, that gets called on download progress.
             info_callback: A callback with an message argument, that gets called on certain events.
         """
-        self._progress_callback: ProgressCallback = progress_callback
-        self._info_callback: InfoCallback = info_callback
+        self._progress_callback: ProgressCallback = progress_callback or (lambda percentage: None)
+        self._info_callback: InfoCallback = info_callback or (lambda message: None)
 
         self._session = requests.Session()
 
@@ -160,7 +162,7 @@ class Downloader:
     def mp4_download(self, stream: "ProviderStream", download_path: Path) -> Path:
         """Download a mp4 stream to a specified download path.
 
-        The suffix of the download path will be replaced (or added) 
+        The suffix of the download path will be replaced (or added)
         with ".mp4", use the path returned instead of the passed path.
 
         Args:
@@ -199,7 +201,7 @@ class Downloader:
             download_path: The path to download to including a specific suffix.
 
         Returns:
-            The download path, this should be the same as the 
+            The download path, this should be the same as the
             passed one as ffmpeg will remux to about any container.
         """
         ffmpeg = FFmpeg(executable="ffprobe").input(
@@ -254,7 +256,7 @@ class Downloader:
             container: The container to remux the video to if it is not already
                 correctly muxed, the user must have ffmpeg installed on the system.
                 Containers may include all containers supported by FFmpeg e.g. ".mp4", ".mkv" etc...
-            ffmpeg: Wheter to automatically default to 
+            ffmpeg: Wheter to automatically default to
                 [ffmpeg_download][anipy_api.download.Downloader.ffmpeg_download] for m3u8/hls streams.
 
         Returns:
