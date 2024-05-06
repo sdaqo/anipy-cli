@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, Optional, List, Tuple
 from InquirerPy import inquirer
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.anime import Anime
@@ -13,13 +13,12 @@ from anipy_cli.colors import colors
 from anipy_cli.config import Config
 
 
-
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
 
 
 def search_show_prompt(mode: str) -> Optional["Anime"]:
-    query = inquirer.text( # type: ignore
+    query = inquirer.text(  # type: ignore
         "Search Anime:",
         long_instruction="To cancel this prompt press ctrl+z",
         mandatory=False,
@@ -109,7 +108,7 @@ def lang_prompt(anime: "Anime") -> LanguageTypeEnum:
         return LanguageTypeEnum.SUB
 
     if len(anime.languages) == 2:
-        res = inquirer.confirm("Want to watch in dub?").execute() # type: ignore
+        res = inquirer.confirm("Want to watch in dub?").execute()  # type: ignore
         print("Hint: you can set a default in the config with `preferred_type`!")
 
         if res:
@@ -118,3 +117,49 @@ def lang_prompt(anime: "Anime") -> LanguageTypeEnum:
             return LanguageTypeEnum.SUB
     else:
         return next(iter(anime.languages))
+
+
+def parse_auto_search(
+    mode: str, passed: str
+) -> Tuple["Anime", LanguageTypeEnum, List["Episode"]]:
+    options = iter(passed.split(":"))
+    query = next(options, None)
+    ranges = next(options, None)
+    ltype = next(options, None)
+
+    if not query:
+        error("you provided the search parameter but no query", fatal=True)
+
+    if not ranges:
+        error("you provided the search parameter but no episode ranges", fatal=True)
+
+    if not (ltype == "sub" or ltype == "dub"):
+        ltype = Config().preferred_type
+
+    with DotSpinner("Searching for ", colors.BLUE, query, "..."):
+        results: List[Anime] = []
+        for provider in get_prefered_providers(mode):
+            results.extend(
+                [
+                    Anime.from_search_result(provider, x)
+                    for x in provider.get_search(query)
+                ]
+            )
+    if len(results) == 0:
+        error(f"no anime found for query {query}", fatal=True)
+
+    result = results[0]
+    if ltype is None:
+        lang = lang_prompt(result)
+    else:
+        lang = LanguageTypeEnum[ltype.upper()]
+
+    if lang not in result.languages:
+        error(f"{lang} is not available for {result.name}", fatal=True)
+
+    episodes = result.get_episodes(lang)
+    chosen = parse_episode_ranges(ranges, episodes)
+    if not chosen:
+        error("could not determine any epiosdes from search parameter", fatal=True)
+
+    return result, lang, chosen

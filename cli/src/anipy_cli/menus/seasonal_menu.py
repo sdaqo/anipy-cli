@@ -18,10 +18,9 @@ from anipy_cli.util import (
     error,
     get_configured_player,
     get_download_path,
-    lang_prompt,
     migrate_locallist,
 )
-from anipy_cli.prompts import pick_episode_prompt, search_show_prompt
+from anipy_cli.prompts import pick_episode_prompt, search_show_prompt, lang_prompt
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs

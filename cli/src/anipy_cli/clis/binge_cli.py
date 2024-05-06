@@ -6,12 +6,10 @@ from anipy_api.locallist import LocalList
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
-from anipy_cli.prompts import pick_episode_range_prompt, search_show_prompt
+from anipy_cli.prompts import pick_episode_range_prompt, search_show_prompt, lang_prompt, parse_auto_search
 from anipy_cli.util import (
     DotSpinner,
-    lang_prompt,
     get_configured_player,
-    parse_auto_search,
     migrate_locallist
 )
 

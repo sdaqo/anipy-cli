@@ -436,16 +436,6 @@ files = [
 wcwidth = "*"
 
 [[package]]
-name = "py-singleton"
-version = "1.0.0"
-description = "singleton pattern for python 2 and 3"
-optional = false
-python-versions = "*"
-files = [
-    {file = "py-singleton-1.0.0.tar.gz", hash = "sha256:9922a69f6e6b9390e5c1b3d2b39e119d5fcffa92d9c3145de3b8533a93077fb7"},
-]
-
-[[package]]
 name = "pycryptodomex"
 version = "3.20.0"
 description = "Cryptographic library for Python"
@@ -823,4 +813,4 @@ termcolor = "2.3.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "c4c13032074b1256c3bd95d5214ea130c3209592131378eb6e2b1cc2db564055"
+content-hash = "2011337b42a25de0f4202cee0f4c628bc8b41bfa5339667aa3155ea831b16271"

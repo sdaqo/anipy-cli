@@ -1,15 +1,16 @@
 import time
+import functools
 from typing import TYPE_CHECKING
-from py_singleton import singleton
 
 from pypresence import Presence
 
 if TYPE_CHECKING:
     from anipy_api.provider import ProviderInfoResult
 
-@singleton
+@functools.lru_cache(maxsize=None)
 class DiscordPresence(object):
     def  __init__(self):
+        print("Calling instance method of DiscordPresence!")
         self.rpc_client = Presence(966365883691855942)
         self.rpc_client.connect()
 

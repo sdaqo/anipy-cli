@@ -16,7 +16,7 @@ def run_cli(override_args: Optional[list[str]] = None):
 
     if config.dc_presence:
         try:
-            _ = DiscordPresence.instance()
+            _ = DiscordPresence()
             cprint(colors.GREEN, "Initialized Discord Presence Client")
         except DiscordNotFound:
             error("Discord is not opened, can't initialize Discord Presence")

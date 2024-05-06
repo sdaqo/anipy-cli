@@ -1,7 +1,16 @@
 import sys
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, List, Literal, NoReturn, Optional, Tuple, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Iterator,
+    List,
+    Literal,
+    NoReturn,
+    Optional,
+    Union,
+    overload,
+)
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
@@ -16,7 +25,6 @@ from yaspin.spinners import Spinners
 from anipy_cli.colors import color, colors
 from anipy_cli.config import Config
 from anipy_cli.discord import DiscordPresence
-from anipy_cli.prompts import lang_prompt
 
 if TYPE_CHECKING:
     from anipy_api.player import PlayerBase
@@ -44,6 +52,7 @@ class DotSpinner(Yaspin):
 def error(error: str, fatal: Literal[True]) -> NoReturn: ...
 @overload
 def error(error: str, fatal: Literal[False] = ...) -> None: ...
+
 
 def error(error: str, fatal: bool = False) -> Union[NoReturn, None]:
     if not fatal:
@@ -125,52 +134,6 @@ def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episod
     return sorted(picked)
 
 
-def parse_auto_search(
-    mode: str, passed: str
-) -> Tuple["Anime", LanguageTypeEnum, List["Episode"]]:
-    options = iter(passed.split(":"))
-    query = next(options, None)
-    ranges = next(options, None)
-    ltype = next(options, None)
-
-    if not query:
-        error("you provided the search parameter but no query", fatal=True)
-
-    if not ranges:
-        error("you provided the search parameter but no episode ranges", fatal=True)
-
-    if not (ltype == "sub" or ltype == "dub"):
-        ltype = Config().preferred_type
-
-    with DotSpinner("Searching for ", colors.BLUE, query, "..."):
-        results: List[Anime] = []
-        for provider in get_prefered_providers(mode):
-            results.extend(
-                [
-                    Anime.from_search_result(provider, x)
-                    for x in provider.get_search(query)
-                ]
-            )
-    if len(results) == 0:
-        error(f"no anime found for query {query}", fatal=True)
-
-    result = results[0]
-    if ltype is None:
-        lang = lang_prompt(result)
-    else:
-        lang = LanguageTypeEnum[ltype.upper()]
-
-    if lang not in result.languages:
-        error(f"{lang} is not available for {result.name}", fatal=True)
-
-    episodes = result.get_episodes(lang)
-    chosen = parse_episode_ranges(ranges, episodes)
-    if not chosen:
-        error("could not determine any epiosdes from search parameter", fatal=True)
-
-    return result, lang, chosen
-
-
 def parsenum(n: str):
     try:
         return int(n)
@@ -193,7 +156,13 @@ def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase"
     config = Config()
     player = Path(player_override or config.player_path)
     if config.dc_presence:
-        discord_cb = DiscordPresence.instance().dc_presence_callback
+        # If there are no cache hits, it means that DiscordPresence was
+        # not intialized once in the run_cli function and therefore we
+        # can assume that it failed to initialze beacuse of some error.
+        if DiscordPresence.cache_info().hits > 0:
+            discord_cb = DiscordPresence().dc_presence_callback
+        else:
+            discord_cb = None
     else:
         discord_cb = None
 
@@ -267,7 +236,7 @@ def migrate_locallist(file: Path) -> LocalListData:
         new_list.write(file)
         return new_list
     except KeyError:
-        choice = inquirer.confirm( # type: ignore
+        choice = inquirer.confirm(  # type: ignore
             message=f"Can not migrate {file}, should it be delted?",
             default=False,
         ).execute()

@@ -1,6 +1,6 @@
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Tuple
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
