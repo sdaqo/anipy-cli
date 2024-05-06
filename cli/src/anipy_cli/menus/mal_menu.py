@@ -8,7 +8,6 @@ from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
 
-# from anipy_api.seasonal import SeasonalEntry, get_seasonals, update_seasonal
 from anipy_api.locallist import LocalList, LocalListEntry
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
@@ -70,46 +69,6 @@ class MALMenu(MenuBase):
         ]
 
     def add_anime(self):
-        # searches = []
-        # if (
-        #     not self.options.no_season_search
-        #     and input("Search for anime in Season? (y|n): \n>> ") == "y"
-        # ):
-        #     searches = get_season_searches(gogo=False)
-        #
-        # else:
-        #     searches.append(input("Search: "))
-        #
-        # for search in searches:
-        #     if isinstance(search, dict):
-        #         mal_entry = search
-        #
-        #     else:
-        #         print("\nCurrent: ", search)
-        #         temp_search = self.m_class.get_anime(search)
-        #         names = [item["node"]["title"] for item in temp_search]
-        #         print_names(names)
-        #         selected = False
-        #         skip = False
-        #         while selected is False:
-        #             try:
-        #                 sel_index = input("Select show (Number or c for cancel):\n")
-        #                 if sel_index == "c":
-        #                     skip = True
-        #                     break
-        #                 selected = int(sel_index) - 1
-        #             except ValueError:
-        #                 print("Please enter a valid number.")
-        #         if skip:
-        #             continue
-        #         mal_entry = temp_search[selected]
-        #
-        #     self.m_class.update_anime_list(
-        #         mal_entry["node"]["id"], {"status": "watching"}
-        #     )
-        #     self.create_gogo_maps()
-        #
-        # self.print_options()
         self.print_options()
 
         query = inquirer.text( # type: ignore

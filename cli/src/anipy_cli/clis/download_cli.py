@@ -36,49 +36,6 @@ class DownloadCli(CliBase):
         cprint(colors.GREEN, "Downloads are stored in: ", colors.END, str(self.dl_path))
 
     def take_input(self):
-        # is_season_search = False
-        #
-        # searches = []
-        # if (
-        #     not self.options.no_season_search
-        #     and input("Search MyAnimeList for anime in Season? (y|n): \n>> ") == "y"
-        # ):
-        #     searches = get_season_searches()
-        #
-        # else:
-        #     another = "y"
-        #     while another == "y":
-        #         searches.append(input("Search: "))
-        #         another = input("Add another search: (y|n)\n")
-        #
-        # for search in searches:
-        # links = 0
-        # query_class = None
-        # if isinstance(search, dict):
-        #     is_season_search = True
-        #     links = [search["category_url"]]
-        #
-        # else:
-        #     print("\nCurrent: ", search)
-        #     query_class = query(search, self.entry)
-        #     query_class.get_pages()
-        #     links = query_class.get_links()
-        # if links == 0:
-        #     self.exit("no search results")
-        #
-        # if is_season_search:
-        #     self.entry = Entry()
-        #     self.entry.show_name = search["name"]
-        #     self.entry.category_url = search["category_url"]
-        #
-        # else:
-        #     self.entry = query_class.pick_show()
-        #
-        # ep_class = epHandler(self.entry)
-        # ep_list = ep_class.pick_range()
-        # self.show_entries.append(
-        #     {"show_entry": deepcopy(self.entry), "ep_list": deepcopy(ep_list)}
-        # )
         if self.options.search is not None:
             self.anime, self.lang, self.episodes = parse_auto_search(
                 "download", self.options.search

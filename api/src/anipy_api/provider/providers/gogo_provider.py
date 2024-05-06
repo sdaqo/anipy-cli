@@ -106,7 +106,7 @@ class GoGoFilter(BaseFilter):
 class GoGoProvider(BaseProvider):
     """For detailed documentation have a look
     at the [base class][anipy_api.provider.base.BaseProvider].
-    
+
     Attributes:
         NAME: gogoanime
         BASE_URL: https://gogoanime3.co
@@ -116,7 +116,10 @@ class GoGoProvider(BaseProvider):
     NAME: str = "gogoanime"
     BASE_URL: str = "https://gogoanime3.co"
     FILTER_CAPS: FilterCapabilities = (
-        FilterCapabilities.YEAR | FilterCapabilities.SEASON | FilterCapabilities.STATUS
+        FilterCapabilities.YEAR
+        | FilterCapabilities.SEASON
+        | FilterCapabilities.STATUS
+        | FilterCapabilities.NO_QUERY
     )
 
     def get_search(

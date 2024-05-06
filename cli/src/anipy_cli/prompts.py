@@ -1,10 +1,12 @@
+import time
 from typing import TYPE_CHECKING, Optional, List, Tuple
 from InquirerPy import inquirer
-from anipy_api.provider import LanguageTypeEnum
+from anipy_api.provider import BaseProvider, FilterCapabilities, Filters, LanguageTypeEnum, Season
 from anipy_api.anime import Anime
 
 from anipy_cli.util import (
     DotSpinner,
+    get_anime_season,
     get_prefered_providers,
     error,
     parse_episode_ranges,
@@ -18,6 +20,22 @@ if TYPE_CHECKING:
 
 
 def search_show_prompt(mode: str) -> Optional["Anime"]:
+    if not Config().skip_season_search:
+        season_provider = None
+        for p in get_prefered_providers(mode):
+            if p.FILTER_CAPS & (
+                FilterCapabilities.SEASON
+                | FilterCapabilities.YEAR
+                | FilterCapabilities.NO_QUERY
+            ):
+                season_provider = p
+        if season_provider is not None:
+            should_search = inquirer.confirm("Do you want to search in season?", default=False).execute()  # type: ignore
+            if not should_search:
+                print("Hint: you can set `skip_season_search` to `true` in the config to skip this prompt!")
+            else:
+                return season_search_prompt(season_provider)
+
     query = inquirer.text(  # type: ignore
         "Search Anime:",
         long_instruction="To cancel this prompt press ctrl+z",
@@ -37,7 +55,6 @@ def search_show_prompt(mode: str) -> Optional["Anime"]:
                 ]
             )
 
-    print(mode)
     if len(results) == 0:
         error("no search results")
         return search_show_prompt(mode)
@@ -51,6 +68,43 @@ def search_show_prompt(mode: str) -> Optional["Anime"]:
 
     return anime
 
+
+def season_search_prompt(provider: "BaseProvider") -> Optional["Anime"]:
+    year = inquirer.number( # type: ignore
+        message="Enter year:",
+        long_instruction="To skip this prompt press ctrl+z",
+        default=time.localtime().tm_year,
+        mandatory=False
+    ).execute()
+
+    if year is None:
+        return
+
+    season = inquirer.select( # type: ignore
+        message="Select Season:",
+        choices=["Winter", "Spring", "Summer", "Fall"],
+        instruction="The season selected by default is the current season.",
+        long_instruction="To skip this prompt press ctrl+z",
+        default=get_anime_season(time.localtime().tm_mon),
+        mandatory=False,
+    ).execute()
+
+    if season is None:
+        return
+   
+    season = Season[season.upper()]
+
+    filters = Filters(year=[year], season=[season])
+    results = [Anime.from_search_result(provider, r) for r in provider.get_search(query="", filters=filters)]
+
+    anime = inquirer.fuzzy(  # type: ignore
+        message="Select Show:",
+        choices=results,
+        long_instruction="\nS = Anime is available in sub\nD = Anime is available in dub\nTo skip this prompt press ctrl+z",
+        mandatory=False
+    ).execute()
+
+    return anime
 
 def pick_episode_prompt(
     anime: "Anime", lang: LanguageTypeEnum, instruction: str = ""

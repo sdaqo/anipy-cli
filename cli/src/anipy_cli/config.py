@@ -343,6 +343,13 @@ class Config:
         """
         return self._get_value("preferred_type", None, str)
 
+    @property
+    def skip_season_search(self) -> bool:
+        """If this is set to true you will not be prompted if you want 
+        to search in season.
+        """
+        return self._get_value("skip_season_search", False, bool)
+
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
         try:

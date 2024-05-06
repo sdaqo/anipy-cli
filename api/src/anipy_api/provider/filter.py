@@ -79,10 +79,16 @@ class FilterCapabilities(Flag):
     Look [here](https://docs.python.org/3/library/enum.html#enum.Flag) to learn how to use this.
 
     Attributes:
-        YEAR:
-        SEASON:
-        STATUS:
-        MEDIA_TYPE:
+        YEAR: The provider is able to filter by year.
+        SEASON: The provider is able to filter by season.
+        STATUS: The provider is able to filter by status of anime.
+        MEDIA_TYPE: The provider is able to filter by media type of anime.
+        NO_QUERY: The provider accepts a empty query, this is useful if you 
+            want to for example get all anime in a specific season, you do not
+            want to provide a query for that because then you will only get 
+            shown the anime in that specific season that match the query. If a provider
+            supports `NO_QUERY` it means that if you search without query you get all available
+            anime in its database.
         ALL:
     """
 
@@ -90,7 +96,8 @@ class FilterCapabilities(Flag):
     SEASON = auto()
     STATUS = auto()
     MEDIA_TYPE = auto()
-    ALL = YEAR | SEASON | STATUS | MEDIA_TYPE
+    NO_QUERY = auto()
+    ALL = YEAR | SEASON | STATUS | MEDIA_TYPE | NO_QUERY
 
 
 class BaseFilter(ABC):

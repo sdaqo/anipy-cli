@@ -84,14 +84,6 @@ class SeasonalMenu(MenuBase):
         return choices or []
 
     def add_anime(self):
-        # if (
-        #      not self.options.no_season_search
-        #      and input("Search for anime in Season? (y|n): \n>> ") == "y"
-        #  ):
-        #      searches = get_season_searches()
-        # else:
-        #     searches.append(input("Search: "))
-
         anime = search_show_prompt("default")
 
         if anime is None:

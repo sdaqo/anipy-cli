@@ -15,7 +15,11 @@ from typing import (
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
 from anipy_api.player import get_player
-from anipy_api.provider import LanguageTypeEnum, list_providers, get_provider
+from anipy_api.provider import (
+    LanguageTypeEnum,
+    list_providers,
+    get_provider,
+)
 from anipy_api.locallist import LocalListData, LocalListEntry
 from anipy_api.error import LangTypeNotAvailableError
 from InquirerPy import inquirer
@@ -175,6 +179,15 @@ def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase"
 
     return get_player(player, args, discord_cb)
 
+def get_anime_season(month):
+    if 1 <= month <= 3:
+        return "Winter"
+    elif 4 <= month <= 6:
+        return "Spring"
+    elif 7 <= month <= 9:
+        return "Summer"
+    else:
+        return "Fall"
 
 def migrate_locallist(file: Path) -> LocalListData:
     import json
