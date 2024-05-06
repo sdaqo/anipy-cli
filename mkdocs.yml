@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 
-site_name: anipy-cli api docs
+site_name: Documentation for anipy-cli and anipy-api
 site_author: sdaqo
 site_description: >-
-  This is the full Documentation for the api from anipy-cli.
+  This is the full Documentation for the api from anipy-cli and the cli itself.
 
 repo_name: sdaqo/anipy-cli
 repo_url: https://github.com/sdaqo/anipy-cli
@@ -47,20 +47,34 @@ theme:
 
 nav:
   - Home:
-    - Hello World: index.md
-    - Changelog: abc.md
+    - Home: index.md
+    - Availability: availabilty.md
+    - Changelog: changelog.md
   - Getting Started - CLI: /getting-started-cli
   - Getting Started - API: /getting-started-api
-  - Code Reference: reference/
+  - Contributing: /contributing
+  - API Code Reference: reference/
 
 markdown_extensions:
+  - attr_list
+  - def_list
+  - footnotes
+  - admonition
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - toc:
+      permalink: true
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 plugins:
   - search
