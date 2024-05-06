@@ -38,7 +38,7 @@ class MALLocalList(DataClassJsonMixin):
     def write(self, user_id: int):
         config = Config()
         local_list = config._mal_local_user_list_path.with_stem(
-            f"{config._mal_local_user_list_path}_{user_id}"
+            f"{config._mal_local_user_list_path.stem}_{user_id}"
         )
         local_list.write_text(self.to_json())
 
@@ -46,7 +46,7 @@ class MALLocalList(DataClassJsonMixin):
     def read(user_id: int) -> "MALLocalList":
         config = Config()
         local_list = config._mal_local_user_list_path.with_stem(
-            f"{config._mal_local_user_list_path}_{user_id}"
+            f"{config._mal_local_user_list_path.stem}_{user_id}"
         )
 
         if not local_list.is_file():

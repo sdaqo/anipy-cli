@@ -67,7 +67,8 @@ class Config:
         """A list of pairs that define where in the programm which provider
         will be used to look up anime. Configurable areas are as follows:
         default (and history), download (-D), seasonal (-S), binge (-B) and mal
-        (-M) The example will show you how it is done!
+        (-M) The example will show you how it is done! Please note that for seasonal
+        search always the first provider that supports it is used.
 
         For a updated list of providers look here:
 
