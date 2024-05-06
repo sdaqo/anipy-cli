@@ -24,8 +24,6 @@ class CliArgs:
     location: Optional[Path]
     mal_password: Optional[str]
     config: bool
-    refresh_config: bool
-
 
 def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
     parser = argparse.ArgumentParser(
@@ -194,14 +192,6 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         dest="config",
         action="store_true",
         help="Print path to the config file.",
-    )
-
-    info_group.add_argument(
-        "--refresh-config",
-        required=False,
-        dest="refresh_config",
-        action="store_true",
-        help="Populate config file with new options and explainations (keeps manually changed values).",
     )
 
     return CliArgs(**vars(parser.parse_args(args=override_args)))

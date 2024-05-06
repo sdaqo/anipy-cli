@@ -13,6 +13,8 @@ from anipy_cli.discord import DiscordPresence
 def run_cli(override_args: Optional[list[str]] = None):
     args = parse_args(override_args)
     config = Config()
+    # This updates the config, adding new values doc changes and the like.
+    config._create_config()
 
     if config.dc_presence:
         try:
@@ -32,9 +34,6 @@ def run_cli(override_args: Optional[list[str]] = None):
             cprint(colors.RED, "Done")
         except FileNotFoundError:
             error("no history file found")
-        return
-    elif args.refresh_config:
-        config._create_config()
         return
 
     clis_dict = {
