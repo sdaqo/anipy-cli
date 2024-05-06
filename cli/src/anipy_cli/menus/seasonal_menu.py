@@ -19,10 +19,9 @@ from anipy_cli.util import (
     get_configured_player,
     get_download_path,
     lang_prompt,
-    pick_episode_prompt,
-    search_show_prompt,
     migrate_locallist,
 )
+from anipy_cli.prompts import pick_episode_prompt, search_show_prompt
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs
@@ -72,7 +71,7 @@ class SeasonalMenu(MenuBase):
         if self.options.auto_update:
             return [ch.value for ch in choices]
 
-        choices = inquirer.fuzzy(
+        choices = inquirer.fuzzy( # type: ignore
             message="Select Seasonals to catch up to:",
             choices=choices,
             multiselect=True,
@@ -120,7 +119,7 @@ class SeasonalMenu(MenuBase):
             return
 
         entries: List[LocalListEntry] = (
-            inquirer.fuzzy(
+            inquirer.fuzzy( # type: ignore
                 message="Select Seasonals to delete:",
                 choices=seasonals,
                 multiselect=True,
@@ -147,7 +146,7 @@ class SeasonalMenu(MenuBase):
             return
 
         entries: List[LocalListEntry] = (
-            inquirer.fuzzy(
+            inquirer.fuzzy( # type: ignore
                 message="Select Seasonals to delete:",
                 choices=seasonals,
                 multiselect=True,
@@ -164,7 +163,7 @@ class SeasonalMenu(MenuBase):
         if not entries:
             return
 
-        action: str = inquirer.select(
+        action: str = inquirer.select( # type: ignore
             message="Switch to:",
             choices=["Sub", "Dub"],
             long_instruction="To skip this prompt press ctrl+z",

@@ -7,13 +7,12 @@ from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors
 from anipy_cli.config import Config
 from anipy_cli.menus import Menu
+from anipy_cli.prompts import pick_episode_prompt, search_show_prompt
 from anipy_cli.util import (
     DotSpinner,
     get_configured_player,
     lang_prompt,
     parse_auto_search,
-    pick_episode_prompt,
-    search_show_prompt,
     migrate_locallist,
 )
 

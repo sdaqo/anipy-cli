@@ -12,7 +12,6 @@ from anipy_cli.menus import Menu
 from anipy_cli.util import DotSpinner, get_configured_player, migrate_locallist
 
 if TYPE_CHECKING:
-    from anipy_api.history import HistoryEntry
     from anipy_api.provider import ProviderStream
 
     from anipy_cli.arg_parser import CliArgs
@@ -23,7 +22,9 @@ class HistoryCli(CliBase):
         super().__init__(options)
 
         self.player = get_configured_player(self.options.optional_player)
-        self.history_list = LocalList(Config()._history_file_path, migrate_cb=migrate_locallist)
+        self.history_list = LocalList(
+            Config()._history_file_path, migrate_cb=migrate_locallist
+        )
 
         self.anime: Optional[Anime] = None
         self.history_entry: Optional["LocalListEntry"] = None
@@ -40,7 +41,7 @@ class HistoryCli(CliBase):
             print("You have no History, exiting")
             sys.exit(0)
 
-        entry = inquirer.select(
+        entry = inquirer.select( # type: ignore
             message="Select History Entry:",
             choices=history,
             long_instruction="Press Ctrl",

@@ -1,96 +1,26 @@
-import functools
 import sys
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple
+from typing import TYPE_CHECKING, Iterator, List, Literal, NoReturn, Optional, Tuple, Union, overload
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
 from anipy_api.player import get_player
 from anipy_api.provider import LanguageTypeEnum, list_providers, get_provider
-from anipy_api.locallist import LocalList, LocalListData, LocalListEntry
+from anipy_api.locallist import LocalListData, LocalListEntry
 from anipy_api.error import LangTypeNotAvailableError
 from InquirerPy import inquirer
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
 
-from anipy_cli.colors import cinput, color, colors, cprint
+from anipy_cli.colors import color, colors
 from anipy_cli.config import Config
 from anipy_cli.discord import DiscordPresence
+from anipy_cli.prompts import lang_prompt
 
 if TYPE_CHECKING:
     from anipy_api.player import PlayerBase
     from anipy_api.provider import BaseProvider, Episode, ProviderStream
-
-
-def get_season_searches(gogo=True):
-    searches = []
-    selected = []
-    season_year = None
-    season_name = None
-    while not season_year:
-        try:
-            season_year = int(cinput(colors.CYAN, "Season Year: "))
-        except ValueError:
-            print("Please enter a valid year.\n")
-
-    while not season_name:
-        season_name_input = cinput(
-            colors.CYAN, "Season Name (spring|summer|fall|winter): "
-        )
-        if season_name_input.lower() in ["spring", "summer", "fall", "winter"]:
-            season_name = season_name_input
-
-        else:
-            cprint(colors.YELLOW, "Please enter a valid season name.\n")
-
-    with yaspin(
-        text="Fetching seasonals...", spinner=Spinners.dots, color="cyan"
-    ) as spinner:
-        if gogo:
-            anime_in_season = search_in_season_on_gogo(season_year, season_name)
-
-        else:
-            # anime_in_season = MAL().get_seasonal_anime(season_year, season_name)
-            ...
-
-        spinner.ok("✔")
-
-    cprint("Anime found in {} {} Season: ".format(season_year, season_name))
-    cprint(
-        colors.CYAN,
-        "Anime found in ",
-        colors.GREEN,
-        season_year,
-        colors.CYAN,
-        " ",
-        colors.YELLOW,
-        season_name,
-        colors.CYAN,
-        " Season: ",
-    )
-    anime_names = []
-    for anime in anime_in_season:
-        if gogo:
-            anime_names.append(anime["name"])
-
-        else:
-            anime_names.append(anime["node"]["title"])
-
-    print_names(anime_names)
-    selection = cinput(colors.CYAN, "Selection: (e.g. 1, 1  3 or 1-3) \n>> ")
-    if selection.__contains__("-"):
-        selection_range = selection.strip(" ").split("-")
-        for i in range(int(selection_range[0]) - 1, int(selection_range[1]) - 1, 1):
-            selected.append(i)
-
-    else:
-        for i in selection.lstrip(" ").rstrip(" ").split(" "):
-            selected.append(int(i) - 1)
-
-    for value in selected:
-        searches.append(anime_in_season[int(value)])
-    return searches
 
 
 class DotSpinner(Yaspin):
@@ -110,106 +40,27 @@ class DotSpinner(Yaspin):
         self.text = color(*text_and_colors)
 
 
-def search_show_prompt(mode: str) -> Optional["Anime"]:
-    query = inquirer.text(
-        "Search Anime:",
-        long_instruction="To cancel this prompt press ctrl+z",
-        mandatory=False,
-    ).execute()
+@overload
+def error(error: str, fatal: Literal[True]) -> NoReturn: ...
+@overload
+def error(error: str, fatal: Literal[False] = ...) -> None: ...
 
-    if query is None:
-        return None
-
-    with DotSpinner("Searching for ", colors.BLUE, query, "..."):
-        results: List[Anime] = []
-        for provider in get_prefered_providers(mode):
-            results.extend(
-                [
-                    Anime.from_search_result(provider, x)
-                    for x in provider.get_search(query)
-                ]
-            )
-
-    print(mode)
-    if len(results) == 0:
-        error("no search results")
-        return search_show_prompt(mode)
-
-    anime = inquirer.fuzzy(
-        message="Select Show:",
-        choices=results,
-        long_instruction="\nS = Anime is available in sub\nD = Anime is available in dub\nTo skip this prompt press ctrl+z",
-        mandatory=False,
-    ).execute()
-
-    return anime
-
-
-def pick_episode_prompt(
-    anime: "Anime", lang: LanguageTypeEnum, instruction: str = ""
-) -> Optional["Episode"]:
-    with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
-        episodes = anime.get_episodes(lang)
-
-    if not episodes:
-        error(f"No episodes available for {anime.name}")
-        return None
-
-    return inquirer.fuzzy(
-        message="Select Episode:",
-        instruction=instruction,
-        choices=episodes,
-        long_instruction="To skip this prompt press ctrl+z",
-        mandatory=False,
-    ).execute()
-
-
-def pick_episode_range_prompt(
-    anime: "Anime", lang: LanguageTypeEnum
-) -> List["Episode"]:
-    with DotSpinner("Fetching episode list for ", colors.BLUE, anime.name, "..."):
-        episodes = anime.get_episodes(lang)
-
-    if not episodes:
-        error(f"No episodes available for {anime.name}")
-        return []
-
-    res = inquirer.text(
-        message=f"Input Episode Range(s) from episodes {episodes[0]} to {episodes[-1]}:",
-        long_instruction="Type e.g. `1-10 19-20` or `3-4` or `3`\nTo skip this prompt press ctrl+z",
-        mandatory=False,
-    ).execute()
-
-    if res is None:
-        return []
-
-    return parse_episode_ranges(res, episodes)
-
-
-def lang_prompt(anime: "Anime") -> LanguageTypeEnum:
-    config = Config()
-    preferred = (
-        LanguageTypeEnum[config.preferred_type.upper()]
-        if config.preferred_type is not None
-        else None
-    )
-
-    if preferred in anime.languages:
-        return preferred
-
-    if LanguageTypeEnum.DUB not in anime.languages:
-        return LanguageTypeEnum.SUB
-
-    if len(anime.languages) == 2:
-        res = inquirer.confirm("Want to watch in dub?").execute()
-        print("Hint: you can set a default in the config with `preferred_type`!")
-
-        if res:
-            return LanguageTypeEnum.DUB
-        else:
-            return LanguageTypeEnum.SUB
+def error(error: str, fatal: bool = False) -> Union[NoReturn, None]:
+    if not fatal:
+        sys.stderr.write(
+            color(colors.RED, f"anipy-cli: error: ", colors.END, f"{error}\n")
+        )
     else:
-        return next(iter(anime.languages))
+        sys.stderr.write(
+            color(
+                colors.RED,
+                "anipy-cli: fatal error: ",
+                colors.END,
+                f"{error}, exiting\n",
+            )
+        )
+        sys.exit(1)
+
 
 def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
     config = Config()
@@ -257,7 +108,7 @@ def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episod
             error(f"invalid range: {r}")
             continue
             # return pick_episode_range_prompt(anime, dub)
-        
+
         try:
             picked = picked | set(
                 episodes[
@@ -302,7 +153,7 @@ def parse_auto_search(
             )
     if len(results) == 0:
         error(f"no anime found for query {query}", fatal=True)
-    
+
     result = results[0]
     if ltype is None:
         lang = lang_prompt(result)
@@ -338,49 +189,6 @@ def find_closest(episodes: List["Episode"], target: int) -> "Episode":
     return episodes[left]
 
 
-def search_in_season_on_gogo(s_year, s_name):
-    # page = 1
-    # content = True
-    # gogo_anime_season_list = []
-    # while content:
-    #     r = requests.get(
-    #         f"{Config().gogoanime_url}/sub-category/{s_name}-{s_year}-anime",
-    #         params={"page": page},
-    #     )
-    #     soup = BeautifulSoup(r.content, "html.parser")
-    #     wrapper_div = soup.find("div", attrs={"class": "last_episodes"})
-    #     try:
-    #         anime_items = wrapper_div.findAll("li")
-    #         for link in anime_items:
-    #             link_a = link.find("p", attrs={"class": "name"}).find("a")
-    #             name = link_a.get("title")
-    #             gogo_anime_season_list.append(
-    #                 {
-    #                     "name": name,
-    #                     "category_url": "{}{}".format(
-    #                         Config().gogoanime_url, link_a.get("href")
-    #                     ),
-    #                 }
-    #             )
-    #
-    #     except AttributeError:
-    #         content = False
-    #
-    #     page += 1
-    # filtered_list = filter_anime_list_dub_sub(gogo_anime_season_list)
-    #
-    # return filtered_list
-    ...
-
-
-def error(error: str, fatal: bool = False):
-    if not fatal:
-        sys.stderr.write(color(colors.RED, f"anipy-cli: error: ", colors.END, f"{error}\n"))
-    else:
-        sys.stderr.write(color(colors.RED, "anipy-cli: fatal error: ", colors.END, f"{error}, exiting\n"))
-        sys.exit(1)
-
-
 def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase":
     config = Config()
     player = Path(player_override or config.player_path)
@@ -399,12 +207,13 @@ def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase"
     return get_player(player, args, discord_cb)
 
 
-
-def migrate_locallist(file):
+def migrate_locallist(file: Path) -> LocalListData:
     import json
     import re
-    
-    error(f"{file} is in an unsuported format, trying to migrate the old gogoanime entries...")
+
+    error(
+        f"{file} is in an unsuported format, trying to migrate the old gogoanime entries..."
+    )
 
     old_data = json.load(file.open("r"))
     new_list = LocalListData({})
@@ -422,7 +231,7 @@ def migrate_locallist(file):
             identifier = identifier.removesuffix("-dub").removesuffix("-japanese-dub")
             episode = v["ep"]
             unique_id = f"gogoanime:{identifier}"
-            
+
             langs = set()
 
             try:
@@ -443,7 +252,6 @@ def migrate_locallist(file):
                 )
                 continue
 
-
             new_entry = LocalListEntry(
                 provider="gogoanmie",
                 name=name,
@@ -451,7 +259,7 @@ def migrate_locallist(file):
                 episode=episode,
                 language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
                 languages=langs,
-                timestamp=int(time.time())
+                timestamp=int(time.time()),
             )
 
             new_list.data[unique_id] = new_entry
@@ -459,7 +267,7 @@ def migrate_locallist(file):
         new_list.write(file)
         return new_list
     except KeyError:
-        choice = inquirer.confirm(
+        choice = inquirer.confirm( # type: ignore
             message=f"Can not migrate {file}, should it be delted?",
             default=False,
         ).execute()

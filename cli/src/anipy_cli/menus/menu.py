@@ -12,10 +12,10 @@ from anipy_cli.util import (
     DotSpinner,
     error,
     get_download_path,
-    pick_episode_prompt,
-    search_show_prompt,
     migrate_locallist
 )
+from anipy_cli.prompts import pick_episode_prompt, search_show_prompt
+
 
 if TYPE_CHECKING:
     from anipy_api.anime import Anime

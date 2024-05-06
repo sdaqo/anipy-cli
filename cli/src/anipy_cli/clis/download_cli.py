@@ -6,13 +6,12 @@ from anipy_api.download import Downloader
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
+from anipy_cli.prompts import pick_episode_range_prompt, search_show_prompt
 from anipy_cli.util import (
     DotSpinner,
     get_download_path,
     lang_prompt,
     parse_auto_search,
-    pick_episode_range_prompt,
-    search_show_prompt,
 )
 
 if TYPE_CHECKING:
