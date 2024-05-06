@@ -3,6 +3,7 @@ import inspect
 import os
 from pathlib import Path
 from string import Template
+from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
 from appdirs import user_config_dir, user_data_dir
@@ -19,7 +20,7 @@ class Config:
             self._create_config()  # Create config file
 
     @property
-    def user_files_path(self):
+    def user_files_path(self) -> Path:
         """Path to user files, this includes history, seasonals files and more.
 
         You may use `~` or environment vars in your path.
@@ -30,19 +31,19 @@ class Config:
         )
 
     @property
-    def _history_file_path(self):
+    def _history_file_path(self) -> Path:
         return self.user_files_path / "history.json"
 
     @property
-    def _seasonal_file_path(self):
+    def _seasonal_file_path(self) -> Path:
         return self.user_files_path / "seasonals.json"
 
     @property
-    def _mal_local_user_list_path(self):
+    def _mal_local_user_list_path(self) -> Path:
         return self.user_files_path / "mal_list.json"
 
     @property
-    def download_folder_path(self):
+    def download_folder_path(self) -> Path:
         """Path to your download folder/directory.
 
         You may use `~` or environment vars in your path.
@@ -52,7 +53,7 @@ class Config:
         )
 
     @property
-    def seasonals_dl_path(self):
+    def seasonals_dl_path(self) -> Path:
         """Path to your seasonal downloads directory.
 
         You may use `~` or environment vars in your path.
@@ -62,7 +63,7 @@ class Config:
         )
 
     @property
-    def providers(self):
+    def providers(self) -> Dict[str, List[str]]:
         """A list of pairs that define where in the programm which provider
         will be used to look up anime. Configurable areas are as follows:
         default (and history), download (-D), seasonal (-S), binge (-B) and mal
@@ -96,7 +97,7 @@ class Config:
         return defaults
 
     @property
-    def provider_urls(self):
+    def provider_urls(self) -> Dict[str, str]:
         """A list of pairs to override the default urls that providers use.
 
         Examples:
@@ -108,7 +109,7 @@ class Config:
         return self._get_value("provider_urls", {}, dict)
 
     @property
-    def player_path(self):
+    def player_path(self) -> Path:
         """
         Path to your video player.
         For a list of supported players look here:
@@ -130,7 +131,7 @@ class Config:
         return self._get_path_value("player_path", Path("mpv"))
 
     @property
-    def mpv_commandline_options(self):
+    def mpv_commandline_options(self) -> List[str]:
         """Extra commandline arguments for mpv and derivative.
 
         Examples:
@@ -139,7 +140,7 @@ class Config:
         return self._get_value("mpv_commandline_options", ["--keep-open=no"], list)
 
     @property
-    def vlc_commandline_options(self):
+    def vlc_commandline_options(self) -> List[str]:
         """Extra commandline arguments for vlc.
 
         Examples:
@@ -148,7 +149,7 @@ class Config:
         return self._get_value("vlc_commandline_options", [], list)
 
     @property
-    def reuse_mpv_window(self):
+    def reuse_mpv_window(self) -> bool:
         """DEPRECATED This option was deprecated in 3.0.0, please use `mpv-
         controlled` in the `player_path` instead!
 
@@ -161,7 +162,7 @@ class Config:
         return self._get_value("reuse_mpv_window", False, bool)
 
     @property
-    def ffmpeg_hls(self):
+    def ffmpeg_hls(self) -> bool:
         """Always use ffmpeg to download m3u8 playlists instead of the internal
         downloader.
 
@@ -170,7 +171,7 @@ class Config:
         return self._get_value("ffmpeg_hls", False, bool)
 
     @property
-    def remux_to(self):
+    def remux_to(self) -> Optional[str]:
         """
         Remux resulting download to a specific container using ffmpeg.
         You can use about any conatainer supported by ffmpeg: `.your-container`.
@@ -184,7 +185,7 @@ class Config:
         return self._get_value("remux_to", None, str)
 
     @property
-    def download_name_format(self):
+    def download_name_format(self) -> str:
         """
         Specify the name format of a download, available fields are:
             show_name: name of the show/anime
@@ -210,26 +211,26 @@ class Config:
         value = self._get_value(
             "download_name_format", "{show_name}_{episode_number}", str
         )
-        return Path(value).with_suffix("").__str__()
+        return str(Path(value).with_suffix(""))
 
     @property
-    def dc_presence(self):
+    def dc_presence(self) -> bool:
         """Activate discord presence, only works with discord open."""
         return self._get_value("dc_presence", False, bool)
 
     @property
-    def auto_open_dl_defaultcli(self):
+    def auto_open_dl_defaultcli(self) -> bool:
         """This automatically opens the downloaded file if downloaded through
         the `d` option in the default cli."""
         return self._get_value("auto_open_dl_defaultcli", True, bool)
 
     @property
-    def mal_user(self):
+    def mal_user(self) -> str:
         """Your MyAnimeList username for MAL mode."""
         return self._get_value("mal_user", "", str)
 
     @property
-    def mal_password(self):
+    def mal_password(self) -> str:
         """Your MyAnimeList password for MAL mode.
 
         The password may also be passed via the `--mal-password <pwd>`
@@ -238,7 +239,7 @@ class Config:
         return self._get_value("mal_password", "", str)
 
     @property
-    def mal_ignore_tag(self):
+    def mal_ignore_tag(self) -> str:
         """All anime in your MyAnimeList with this tag will be ignored by
         anipy-cli.
 
@@ -249,7 +250,7 @@ class Config:
         return self._get_value("mal_ignore_tag", "ignore", str)
 
     @property
-    def mal_dub_tag(self):
+    def mal_dub_tag(self) -> str:
         """All anime in your MyAnimeList with this tag will be switched over to
         dub in MAL mode, if the dub is available. If you do not specify a tag,
         anipy-cli will use `preferred_type` to choose dub or sub in MAL mode.
@@ -261,7 +262,7 @@ class Config:
         return self._get_value("mal_dub_tag", "dub", str)
 
     @property
-    def mal_tags(self):
+    def mal_tags(self) -> List[str]:
         """Custom tags to tag all anime in your MyAnimeList that are
         altered/added by anipy-cli.
 
@@ -273,7 +274,7 @@ class Config:
         return self._get_value("mal_tags", [], list)
 
     @property
-    def mal_status_categories(self):
+    def mal_status_categories(self) -> List[str]:
         """Status categories of your MyAnimeList that anipy-cli uses for
         downloading/watching new episodes listing anime in your list and stuff
         like that. Normally the watching catagory should be enough as you would
@@ -284,7 +285,7 @@ class Config:
         return self._get_value("mal_status_categories", ["watching"], list)
 
     @property
-    def mal_mapping_min_similarity(self):
+    def mal_mapping_min_similarity(self) -> float:
         """
         The minumum similarity between titles when mapping anime in MAL mode.
         This is a decimal number from 0 - 1, 1 meaning 100% match and 0 meaning all characters are different.
@@ -299,7 +300,7 @@ class Config:
         return self._get_value("mal_mapping_min_similarity", 0.8, float)
 
     @property
-    def mal_mapping_use_alternatives(self):
+    def mal_mapping_use_alternatives(self) -> bool:
         """Check alternative names when mapping anime.
 
         If turned on this will slow down mapping but provide better
@@ -308,7 +309,7 @@ class Config:
         return self._get_value("mal_mapping_use_alternatives", True, bool)
 
     @property
-    def mal_mapping_use_filters(self):
+    def mal_mapping_use_filters(self) -> bool:
         """Use filters (e.g. year, season etc.) of providers to narrow down the
         results, this will lead to more accurate mapping, but provide wrong
         results if the filters of the provider do not work properly or if anime
@@ -316,7 +317,7 @@ class Config:
         return self._get_value("mal_mapping_use_filters", True, bool)
 
     @property
-    def auto_sync_mal_to_seasonals(self):
+    def auto_sync_mal_to_seasonals(self) -> bool:
         """DEPRECATED This option was deprecated in 3.0.0, please consider
         using the `--mal-sync-seasonals` cli option in compination with `-M`
         instead.
@@ -326,11 +327,11 @@ class Config:
         return self._get_value("auto_sync_mal_to_seasonals", False, bool)
 
     @property
-    def auto_map_mal_to_gogo(self):
+    def auto_map_mal_to_gogo(self) -> bool:
         return self._get_value("auto_map_mal_to_gogo", False, bool)
 
     @property
-    def preferred_type(self):
+    def preferred_type(self) -> Optional[str]:
         """Specify which anime types (dub or sub) you prefer. If this is
         specified, you will not be asked to switch to dub anymore. You can
         however always switch to either in the menu.
@@ -352,7 +353,7 @@ class Config:
         except:
             return fallback
 
-    def _get_value(self, key: str, fallback, _type: object):
+    def _get_value(self, key: str, fallback, _type: object) -> Any:
         value = self._yaml_conf.get(key, fallback)
         if isinstance(value, _type):
             return value
@@ -389,7 +390,7 @@ class Config:
 
     @staticmethod
     @functools.lru_cache
-    def _read_config():
+    def _read_config() -> Tuple[Path, dict[str, Any]]:
         config_file = Config._get_config_path() / "config.yaml"
         try:
             with config_file.open("r") as conf:
