@@ -16,7 +16,6 @@ class CliArgs:
     delete: bool
     quality: Optional[Union[str, int]]
     ffmpeg: bool
-    no_season_search: bool
     auto_update: bool
     mal_sync_seasonals: bool
     optional_player: Optional[str]
@@ -124,16 +123,6 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         dest="ffmpeg",
         action="store_true",
         help="Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader",
-    )
-
-    options_group.add_argument(
-        "-o",
-        "--no-seas-search",
-        required=False,
-        dest="no_season_search",
-        action="store_true",
-        help="Turn off search in season. "
-        "Disables prompting if GoGoAnime is to be searched for anime in specific season.",
     )
 
     options_group.add_argument(
