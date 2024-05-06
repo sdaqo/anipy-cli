@@ -89,7 +89,7 @@ class FilterCapabilities(Flag):
             shown the anime in that specific season that match the query. If a provider
             supports `NO_QUERY` it means that if you search without query you get all available
             anime in its database.
-        ALL:
+        ALL: The provider supports all of the capabilities above.
     """
 
     YEAR = auto()

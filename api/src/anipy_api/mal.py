@@ -94,7 +94,7 @@ class MALUser(DataClassJsonMixin):
 
     id: int
     name: str
-    picture: str
+    picture: Optional[str] = None
 
 
 @dataclass
@@ -127,9 +127,9 @@ class MALAlternativeTitles(DataClassJsonMixin):
         synonyms: Other synonymous names
     """
 
-    en: Optional[str]
-    ja: Optional[str]
-    synonyms: Optional[List[str]]
+    en: Optional[str] = None
+    ja: Optional[str] = None
+    synonyms: Optional[List[str]] = None
 
 
 @dataclass
