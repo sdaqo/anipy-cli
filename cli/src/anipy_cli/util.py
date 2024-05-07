@@ -160,10 +160,10 @@ def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase"
     config = Config()
     player = Path(player_override or config.player_path)
     if config.dc_presence:
-        # If there are no cache hits, it means that DiscordPresence was
+        # If the cache size is 0, it means that DiscordPresence was
         # not intialized once in the run_cli function and therefore we
-        # can assume that it failed to initialze beacuse of some error.
-        if DiscordPresence.cache_info().hits > 0:
+        # can assume that it failed to initialize beacuse of some error.
+        if DiscordPresence.cache_info().currsize > 0:
             discord_cb = DiscordPresence().dc_presence_callback
         else:
             discord_cb = None

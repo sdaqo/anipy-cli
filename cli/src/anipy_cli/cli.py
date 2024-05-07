@@ -5,7 +5,7 @@ from pypresence.exceptions import DiscordNotFound
 from anipy_cli.arg_parser import parse_args
 from anipy_cli.clis import *
 from anipy_cli.colors import colors, cprint
-from anipy_cli.util import error
+from anipy_cli.util import error, DotSpinner
 from anipy_cli.config import Config
 from anipy_cli.discord import DiscordPresence
 
@@ -17,13 +17,17 @@ def run_cli(override_args: Optional[list[str]] = None):
     config._create_config()
 
     if config.dc_presence:
-        try:
-            _ = DiscordPresence()
-            cprint(colors.GREEN, "Initialized Discord Presence Client")
-        except DiscordNotFound:
-            error("Discord is not opened, can't initialize Discord Presence")
-        except ConnectionError:
-            error("Can't Connect to discord, can't initialize Discord Presence")
+        with DotSpinner("Intializing Discord Presence...") as s:
+            try:
+                DiscordPresence()
+                s.set_text(colors.GREEN, "Initialized Discord Presence")
+                s.ok("✔")
+            except DiscordNotFound:
+                s.set_text(colors.RED, "Discord is not opened, can't initialize Discord Presence")
+                s.fail("✘")
+            except ConnectionError:
+                s.set_text(colors.RED, "Can't Connect to discord, can't initialize Discord Presence")
+                s.fail("✘")
 
     if args.config:
         print(config._config_file)

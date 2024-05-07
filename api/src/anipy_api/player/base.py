@@ -10,15 +10,14 @@ if TYPE_CHECKING:
     from anipy_api.provider import ProviderStream, ProviderInfoResult
 
 class PlayCallback(Protocol):
-    """Callback that gets called upon playing a title, it accepts some information about the anime.
+    """Callback that gets called upon playing a title, it accepts a anime and the stream being played.
     """
 
-    def __call__(self, media_title: str, anime_info: "ProviderInfoResult"): 
+    def __call__(self, anime: "Anime", stream: "ProviderStream"): 
         """
         Args:
-            media_title: Media title argument passed to the callback. 
-                This is the title that is shown in the players.
-            anime_info: Anime info argument passed to the callback.
+            anime: The anime argument passed to the callback. This is the currently playing anime.
+            stream: The stream argument passed to the callback. That is the currently playing stream.
         """
         ...
 
@@ -69,7 +68,7 @@ class PlayerBase(ABC):
 
     def _call_play_callback(self, anime: "Anime", stream: "ProviderStream"):
         if self._play_callback:
-            self._play_callback(self._get_media_title(anime, stream), anime.get_info())
+            self._play_callback(anime, stream)
 
     @staticmethod
     def _get_media_title(anime: "Anime", stream: "ProviderStream"):
