@@ -64,13 +64,13 @@ class Config:
 
     @property
     def providers(self) -> Dict[str, List[str]]:
-        """A list of pairs that define where in the programm which provider
-        will be used to look up anime. Configurable areas are as follows:
+        """A list of pairs defining which providers will search for anime
+        in different parts of the program. Configurable areas are as follows:
         default (and history), download (-D), seasonal (-S), binge (-B) and mal
         (-M) The example will show you how it is done! Please note that for seasonal
         search always the first provider that supports it is used.
 
-        For a updated list of providers look here:
+        For an updated list of providers look here:
 
         Supported providers (as of $version): gogoanime
 
