@@ -3,7 +3,7 @@ import inspect
 import os
 from pathlib import Path
 from string import Template
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import yaml
 from appdirs import user_config_dir, user_data_dir
@@ -346,9 +346,7 @@ class Config:
 
     @property
     def skip_season_search(self) -> bool:
-        """If this is set to true you will not be prompted if you want 
-        to search in season.
-        """
+        """If this is set to true you will not be prompted to search in season."""
         return self._get_value("skip_season_search", False, bool)
 
     def _get_path_value(self, key: str, fallback: Path) -> Path:
@@ -361,7 +359,7 @@ class Config:
         except:
             return fallback
 
-    def _get_value(self, key: str, fallback, _type: object) -> Any:
+    def _get_value(self, key: str, fallback, _type: Type) -> Any:
         value = self._yaml_conf.get(key, fallback)
         if isinstance(value, _type):
             return value
