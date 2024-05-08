@@ -44,8 +44,12 @@ class HistoryCli(CliBase):
         entry = inquirer.select( # type: ignore
             message="Select History Entry:",
             choices=history,
-            long_instruction="Press Ctrl",
+            long_instruction="To cancel this prompt press ctrl+z",
+            mandatory=False
         ).execute()
+
+        if entry is None:
+            sys.exit(0)
 
         self.history_entry = entry
         self.anime = Anime.from_local_list_entry(entry)
