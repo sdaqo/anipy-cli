@@ -34,3 +34,7 @@ Feel free to - please check out [Getting Started - API](/getting-started-api) fo
 #### Heavily inspired by https://github.com/pystardust/ani-cli/
 
 #### All contributors for contributing
+
+<a href="https://github.com/sdaqo/anipy-cli/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=sdaqo/anipy-cli" alt="anipy-cli contributors" title="anipy-cli contributors" width="800"/>
+</a>

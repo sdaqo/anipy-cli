@@ -102,7 +102,7 @@ def get_download_path(
     anime_name = Downloader._get_valid_pathname(anime.name)
     filename = config.download_name_format.format(
         show_name=anime_name,
-        episode_number=stream.episode,
+        episode_number=str(stream.episode).zfill(2),
         quality=stream.resolution,
         provider=anime.provider.NAME,
         type=stream.language,
