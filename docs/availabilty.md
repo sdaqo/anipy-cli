@@ -8,18 +8,18 @@ Version: 3.0.0
 
 ### Providers
 
-| Name      | Identifier | URL                                            | Filter capabilties [^1]        | Season Search [^2] | Code Reference                                                                                                                 |
-| --------- | ---------- | ---------------------------------------------- | ------------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| GoGoAnime | gogoanime  | [https://gogoanime3.co](https://gogoanime3.co) | YEAR, SEASON, STATUS, NO_QUERY | Yes                | [GoGoProvider](reference/anipy_api/provider/providers/gogo_provider.md#anipy_api.provider.providers.gogo_provider.GoGoProvider) |
+| Identifier | URL                                            | Filter capabilties [^1]        | Season Search [^2] | Notes                                                                                                                                                            | Reference                                                               |
+| ---------- | ---------------------------------------------- | ------------------------------ | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| gogoanime  | [https://gogoanime3.co](https://gogoanime3.co) | YEAR, SEASON, STATUS, NO_QUERY | Yes                | [Hover Me]("If possible search for the japanese name instead of the english one, some entries in gogo do not have their alternative names configured properly.") | [GoGoProvider][anipy_api.provider.providers.gogo_provider.GoGoProvider] |
 
 ### Players
 
-| Name             | Recognised Stem(s) [^3] | Project URL(s)                                                                                                           | Sub-process | Code Reference                                                                                                           |
-| ---------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------ |
-| mpv              | mpv, mpvnet             | [https://mpv.io/](https://mpv.io/), [https://github.com/mpvnet-player/mpv.net](https://github.com/mpvnet-player/mpv.net) | Yes         | [Mpv](reference/anipy_api/player/players/mpv.md#anipy_api.player.players.mpv.Mpv)                                         |
-| Syncplay         | syncplay                | [https://syncplay.pl/](https://syncplay.pl/])                                                                            | Yes         | [Syncplay](reference/anipy_api/player/players/syncplay.md#anipy_api.player.players.syncplay.Syncplay)                     |
-| VLC Media Player | vlc                     | [https://www.videolan.org/vlc/](https://www.videolan.org/vlc/)                                                           | Yes         | [Vlc](reference/anipy_api/player/players/vlc.md#anipy_api.player.players.vlc.Vlc)                                         |
-| Mpv Controlled   | mpv-controlled          | [https://github.com/jaseg/python-mpv](https://github.com/jaseg/python-mpv)                                               | No          | [MpvControllable](reference/anipy_api/player/players/mpv_control.md#anipy_api.player.players.mpv_control.MpvControllable) |
+| Name             | Recognised Stem(s) [^3] | Project URL(s)                                                                                                           | Sub-process | Code Reference                                                          |
+| ---------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------- | ----------------------------------------------------------------------- |
+| mpv              | mpv, mpvnet             | [https://mpv.io/](https://mpv.io/), [https://github.com/mpvnet-player/mpv.net](https://github.com/mpvnet-player/mpv.net) | Yes         | [Mpv][anipy_api.player.players.mpv.Mpv]                                 |
+| Syncplay         | syncplay                | [https://syncplay.pl/](https://syncplay.pl/])                                                                            | Yes         | [Syncplay][anipy_api.player.players.syncplay.Syncplay]                  |
+| VLC Media Player | vlc                     | [https://www.videolan.org/vlc/](https://www.videolan.org/vlc/)                                                           | Yes         | [Vlc][anipy_api.player.players.vlc.Vlc]                                 |
+| Mpv Controlled   | mpv-controlled          | [https://github.com/jaseg/python-mpv](https://github.com/jaseg/python-mpv)                                               | No          | [MpvControllable][anipy_api.player.players.mpv_control.MpvControllable] |
 
 [^1]:
     Look here for infos about this
@@ -32,4 +32,4 @@ Version: 3.0.0
 
 [^3]:
     The Stem is the end part of a path without it's suffix e.g. the stem of
-    `/usr/bin/mpv.exe` <sub>(wow this is cursed)</sub> is `mpv`.
+    `mpv.exe` is `mpv`.

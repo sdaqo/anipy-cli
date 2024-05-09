@@ -19,7 +19,7 @@ theme:
         name: Switch to light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
+      primary: black
       accent: indigo
       toggle:
         icon: material/toggle-switch
@@ -32,31 +32,37 @@ theme:
         icon: material/toggle-switch-off
         name: Switch to system preference
   features:
-    # - navigation.instant
-    # - navigation.instant.progress
     - navigation.footer
     - navigation.indexes
-
     - navigation.tabs
     - navigation.sections
-    # - navigation.tabs.sticky
     - navigation.top
     - navigation.tracking
-
     - content.code.annotate
+    - content.tooltips
 
 nav:
   - Home:
-    - Home: index.md
+    - Index: index.md
     - Availability: availabilty.md
     - Changelog: changelog.md
   - Getting Started - CLI: getting-started-cli/index.md
-  - Getting Started - API: getting-started-api/index.md
+  - Getting Started - API: 
+    - Index: getting-started-api/index.md
+    - Examples:
+      - 1. Provider: getting-started-api/examples/provider.md
+      - 2. Anime: getting-started-api/examples/anime.md
+      - 3. Downloader: getting-started-api/examples/downloader.md
+      - 4. Player: getting-started-api/examples/player.md
+      - 5. MyAnimeList: getting-started-api/examples/myanimelist.md
+      - 6. Local List: getting-started-api/examples/locallist.md
+      - 7. Other Stuff: getting-started-api/examples/other.md
   - Contributing: contributing/index.md
   - API Code Reference: reference/
 
 markdown_extensions:
   - attr_list
+  - md_in_html
   - def_list
   - footnotes
   - admonition

@@ -10,7 +10,7 @@
 - [FFmpeg](https://ffmpeg.org/download.html) (optional, but again, I recommend it because without it you can not use some features)
 
 ### Options to install
-- Recommended: Via pipx 
+- **Recommended: Via pipx**
     ```
     pipx install anipy-cli
     ```
