@@ -43,7 +43,7 @@ class Downloader:
     def __init__(
         self,
         progress_callback: Optional[ProgressCallback] = None,
-        info_callback: Optional[InfoCallback] = None
+        info_callback: Optional[InfoCallback] = None,
     ):
         """__init__ of Downloader.
 
@@ -51,7 +51,9 @@ class Downloader:
             progress_callback: A callback with an percentage argument, that gets called on download progress.
             info_callback: A callback with an message argument, that gets called on certain events.
         """
-        self._progress_callback: ProgressCallback = progress_callback or (lambda percentage: None)
+        self._progress_callback: ProgressCallback = progress_callback or (
+            lambda percentage: None
+        )
         self._info_callback: InfoCallback = info_callback or (lambda message: None)
 
         self._session = requests.Session()

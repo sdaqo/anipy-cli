@@ -70,7 +70,7 @@ class SeasonalMenu(MenuBase):
         if self.options.auto_update:
             return [ch.value for ch in choices]
 
-        choices = inquirer.fuzzy( # type: ignore
+        choices = inquirer.fuzzy(  # type: ignore
             message="Select Seasonals to catch up to:",
             choices=choices,
             multiselect=True,
@@ -110,7 +110,7 @@ class SeasonalMenu(MenuBase):
             return
 
         entries: List[LocalListEntry] = (
-            inquirer.fuzzy( # type: ignore
+            inquirer.fuzzy(  # type: ignore
                 message="Select Seasonals to delete:",
                 choices=seasonals,
                 multiselect=True,
@@ -137,7 +137,7 @@ class SeasonalMenu(MenuBase):
             return
 
         entries: List[LocalListEntry] = (
-            inquirer.fuzzy( # type: ignore
+            inquirer.fuzzy(  # type: ignore
                 message="Select Seasonals to delete:",
                 choices=seasonals,
                 multiselect=True,
@@ -154,7 +154,7 @@ class SeasonalMenu(MenuBase):
         if not entries:
             return
 
-        action: str = inquirer.select( # type: ignore
+        action: str = inquirer.select(  # type: ignore
             message="Switch to:",
             choices=["Sub", "Dub"],
             long_instruction="To skip this prompt press ctrl+z",

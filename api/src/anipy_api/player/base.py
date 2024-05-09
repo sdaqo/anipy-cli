@@ -7,13 +7,13 @@ from anipy_api.error import PlayerError
 
 if TYPE_CHECKING:
     from anipy_api.anime import Anime
-    from anipy_api.provider import ProviderStream, ProviderInfoResult
+    from anipy_api.provider import ProviderStream
+
 
 class PlayCallback(Protocol):
-    """Callback that gets called upon playing a title, it accepts a anime and the stream being played.
-    """
+    """Callback that gets called upon playing a title, it accepts a anime and the stream being played."""
 
-    def __call__(self, anime: "Anime", stream: "ProviderStream"): 
+    def __call__(self, anime: "Anime", stream: "ProviderStream"):
         """
         Args:
             anime: The anime argument passed to the callback. This is the currently playing anime.
@@ -21,15 +21,16 @@ class PlayCallback(Protocol):
         """
         ...
 
+
 class PlayerBase(ABC):
     """The abstract base class for all the players.
-    
-    To list available players or get one by name, use 
-    [list_players][anipy_api.player.player.list_players] 
+
+    To list available players or get one by name, use
+    [list_players][anipy_api.player.player.list_players]
     and [get_player][anipy_api.player.player.get_player] respectively.
     """
 
-    def __init__(self, play_callback: Optional[PlayCallback] = None): 
+    def __init__(self, play_callback: Optional[PlayCallback] = None):
         """__init__ of PlayerBase
 
         Args:
@@ -48,7 +49,7 @@ class PlayerBase(ABC):
         ...
 
     @abstractmethod
-    def play_file(self, path: str): 
+    def play_file(self, path: str):
         """Play any file.
 
         Args:
@@ -57,12 +58,12 @@ class PlayerBase(ABC):
         ...
 
     @abstractmethod
-    def wait(self): 
+    def wait(self):
         """Wait for the player to stop/close."""
         ...
 
     @abstractmethod
-    def kill_player(self): 
+    def kill_player(self):
         """Kill the player."""
         ...
 
@@ -76,8 +77,8 @@ class PlayerBase(ABC):
 
 
 class SubProcessPlayerBase(PlayerBase):
-    """The base class for all players that are run through a sub process. 
-    
+    """The base class for all players that are run through a sub process.
+
     For documentation of the other functions look at the [base class][anipy_api.player.base.PlayerBase].
 
     Example:
@@ -104,10 +105,11 @@ class SubProcessPlayerBase(PlayerBase):
 
     Attributes:
         player_args_template: A list of arguments that are passed to the player command.
-            Fields that are replaced are `{media_title}` and `{stream_url}`. 
+            Fields that are replaced are `{media_title}` and `{stream_url}`.
             This is only important if you are implementing your own player.
 
     """
+
     player_args_template: List[str]
 
     @abstractmethod
@@ -115,7 +117,7 @@ class SubProcessPlayerBase(PlayerBase):
         self,
         player_path: str,
         extra_args: List[str],
-        play_callback: Optional[PlayCallback] = None
+        play_callback: Optional[PlayCallback] = None,
     ):
         """__init__ for SubProcessPlayerBase
 

@@ -6,6 +6,7 @@ from anipy_api.provider.providers import __all__
 if TYPE_CHECKING:
     from anipy_api.provider import BaseProvider
 
+
 def list_providers() -> Iterator[Type["BaseProvider"]]:
     """List all available providers.
 
@@ -30,13 +31,15 @@ def list_providers() -> Iterator[Type["BaseProvider"]]:
                     url_override = config.provider_urls.get(i.NAME, None)
                     yield i(url_override)
         ```
-        
+
     """
     for p in __all__:
         yield globals()[p]
 
 
-def get_provider(name: str, base_url_override: Optional[str] = None) -> Optional["BaseProvider"]:
+def get_provider(
+    name: str, base_url_override: Optional[str] = None
+) -> Optional["BaseProvider"]:
     """Get a provider by name.
 
     Arguments:

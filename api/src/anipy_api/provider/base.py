@@ -1,4 +1,3 @@
-import functools
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
@@ -77,7 +76,7 @@ class ProviderStream:
 
     Attributes:
         url: The url of the stream.
-        resolution: The resolution (actually the width) 
+        resolution: The resolution (actually the width)
             of the stream. (e.g. 1080, 720 etc.)
         episode: The episode this stream is from
         language: The language type this stream is in
@@ -94,12 +93,12 @@ class ProviderStream:
 
 class BaseProvider(ABC):
     """
-    This is the abstract base class for all the providers, 
-    use this as documentation to know how to use the providers. 
-    
-    To get a list of Providers use the 
-    [list_providers][anipy_api.provider.provider.list_providers] function 
-    or use [get_provider][anipy_api.provider.provider.get_provider] to get a 
+    This is the abstract base class for all the providers,
+    use this as documentation to know how to use the providers.
+
+    To get a list of Providers use the
+    [list_providers][anipy_api.provider.provider.list_providers] function
+    or use [get_provider][anipy_api.provider.provider.get_provider] to get a
     provider by name.
 
     Attributes:
@@ -140,7 +139,7 @@ class BaseProvider(ABC):
 
         Args:
             query: The search query
-            filters: The filter object, check FILTER_CAPS 
+            filters: The filter object, check FILTER_CAPS
                 to see which filters this provider supports
 
         Returns:
@@ -172,7 +171,7 @@ class BaseProvider(ABC):
             A list of episodes
 
         Raises:
-            LangTypeNotAvailableError: Raised when the language provided is 
+            LangTypeNotAvailableError: Raised when the language provided is
                 not available for the anime
         """
         ...
@@ -192,7 +191,7 @@ class BaseProvider(ABC):
             A list of video streams
 
         Raises:
-            LangTypeNotAvailableError: Raised when the language provided is 
+            LangTypeNotAvailableError: Raised when the language provided is
                 not available for the anime
         """
         ...

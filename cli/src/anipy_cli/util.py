@@ -61,7 +61,7 @@ def error(error: str, fatal: Literal[False] = ...) -> None: ...
 def error(error: str, fatal: bool = False) -> Union[NoReturn, None]:
     if not fatal:
         sys.stderr.write(
-            color(colors.RED, f"anipy-cli: error: ", colors.END, f"{error}\n")
+            color(colors.RED, "anipy-cli: error: ", colors.END, f"{error}\n")
         )
     else:
         sys.stderr.write(
@@ -179,6 +179,7 @@ def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase"
 
     return get_player(player, args, discord_cb)
 
+
 def get_anime_season(month):
     if 1 <= month <= 3:
         return "Winter"
@@ -188,6 +189,7 @@ def get_anime_season(month):
         return "Summer"
     else:
         return "Fall"
+
 
 def migrate_locallist(file: Path) -> LocalListData:
     import json

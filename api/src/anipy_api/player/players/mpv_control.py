@@ -8,18 +8,19 @@ if TYPE_CHECKING:
 
 
 class MpvControllable(PlayerBase):
-    """This player can be controlled and it also does not close if 
+    """This player can be controlled and it also does not close if
     the media is changed, the window stays open until `kill_player` is called.
 
     For detailed documentation about the functions have a look at the [base class][anipy_api.player.base.PlayerBase].
 
-    If you want to use the extra features of the controllable player look 
+    If you want to use the extra features of the controllable player look
     [here](https://github.com/jaseg/python-mpv?tab=readme-ov-file#usage)
     for documentation (or use your LSP), the python-mpv mpv instance lives in the mpv attribute.
 
     Attributes:
         mpv: The python-mpv mpv instance
     """
+
     def __init__(self, play_callback: Optional[PlayCallback] = None):
         """__init__ of MpvControllable
 
@@ -30,12 +31,13 @@ class MpvControllable(PlayerBase):
 
         # I know this is a crime, but pytohn-mpv loads the so/dll on import and this will break all the stuff for people that do not have that.
         from mpv import MPV
+
         self._mpv = MPV(
             input_default_bindings=True,
             input_vo_keyboard=True,
             force_window="immediate",
             title="MPV - Receiving Links from anipy-cli",
-            osc=True
+            osc=True,
         )
 
     def play_title(self, anime: "Anime", stream: "ProviderStream"):

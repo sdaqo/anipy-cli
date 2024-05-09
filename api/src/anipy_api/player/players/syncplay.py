@@ -7,13 +7,19 @@ class Syncplay(SubProcessPlayerBase):
 
     For detailed documentation about the functions and arguments have a look at the [base class][anipy_api.player.base.SubProcessPlayerBase].
     """
-    def __init__(self, player_path: str, extra_args: List[str] = [], play_callback: Optional[PlayCallback] = None):
+
+    def __init__(
+        self,
+        player_path: str,
+        extra_args: List[str] = [],
+        play_callback: Optional[PlayCallback] = None,
+    ):
         """__init__ of Syncplay
 
         Args:
-            player_path: 
-            extra_args: 
-            play_callback: 
+            player_path:
+            extra_args:
+            play_callback:
         """
         self.player_args_template = [
             "--",
@@ -23,7 +29,5 @@ class Syncplay(SubProcessPlayerBase):
         ]
 
         super().__init__(
-            player_path=player_path,
-            extra_args=extra_args,
-            play_callback=play_callback
+            player_path=player_path, extra_args=extra_args, play_callback=play_callback
         )

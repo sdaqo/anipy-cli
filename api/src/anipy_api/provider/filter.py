@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
 from enum import Enum, Flag, auto
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from requests import Request
@@ -75,7 +75,7 @@ class Filters:
 
 
 class FilterCapabilities(Flag):
-    """A Flag class that describes the filter capabilities of a provider. 
+    """A Flag class that describes the filter capabilities of a provider.
     Look [here](https://docs.python.org/3/library/enum.html#enum.Flag) to learn how to use this.
 
     Attributes:
@@ -83,9 +83,9 @@ class FilterCapabilities(Flag):
         SEASON: The provider is able to filter by season.
         STATUS: The provider is able to filter by status of anime.
         MEDIA_TYPE: The provider is able to filter by media type of anime.
-        NO_QUERY: The provider accepts a empty query, this is useful if you 
+        NO_QUERY: The provider accepts a empty query, this is useful if you
             want to for example get all anime in a specific season, you do not
-            want to provide a query for that because then you will only get 
+            want to provide a query for that because then you will only get
             shown the anime in that specific season that match the query. If a provider
             supports `NO_QUERY` it means that if you search without query you get all available
             anime in its database.
@@ -126,7 +126,7 @@ class BaseFilter(ABC):
             value = getattr(filters, filter.name)
             if not value:
                 continue
-            
+
             try:
                 func = self.__getattribute__(f"_apply_{filter.name}")
                 func(value)

@@ -17,12 +17,12 @@ def list_players() -> Iterator[Type["PlayerBase"]]:
     """
     for p in __all__:
         yield globals()[p]
-        
+
 
 def get_player(
     player: Path,
     extra_args: List[str] = [],
-    play_callback: Optional["PlayCallback"] = None
+    play_callback: Optional["PlayCallback"] = None,
 ) -> "PlayerBase":
     """Get a fitting player class based on a player path.
 
@@ -45,6 +45,8 @@ def get_player(
     player_class = player_dict.get(Path(player.name).stem, None)
 
     if player_class:
-        return player_class(str(player), extra_args=extra_args, play_callback=play_callback)
+        return player_class(
+            str(player), extra_args=extra_args, play_callback=play_callback
+        )
     else:
         raise PlayerError(f"Specified player `{player}` is unknown")
