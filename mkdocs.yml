@@ -50,9 +50,9 @@ nav:
     - Home: index.md
     - Availability: availabilty.md
     - Changelog: changelog.md
-  - Getting Started - CLI: /getting-started-cli
-  - Getting Started - API: /getting-started-api
-  - Contributing: /contributing
+  - Getting Started - CLI: getting-started-cli/index.md
+  - Getting Started - API: getting-started-api/index.md
+  - Contributing: contributing/index.md
   - API Code Reference: reference/
 
 markdown_extensions:

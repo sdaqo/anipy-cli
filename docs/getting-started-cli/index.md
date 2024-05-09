@@ -6,7 +6,7 @@
 - [Python](https://www.python.org/downloads/) (3.9 higher, this is not tested ;) but I think that this is the case)
 - [Pip](https://pip.pypa.io/en/stable/installation/)
 - [Pipx](https://pipx.pypa.io/stable/installation/) (optional, but very much recommended, I mean it, get this)
-- [mpv](https://mpv.io/) or any other player listed [here](availabilty/#current-version), but I strongly recommended mpv or a derivative because it **✨ just works ✨**.
+- [mpv](https://mpv.io/) or any other player listed [here](../availabilty.md/#current-version), but I strongly recommended mpv or a derivative because it **✨ just works ✨**.
 - [FFmpeg](https://ffmpeg.org/download.html) (optional, but again, I recommend it because without it you can not use some features)
 
 ### Options to install
@@ -61,7 +61,7 @@
     There are several options:
 
     - Always login through the cli prompt.
-    - Set username and password in the [config](/getting-started-cli/#config)
+    - Set username and password in the [config](#config)
     - Set the username in the config and pass the password via the `--mal-password` option.
 
     #### Anime Tagging in MyAnimeList
@@ -99,7 +99,7 @@
     The `b` option is the same as `s` but in the other direction.
 
     The `x` downloads **all** of the episodes instead of only the non-watched ones. This is pretty nice
-    if you want to sync all the anime to your local disk, just run it once in a while (maybe even with [Auto Update](/getting-started-cli/#auto-update)) to
+    if you want to sync all the anime to your local disk, just run it once in a while (maybe even with [Auto Update](#auto-update)) to
     keep everything in-sync, it will skip already downloaded ones.
 
     ### Auto Update
