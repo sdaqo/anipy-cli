@@ -1,7 +1,7 @@
 ## Representing an anime
 
 On the last page we learned how to use the provider to search for anime. This
-page covers the [Anime](anipy_api.anime.Anime) class, it always represents a
+page covers the [Anime][anipy_api.anime.Anime] class, it always represents a
 single anime.
 
 ## How to get an Anime object
