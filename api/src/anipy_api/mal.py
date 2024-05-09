@@ -599,15 +599,14 @@ class MyAnimeListAdapter:
             self.provider.FILTER_CAPS & FilterCapabilities.YEAR
             and mal_anime.start_season is not None
         ):
-            provider_filters.year = [mal_anime.start_season.year]
+            provider_filters.year = mal_anime.start_season.year
 
         if (
             self.provider.FILTER_CAPS & FilterCapabilities.SEASON
             and mal_anime.start_season is not None
         ):
-            provider_filters.season = [
-                Season[mal_anime.start_season.season.value.upper()]
-            ]
+            provider_filters.season = Season[mal_anime.start_season.season.value.upper()]
+            
 
         if self.provider.FILTER_CAPS & FilterCapabilities.MEDIA_TYPE:
             if mal_anime.media_type not in (
@@ -619,7 +618,7 @@ class MyAnimeListAdapter:
                 else:
                     m_type = mal_anime.media_type
 
-                provider_filters.media_type = [MediaType[m_type.value.upper()]]
+                provider_filters.media_type = MediaType[m_type.value.upper()]
 
         results: Set[ProviderSearchResult] = set()
         for title in mal_titles:

@@ -71,22 +71,22 @@ class GoGoFilter(BaseFilter):
     def _apply_query(self, query: str):
         self._request.params.update({"keyword": query})
 
-    def _apply_year(self, year: List[int]):
-        self._request.params.update({"year[]": year})
+    def _apply_year(self, year: int):
+        self._request.params.update({"year[]": [year]})
 
-    def _apply_season(self, season: List[Season]):
+    def _apply_season(self, season: Season):
         mapping = {v: k.lower() for k, v in Season._member_map_.items()}
         self._request.params.update(
-            {"season[]": self._map_enum_members(season, mapping)}
+            {"season[]": [mapping[season]]}
         )
 
-    def _apply_status(self, status: List[Status]):
+    def _apply_status(self, status: Status):
         mapping = {v: k.capitalize() for k, v in Status._member_map_.items()}
         self._request.params.update(
-            {"status[]": self._map_enum_members(status, mapping)}
+            {"status[]": [mapping[status]]}
         )
 
-    def _apply_media_type(self, media_type: List[MediaType]):
+    def _apply_media_type(self, media_type: MediaType):
         # I have found that gogo's media type filter is not very accurate
         # will leave the code here for the time they fix it...
         # mapping = {

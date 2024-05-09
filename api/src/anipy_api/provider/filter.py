@@ -68,10 +68,10 @@ class Filters:
         media_type: The media type to filter by
     """
 
-    year: Optional[List[int]] = None
-    season: Optional[List[Season]] = None
-    status: Optional[List[Status]] = None
-    media_type: Optional[List[MediaType]] = None
+    year: Optional[int] = None
+    season: Optional[Season] = None
+    status: Optional[Status] = None
+    media_type: Optional[MediaType] = None
 
 
 class FilterCapabilities(Flag):
@@ -108,23 +108,16 @@ class BaseFilter(ABC):
     def _apply_query(self, query: str): ...
 
     @abstractmethod
-    def _apply_year(self, year: List[int]): ...
+    def _apply_year(self, year: int): ...
 
     @abstractmethod
-    def _apply_season(self, season: List[Season]): ...
+    def _apply_season(self, season: Season): ...
 
     @abstractmethod
-    def _apply_status(self, status: List[Status]): ...
+    def _apply_status(self, status: Status): ...
 
     @abstractmethod
-    def _apply_media_type(self, media_type: List[MediaType]): ...
-
-    @staticmethod
-    def _map_enum_members(values, map):
-        mapped = []
-        for m in values:
-            mapped.append(map[m])
-        return mapped
+    def _apply_media_type(self, media_type: MediaType): ...
 
     def apply(self, query: str, filters: Filters) -> "Request":
         self._apply_query(query)

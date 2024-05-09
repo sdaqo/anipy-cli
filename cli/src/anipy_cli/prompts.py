@@ -94,7 +94,7 @@ def season_search_prompt(provider: "BaseProvider") -> Optional["Anime"]:
    
     season = Season[season.upper()]
 
-    filters = Filters(year=[year], season=[season])
+    filters = Filters(year=year, season=season)
     results = [Anime.from_search_result(provider, r) for r in provider.get_search(query="", filters=filters)]
 
     anime = inquirer.fuzzy(  # type: ignore
