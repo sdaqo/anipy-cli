@@ -126,8 +126,11 @@ class BaseFilter(ABC):
             value = getattr(filters, filter.name)
             if not value:
                 continue
-
-            func = self.__getattribute__(f"_apply_{filter.name}")
-            func(value)
+            
+            try:
+                func = self.__getattribute__(f"_apply_{filter.name}")
+                func(value)
+            except ValueError:
+                pass
 
         return self._request
