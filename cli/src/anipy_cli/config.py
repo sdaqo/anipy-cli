@@ -70,7 +70,7 @@ class Config:
         (-M) The example will show you how it is done! Please note that for seasonal
         search always the first provider that supports it is used.
 
-        For an updated list of providers look here:
+        For an updated list of providers look here: https://sdaqo.github.io/anipy-cli/availabilty
 
         Supported providers (as of $version): gogoanime
 
@@ -113,7 +113,7 @@ class Config:
     def player_path(self) -> Path:
         """
         Path to your video player.
-        For a list of supported players look here:
+        For a list of supported players look here: https://sdaqo.github.io/anipy-cli/availabilty
 
         Supported players (as of $version): mpv, vlc, syncplay, mpvnet, mpv-controlled
 

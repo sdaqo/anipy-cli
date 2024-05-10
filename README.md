@@ -23,10 +23,10 @@ As one wise man once said:
 
 We do not have a .exe but we have pipx: `pipx install anipy-cli`
 
-Check out [Getting Started - CLI](/getting-started-cli) for better instructions and advice!
+Check out [Getting Started - CLI](https://sdaqo.github.io/anipy-cli/getting-started-cli) for better instructions and advice!
 
 ## You want to use the api for your project?
-Feel free to - please check out [Getting Started - API](/getting-started-api) for instructions
+Feel free to - please check out [Getting Started - API](https://sdaqo.github.io/anipy-cli/getting-started-api) for instructions
 
 
 ## :heart: Credits! 
