@@ -57,7 +57,6 @@ nav:
       - 4. Player: getting-started-api/examples/player.md
       - 5. MyAnimeList: getting-started-api/examples/myanimelist.md
       - 6. Local List: getting-started-api/examples/locallist.md
-      - 7. Other Stuff: getting-started-api/examples/other.md
   - Contributing: contributing/index.md
   - API Code Reference: reference/
 

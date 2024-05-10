@@ -525,8 +525,6 @@ class MyAnimeListAdapter:
             A MALAnime object if adapting was successfull
         """
         results = self.mal.get_search(anime.name)
-        if use_alternative_names:
-            anime.get_info().alternative_names
 
         best_anime = None
         best_ratio = 0
@@ -534,17 +532,18 @@ class MyAnimeListAdapter:
             titles_mal = {i.title}
             titles_provider = {anime.name}
 
-            if use_alternative_names and i.alternative_titles is not None:
-                titles_mal |= {
-                    t
-                    for t in [i.alternative_titles.ja, i.alternative_titles.en]
-                    if t is not None
-                }
-                titles_mal |= (
-                    set(i.alternative_titles.synonyms)
-                    if i.alternative_titles.synonyms is not None
-                    else set()
-                )
+            if use_alternative_names:
+                if i.alternative_titles is not None:
+                    titles_mal |= {
+                        t
+                        for t in [i.alternative_titles.ja, i.alternative_titles.en]
+                        if t is not None
+                    }
+                    titles_mal |= (
+                        set(i.alternative_titles.synonyms)
+                        if i.alternative_titles.synonyms is not None
+                        else set()
+                    )
                 titles_provider |= set(anime.get_info().alternative_names or [])
 
             ratio = self._find_best_ratio(titles_mal, titles_provider)
