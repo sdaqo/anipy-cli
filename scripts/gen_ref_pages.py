@@ -5,6 +5,7 @@ from pathlib import Path
 import mkdocs_gen_files
 
 nav = mkdocs_gen_files.Nav()
+nav["API Code Reference"] = "index.md"
 
 root = Path(__file__).parent.parent
 src = root / "api" / "src"
@@ -32,4 +33,4 @@ for path in sorted(src.rglob("*.py")):
     mkdocs_gen_files.set_edit_path(full_doc_path, path.relative_to(root))
 
 with mkdocs_gen_files.open("reference/SUMMARY.md", "w") as nav_file:  
-    nav_file.writelines(nav.build_literate_nav())  
+    nav_file.writelines(nav.build_literate_nav())

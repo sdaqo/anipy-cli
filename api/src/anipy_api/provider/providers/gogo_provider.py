@@ -53,7 +53,9 @@ def _get_enc_keys(session: Session, embed_url: str):
 
 
 def _aes_encrypt(data, key, iv):
-    pad = lambda s: s + chr(len(s) % 16) * (16 - len(s) % 16)
+    def pad(s):
+        return s + chr(len(s) % 16) * (16 - len(s) % 16)
+
     return base64.b64encode(
         AES.new(key, AES.MODE_CBC, iv=iv).encrypt(pad(data).encode())
     )
@@ -71,22 +73,18 @@ class GoGoFilter(BaseFilter):
     def _apply_query(self, query: str):
         self._request.params.update({"keyword": query})
 
-    def _apply_year(self, year: List[int]):
-        self._request.params.update({"year[]": year})
+    def _apply_year(self, year: int):
+        self._request.params.update({"year[]": [year]})
 
-    def _apply_season(self, season: List[Season]):
+    def _apply_season(self, season: Season):
         mapping = {v: k.lower() for k, v in Season._member_map_.items()}
-        self._request.params.update(
-            {"season[]": self._map_enum_members(season, mapping)}
-        )
+        self._request.params.update({"season[]": [mapping[season]]})
 
-    def _apply_status(self, status: List[Status]):
+    def _apply_status(self, status: Status):
         mapping = {v: k.capitalize() for k, v in Status._member_map_.items()}
-        self._request.params.update(
-            {"status[]": self._map_enum_members(status, mapping)}
-        )
+        self._request.params.update({"status[]": [mapping[status]]})
 
-    def _apply_media_type(self, media_type: List[MediaType]):
+    def _apply_media_type(self, media_type: MediaType):
         # I have found that gogo's media type filter is not very accurate
         # will leave the code here for the time they fix it...
         # mapping = {
@@ -133,7 +131,7 @@ class GoGoProvider(BaseProvider):
         soup = BeautifulSoup(res.content, "html.parser")
 
         pages = soup.find_all("a", attrs={"data-page": re.compile(r"^ *\d[\d ]*$")})
-        if pages == None:
+        if pages is None:
             raise BeautifulSoupLocationError("page count", search_url)
 
         pages = [x.get("data-page") for x in pages]
@@ -146,7 +144,7 @@ class GoGoProvider(BaseProvider):
             res = request_page(self.session, req)
             soup = BeautifulSoup(res.content, "html.parser")
             links = soup.find_all("p", attrs={"class": "name"})
-            if links == None:
+            if links is None:
                 raise BeautifulSoupLocationError("query results", res.url)
 
             for link in links:
@@ -162,14 +160,14 @@ class GoGoProvider(BaseProvider):
                 if identifier.endswith("-dub"):
                     identifier = identifier.removesuffix("-dub")
                     identifier = identifier.removesuffix("-japanese-dub")
-                    if not identifier in results:
+                    if identifier not in results:
                         results[identifier] = ProviderSearchResult(
                             identifier, name, languages={LanguageTypeEnum.DUB}
                         )
                     else:
                         results[identifier].languages.add(LanguageTypeEnum.DUB)
                 else:
-                    if not identifier in results:
+                    if identifier not in results:
                         results[identifier] = ProviderSearchResult(
                             identifier, name, languages={LanguageTypeEnum.SUB}
                         )
@@ -231,7 +229,7 @@ class GoGoProvider(BaseProvider):
         soup = BeautifulSoup(res.text, "html.parser")
         info_body = soup.find("div", {"class": "anime_info_body_bg"})
 
-        if info_body == None:
+        if info_body is None:
             raise BeautifulSoupLocationError("anime info", res.url)
 
         name = info_body.find("h1").text  # type: ignore
@@ -284,7 +282,7 @@ class GoGoProvider(BaseProvider):
         soup = BeautifulSoup(res.content, "html.parser")
         link = soup.find("a", {"class": "active", "rel": "1"})
 
-        if link == None:
+        if link is None:
             raise BeautifulSoupLocationError("embed url", res.url)
 
         embed_url: str = link["data-video"]
@@ -295,7 +293,7 @@ class GoGoProvider(BaseProvider):
         soup = BeautifulSoup(res.content, "html.parser")
         crypto = soup.find("script", {"data-name": "episode"})
 
-        if crypto == None:
+        if crypto is None:
             raise BeautifulSoupLocationError("crypto", res.url)
 
         crypto = crypto["data-value"]

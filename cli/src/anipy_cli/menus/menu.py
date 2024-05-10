@@ -8,12 +8,7 @@ from anipy_api.locallist import LocalList
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
-from anipy_cli.util import (
-    DotSpinner,
-    error,
-    get_download_path,
-    migrate_locallist
-)
+from anipy_cli.util import DotSpinner, error, get_download_path, migrate_locallist
 from anipy_cli.prompts import pick_episode_prompt, search_show_prompt
 
 
@@ -38,7 +33,9 @@ class Menu(MenuBase):
         self.stream = stream
         self.player = player
         self.lang = stream.language
-        self.history_list = LocalList(Config()._history_file_path, migrate_cb=migrate_locallist)
+        self.history_list = LocalList(
+            Config()._history_file_path, migrate_cb=migrate_locallist
+        )
 
     @property
     def menu_options(self) -> List["MenuOption"]:
@@ -122,7 +119,7 @@ class Menu(MenuBase):
             error(f"this anime does not have a {to_change} version")
             return
 
-        if not self.stream.episode in self.anime.get_episodes(to_change):
+        if self.stream.episode not in self.anime.get_episodes(to_change):
             error(
                 f"the current episode ({self.stream.episode}) is not available in {to_change}, not switching..."
             )

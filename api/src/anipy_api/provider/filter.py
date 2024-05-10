@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
 from enum import Enum, Flag, auto
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from requests import Request
@@ -68,14 +68,14 @@ class Filters:
         media_type: The media type to filter by
     """
 
-    year: Optional[List[int]] = None
-    season: Optional[List[Season]] = None
-    status: Optional[List[Status]] = None
-    media_type: Optional[List[MediaType]] = None
+    year: Optional[int] = None
+    season: Optional[Season] = None
+    status: Optional[Status] = None
+    media_type: Optional[MediaType] = None
 
 
 class FilterCapabilities(Flag):
-    """A Flag class that describes the filter capabilities of a provider. 
+    """A Flag class that describes the filter capabilities of a provider.
     Look [here](https://docs.python.org/3/library/enum.html#enum.Flag) to learn how to use this.
 
     Attributes:
@@ -83,9 +83,9 @@ class FilterCapabilities(Flag):
         SEASON: The provider is able to filter by season.
         STATUS: The provider is able to filter by status of anime.
         MEDIA_TYPE: The provider is able to filter by media type of anime.
-        NO_QUERY: The provider accepts a empty query, this is useful if you 
+        NO_QUERY: The provider accepts a empty query, this is useful if you
             want to for example get all anime in a specific season, you do not
-            want to provide a query for that because then you will only get 
+            want to provide a query for that because then you will only get
             shown the anime in that specific season that match the query. If a provider
             supports `NO_QUERY` it means that if you search without query you get all available
             anime in its database.
@@ -108,23 +108,16 @@ class BaseFilter(ABC):
     def _apply_query(self, query: str): ...
 
     @abstractmethod
-    def _apply_year(self, year: List[int]): ...
+    def _apply_year(self, year: int): ...
 
     @abstractmethod
-    def _apply_season(self, season: List[Season]): ...
+    def _apply_season(self, season: Season): ...
 
     @abstractmethod
-    def _apply_status(self, status: List[Status]): ...
+    def _apply_status(self, status: Status): ...
 
     @abstractmethod
-    def _apply_media_type(self, media_type: List[MediaType]): ...
-
-    @staticmethod
-    def _map_enum_members(values, map):
-        mapped = []
-        for m in values:
-            mapped.append(map[m])
-        return mapped
+    def _apply_media_type(self, media_type: MediaType): ...
 
     def apply(self, query: str, filters: Filters) -> "Request":
         self._apply_query(query)
@@ -134,7 +127,10 @@ class BaseFilter(ABC):
             if not value:
                 continue
 
-            func = self.__getattribute__(f"_apply_{filter.name}")
-            func(value)
+            try:
+                func = self.__getattribute__(f"_apply_{filter.name}")
+                func(value)
+            except ValueError:
+                pass
 
         return self._request

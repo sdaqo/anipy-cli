@@ -74,7 +74,7 @@ class Anime:
         """Get a list of episodes from the Anime.
 
         Args:
-            lang: Language type that determines if episodes are searched 
+            lang: Language type that determines if episodes are searched
                 for the dub or sub version of the Anime. Use the `languages`
                 attribute to get supported languages for this Anime.
 
@@ -105,7 +105,7 @@ class Anime:
         Args:
             episode: The episode to get the stream for
             lang: Language type that determines if streams are searched for
-                the dub or sub version of the Anime. Use the `languages` 
+                the dub or sub version of the Anime. Use the `languages`
                 attribute to get supported languages for this Anime.
             preferred_quality: This may be a integer (e.g. 1080, 720 etc.)
                 or the string "worst" or "best".
@@ -140,7 +140,7 @@ class Anime:
         Args:
             episode: The episode to get the streams for
             lang: Language type that determines if streams are searched for
-                the dub or sub version of the Anime. Use the `languages` 
+                the dub or sub version of the Anime. Use the `languages`
                 attribute to get supported languages for this Anime.
 
         Returns:
@@ -152,7 +152,9 @@ class Anime:
         return streams
 
     def __repr__(self) -> str:
-        available_langs = "/".join([l.value.capitalize()[0] for l in self.languages])
+        available_langs = "/".join(
+            [lang.value.capitalize()[0] for lang in self.languages]
+        )
         return f"{self.name} ({available_langs})"
 
     def __hash__(self) -> int:

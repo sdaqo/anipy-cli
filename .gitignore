@@ -9,7 +9,9 @@ user_files/
 anipy_cli/config_personal.py
 pypi.sh
 .idea/
+site/
 *.pyc
+.ruff_cache/
 
 # VSCode
 .vscode/

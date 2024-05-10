@@ -356,7 +356,7 @@ class Config:
             # But because pathlib doesn't have expandvars(), we resort
             # to using the os module inside the Path constructor
             return Path(os.path.expandvars(path)).expanduser()
-        except:
+        except RuntimeError:
             return fallback
 
     def _get_value(self, key: str, fallback, _type: Type) -> Any:
@@ -381,7 +381,7 @@ class Config:
                 if doc:
                     # Add docstrings
                     doc = Template(doc).safe_substitute(version=__version__)
-                    doc = "\n".join([f"# {l}" for l in doc.split("\n")])
+                    doc = "\n".join([f"# {line}" for line in doc.split("\n")])
                     dump = dump + doc + "\n"
 
                 val = self.__getattribute__(attribute)

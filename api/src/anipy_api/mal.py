@@ -103,7 +103,7 @@ class MALMyListStatus(DataClassJsonMixin):
     accompanies [MALAnime][anipy_api.mal.MALAnime].
 
     Attributes:
-        num_episodes_watched: Watched episodes, this number may exceed 
+        num_episodes_watched: Watched episodes, this number may exceed
             that of the `num_episodes` in [MALAnime][anipy_api.mal.MALAnime]
             as it can be abitrarily large.
         tags: List of tags associated with the anime
@@ -161,7 +161,7 @@ class MALAnime(DataClassJsonMixin):
         num_episodes: Number of episodes the anime has, if unknown it is 0
         alternative_titles: Alternative titles for an anime
         start_season: Season/Year the anime started in
-        my_list_status: If the anime is in the user's list, 
+        my_list_status: If the anime is in the user's list,
             this holds the information of the list status
     """
 
@@ -203,8 +203,8 @@ class MyAnimeList:
     Attributes:
         API_BASE: The base url of the api (https://api.myanimelist.net/v2)
         CLIENT_ID: The client being used to access the api
-        RESPONSE_FIELDS: Corresponds to fields of MALAnime object 
-            (read [here](https://myanimelist.net/apiconfig/references/api/v2#section/Common-parameters) 
+        RESPONSE_FIELDS: Corresponds to fields of MALAnime object
+            (read [here](https://myanimelist.net/apiconfig/references/api/v2#section/Common-parameters)
             for explaination)
     """
 
@@ -292,7 +292,7 @@ class MyAnimeList:
         Args:
             query: Search query
             limit: The amount of results per page
-            pages: The amount of pages to return, 
+            pages: The amount of pages to return,
                 note the total number of results is limit times pages
 
         Returns:
@@ -355,7 +355,7 @@ class MyAnimeList:
             status: Updated status of the anime
             watched_episodes: Updated watched episodes
             tags: Updated list of tags, note that this **ovewrites** the already
-                existing tags, if you want to retain the old ones you have to merge 
+                existing tags, if you want to retain the old ones you have to merge
                 the old ones with the new ones yourself.
 
         Returns:
@@ -515,7 +515,7 @@ class MyAnimeListAdapter:
 
         Args:
             anime: The anime to adapt from
-            minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1, 
+            minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1,
                 1 meaning the names are identical 0 meaning there are no identical charachters whatsoever.
                 If it is not met the function will return None.
             use_alternative_names: Use alternative names for matching, this may yield a higher chance of finding
@@ -525,8 +525,6 @@ class MyAnimeListAdapter:
             A MALAnime object if adapting was successfull
         """
         results = self.mal.get_search(anime.name)
-        if use_alternative_names:
-            anime.get_info().alternative_names
 
         best_anime = None
         best_ratio = 0
@@ -534,17 +532,18 @@ class MyAnimeListAdapter:
             titles_mal = {i.title}
             titles_provider = {anime.name}
 
-            if use_alternative_names and i.alternative_titles is not None:
-                titles_mal |= {
-                    t
-                    for t in [i.alternative_titles.ja, i.alternative_titles.en]
-                    if t is not None
-                }
-                titles_mal |= (
-                    set(i.alternative_titles.synonyms)
-                    if i.alternative_titles.synonyms is not None
-                    else set()
-                )
+            if use_alternative_names:
+                if i.alternative_titles is not None:
+                    titles_mal |= {
+                        t
+                        for t in [i.alternative_titles.ja, i.alternative_titles.en]
+                        if t is not None
+                    }
+                    titles_mal |= (
+                        set(i.alternative_titles.synonyms)
+                        if i.alternative_titles.synonyms is not None
+                        else set()
+                    )
                 titles_provider |= set(anime.get_info().alternative_names or [])
 
             ratio = self._find_best_ratio(titles_mal, titles_provider)
@@ -566,26 +565,29 @@ class MyAnimeListAdapter:
         use_filters: bool = True,
         use_alternative_names: bool = True,
     ) -> Optional[Anime]:
-        """Adapt an anime from a [MALAnime][anipy_api.mal.MALAnime] to a provider [Anime][anipy_api.anime.Anime]. 
+        """Adapt an anime from a [MALAnime][anipy_api.mal.MALAnime] to a provider [Anime][anipy_api.anime.Anime].
         This uses [Levenshtein Distance](https://en.wikipedia.org/wiki/Levenshtein_distance) to calculate the similarity of names.
 
         Args:
             mal_anime: The mal anime to adapt from
-            minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1, 
-                1 meaning the names are identical 0 meaning there are no identical charachters whatsoever. 
+            minimum_similarity_ratio: The minimum accepted similarity ratio. This should be a number from 0-1,
+                1 meaning the names are identical 0 meaning there are no identical charachters whatsoever.
                 If it is not met the function will return None.
             use_filters: Use filters for the provider to cut down on possible wrong results, do note that this will take more time.
             use_alternative_names: Use alternative names for matching, this may yield a higher chance of finding a match but takes more time.
 
         Returns:
             A Anime object if adapting was successfull
-            
+
         """
         mal_titles = {mal_anime.title}
         if use_alternative_names and mal_anime.alternative_titles is not None:
             mal_titles |= {
                 t
-                for t in [mal_anime.alternative_titles.ja, mal_anime.alternative_titles.en]
+                for t in [
+                    mal_anime.alternative_titles.ja,
+                    mal_anime.alternative_titles.en,
+                ]
                 if t is not None
             }
             mal_titles |= (
@@ -599,14 +601,14 @@ class MyAnimeListAdapter:
             self.provider.FILTER_CAPS & FilterCapabilities.YEAR
             and mal_anime.start_season is not None
         ):
-            provider_filters.year = [mal_anime.start_season.year]
+            provider_filters.year = mal_anime.start_season.year
 
         if (
             self.provider.FILTER_CAPS & FilterCapabilities.SEASON
             and mal_anime.start_season is not None
         ):
-            provider_filters.season = [
-                Season[mal_anime.start_season.season.value.upper()]
+            provider_filters.season = Season[
+                mal_anime.start_season.season.value.upper()
             ]
 
         if self.provider.FILTER_CAPS & FilterCapabilities.MEDIA_TYPE:
@@ -619,7 +621,7 @@ class MyAnimeListAdapter:
                 else:
                     m_type = mal_anime.media_type
 
-                provider_filters.media_type = [MediaType[m_type.value.upper()]]
+                provider_filters.media_type = MediaType[m_type.value.upper()]
 
         results: Set[ProviderSearchResult] = set()
         for title in mal_titles:

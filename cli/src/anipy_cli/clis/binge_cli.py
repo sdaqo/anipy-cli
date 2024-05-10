@@ -6,12 +6,13 @@ from anipy_api.locallist import LocalList
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
-from anipy_cli.prompts import pick_episode_range_prompt, search_show_prompt, lang_prompt, parse_auto_search
-from anipy_cli.util import (
-    DotSpinner,
-    get_configured_player,
-    migrate_locallist
+from anipy_cli.prompts import (
+    pick_episode_range_prompt,
+    search_show_prompt,
+    lang_prompt,
+    parse_auto_search,
 )
+from anipy_cli.util import DotSpinner, get_configured_player, migrate_locallist
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs
@@ -22,7 +23,9 @@ class BingeCli(CliBase):
         super().__init__(options)
 
         self.player = get_configured_player(self.options.optional_player)
-        self.history_list = LocalList(Config()._history_file_path, migrate_cb=migrate_locallist)
+        self.history_list = LocalList(
+            Config()._history_file_path, migrate_cb=migrate_locallist
+        )
 
         self.anime = None
         self.episodes = None

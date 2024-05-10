@@ -23,10 +23,16 @@ def run_cli(override_args: Optional[list[str]] = None):
                 s.set_text(colors.GREEN, "Initialized Discord Presence")
                 s.ok("✔")
             except DiscordNotFound:
-                s.set_text(colors.RED, "Discord is not opened, can't initialize Discord Presence")
+                s.set_text(
+                    colors.RED,
+                    "Discord is not opened, can't initialize Discord Presence",
+                )
                 s.fail("✘")
             except ConnectionError:
-                s.set_text(colors.RED, "Can't Connect to discord, can't initialize Discord Presence")
+                s.set_text(
+                    colors.RED,
+                    "Can't Connect to discord, can't initialize Discord Presence",
+                )
                 s.fail("✘")
 
     if args.config:

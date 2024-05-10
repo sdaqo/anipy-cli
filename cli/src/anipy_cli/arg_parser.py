@@ -24,6 +24,7 @@ class CliArgs:
     mal_password: Optional[str]
     config: bool
 
+
 def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
     parser = argparse.ArgumentParser(
         description="Play Animes from online anime providers locally or download them, and much more.",

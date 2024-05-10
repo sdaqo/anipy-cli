@@ -71,7 +71,7 @@ class MALMenu(MenuBase):
     def add_anime(self):
         self.print_options()
 
-        query = inquirer.text( # type: ignore
+        query = inquirer.text(  # type: ignore
             "Search Anime:",
             long_instruction="To cancel this prompt press ctrl+z",
             mandatory=False,
@@ -83,7 +83,7 @@ class MALMenu(MenuBase):
         with DotSpinner("Searching for ", colors.BLUE, query, "..."):
             results = self.mal.get_search(query)
 
-        anime = inquirer.fuzzy( # type: ignore
+        anime = inquirer.fuzzy(  # type: ignore
             message="Select Show:",
             choices=[Choice(value=r, name=self._format_mal_anime(r)) for r in results],
             transformer=lambda x: [e.split("|")[-1].strip() for e in x],
@@ -105,7 +105,7 @@ class MALMenu(MenuBase):
             mylist = self.mal_proxy.get_list()
 
         entries = (
-            inquirer.fuzzy( # type: ignore
+            inquirer.fuzzy(  # type: ignore
                 message="Select Seasonals to delete:",
                 choices=[
                     Choice(value=e, name=self._format_mal_anime(e)) for e in mylist
@@ -149,7 +149,7 @@ class MALMenu(MenuBase):
             error("your list is empty")
             return
 
-        inquirer.fuzzy( # type: ignore
+        inquirer.fuzzy(  # type: ignore
             message="View your List",
             choices=mylist,
             mandatory=False,
@@ -167,7 +167,7 @@ class MALMenu(MenuBase):
             ]
 
         entries = (
-            inquirer.fuzzy( # type: ignore
+            inquirer.fuzzy(  # type: ignore
                 message="Select Anime to change tags of:",
                 choices=mylist,
                 multiselect=True,
@@ -209,7 +209,7 @@ class MALMenu(MenuBase):
             error("no tags to configure, check your config")
             return
 
-        tags: List[str] = inquirer.select( # type: ignore
+        tags: List[str] = inquirer.select(  # type: ignore
             message="Select tags to add/remove:",
             choices=choices,
             multiselect=True,
@@ -224,7 +224,7 @@ class MALMenu(MenuBase):
         if not tags:
             return
 
-        action: str = inquirer.select( # type: ignore
+        action: str = inquirer.select(  # type: ignore
             message="Choose which Action to apply:",
             choices=["Add", "Remove"],
             long_instruction="To skip this prompt press ctrl+z",
@@ -250,7 +250,7 @@ class MALMenu(MenuBase):
     def download(self, all: bool = False):
         picked = self._choose_latest(all=all)
         config = Config()
-        total_eps = sum([len(e) for a, m, l, e in picked])
+        total_eps = sum([len(e) for a, m, lang, e in picked])
         if total_eps == 0:
             print("Nothing to download, returning...")
             return
@@ -303,7 +303,7 @@ class MALMenu(MenuBase):
 
     def binge_latest(self):
         picked = self._choose_latest()
-        total_eps = sum([len(e) for a, m, l, e in picked])
+        total_eps = sum([len(e) for a, m, lang, e in picked])
         if total_eps == 0:
             print("Nothing to watch, returning...")
             return
@@ -418,7 +418,7 @@ class MALMenu(MenuBase):
                 mylist.pop(i)
 
         if not (all or self.options.auto_update):
-            choices = inquirer.fuzzy( # type: ignore
+            choices = inquirer.fuzzy(  # type: ignore
                 message="Select shows to catch up to:",
                 choices=[
                     Choice(value=e, name=self._format_mal_anime(e)) for e in mylist
@@ -601,7 +601,7 @@ class MALMenu(MenuBase):
 
         for f in failed:
             cprint("Manually mapping ", colors.BLUE, f.name)
-            query = inquirer.text( # type: ignore
+            query = inquirer.text(  # type: ignore
                 "Search Anime:",
                 long_instruction="To skip this prompt press ctrl+z",
                 mandatory=False,
@@ -613,7 +613,7 @@ class MALMenu(MenuBase):
             with DotSpinner("Searching for ", colors.BLUE, query, "..."):
                 results = self.mal.get_search(query)
 
-            anime = inquirer.fuzzy( # type: ignore
+            anime = inquirer.fuzzy(  # type: ignore
                 message="Select Show:",
                 choices=[
                     Choice(value=r, name=self._format_mal_anime(r)) for r in results
