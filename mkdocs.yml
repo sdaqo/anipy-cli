@@ -10,7 +10,7 @@ repo_url: https://github.com/sdaqo/anipy-cli
 
 theme:
   name: material
-  logo: /assets/anipy-logo-dark-compact.svg
+  logo: assets/anipy-logo-dark-compact.svg
 
   palette:
     - media: "(prefers-color-scheme)"
