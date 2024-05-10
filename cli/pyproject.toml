@@ -1,10 +1,12 @@
 [tool.poetry]
 name = "anipy-cli"
-version = "3.0.0"
+version = "3.0.0.dev0"
 description = "Watch and Download anime from the comfort of your Terminal"
 authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
 license = "GPL-3.0"
 repository = "https://github.com/sdaqo/anipy-cli"
+homepage = "https://example.com"
+documentation = "https://example.com/getting-started-api"
 keywords = ["anime", "cli"]
 readme = "../README.md"
 packages = [

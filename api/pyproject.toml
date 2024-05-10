@@ -1,12 +1,14 @@
 [tool.poetry]
 name = "anipy-api"
-version = "3.0.0"
+version = "3.0.0.dev0"
 description = "api for anipy-cli"
 authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
 license = "GPL-3.0"
 repository = "https://github.com/sdaqo/anipy-cli"
+homepage = "https://example.com"
+documentation = "https://example.com/getting-started-api"
 keywords = ["anime", "api"]
-# readme = "README.md"
+readme = "README.md"
 packages = [
   {include = "anipy_api", from = "src"}
 ]

@@ -1,6 +1,6 @@
 # Contributing
 
-Hey thanks for considering to contribute!
+Hey, thanks for considering to contribute!
 
 If you did this before you probably know the gist, but check out this little guide to get everything set-up!
 
