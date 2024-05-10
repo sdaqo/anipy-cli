@@ -45,7 +45,7 @@ nav:
   - Home:
     - Index: index.md
     - Availability: availabilty.md
-    - License: license.md
+    - License: gpl-license.md
     - Changelog: changelog.md
   - Getting Started - CLI: getting-started-cli/index.md
   - Getting Started - API: 

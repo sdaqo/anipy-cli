@@ -11,6 +11,7 @@ pypi.sh
 .idea/
 site/
 *.pyc
+.ruff_cache/
 
 # VSCode
 .vscode/
