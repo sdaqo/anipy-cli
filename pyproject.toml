@@ -1,6 +1,44 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
+[tool.poetry]
+authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
+license = "GPL-3.0"
+repository = "https://github.com/sdaqo/anipy-cli"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.9"
+anipy-cli = {path = "cli/", develop = true}
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+poethepoet = "^0.25.1"
+black = "^24.4.2"
+ruff = "^0.4.4"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.19"
+mkdocs-gen-files = "^0.5.0"
+mkdocs-literate-nav = "^0.6.1"
+mkdocs-section-index = "^0.3.9"
+mkdocstrings-python = "^1.10.0"
+
+[tool.poe.tasks]
+lint = "ruff check -e cli/src/anipy_cli api/src/anipy_api"
+lint-fix = "ruff check -s -e --fix cli/src/anipy_cli api/src/anipy_api "
+format = "black api/src cli/src"
+polish = ["lint-fix", "format", "lint"]
+docs-serve = "mkdocs serve -w api/src"
+docs-build = "mkdocs build"
+test = ""
+publish = ""
+
+[tool.docformatter]
+style = "black"
+
+[tool.ruff.lint]
+ignore = ["F403", "F405"]
