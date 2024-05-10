@@ -34,8 +34,8 @@ format = "black api/src cli/src"
 polish = ["lint-fix", "format", "lint"]
 docs-serve = "mkdocs serve -w api/src"
 docs-build = "mkdocs build"
-test = ""
-publish = ""
+docs-publish = "mkdocs gh-deploy --force"
+# test = ""
 
 [tool.docformatter]
 style = "black"
