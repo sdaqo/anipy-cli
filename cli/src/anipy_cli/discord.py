@@ -21,7 +21,7 @@ class DiscordPresence(object):
             details=f"Watching {anime.name} via anipy-cli",
             state=f"Episode {stream.episode}/{anime.get_episodes(stream.language)[-1]}",
             large_image=anime_info.image or "",
-            small_image="https://github.com/Dankni95/ulauncher-anime/raw/master/images/icon.png",
+            small_image="https://raw.githubusercontent.com/sdaqo/anipy-cli/master/docs/assets/anipy-logo-dark-compact.png",
             large_text=anime.name,
             small_text="anipy-cli",
             start=int(time.time()),
