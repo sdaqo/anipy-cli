@@ -8,15 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build and publish cli to pypi
-        uses: JRubics/poetry-publish@v2.0
-        with:
-          pypi_token: ${{ secrets.PYPI_API_TOKEN }}
-          package_directory: "cli"
-          allow_poetry_pre_release: "yes"
       - name: Build and publish api to pypi
         uses: JRubics/poetry-publish@v2.0
         with:
           pypi_token: ${{ secrets.PYPI_API_TOKEN }}
           package_directory: "api"
+          allow_poetry_pre_release: "yes"
+      - name: Build and publish cli to pypi
+        uses: JRubics/poetry-publish@v2.0
+        with:
+          pypi_token: ${{ secrets.PYPI_API_TOKEN }}
+          package_directory: "cli"
           allow_poetry_pre_release: "yes"
