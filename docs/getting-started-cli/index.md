@@ -12,20 +12,48 @@
 ### Options to install
 - **Recommended: Via pipx**
     ```
+    # Install
     pipx install anipy-cli
+    
+    # Update
+    pipx upgrade anipy-cli
+    
+    # Uninstall
+    pipx uninstall anipy-cli
     ```
 - Via pipx (from source): 
-    ```
-    pipx install "git+https://github.com/sdaqo/anipy-cli.git@api_rewrite#subdirectory=cli"
-    ```
+```
+# Install
+pipx install "git+https://github.com/sdaqo/anipy-cli.git#subdirectory=cli"
+
+# Update
+pipx upgrade anipy-cli
+
+# Uninstall
+pipx uninstall anipy-cli
+```
 - Via pip: 
-    ```
-    pip install anipy-cli
-    ```
+```
+# Install
+pip install anipy-cli
+
+# Update
+pip --upgrade anipy-cli
+
+# Uninstall
+pip uninstall anipy-cli
+```
 - Via pip (from source): 
-    ```
-    pip install "git+https://github.com/sdaqo/anipy-cli.git@api_rewrite#subdirectory=cli"
-    ```
+```
+# Install
+pip install "git+https://github.com/sdaqo/anipy-cli.git#subdirectory=cli"
+
+# Update
+pip --upgrade anipy-cli
+
+# Uninstall
+pip uninstall anipy-cli
+```
 - AUR: Coming Soon™
 
 ## Usage
