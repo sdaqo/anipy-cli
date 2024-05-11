@@ -1,9 +1,8 @@
 # ANIPY-CLI
 **Anime from the comfort of your Terminal**
 
-<p align="center"><img src="https://github.com/sdaqo/anipy-cli/blob/api_rewrite/docs/assets/anipy-logo-full-v3-version.png" /> </p>
+<p align="center"><img src="https://github.com/sdaqo/anipy-cli/assets/63876564/1dafa5fb-4273-4dc1-a7ab-2664dd668fc9" /> </p>
 
-https://user-images.githubusercontent.com/63876564/162056019-ed0e7a60-78f6-4a2c-bc73-9be5dc2a4f07.mp4
 
 
 ## What even is this?
