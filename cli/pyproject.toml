@@ -19,7 +19,7 @@ pyyaml = "^6.0.1"
 yaspin = "^3.0.2"
 inquirerpy = "^0.3.4"
 appdirs = "^1.4.4"
-anipy-api = {path = "../api", develop = true}
+anipy-api = "^3.0.0"
 pypresence = "^4.3.0"
 
 [tool.poetry.scripts]
