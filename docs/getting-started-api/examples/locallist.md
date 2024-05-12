@@ -11,6 +11,7 @@ All the data is stored in json format.
 ```python
 from anipy_api.locallist import LocalList
 from anipy_api.provider import LanguageTypeEnum
+from anipy_api.anime import Anime
 
 local_list = LocalList(
     "/path/to/list.json",
@@ -29,10 +30,13 @@ updated_entry = local_list.update(anime, episode=2) # (3)
 entry = local_list.get(anime)
 
 # Get all entries in file
-entries = local_list.get_all()
+entries = [
+    Anime.from_local_list_entry(entry)
+    for entry in local_list.get_all() # (4)
+]
 
 # Delete entry
-delted_entry = local_list.delete(anime) # (4)
+delted_entry = local_list.delete(anime) # (5)
 ```
 
 1. Optionally, you may pass a migration callback. This gets called if parsing
@@ -44,5 +48,8 @@ delted_entry = local_list.delete(anime) # (4)
 3. The anime argument can be a [Anime][anipy_api.anime.Anime] or a
    [LocalListEntry][anipy_api.locallist.LocalListEntry] object, meaning we could
    also pass `entry` here instead of `anime`.
-4. Again here you can pass both [Anime][anipy_api.anime.Anime] and
+4. You can use
+   [Anime.from_local_list_entry][anipy_api.anime.Anime.from_local_list_entry] to
+   convert a local list entry into an Anime object
+5. Again here you can pass both [Anime][anipy_api.anime.Anime] and
    [LocalListEntry][anipy_api.locallist.LocalListEntry].
