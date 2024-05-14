@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "anipy-api"
-version = "3.0.2"
+version = "3.0.3"
 description = "api for anipy-cli"
 authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
 license = "GPL-3.0"
