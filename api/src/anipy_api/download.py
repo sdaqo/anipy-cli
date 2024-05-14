@@ -65,11 +65,12 @@ class Downloader:
     @staticmethod
     def _get_valid_pathname(name: str):
         if sys.platform == "win32":
-            WIN_INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|", '"']
-            name = "".join(["" if x in WIN_INVALID_CHARS else x for x in name])
+            INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|", '"', "."]
+        else:
+            INVALID_CHARS = [".", "/"]
 
         name = "".join(
-            [i for i in name if i.isascii()]
+            [i for i in name if i.isascii() and not i in INVALID_CHARS]
         )  # Verify all chars are ascii (eject if not)
 
         return name
@@ -106,7 +107,8 @@ class Downloader:
         def download_ts(segment: m3u8.Segment):
             nonlocal counter
             url = urljoin(segment.base_uri, segment.uri)
-            fname = temp_folder / self._get_valid_pathname(segment.uri)
+            segment_uri = Path(segment.uri)
+            fname = (temp_folder / self._get_valid_pathname(segment_uri.stem)).with_suffix(segment_uri.suffix)
             try:
                 res = self._session.get(str(url))
                 res.raise_for_status()
