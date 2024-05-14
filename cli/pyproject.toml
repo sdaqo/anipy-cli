@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "anipy-cli"
-version = "3.0.1"
+version = "3.0.2"
 description = "Watch and Download anime from the comfort of your Terminal"
 authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
 license = "GPL-3.0"
@@ -19,7 +19,7 @@ pyyaml = "^6.0.1"
 yaspin = "^3.0.2"
 inquirerpy = "^0.3.4"
 appdirs = "^1.4.4"
-anipy-api = "^3.0.1"
+anipy-api = "^3.0.2"
 pypresence = "^4.3.0"
 
 [tool.poetry.scripts]
