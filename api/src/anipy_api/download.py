@@ -144,7 +144,8 @@ class Downloader:
             self._info_callback("Merging Parts...")
             with download_path.open("wb") as merged:
                 for segment in m3u8_content.segments:
-                    fname = temp_folder / self._get_valid_pathname(segment.uri)
+                    uri = Path(segment.uri)
+                    fname = (temp_folder / self._get_valid_pathname(uri.stem)).with_suffix(uri.suffix)
                     if not fname.is_file():
                         raise DownloadError(
                             f"Could not merge, missing a segment of this playlist: {stream.url}"

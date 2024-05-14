@@ -108,7 +108,7 @@ def get_download_path(
         type=stream.language,
     )
 
-    filename = Downloader._get_valid_pathname(filename)  # type: ignore
+    filename = Downloader._get_valid_pathname(filename)
 
     return download_folder / anime_name / filename
 
