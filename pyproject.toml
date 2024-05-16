@@ -35,6 +35,7 @@ polish = ["lint-fix", "format", "lint"]
 docs-serve = "mkdocs serve -w api/src"
 docs-build = "mkdocs build"
 docs-publish = "mkdocs gh-deploy --force"
+bump-version = "./scripts/bump_version.sh"
 # test = ""
 
 [tool.docformatter]
