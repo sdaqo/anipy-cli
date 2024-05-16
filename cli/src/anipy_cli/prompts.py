@@ -25,7 +25,9 @@ if TYPE_CHECKING:
     from anipy_api.provider import Episode
 
 
-def search_show_prompt(mode: str, skip_season_search: bool = False) -> Optional["Anime"]:
+def search_show_prompt(
+    mode: str, skip_season_search: bool = False
+) -> Optional["Anime"]:
     if not (Config().skip_season_search or skip_season_search):
         season_provider = None
         for p in get_prefered_providers(mode):

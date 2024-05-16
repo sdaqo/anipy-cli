@@ -30,7 +30,7 @@ class MalCli(CliBase):
 
         if not self.user:
             self.user = inquirer.text(  # type: ignore
-                "Your MyAnimeList Username: ",
+                "Your MyAnimeList Username:",
                 validate=lambda x: len(x) > 1,
                 invalid_message="You must enter a username!",
                 long_instruction="Hint: You can save your username and password in the config!",
@@ -38,7 +38,7 @@ class MalCli(CliBase):
 
         if not self.password:
             self.password = inquirer.secret(  # type: ignore
-                "Your MyAnimeList Password: ",
+                "Your MyAnimeList Password:",
                 transformer=lambda _: "[hidden]",
                 validate=lambda x: len(x) > 1,
                 invalid_message="You must enter a password!",

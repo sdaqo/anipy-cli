@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class MpvControllable(PlayerBase):
     """This player can be controlled and it also does not close if
-    the media is changed, the window stays open until `kill_player` is called. 
+    the media is changed, the window stays open until `kill_player` is called.
     You need libmpv for this, check the [python-mpv](https://github.com/jaseg/python-mpv?tab=readme-ov-file#requirements)
     project's requirements to know where to get it.
 
@@ -23,20 +23,22 @@ class MpvControllable(PlayerBase):
         mpv: The python-mpv mpv instance
     """
 
-    def __init__(self, play_callback: Optional[PlayCallback] = None, **mpv_args: Optional[Any]):
+    def __init__(
+        self, play_callback: Optional[PlayCallback] = None, **mpv_args: Optional[Any]
+    ):
         """__init__ of MpvControllable
 
         Args:
             play_callback: Callback called upon starting to play a title with `play_title`
             **mpv_args: Arguments passed to the MPV instance check the [python-mpv repo](https://github.com/jaseg/python-mpv?tab=readme-ov-file#usage)
-                or check the [official list of arguments](https://mpv.io/manual/master/#properties). There are some default arguments set, if you specify 
+                or check the [official list of arguments](https://mpv.io/manual/master/#properties). There are some default arguments set, if you specify
                 any arguments here, all the defaults will be discarded and this will be used instead.
         """
         super().__init__(play_callback=play_callback)
 
         # I know this is a crime, but pytohn-mpv loads the so/dll on import and this will break all the stuff for people that do not have that.
         from mpv import MPV
-        
+
         if len(mpv_args) <= 1:
             mpv_args = {
                 "input_default_bindings": True,
@@ -46,9 +48,7 @@ class MpvControllable(PlayerBase):
                 "osc": "True",
             }
 
-        self.mpv = MPV(
-            **mpv_args
-        )
+        self.mpv = MPV(**mpv_args)
 
     def play_title(self, anime: "Anime", stream: "ProviderStream"):
         self.mpv.force_media_title = self._get_media_title(anime, stream)

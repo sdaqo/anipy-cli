@@ -70,7 +70,7 @@ class Downloader:
             INVALID_CHARS = [".", "/"]
 
         name = "".join(
-            [i for i in name if i.isascii() and not i in INVALID_CHARS]
+            [i for i in name if i.isascii() and i not in INVALID_CHARS]
         )  # Verify all chars are ascii (eject if not)
 
         return name
@@ -108,7 +108,9 @@ class Downloader:
             nonlocal counter
             url = urljoin(segment.base_uri, segment.uri)
             segment_uri = Path(segment.uri)
-            fname = (temp_folder / self._get_valid_pathname(segment_uri.stem)).with_suffix(segment_uri.suffix)
+            fname = (
+                temp_folder / self._get_valid_pathname(segment_uri.stem)
+            ).with_suffix(segment_uri.suffix)
             try:
                 res = self._session.get(str(url))
                 res.raise_for_status()
@@ -145,7 +147,9 @@ class Downloader:
             with download_path.open("wb") as merged:
                 for segment in m3u8_content.segments:
                     uri = Path(segment.uri)
-                    fname = (temp_folder / self._get_valid_pathname(uri.stem)).with_suffix(uri.suffix)
+                    fname = (
+                        temp_folder / self._get_valid_pathname(uri.stem)
+                    ).with_suffix(uri.suffix)
                     if not fname.is_file():
                         raise DownloadError(
                             f"Could not merge, missing a segment of this playlist: {stream.url}"
