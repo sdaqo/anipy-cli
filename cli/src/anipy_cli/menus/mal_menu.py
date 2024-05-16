@@ -86,7 +86,7 @@ class MALMenu(MenuBase):
         anime = inquirer.fuzzy(  # type: ignore
             message="Select Show:",
             choices=[Choice(value=r, name=self._format_mal_anime(r)) for r in results],
-            transformer=lambda x: [e.split("|")[-1].strip() for e in x],
+            transformer=lambda x: x.split("|")[-1].strip(),
             long_instruction="To skip this prompt press crtl+z",
             mandatory=False,
         ).execute()
@@ -153,7 +153,7 @@ class MALMenu(MenuBase):
             message="View your List",
             choices=mylist,
             mandatory=False,
-            transformer=lambda x: [e.split("|")[-1].strip() for e in x],
+            transformer=lambda x: x.split("|")[-1].strip(),
             long_instruction="To skip this prompt press ctrl+z",
         ).execute()
 
@@ -547,7 +547,7 @@ class MALMenu(MenuBase):
 
         for f in failed:
             cprint("Manually mapping ", colors.BLUE, f.title)
-            anime = search_show_prompt("mal")
+            anime = search_show_prompt("mal", skip_season_search=True)
             if not anime:
                 continue
 
@@ -618,7 +618,7 @@ class MALMenu(MenuBase):
                 choices=[
                     Choice(value=r, name=self._format_mal_anime(r)) for r in results
                 ],
-                transformer=lambda x: [e.split("|")[-1].strip() for e in x],
+                transformer=lambda x: x.split("|")[-1].strip(),
                 long_instruction="To skip this prompt press crtl+z",
                 mandatory=False,
             ).execute()
