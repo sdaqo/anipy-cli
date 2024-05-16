@@ -41,7 +41,7 @@ class HistoryCli(CliBase):
             print("You have no History, exiting")
             sys.exit(0)
 
-        entry = inquirer.select(  # type: ignore
+        entry = inquirer.fuzzy(  # type: ignore
             message="Select History Entry:",
             choices=history,
             long_instruction="To cancel this prompt press ctrl+z",
