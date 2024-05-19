@@ -237,7 +237,7 @@ def migrate_locallist(file: Path) -> LocalListData:
                 continue
 
             new_entry = LocalListEntry(
-                provider="gogoanmie",
+                provider="gogoanime",
                 name=name,
                 identifier=identifier,
                 episode=episode,
