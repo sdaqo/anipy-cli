@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "anipy-cli"
-version = "3.0.4"
+version = "3.0.5"
 description = "Watch and Download anime from the comfort of your Terminal"
 authors = ["sdaqo <sdaqo.dev@protonmail.com>"]
 license = "GPL-3.0"
