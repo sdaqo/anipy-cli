@@ -16,7 +16,7 @@ If you did this before you probably know the gist, but check out this little gui
     - Run `poetry run python` to run python from the virtual environment.
     - Run `poetry run poe docs-serve` to open host the docs locally, this is helpful if you are making changes to the docs.
 8. Run `poetry run poe polish` before commiting to format and lint your code. The linter will tell you what you did wrong, fix that if you think the suggestion from the linter is reasonable, if not don't bother. Also, please do not concern yourself with linter errors that you did not introduce!
-9. Run `poetry run poe exit-dev` if you ran the command in step 5.
+9. Run `poetry run poe exit-dev` if you ran the command in step 4.
 10. Push & Pull Request!
 
 ## Project structure
