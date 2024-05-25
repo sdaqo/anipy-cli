@@ -8,14 +8,16 @@ If you did this before you probably know the gist, but check out this little gui
 1. Install [Poetry](https://python-poetry.org/docs/#installation) for project managment, it is like pip but better and feature-richer. You can work on this project without it, but I highly recommend not to do this.
 2. Clone: `git clone https://github.com/sdaqo/anipy-cli && cd anipy-cli`
 3. Initiate your environment: `poetry install --with dev,docs`, this installs all the dependencies and some development tools.
-4. Open your edior, you can either run `poetry run <your-editor>` or `poetry shell` to get a shell in the virtual environment and run your editor from there, some editors like vscode automatically enter the venv as far as I know.
-4. Make your changes :)
-5. Check your changes
+4. (Optional) If you are working on the API and you want to be able to test your changes in the cli, you can run `poetry poe enter-dev`. (this changes the api dependency to the local `../api`)
+5. Open your edior, you can either run `poetry run <your-editor>` or `poetry shell` to get a shell in the virtual environment and run your editor from there, some editors like vscode automatically enter the venv as far as I know.
+6. Make your changes :)
+7. Check your changes
     - Run `poetry run anipy-cli` to run the cli.
     - Run `poetry run python` to run python from the virtual environment.
     - Run `poetry run poe docs-serve` to open host the docs locally, this is helpful if you are making changes to the docs.
-6. Run `poetry run poe polish` before commiting to format and lint your code. The linter will tell you what you did wrong, fix that if you think the suggestion from the linter is reasonable, if not don't bother. Also, please do not concern yourself with linter errors that you did not introduce!
-7. Push & Pull Request!
+8. Run `poetry run poe polish` before commiting to format and lint your code. The linter will tell you what you did wrong, fix that if you think the suggestion from the linter is reasonable, if not don't bother. Also, please do not concern yourself with linter errors that you did not introduce!
+9. Run `poetry run poe exit-dev` if you ran the command in step 5.
+10. Push & Pull Request!
 
 ## Project structure
 ```
