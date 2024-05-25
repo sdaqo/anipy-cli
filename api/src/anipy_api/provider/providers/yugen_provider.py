@@ -67,7 +67,7 @@ class YugenProvider(BaseProvider):
     Attributes:
         NAME: yugenanime
         BASE_URL: https://yugenanime.tv
-        FILTER_CAPS: YEAR, SEASON, STATUS
+        FILTER_CAPS: YEAR, SEASON, STATUS, MEDIA_TYPE, NO_QUERY
     """
 
     NAME: str = "yugenanime"
@@ -89,8 +89,9 @@ class YugenProvider(BaseProvider):
 
         results = []
         has_next = True
-        index = 0
+        page = 0
         while has_next:
+            req.params["page"] = page + 1
             res = request_page(self.session, req).json()
             has_next = res["hasNext"]
 
@@ -123,7 +124,7 @@ class YugenProvider(BaseProvider):
                     )
                 )
 
-            index += 1
+            page += 1
         return results
 
     @weak_lru()
@@ -208,7 +209,10 @@ class YugenProvider(BaseProvider):
         identifier = base64.b64decode(identifier).decode()
 
         id_num, _ = identifier.split("/")
-        video_query = f"{id_num}|{episode}|{lang.name.lower()}"
+        if lang == LanguageTypeEnum.DUB:
+            video_query = f"{id_num}|{episode}|dub"
+        else:
+            video_query = f"{id_num}|{episode}"
 
         req = Request(
             "POST",

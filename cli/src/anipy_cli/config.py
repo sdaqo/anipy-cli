@@ -72,7 +72,7 @@ class Config:
 
         For an updated list of providers look here: https://sdaqo.github.io/anipy-cli/availabilty
 
-        Supported providers (as of $version): gogoanime
+        Supported providers (as of $version): gogoanime, yugenanime
 
         Examples:
             providers:
@@ -83,12 +83,12 @@ class Config:
                 mal: ["provider2", "provider3"]
         """
         defaults = {
-            "default": ["gogoanime"],
-            "download": ["gogoanime"],
-            "history": ["gogoanime"],
-            "seasonal": ["gogoanime"],
-            "binge": ["gogoanime"],
-            "mal": ["gogoanime"],
+            "default": ["yugenanime"],
+            "download": ["yugenanime"],
+            "history": ["yugenanime"],
+            "seasonal": ["yugenanime"],
+            "binge": ["yugenanime"],
+            "mal": ["yugenanime"],
         }
 
         value = self._get_value("providers", defaults, dict)

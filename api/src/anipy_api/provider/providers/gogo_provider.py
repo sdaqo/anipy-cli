@@ -108,7 +108,7 @@ class GoGoProvider(BaseProvider):
     Attributes:
         NAME: gogoanime
         BASE_URL: https://gogoanime3.co
-        FILTER_CAPS: YEAR, SEASON, STATUS
+        FILTER_CAPS: YEAR, SEASON, STATUS, NO_QUERY
     """
 
     NAME: str = "gogoanime"
