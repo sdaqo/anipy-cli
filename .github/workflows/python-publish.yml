@@ -14,9 +14,11 @@ jobs:
           pypi_token: ${{ secrets.PYPI_API_TOKEN }}
           package_directory: "api"
           allow_poetry_pre_release: "yes"
+          poetry_install_options: "--sync"
       - name: Build and publish cli to pypi
         uses: JRubics/poetry-publish@v2.0
         with:
           pypi_token: ${{ secrets.PYPI_API_TOKEN }}
           package_directory: "cli"
           allow_poetry_pre_release: "yes"
+          poetry_install_options: "--sync"
