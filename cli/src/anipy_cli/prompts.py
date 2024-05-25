@@ -73,7 +73,12 @@ def search_show_prompt(
     anime = inquirer.fuzzy(  # type: ignore
         message="Select Show:",
         choices=results,
-        long_instruction="\nS = Anime is available in sub\nD = Anime is available in dub\nTo skip this prompt press ctrl+z",
+        long_instruction=(
+            "\nS = Anime is available in sub\n"
+            "D = Anime is available in dub\n"
+            "First two letters indicate the provider\n"
+            "To skip this prompt press ctrl+z"
+        ),
         mandatory=False,
     ).execute()
 

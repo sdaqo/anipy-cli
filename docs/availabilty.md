@@ -4,13 +4,31 @@ This is page lists available/supported providers/players and their capabilities.
 
 ## Current Version
 
+Version: 3.1.0
+
+| Identifier | URL                                            | Filter capabilties [^1]                    | Season Search [^2] | Notes                                                                                                                                                            | Reference                                                                  |
+| ---------- | ---------------------------------------------- | ------------------------------------------ | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| gogoanime  | [https://yugenanime.tv](https://yugenanime.tv) | YEAR, SEASON, STATUS, NO_QUERY             | Yes                | [Hover Me]("If possible search for the japanese name instead of the english one, some entries in gogo do not have their alternative names configured properly.") | [GoGoProvider][anipy_api.provider.providers.gogo_provider.GoGoProvider]    |
+| yugenanime | [https://yugenanime.tv](https://yugenanime.tv) | YEAR, SEASON, STATUS, MEDIA_TYPE, NO_QUERY | Yes                | [Hover Me]("Placeholder for future reference") **Recommended**                                                                                                   | [YugenProvider][anipy_api.provider.providers.yugen_provider.YugenProvider] |
+
+### Players
+
+| Name             | Recognised Stem(s) [^3] | Project URL(s)                                                                                                           | Sub-process | Code Reference                                                          |
+| ---------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------- | ----------------------------------------------------------------------- |
+| mpv              | mpv, mpvnet             | [https://mpv.io/](https://mpv.io/), [https://github.com/mpvnet-player/mpv.net](https://github.com/mpvnet-player/mpv.net) | Yes         | [Mpv][anipy_api.player.players.mpv.Mpv]                                 |
+| Syncplay         | syncplay                | [https://syncplay.pl/](https://syncplay.pl/])                                                                            | Yes         | [Syncplay][anipy_api.player.players.syncplay.Syncplay]                  |
+| VLC Media Player | vlc                     | [https://www.videolan.org/vlc/](https://www.videolan.org/vlc/)                                                           | Yes         | [Vlc][anipy_api.player.players.vlc.Vlc]                                 |
+| Mpv Controlled   | mpv-controlled          | [https://github.com/jaseg/python-mpv](https://github.com/jaseg/python-mpv)                                               | No          | [MpvControllable][anipy_api.player.players.mpv_control.MpvControllable] |
+
+## Version 3.0.0
+
 Version: 3.0.0
 
 ### Providers
 
-| Identifier | URL                                            | Filter capabilties [^1]        | Season Search [^2] | Notes                                                                                                                                                            | Reference                                                               |
-| ---------- | ---------------------------------------------- | ------------------------------ | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| gogoanime  | [https://gogoanime3.co](https://gogoanime3.co) | YEAR, SEASON, STATUS, NO_QUERY | Yes                | [Hover Me]("If possible search for the japanese name instead of the english one, some entries in gogo do not have their alternative names configured properly.") | [GoGoProvider][anipy_api.provider.providers.gogo_provider.GoGoProvider] |
+| Identifier | URL                                            | Filter capabilties [^1]        | Season Search [^2] | Notes                                                                                                                                                                            | Reference                                                               |
+| ---------- | ---------------------------------------------- | ------------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| gogoanime  | [https://gogoanime3.co](https://gogoanime3.co) | YEAR, SEASON, STATUS, NO_QUERY | Yes                | [Hover Me]("If possible search for the japanese name instead of the english one, some entries in gogo do not have their alternative names configured properly.") **Recommended** | [GoGoProvider][anipy_api.provider.providers.gogo_provider.GoGoProvider] |
 
 ### Players
 

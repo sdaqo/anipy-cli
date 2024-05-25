@@ -155,7 +155,8 @@ class Anime:
         available_langs = "/".join(
             [lang.value.capitalize()[0] for lang in self.languages]
         )
-        return f"{self.name} ({available_langs})"
+        provider_prefix = self.provider.NAME[:2].upper()
+        return f"{provider_prefix}: {self.name} ({available_langs})"
 
     def __hash__(self) -> int:
         return hash(self.provider.NAME + self.identifier)
