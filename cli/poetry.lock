@@ -2,13 +2,13 @@
 
 [[package]]
 name = "anipy-api"
-version = "3.0.5"
+version = "3.1.0"
 description = "api for anipy-cli"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "anipy_api-3.0.5-py3-none-any.whl", hash = "sha256:9351c81498d947efe9779cc12dd1670ee6cff4fea2fdfe2a19b0153a42350bd0"},
-    {file = "anipy_api-3.0.5.tar.gz", hash = "sha256:ea089ccea41e382908d93930853f200b60e3babc51086afbe47c9877634bda99"},
+    {file = "anipy_api-3.1.0-py3-none-any.whl", hash = "sha256:aad8ec5c11b2e18da64bf0c06324b8c204c67a971df689c3951dae4f073b0e78"},
+    {file = "anipy_api-3.1.0.tar.gz", hash = "sha256:fb4d801d44eb87ef2502e4ffb8a9bb6c10713ab5dae94a9cf245740b483920da"},
 ]
 
 [package.dependencies]
@@ -20,7 +20,7 @@ pycryptodomex = ">=3.20.0,<4.0.0"
 pypresence = ">=4.3.0,<5.0.0"
 python-ffmpeg = ">=2.0.11,<3.0.0"
 python-mpv = ">=1.0.6,<2.0.0"
-requests = ">=2.31.0,<3.0.0"
+requests = ">=2.32.0,<3.0.0"
 
 [[package]]
 name = "appdirs"
@@ -814,4 +814,4 @@ termcolor = "2.3.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "2cf3ce216fcd5c336ba3ef2686484ad714df76264590e1bde29d4d4683a48cd8"
+content-hash = "cc0a2f0459b434ff60fbbc2f28187f66102f23876bd36b49644de14f5df9d8c7"
