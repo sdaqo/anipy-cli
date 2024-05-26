@@ -1,7 +1,5 @@
 """These are only internal utils, which are not made to be used outside"""
 
-import functools
-import weakref
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -40,25 +38,3 @@ def parsenum(n: str):
         return int(n)
     except ValueError:
         return float(n)
-
-
-def weak_lru(maxsize: int = 128):
-    """Decorator to memoize a class method
-    (see: [https://stackoverflow.com/a/68052994](https://stackoverflow.com/a/68052994))
-
-    Args:
-        maxsize: Maximum cache size
-    """
-
-    def wrapper(func):
-        @functools.lru_cache(maxsize)
-        def _func(_self, *args, **kwargs):
-            return func(_self(), *args, **kwargs)
-
-        @functools.wraps(func)
-        def inner(self, *args, **kwargs):
-            return _func(weakref.ref(self), *args, **kwargs)
-
-        return inner
-
-    return wrapper

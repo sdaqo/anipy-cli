@@ -23,7 +23,7 @@ from anipy_api.provider.filter import (
     Season,
     Status,
 )
-from anipy_api.provider.utils import weak_lru, request_page
+from anipy_api.provider.utils import request_page
 
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
@@ -127,7 +127,6 @@ class YugenProvider(BaseProvider):
             page += 1
         return results
 
-    @weak_lru()
     def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List["Episode"]:
         identifier = base64.b64decode(identifier).decode()
         req = Request("GET", f"{self.BASE_URL}/anime/{identifier}")
@@ -150,7 +149,6 @@ class YugenProvider(BaseProvider):
         eps = int(match.group(1))
         return list(range(1, eps + 1))
 
-    @weak_lru()
     def get_info(self, identifier: str) -> "ProviderInfoResult":
         identifier = base64.b64decode(identifier).decode()
         req = Request("GET", f"{self.BASE_URL}/anime/{identifier}")
