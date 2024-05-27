@@ -49,6 +49,7 @@ class Menu(MenuBase):
                 "c",
             ),
             MenuOption("Select episode", self.selec_ep, "s"),
+            MenuOption("Select from history", self.selec_hist, "h"),
             MenuOption("Search for Anime", self.search, "a"),
             MenuOption("Print Video Info", self.video_info, "i"),
             MenuOption("Download Episode", self.download_video, "d"),
@@ -135,6 +136,11 @@ class Menu(MenuBase):
             return
         self._start_episode(episode)
         self.print_options()
+
+    def selec_hist(self):
+        from anipy_cli.clis.history_cli import HistoryCli
+        hist_cli = HistoryCli(self.options)
+        hist_cli.run()
 
     def search(self):
         search_result = search_show_prompt("default")
