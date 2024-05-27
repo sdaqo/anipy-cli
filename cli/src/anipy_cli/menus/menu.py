@@ -36,6 +36,7 @@ class Menu(MenuBase):
         self.history_list = LocalList(
             Config()._history_file_path, migrate_cb=migrate_locallist
         )
+        self.seasonal_list = LocalList(Config()._seasonal_file_path, migrate_locallist)
 
     @property
     def menu_options(self) -> List["MenuOption"]:
@@ -49,7 +50,9 @@ class Menu(MenuBase):
                 "c",
             ),
             MenuOption("Select episode", self.selec_ep, "s"),
+            MenuOption("Select from history", self.selec_hist, "h"),
             MenuOption("Search for Anime", self.search, "a"),
+            MenuOption("Add to seasonals", self.add_seasonal, "t"),
             MenuOption("Print Video Info", self.video_info, "i"),
             MenuOption("Download Episode", self.download_video, "d"),
             MenuOption("Quit", self.quit, "q"),
@@ -136,6 +139,11 @@ class Menu(MenuBase):
         self._start_episode(episode)
         self.print_options()
 
+    def selec_hist(self):
+        from anipy_cli.clis.history_cli import HistoryCli
+        hist_cli = HistoryCli(self.options)
+        hist_cli.run()
+
     def search(self):
         search_result = search_show_prompt("default")
         if search_result is None:
@@ -152,6 +160,14 @@ class Menu(MenuBase):
         print(f"Provider: {self.anime.provider.NAME}")
         print(f"Stream Url: {self.stream.url}")
         print(f"Quality: {self.stream.resolution}p")
+
+    def add_seasonal(self):
+        self.seasonal_list.update(
+            self.anime,
+            episode=self.stream.episode,
+            language=self.stream.language
+        )
+        cprint(colors.GREEN, "Anime added to seasonals!")
 
     def download_video(self):
         config = Config()
