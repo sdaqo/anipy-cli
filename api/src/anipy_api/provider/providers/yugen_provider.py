@@ -167,7 +167,7 @@ class YugenProvider(BaseProvider):
 
         name = soup.find("h1")
         if name is not None:
-            data_map["name"] = name.get_text()
+            data_map["name"] = name.get_text().strip()
 
         synopsis = soup.find("p", attrs={"class": "description"})
         if synopsis is not None:
