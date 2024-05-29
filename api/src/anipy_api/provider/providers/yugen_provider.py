@@ -164,6 +164,11 @@ class YugenProvider(BaseProvider):
         }
 
         soup = BeautifulSoup(result.text, "html.parser")
+
+        name = soup.find("h1")
+        if name is not None:
+            data_map["name"] = name.get_text()
+
         synopsis = soup.find("p", attrs={"class": "description"})
         if synopsis is not None:
             data_map["synopsis"] = synopsis.get_text("\n")
