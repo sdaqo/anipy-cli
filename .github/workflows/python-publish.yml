@@ -50,9 +50,7 @@ jobs:
           poetry_publish_options: "--skip-existing"
       
       - name: Lock root
-        run: |
-          poetry -C cli/ lock
-          poetry lock
+        run: poetry lock
           
       - uses: stefanzweifel/git-auto-commit-action@v5
 
