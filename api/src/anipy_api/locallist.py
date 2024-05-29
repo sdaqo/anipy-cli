@@ -101,6 +101,9 @@ class LocalList:
                     raise
                 self.data = migrate_cb(self.file)
 
+    def _read(self):
+        self.data = LocalListData.from_json(self.file.read_text())
+
     def update(
         self, anime: Union[Anime, LocalListEntry], **update_fields
     ) -> LocalListEntry:
@@ -136,6 +139,8 @@ class LocalList:
             ArgumentError: Raised if updating a anime that does not exist (adding) and not providing at
                 least the `episode` and `language` to the update_fields.
         """
+        self._read()
+
         uid = self._get_uid(anime)
         entry = self.data.data.get(uid, None)
 
@@ -181,6 +186,8 @@ class LocalList:
         Returns:
             The deleted object or None if the anime to delete was not found in the local list
         """
+        self._read()
+
         entry = self.data.data.pop(self._get_uid(anime), None)
         self.data.write(self.file)
 
@@ -196,6 +203,8 @@ class LocalList:
             A local list entry if it exists for the provided anime
 
         """
+        self._read()
+
         return self.data.data.get(self._get_uid(anime), None)
 
     def get_all(self) -> List[LocalListEntry]:
@@ -204,6 +213,8 @@ class LocalList:
         Returns:
             A list of all local list entries
         """
+        self._read()
+
         return list(self.data.data.values())
 
     @staticmethod
