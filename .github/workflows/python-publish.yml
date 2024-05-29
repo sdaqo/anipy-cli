@@ -10,6 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Lock api
+        run: poetry -C api/ lock
+        
       - name: Build and publish api to pypi
         uses: JRubics/poetry-publish@v2.0
         with:
@@ -17,6 +33,10 @@ jobs:
           package_directory: "api"
           allow_poetry_pre_release: "yes"
           poetry_install_options: "--sync"
+      
+      - name: Lock cli
+        run: poetry -C cli/ lock
+      
       - name: Build and publish cli to pypi
         uses: JRubics/poetry-publish@v2.0
         with:
@@ -24,3 +44,12 @@ jobs:
           package_directory: "cli"
           allow_poetry_pre_release: "yes"
           poetry_install_options: "--sync"
+      
+      - name: Lock root
+        run: |
+          poetry -C cli/ lock
+          poetry lock
+          
+      - uses: stefanzweifel/git-auto-commit-action@v5
+
+      
