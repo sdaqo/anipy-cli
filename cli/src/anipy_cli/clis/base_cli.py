@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs
@@ -10,23 +10,25 @@ class CliBase(ABC):
         self.options = options
 
     @abstractmethod
-    def print_header(self): ...
+    def print_header(self) -> Optional[bool]: ...
 
     @abstractmethod
-    def take_input(self): ...
+    def take_input(self) -> Optional[bool]: ...
 
     @abstractmethod
-    def process(self): ...
+    def process(self) -> Optional[bool]: ...
 
     @abstractmethod
-    def show(self): ...
+    def show(self) -> Optional[bool]: ...
 
     @abstractmethod
-    def post(self): ...
+    def post(self) -> Optional[bool]: ...
 
     def run(self):
-        self.print_header()
-        self.take_input()
-        self.process()
-        self.show()
-        self.post()
+        funcs = ["print_header", "take_input", "process", "show", "post"]
+        for f in funcs:
+            func = getattr(self, f)
+            ret = func()
+
+            if ret == False:  # noqa: E712
+                break

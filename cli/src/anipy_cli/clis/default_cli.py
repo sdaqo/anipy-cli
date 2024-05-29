@@ -1,4 +1,3 @@
-import sys
 from typing import TYPE_CHECKING, Optional
 
 from anipy_api.locallist import LocalList
@@ -54,14 +53,14 @@ class DefaultCli(CliBase):
         anime = search_show_prompt("default")
 
         if anime is None:
-            sys.exit(0)
+            return False
 
         self.lang = lang_prompt(anime)
 
         episode = pick_episode_prompt(anime, self.lang)
 
         if episode is None:
-            sys.exit(0)
+            return False
 
         self.anime = anime
         self.epsiode = episode

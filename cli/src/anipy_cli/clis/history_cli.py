@@ -1,4 +1,3 @@
-import sys
 from typing import TYPE_CHECKING, Optional
 
 from anipy_api.anime import Anime
@@ -39,7 +38,7 @@ class HistoryCli(CliBase):
 
         if not history:
             print("You have no History, exiting")
-            sys.exit(0)
+            return False
 
         entry = inquirer.fuzzy(  # type: ignore
             message="Select History Entry:",
@@ -49,7 +48,7 @@ class HistoryCli(CliBase):
         ).execute()
 
         if entry is None:
-            sys.exit(0)
+            return False
 
         self.history_entry = entry
         self.anime = Anime.from_local_list_entry(entry)

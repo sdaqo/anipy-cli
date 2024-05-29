@@ -1,4 +1,3 @@
-import sys
 from typing import TYPE_CHECKING, Optional, List
 
 from anipy_api.download import Downloader
@@ -50,7 +49,7 @@ class DownloadCli(CliBase):
         anime = search_show_prompt("download")
 
         if anime is None:
-            sys.exit(0)
+            return False
 
         self.lang = lang_prompt(anime)
 

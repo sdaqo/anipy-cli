@@ -141,6 +141,7 @@ class Menu(MenuBase):
 
     def selec_hist(self):
         from anipy_cli.clis.history_cli import HistoryCli
+
         hist_cli = HistoryCli(self.options)
         hist_cli.run()
 
@@ -163,9 +164,7 @@ class Menu(MenuBase):
 
     def add_seasonal(self):
         self.seasonal_list.update(
-            self.anime,
-            episode=self.stream.episode,
-            language=self.stream.language
+            self.anime, episode=self.stream.episode, language=self.stream.language
         )
         cprint(colors.GREEN, "Anime added to seasonals!")
 

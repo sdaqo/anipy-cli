@@ -528,7 +528,7 @@ class MALMenu(MenuBase):
 
                     counter += 1
                     s.set_text(f"Progress: {counter / to_map_length * 100:.1f}%")
-                except:
+                except:  # noqa: E722
                     failed.append(anime)
 
             with ThreadPoolExecutor(max_workers=5) as pool:
@@ -582,7 +582,7 @@ class MALMenu(MenuBase):
 
                     counter += 1
                     s.set_text(f"Progress: {counter / to_map_length * 100}%")
-                except:
+                except:  # noqa: E722
                     failed.append(entry)
 
             with ThreadPoolExecutor(max_workers=5) as pool:
