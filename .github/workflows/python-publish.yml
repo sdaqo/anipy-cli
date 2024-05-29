@@ -33,9 +33,12 @@ jobs:
           package_directory: "api"
           allow_poetry_pre_release: "yes"
           poetry_install_options: "--sync"
+          poetry_publish_options: "--skip-existing"
       
       - name: Lock cli
-        run: poetry -C cli/ lock
+        run: |
+          sleep 20
+          poetry -C cli/ lock
       
       - name: Build and publish cli to pypi
         uses: JRubics/poetry-publish@v2.0
@@ -44,6 +47,7 @@ jobs:
           package_directory: "cli"
           allow_poetry_pre_release: "yes"
           poetry_install_options: "--sync"
+          poetry_publish_options: "--skip-existing"
       
       - name: Lock root
         run: |
