@@ -121,8 +121,15 @@ def season_search_prompt(provider: "BaseProvider") -> Optional["Anime"]:
 
     anime = inquirer.fuzzy(  # type: ignore
         message="Select Show:",
-        choices=results,
-        long_instruction="\nS = Anime is available in sub\nD = Anime is available in dub\nTo skip this prompt press ctrl+z",
+        choices=[
+            Choice(value=r, name=f"{n + 1}. {repr(r)}") for n, r in enumerate(results)
+        ],
+        long_instruction=(
+            "\nS = Anime is available in sub\n"
+            "D = Anime is available in dub\n"
+            "First two letters indicate the provider\n"
+            "To skip this prompt press ctrl+z"
+        ),
         mandatory=False,
     ).execute()
 

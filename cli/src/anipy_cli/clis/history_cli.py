@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
+from InquirerPy.base.control import Choice
 from anipy_api.anime import Anime
 from anipy_api.locallist import LocalList, LocalListEntry
 from InquirerPy import inquirer
@@ -42,7 +43,10 @@ class HistoryCli(CliBase):
 
         entry = inquirer.fuzzy(  # type: ignore
             message="Select History Entry:",
-            choices=history,
+            choices=[
+                Choice(value=h, name=f"{n + 1}. {repr(h)}")
+                for n, h in enumerate(history)
+            ],
             long_instruction="To cancel this prompt press ctrl+z",
             mandatory=False,
         ).execute()
@@ -50,8 +54,8 @@ class HistoryCli(CliBase):
         if entry is None:
             return False
 
-        self.history_entry = entry
-        self.anime = Anime.from_local_list_entry(entry)
+        self.history_entry = LocalListEntry.from_dict(entry)
+        self.anime = Anime.from_local_list_entry(self.history_entry)
 
     def process(self):
         assert self.anime is not None
