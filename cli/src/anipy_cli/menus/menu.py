@@ -1,8 +1,10 @@
 import sys
 from typing import TYPE_CHECKING, List
 
+from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
 from anipy_api.download import Downloader
-from anipy_api.provider import LanguageTypeEnum
+from anipy_api.provider import LanguageTypeEnum, ProviderStream
 from anipy_api.locallist import LocalList
 
 from anipy_cli.colors import colors, cprint
@@ -15,7 +17,7 @@ from anipy_cli.prompts import pick_episode_prompt, search_show_prompt
 if TYPE_CHECKING:
     from anipy_api.anime import Anime
     from anipy_api.player import PlayerBase
-    from anipy_api.provider import Episode, ProviderStream
+    from anipy_api.provider import Episode
 
     from anipy_cli.arg_parser import CliArgs
 
@@ -53,6 +55,7 @@ class Menu(MenuBase):
             MenuOption("Select from history", self.selec_hist, "h"),
             MenuOption("Search for Anime", self.search, "a"),
             MenuOption("Add to seasonals", self.add_seasonal, "t"),
+            MenuOption("Change video quality", self.change_quality, "v"),
             MenuOption("Print Video Info", self.video_info, "i"),
             MenuOption("Download Episode", self.download_video, "d"),
             MenuOption("Quit", self.quit, "q"),
@@ -167,6 +170,36 @@ class Menu(MenuBase):
             self.anime, episode=self.stream.episode, language=self.stream.language
         )
         cprint(colors.GREEN, "Anime added to seasonals!")
+
+    def change_quality(self):
+        with DotSpinner(
+            "Extracting streams for ",
+            colors.BLUE,
+            f"{self.anime.name} ({self.lang})",
+            " Episode ",
+            self.stream.episode,
+            "...",
+        ):
+            streams = self.anime.get_videos(self.stream.episode, self.lang)
+            streams.reverse()
+
+        stream = inquirer.select(  # type: ignore
+            message="Select Stream:",
+            choices=[
+                Choice(value=s, name=f"{s.resolution}p - {s.url}") for s in streams
+            ],
+            long_instruction="To skip this prompt press ctrl+z",
+            mandatory=False,
+        ).execute()
+
+        if stream is None:
+            return
+
+        stream = ProviderStream(**stream)
+        self.options.quality = stream.resolution
+        self.stream = stream
+        self.player.play_title(self.anime, self.stream)
+        self.print_options()
 
     def download_video(self):
         config = Config()

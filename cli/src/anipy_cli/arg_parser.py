@@ -6,7 +6,7 @@ from typing import Optional, Union
 from anipy_cli import __version__
 
 
-@dataclass(frozen=True)
+@dataclass()
 class CliArgs:
     download: bool
     binge: bool
