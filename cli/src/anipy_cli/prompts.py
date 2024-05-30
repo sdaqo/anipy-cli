@@ -1,6 +1,7 @@
 import time
 from typing import TYPE_CHECKING, Optional, List, Tuple
 from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
 from anipy_api.provider import (
     BaseProvider,
     FilterCapabilities,
@@ -72,7 +73,9 @@ def search_show_prompt(
 
     anime = inquirer.fuzzy(  # type: ignore
         message="Select Show:",
-        choices=results,
+        choices=[
+            Choice(value=r, name=f"{n + 1}. {repr(r)}") for n, r in enumerate(results)
+        ],
         long_instruction=(
             "\nS = Anime is available in sub\n"
             "D = Anime is available in dub\n"
