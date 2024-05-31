@@ -28,7 +28,6 @@
   in
   {
     packages.${system}.default = myPythonApp;
-    defaultPackage.${system} = myPythonApp;
 
     apps.${system}.default = {
       type = "app";
