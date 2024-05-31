@@ -54,6 +54,18 @@ pip --upgrade anipy-cli
 # Uninstall
 pip uninstall anipy-cli
 ```
+- NixOS: 
+```
+# Install
+nix profile install github:sdaqo/anipy-cli
+
+# Update
+nix profile update github:sdaqo/anipy-cli
+
+# Uninstall
+nix profile list # Get the index of anipy-cli
+nix profile remove <index-of-anipy-cli>
+```
 - AUR: Coming Soon™
 
 ## Usage

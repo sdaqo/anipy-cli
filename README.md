@@ -21,7 +21,7 @@ As one wise man once said:
 
 We do not have a .exe but we have pipx: `pipx install anipy-cli`
 
-Check out [Getting Started - CLI](https://sdaqo.github.io/anipy-cli/getting-started-cli) for better instructions and advice!
+Check out [Getting Started - CLI](https://sdaqo.github.io/anipy-cli/getting-started-cli) for more installation options (pip, nix) and advice!
 
 ## You want to use the api for your project?
 <a href="https://pypi.org/project/anipy-api/"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/anipy-api?style=for-the-badge&logo=pypi&label=anipy-api"></a>
