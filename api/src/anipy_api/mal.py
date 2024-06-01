@@ -625,6 +625,9 @@ class MyAnimeListAdapter:
 
         results: Set[ProviderSearchResult] = set()
         for title in mal_titles:
+            if len(title) == 0:
+                continue
+
             results |= set(self.provider.get_search(title))
             if use_filters:
                 results |= set(self.provider.get_search(title, provider_filters))
