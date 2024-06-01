@@ -45,7 +45,7 @@ class MpvControllable(PlayerBase):
                 "input_vo_keyboard": True,
                 "force_window": "immediate",
                 "title": "MPV - Receiving Links from anipy-cli",
-                "osc": "True",
+                "osc": True,
             }
 
         self.mpv = MPV(**mpv_args)
