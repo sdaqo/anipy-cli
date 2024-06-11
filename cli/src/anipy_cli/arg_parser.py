@@ -139,7 +139,7 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         "-p",
         "--optional-player",
         required=False,
-        choices=["mpv", "vlc", "syncplay", "mpvnet", "mpv-controlled"],
+        choices=["mpv", "vlc", "iina", "syncplay", "mpvnet", "mpv-controlled"],
         help="Override the player set in the config.",
     )
 

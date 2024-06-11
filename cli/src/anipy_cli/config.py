@@ -150,6 +150,18 @@ class Config:
         return self._get_value("vlc_commandline_options", [], list)
 
     @property
+    def iina_commandline_options(self) -> List[str]:
+        """Extra commandline arguments for iina.
+
+        Examples:
+            iina_commandline_options: ["--mpv-fullscreen"]
+        """
+        return self._get_value("iina_commandline_options", [], list)
+
+
+
+
+    @property
     def reuse_mpv_window(self) -> bool:
         """DEPRECATED This option was deprecated in 3.0.0, please use `mpv-
         controlled` in the `player_path` instead!
