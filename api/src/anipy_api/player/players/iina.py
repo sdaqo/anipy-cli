@@ -3,7 +3,7 @@ from anipy_api.player.base import SubProcessPlayerBase, PlayCallback
 
 
 class Iina(SubProcessPlayerBase):
-    """The [vlc](https://www.videolan.org/vlc/) subprocess player class.
+    """The [iina](https://iina.io) subprocess player class.
 
     For detailed documentation about the functions and arguments have a look at the [base class][anipy_api.player.base.SubProcessPlayerBase].
     """
