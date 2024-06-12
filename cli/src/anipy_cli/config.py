@@ -158,9 +158,6 @@ class Config:
         """
         return self._get_value("iina_commandline_options", [], list)
 
-
-
-
     @property
     def reuse_mpv_window(self) -> bool:
         """DEPRECATED This option was deprecated in 3.0.0, please use `mpv-
