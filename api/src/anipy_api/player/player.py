@@ -40,7 +40,7 @@ def get_player(
     if Path(player.name).stem == "mpv-controlled":
         return MpvControllable(play_callback=play_callback)
 
-    player_dict = {"mpv": Mpv, "mpvnet": Mpv, "vlc": Vlc, "syncplay": Syncplay}
+    player_dict = {"mpv": Mpv, "mpvnet": Mpv, "vlc": Vlc, "syncplay": Syncplay, "iina": Iina}
 
     player_class = player_dict.get(Path(player.name).stem, None)
 

@@ -174,6 +174,8 @@ def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase"
         args = config.mpv_commandline_options
     elif "vlc" in player.stem:
         args = config.vlc_commandline_options
+    elif "iina" in player.stem:
+        args = config.iina_commandline_options
     else:
         args = []
 
