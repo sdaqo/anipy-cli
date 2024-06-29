@@ -4,7 +4,7 @@ let
 in
 pkgs.mkShell {
   packages = with pkgs; [
-    python39
-    (poetry.override { python3 = python39; })
+    python3
+    (poetry.override { python3 = python3; })
   ];
 }
