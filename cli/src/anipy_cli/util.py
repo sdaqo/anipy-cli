@@ -14,14 +14,10 @@ from typing import (
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
-from anipy_api.player import get_player
-from anipy_api.provider import (
-    LanguageTypeEnum,
-    list_providers,
-    get_provider,
-)
-from anipy_api.locallist import LocalListData, LocalListEntry
 from anipy_api.error import LangTypeNotAvailableError
+from anipy_api.locallist import LocalListData, LocalListEntry
+from anipy_api.player import get_player
+from anipy_api.provider import LanguageTypeEnum, get_provider, list_providers
 from InquirerPy import inquirer
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
@@ -116,20 +112,14 @@ def get_download_path(
 def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episode"]:
     picked = set()
     for r in ranges.split():
-        numbers = r.split("-")
+        numbers = [parsenum(n) for n in r.split("-")]
+        print(numbers)
         if numbers[0] > numbers[-1]:
             error(f"invalid range: {r}")
             continue
-            # return pick_episode_range_prompt(anime, dub)
-
         try:
             picked = picked | set(
-                episodes[
-                    episodes.index(parsenum(numbers[0])) : episodes.index(
-                        parsenum(numbers[-1])
-                    )
-                    + 1
-                ]
+                episodes[episodes.index(numbers[0]) : episodes.index(numbers[-1]) + 1]
             )
         except ValueError:
             error(f"range `{r}` is not contained in episodes {episodes}")
