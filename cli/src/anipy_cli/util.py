@@ -113,7 +113,6 @@ def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episod
     picked = set()
     for r in ranges.split():
         numbers = [parsenum(n) for n in r.split("-")]
-        print(numbers)
         if numbers[0] > numbers[-1]:
             error(f"invalid range: {r}")
             continue
