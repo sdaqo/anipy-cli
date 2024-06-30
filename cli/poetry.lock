@@ -2,13 +2,13 @@
 
 [[package]]
 name = "anipy-api"
-version = "3.1.6"
+version = "3.1.7"
 description = "api for anipy-cli"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "anipy_api-3.1.6-py3-none-any.whl", hash = "sha256:fd74e04bf8a89838c365936c37e259f82dd512216f0b213b6dfbf55894987aa0"},
-    {file = "anipy_api-3.1.6.tar.gz", hash = "sha256:06d768aa459e2b87e74b498c1925f643a86394b0e7fd0433c2e7d4503afe03a1"},
+    {file = "anipy_api-3.1.7-py3-none-any.whl", hash = "sha256:b19a0dee7c2b055d691ac7d3b742893e247964d573f3ceeec0770a5ecf7269d1"},
+    {file = "anipy_api-3.1.7.tar.gz", hash = "sha256:9d04af1f7a5ec8b4319f85b8ef1c58f64684208e622c6188808aab24435e3e92"},
 ]
 
 [package.dependencies]
@@ -813,4 +813,4 @@ termcolor = "2.3.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "1bb9bd6ca52f7795bbcfbbc46bef3ee2fc33803089cff15feb3c410837a1cfc9"
+content-hash = "6740145e044bc799800878088c3bad25cf44d1eb5a68fa506677f7bd68cff0cb"
