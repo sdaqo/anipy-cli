@@ -56,13 +56,27 @@ pip uninstall anipy-cli
 ```
 - NixOS: 
 ```
-# Install
+# Make sure you have flakes enabled on your system!
+
+# Just run it once to try the program
+nix run github:sdaqo/anipy-cli
+
+# Add them to your flake inputs (recommended)
+# 
+# {
+#   anipy-cli.url = "github:sdaqo/anipy-cli";
+# }
+#
+# Use it with inputs.anipy-cli.${pkgs.system}.default
+# For example:
+#
+# environment.systemPackages = [
+#  inputs.anipy-cli.packages.${pkgs.system}.default
+# ];
+
+# Via Profile
 nix profile install github:sdaqo/anipy-cli
-
-# Update
 nix profile update github:sdaqo/anipy-cli
-
-# Uninstall
 nix profile list # Get the index of anipy-cli
 nix profile remove <index-of-anipy-cli>
 ```
