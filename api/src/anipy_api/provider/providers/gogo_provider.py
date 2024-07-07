@@ -3,7 +3,7 @@ import functools
 import json
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, List, Tuple
 from urllib.parse import parse_qsl, urlencode, urljoin, urlparse
 
 import m3u8
@@ -177,48 +177,8 @@ class GoGoProvider(BaseProvider):
         return list(results.values())
 
     def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List["Episode"]:
-        if lang == LanguageTypeEnum.DUB:
-            urls = [
-                f"{self.BASE_URL}/category/{identifier}-dub",
-                f"{self.BASE_URL}/category/{identifier}-japanese-dub",
-            ]
-        else:
-            urls = [f"{self.BASE_URL}/category/{identifier}"]
-
-        res = None
-        for u in urls:
-            try:
-                req = Request("GET", u)
-                res = request_page(self.session, req)
-                break
-            except HTTPError:
-                continue
-
-        if res is None:
-            raise LangTypeNotAvailableError(identifier, self.NAME, lang)
-
-        self.movie_id = re.search(
-            r'<input.+?value="(\d+)" id="movie_id"', res.text
-        ).group(1)
-
-        req = Request(
-            "GET",
-            "https://ajax.gogocdn.net/ajax/load-list-episode",
-            params={"ep_start": 0, "ep_end": 9999, "id": self.movie_id},
-        )
-        res = request_page(self.session, req)
-
-        ep_list = [
-            parsenum(
-                re.search(
-                    r"\d+([\.]\d+)?", x.find("div", attrs={"class": "name"}).text
-                ).group(0)
-            )
-            for x in BeautifulSoup(res.text, "html.parser").find_all("li")
-        ]
-        ep_list.reverse()
-
-        return ep_list
+        ep_list = self._get_episode_ajax(identifier, lang)
+        return [e[1] for e in ep_list]
 
     def get_info(self, identifier: str) -> "ProviderInfoResult":
         req = Request("GET", f"{self.BASE_URL}/category/{identifier}")
@@ -275,7 +235,18 @@ class GoGoProvider(BaseProvider):
                 continue
 
         if res is None:
-            raise LangTypeNotAvailableError(identifier, self.NAME, lang)
+            # GoGo's is **very** inconsistent when it comes to naming,
+            # so try one last time by querying the ajax, this should be very accurate but
+            # pretty expensive, so it is a last resort.
+
+            ajax_res = self._get_episode_ajax(identifier, lang)
+            filtered_res = next(filter(lambda x: episode == x[1], ajax_res), None)
+
+            if filtered_res is None:
+                raise LangTypeNotAvailableError(identifier, self.NAME, lang)
+            else:
+                req = Request("GET", f"{self.BASE_URL}{filtered_res[0]}")
+                res = request_page(self.session, req)
 
         soup = BeautifulSoup(res.content, "html.parser")
         link = soup.find("a", {"class": "active", "rel": "1"})
@@ -359,3 +330,52 @@ class GoGoProvider(BaseProvider):
                 )
 
         return streams
+
+    def _get_episode_ajax(
+        self, identifier: str, lang: LanguageTypeEnum
+    ) -> List[Tuple[str, "Episode"]]:
+        if lang == LanguageTypeEnum.DUB:
+            urls = [
+                f"{self.BASE_URL}/category/{identifier}-dub",
+                f"{self.BASE_URL}/category/{identifier}-japanese-dub",
+            ]
+        else:
+            urls = [f"{self.BASE_URL}/category/{identifier}"]
+
+        res = None
+        for u in urls:
+            try:
+                req = Request("GET", u)
+                res = request_page(self.session, req)
+                break
+            except HTTPError:
+                continue
+
+        if res is None:
+            raise LangTypeNotAvailableError(identifier, self.NAME, lang)
+
+        self.movie_id = re.search(
+            r'<input.+?value="(\d+)" id="movie_id"', res.text
+        ).group(1)
+
+        req = Request(
+            "GET",
+            "https://ajax.gogocdn.net/ajax/load-list-episode",
+            params={"ep_start": 0, "ep_end": 9999, "id": self.movie_id},
+        )
+        res = request_page(self.session, req)
+
+        ep_list = [
+            (
+                x.find("a").get("href").strip(),
+                parsenum(
+                    re.search(
+                        r"\d+([\.]\d+)?", x.find("div", attrs={"class": "name"}).text
+                    ).group(0)
+                ),
+            )
+            for x in BeautifulSoup(res.text, "html.parser").find_all("li")
+        ]
+        ep_list.reverse()
+
+        return ep_list
