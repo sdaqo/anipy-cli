@@ -19,7 +19,7 @@ As one wise man once said:
 
 <sub>Please do not take this seriously this is some stupid copypasta</sub>
 
-We do not have an .exe but we have pipx: `pipx install anipy-cli`
+We do not have an .exe, but we have pipx: `pipx install anipy-cli`
 
 Check out [Getting Started - CLI](https://sdaqo.github.io/anipy-cli/getting-started-cli) for more installation options (pip, nix) and advice!
 
