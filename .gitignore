@@ -19,3 +19,6 @@ site/
 # Venv
 .venv/
 venv/
+
+# direnv
+.direnv
