@@ -59,7 +59,12 @@ class SeasonalMenu(MenuBase):
                 anime = Anime.from_local_list_entry(s)
                 lang = s.language
                 episodes = anime.get_episodes(lang)
-                to_watch = episodes[episodes.index(s.episode) + 1 :]
+
+                if s.episode == -1:
+                    to_watch = episodes
+                else:
+                    to_watch = episodes[episodes.index(s.episode) + 1 :]
+
                 if len(to_watch) > 0:
                     ch = Choice(
                         value=(anime, lang, to_watch),
@@ -96,7 +101,7 @@ class SeasonalMenu(MenuBase):
         )
 
         if episode is None:
-            episode = anime.get_episodes(lang)[0]
+            episode = -1
 
         self.seasonal_list.update(anime, episode=episode, language=lang)
 
