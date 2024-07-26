@@ -80,7 +80,6 @@ nix profile update github:sdaqo/anipy-cli
 nix profile list # Get the index of anipy-cli
 nix profile remove <index-of-anipy-cli>
 ```
-- AUR: Coming Soon™
 
 ## Usage
 
