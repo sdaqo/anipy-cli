@@ -63,7 +63,6 @@ class DefaultCli(CliBase):
         anime = self._get_anime_from_user()
 
         if anime is None:
-            print("Anime was none")
             return False
 
         self.lang = lang_prompt(anime)
