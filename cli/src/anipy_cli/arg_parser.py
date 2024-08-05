@@ -23,6 +23,7 @@ class CliArgs:
     location: Optional[Path]
     mal_password: Optional[str]
     config: bool
+    seasonal_search: Optional[str]
 
 
 def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
@@ -105,6 +106,15 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         dest="search",
         action="store",
         help="Provide a search term to Default, Download or Binge mode in this format: {query}:{episode range}:{dub/sub}. Examples: 'frieren:1-10:sub' or 'frieren:1:sub' or 'frieren:1-3 7-12:dub', this argument may be appended to any of the modes mentioned like so: 'anipy-cli (-D/B) -s <search>'",
+    )
+
+    options_group.add_argument(
+        "-ss",
+        "--seasonal-search",
+        required=False,
+        dest="seasonal_search",
+        action="store",
+        help="Provide search parameters for seasons to Default, Download, or Binge mode in this format: {year}:{season}. Examples: '2024:winter' or '2020:fall'",
     )
 
     options_group.add_argument(
