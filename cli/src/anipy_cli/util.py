@@ -195,7 +195,7 @@ def convert_letter_to_season(letter: str) -> Optional[str]:
 
     Returns None if the letter does not correspond to a season
     """
-    for season in ["Winter", "Summer", "Spring", "Fall"]:
+    for season in ["Spring", "Summer", "Fall", "Winter"]:
         if season.startswith(letter.capitalize()):
             return season
     return
