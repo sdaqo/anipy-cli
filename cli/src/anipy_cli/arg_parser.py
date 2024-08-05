@@ -113,8 +113,10 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         "--seasonal-search",
         required=False,
         dest="seasonal_search",
-        action="store",
-        help="Provide search parameters for seasons to Default, Download, or Binge mode in this format: {year}:{season}. Examples: '2024:winter' or '2020:fall'",
+        nargs="?",  # 1 or none possible args
+        default=None,  # Used if flag is not present (added this line for clarity, because default is always None)
+        const=True,  # Used if flag is present, but no value
+        help="Provide search parameters for seasons to Default, Download, or Binge mode in this format: {year}:{season}. You can only use part of the season name if you wish. Examples: '2024:win' or '2020:fa'",
     )
 
     options_group.add_argument(

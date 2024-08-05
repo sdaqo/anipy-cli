@@ -121,10 +121,11 @@ def season_search_prompt(
     provider: "BaseProvider", year: Optional[int] = None, season: Optional[str] = None
 ) -> Optional["Anime"]:
     if year is None:
+        curr_year = time.localtime().tm_year
         year = inquirer.number(  # type: ignore
             message="Enter year:",
             long_instruction="To skip this prompt press ctrl+z",
-            default=time.localtime().tm_year,
+            default=curr_year,
             mandatory=False,
         ).execute()
 
@@ -144,9 +145,7 @@ def season_search_prompt(
     if season is None:
         return
 
-    season = Season[season.upper()]
-
-    discovered_anime = get_anime_by_season(provider, year, season)
+    discovered_anime = get_anime_by_season(provider, year, Season[season.upper()])
 
     anime = inquirer.fuzzy(  # type: ignore
         message="Select Show:",
@@ -166,12 +165,15 @@ def season_search_prompt(
     return anime
 
 
-def get_anime_by_season(provider: "BaseProvider", year: int, season: str):
-    filters = Filters(year=year, season=season)
-    return [
-        Anime.from_search_result(provider, r)
-        for r in provider.get_search(query="", filters=filters)
-    ]
+def get_anime_by_season(provider: "BaseProvider", year: int, season: Season):
+    with DotSpinner(
+        "Retrieving anime in ", colors.BLUE, f"{season.name} {year}", "..."
+    ):
+        filters = Filters(year=year, season=season)
+        return [
+            Anime.from_search_result(provider, r)
+            for r in provider.get_search(query="", filters=filters)
+        ]
 
 
 def pick_episode_prompt(
@@ -241,11 +243,29 @@ def lang_prompt(anime: "Anime") -> LanguageTypeEnum:
         return next(iter(anime.languages))
 
 
-def parse_seasonal_search(mode: str, passed: str) -> Optional["Anime"]:
+def parse_seasonal_search(mode: str, passed: str | bool) -> Optional["Anime"]:
     """
-    Mode: The provider to use.
-    Passed: The search terms passed (ex: `year:season`)
+    Takes the mode we are in, as well as the search parameters.
+    Asks the user to choose an anime.
+
+    `Mode`: The provider to use.
+    `Passed`: The search terms passed (ex: `year:season`) or True,
+    if True we'll ask the user for this information
     """
+    if isinstance(passed, bool):
+        if not passed:
+            return
+
+        provider = _get_season_provider(mode)
+
+        if not provider:
+            error(
+                "No valid provider was found for season search in the current mode",
+                fatal=True,
+            )
+
+        return season_search_prompt(provider)
+
     options = iter(passed.split(":"))
     year = next(options, None)
     season = next(options, None)
