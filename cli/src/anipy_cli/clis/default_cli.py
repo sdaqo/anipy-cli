@@ -11,6 +11,7 @@ from anipy_cli.prompts import (
     search_show_prompt,
     lang_prompt,
     parse_auto_search,
+    parse_seasonal_search,
 )
 from anipy_cli.util import (
     DotSpinner,
@@ -42,6 +43,15 @@ class DefaultCli(CliBase):
     def print_header(self):
         pass
 
+    def _get_anime_from_user(self):
+        if (ss := self.options.seasonal_search) is not None:
+            return parse_seasonal_search(
+                "default",
+                ss,
+            )
+
+        return search_show_prompt("default")
+
     def take_input(self):
         if self.options.search is not None:
             self.anime, self.lang, episodes = parse_auto_search(
@@ -50,7 +60,7 @@ class DefaultCli(CliBase):
             self.epsiode = episodes[0]
             return
 
-        anime = search_show_prompt("default")
+        anime = self._get_anime_from_user()
 
         if anime is None:
             return False

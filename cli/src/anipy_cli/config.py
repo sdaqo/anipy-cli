@@ -358,6 +358,12 @@ class Config:
         """If this is set to true you will not be prompted to search in season."""
         return self._get_value("skip_season_search", False, bool)
 
+    @property
+    def assume_season_search(self) -> bool:
+        """If this is set to true, the system will assume you want to search in season.
+        If skip_season_search is true, this will be ignored)"""
+        return self._get_value("assume_season_search", False, bool)
+
     def _get_path_value(self, key: str, fallback: Path) -> Path:
         path = self._get_value(key, fallback, str)
         try:
@@ -385,21 +391,23 @@ class Config:
             if attribute.startswith("_"):
                 continue
 
-            if isinstance(value, property):
-                doc = inspect.getdoc(value)
-                if doc:
-                    # Add docstrings
-                    doc = Template(doc).safe_substitute(version=__version__)
-                    doc = "\n".join([f"# {line}" for line in doc.split("\n")])
-                    dump = dump + doc + "\n"
+            if not isinstance(value, property):
+                continue
 
-                val = self.__getattribute__(attribute)
-                val = str(val) if isinstance(val, Path) else val
-                dump = (
-                    dump
-                    + yaml.dump({attribute: val}, indent=4, default_flow_style=False)
-                    + "\n"
-                )
+            doc = inspect.getdoc(value)
+            if doc:
+                # Add docstrings
+                doc = Template(doc).safe_substitute(version=__version__)
+                doc = "\n".join([f"# {line}" for line in doc.split("\n")])
+                dump = dump + doc + "\n"
+
+            val = self.__getattribute__(attribute)
+            val = str(val) if isinstance(val, Path) else val
+            dump = (
+                dump
+                + yaml.dump({attribute: val}, indent=4, default_flow_style=False)
+                + "\n"
+            )
 
         self._config_file.write_text(dump)
 

@@ -182,6 +182,25 @@ def get_anime_season(month):
         return "Fall"
 
 
+def convert_letter_to_season(letter: str) -> Optional[str]:
+    """
+    Converts the beginning of the name of a season to that season name.
+
+    Ex:
+    ```
+    win -> Winter
+    su -> Summer
+    sp -> Spring
+    ```
+
+    Returns None if the letter does not correspond to a season
+    """
+    for season in ["Spring", "Summer", "Fall", "Winter"]:
+        if season.startswith(letter.capitalize()):
+            return season
+    return
+
+
 def migrate_locallist(file: Path) -> LocalListData:
     import json
     import re

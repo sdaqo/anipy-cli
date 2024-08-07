@@ -17,6 +17,7 @@ from anipy_cli.util import (
     get_prefered_providers,
     error,
     parse_episode_ranges,
+    convert_letter_to_season,
 )
 from anipy_cli.colors import colors
 from anipy_cli.config import Config
@@ -30,22 +31,9 @@ def search_show_prompt(
     mode: str, skip_season_search: bool = False
 ) -> Optional["Anime"]:
     if not (Config().skip_season_search or skip_season_search):
-        season_provider = None
-        for p in get_prefered_providers(mode):
-            if p.FILTER_CAPS & (
-                FilterCapabilities.SEASON
-                | FilterCapabilities.YEAR
-                | FilterCapabilities.NO_QUERY
-            ):
-                season_provider = p
-        if season_provider is not None:
-            should_search = inquirer.confirm("Do you want to search in season?", default=False).execute()  # type: ignore
-            if not should_search:
-                print(
-                    "Hint: you can set `skip_season_search` to `true` in the config to skip this prompt!"
-                )
-            else:
-                return season_search_prompt(season_provider)
+        anime = season_search_pre_prompt(mode)
+        if anime is not None:
+            return anime
 
     query = inquirer.text(  # type: ignore
         "Search Anime:",
@@ -88,41 +76,82 @@ def search_show_prompt(
     return anime
 
 
-def season_search_prompt(provider: "BaseProvider") -> Optional["Anime"]:
-    year = inquirer.number(  # type: ignore
-        message="Enter year:",
-        long_instruction="To skip this prompt press ctrl+z",
-        default=time.localtime().tm_year,
-        mandatory=False,
-    ).execute()
+def _get_season_provider(mode: str) -> Optional["BaseProvider"]:
+    season_provider = None
+    for p in get_prefered_providers(mode):
+        if p.FILTER_CAPS & (
+            FilterCapabilities.SEASON
+            | FilterCapabilities.YEAR
+            | FilterCapabilities.NO_QUERY
+        ):
+            season_provider = p
+    return season_provider
+
+
+def season_search_pre_prompt(
+    mode: str, year: Optional[int] = None, season: Optional[str] = None
+) -> Optional["Anime"]:
+    season_provider = _get_season_provider(mode)
+    assume_season_search = Config().assume_season_search
+
+    # If there is no proper season provider
+    if season_provider is None:
+        if not assume_season_search:
+            return
+        # If assume search was on, and there is no proper season provider
+        print(
+            f"`assume_season_search` was set to true, but the providers ({", ".join(Config().providers[mode])}) you have selected do not have seasonal capabilities"
+        )
+        return
+
+    if assume_season_search or (year and season):
+        return season_search_prompt(season_provider, year, season)
+
+    should_search = inquirer.confirm("Do you want to search in season?", default=False).execute()  # type: ignore
+
+    if should_search:
+        return season_search_prompt(season_provider)
+
+    print(
+        "Hint: you can set `skip_season_search` to `true` in the config to skip this prompt!"
+    )
+
+
+def season_search_prompt(
+    provider: "BaseProvider", year: Optional[int] = None, season: Optional[str] = None
+) -> Optional["Anime"]:
+    if year is None:
+        curr_year = time.localtime().tm_year
+        year = inquirer.number(  # type: ignore
+            message="Enter year:",
+            long_instruction="To skip this prompt press ctrl+z",
+            default=curr_year,
+            mandatory=False,
+        ).execute()
 
     if year is None:
         return
 
-    season = inquirer.select(  # type: ignore
-        message="Select Season:",
-        choices=["Winter", "Spring", "Summer", "Fall"],
-        instruction="The season selected by default is the current season.",
-        long_instruction="To skip this prompt press ctrl+z",
-        default=get_anime_season(time.localtime().tm_mon),
-        mandatory=False,
-    ).execute()
+    if season is None:
+        season = inquirer.select(  # type: ignore
+            message="Select Season:",
+            choices=["Winter", "Spring", "Summer", "Fall"],
+            instruction="The season selected by default is the current season.",
+            long_instruction="To skip this prompt press ctrl+z",
+            default=get_anime_season(time.localtime().tm_mon),
+            mandatory=False,
+        ).execute()
 
     if season is None:
         return
 
-    season = Season[season.upper()]
-
-    filters = Filters(year=year, season=season)
-    results = [
-        Anime.from_search_result(provider, r)
-        for r in provider.get_search(query="", filters=filters)
-    ]
+    discovered_anime = get_anime_by_season(provider, year, Season[season.upper()])
 
     anime = inquirer.fuzzy(  # type: ignore
         message="Select Show:",
         choices=[
-            Choice(value=r, name=f"{n + 1}. {repr(r)}") for n, r in enumerate(results)
+            Choice(value=r, name=f"{n + 1}. {repr(r)}")
+            for n, r in enumerate(discovered_anime)
         ],
         long_instruction=(
             "\nS = Anime is available in sub\n"
@@ -134,6 +163,17 @@ def season_search_prompt(provider: "BaseProvider") -> Optional["Anime"]:
     ).execute()
 
     return anime
+
+
+def get_anime_by_season(provider: "BaseProvider", year: int, season: Season):
+    with DotSpinner(
+        "Retrieving anime in ", colors.BLUE, f"{season.name} {year}", "..."
+    ):
+        filters = Filters(year=year, season=season)
+        return [
+            Anime.from_search_result(provider, r)
+            for r in provider.get_search(query="", filters=filters)
+        ]
 
 
 def pick_episode_prompt(
@@ -201,6 +241,47 @@ def lang_prompt(anime: "Anime") -> LanguageTypeEnum:
             return LanguageTypeEnum.SUB
     else:
         return next(iter(anime.languages))
+
+
+def parse_seasonal_search(mode: str, passed: str | bool) -> Optional["Anime"]:
+    """
+    Takes the mode we are in, as well as the search parameters.
+    Asks the user to choose an anime.
+
+    `Mode`: The provider to use.
+    `Passed`: The search terms passed (ex: `year:season`) or True,
+    if True we'll ask the user for this information
+    """
+    if isinstance(passed, bool):
+        if not passed:
+            return
+
+        provider = _get_season_provider(mode)
+
+        if not provider:
+            error(
+                "No valid provider was found for season search in the current mode",
+                fatal=True,
+            )
+
+        return season_search_prompt(provider)
+
+    options = iter(passed.split(":"))
+    year = next(options, None)
+    season = next(options, None)
+
+    if (not year) or not year.isnumeric():
+        error("A year was either not provided, or was not a number", fatal=True)
+
+    if not season:
+        error("A season was not provided", fatal=True)
+
+    season = convert_letter_to_season(season)
+
+    if not season:
+        error("The given season was not a valid season", fatal=True)
+
+    return season_search_pre_prompt(mode, int(year), season)
 
 
 def parse_auto_search(

@@ -7,6 +7,7 @@ from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.prompts import (
+    parse_seasonal_search,
     pick_episode_range_prompt,
     search_show_prompt,
     lang_prompt,
@@ -34,6 +35,15 @@ class BingeCli(CliBase):
     def print_header(self):
         cprint(colors.GREEN, "***Binge Mode***")
 
+    def _get_anime_from_user(self):
+        if (ss := self.options.seasonal_search) is not None:
+            return parse_seasonal_search(
+                "binge",
+                ss,
+            )
+
+        return search_show_prompt("binge")
+
     def take_input(self):
         if self.options.search is not None:
             self.anime, self.lang, self.episodes = parse_auto_search(
@@ -41,7 +51,7 @@ class BingeCli(CliBase):
             )
             return
 
-        anime = search_show_prompt("binge")
+        anime = self._get_anime_from_user()
 
         if anime is None:
             sys.exit(0)
