@@ -100,7 +100,7 @@ def season_search_pre_prompt(
             return
         # If assume search was on, and there is no proper season provider
         print(
-            f"`assume_season_search` was set to true, but the providers ({", ".join(Config().providers[mode])}) you have selected do not have seasonal capabilities"
+            f"`assume_season_search` was set to true, but the providers ({', '.join(Config().providers[mode])}) you have selected do not have seasonal capabilities"
         )
         return
 
