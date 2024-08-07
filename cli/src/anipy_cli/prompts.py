@@ -147,6 +147,10 @@ def season_search_prompt(
 
     discovered_anime = get_anime_by_season(provider, year, Season[season.upper()])
 
+    if not discovered_anime:
+        error(f"No anime found in {season} {year}")
+        return
+
     anime = inquirer.fuzzy(  # type: ignore
         message="Select Show:",
         choices=[
