@@ -1,10 +1,11 @@
 """These are only internal utils, which are not made to be used outside"""
 
 from typing import TYPE_CHECKING
+from typing import Union, Optional
 
 if TYPE_CHECKING:
     from requests import Request, Session, Response
-
+    from bs4 import Tag, NavigableString
 
 def request_page(session: "Session", req: "Request") -> "Response":
     """Prepare a request and send it.
@@ -38,3 +39,12 @@ def parsenum(n: str):
         return int(n)
     except ValueError:
         return float(n)
+
+def safe_attr(bs_obj: Optional[Union["Tag", "NavigableString", int]], attr: str) -> Optional[str]:
+    if bs_obj is None or isinstance(bs_obj, int):
+        return None
+
+    if attr == "text":
+        return bs_obj.get_text()
+
+    return bs_obj.get(attr) # type: ignore

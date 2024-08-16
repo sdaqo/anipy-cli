@@ -61,7 +61,7 @@ class ProviderInfoResult:
         alternative_names: List of alternative names
     """
 
-    name: str
+    name: Optional[str] = None
     image: Optional[str] = None
     genres: Optional[List[str]] = None
     synopsis: Optional[str] = None
