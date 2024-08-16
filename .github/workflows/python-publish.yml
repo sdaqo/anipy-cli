@@ -38,7 +38,6 @@ jobs:
       - name: Lock cli
         run: |
           while true; do 
-            echo "trying..."
             pypi_page=$(curl --silent -L "https://pypi.org/project/anipy-api")
             if grep -q "${GITHUB_REF#refs/*/v}" <<< $pypi_page; then
               break
