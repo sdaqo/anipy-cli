@@ -193,27 +193,27 @@ class GoGoProvider(BaseProvider):
         name = safe_attr(info_body.find("h1"), "text")
         image = safe_attr(info_body.find("img"), "src")
 
-        alt_names = info_body.find("p", {"class": "other-name"}) # type: ignore
+        alt_names = info_body.find("p", {"class": "other-name"})  # type: ignore
         if alt_names is not None:
             alt_names = safe_attr(alt_names.find("a"), "text").split(",")  # type: ignore
         synopsis = safe_attr(info_body.find("div", {"class": "description"}), "text").replace("\n", "")  # type: ignore
 
-        other_info = info_body.find_all("p", {"class": "type"}) # type: ignore
+        other_info = info_body.find_all("p", {"class": "type"})  # type: ignore
         status, release_year, genres = None, None, []
         for i in other_info:
             cat_name = safe_attr(i.find("span"), "text")
-            
+
             if cat_name == "Genre:":
                 genres = [x["title"] for x in i.find_all("a")]
             elif cat_name == "Status:":
-               status = safe_attr(i.find("a"), "text")
-               try:
-                   status = Status[status.upper()] # type: ignore
-               except KeyError:
-                   status = None
+                status = safe_attr(i.find("a"), "text")
+                try:
+                    status = Status[status.upper()]  # type: ignore
+                except KeyError:
+                    status = None
             elif cat_name == "Released:":
                 try:
-                    release_year = int(safe_attr(i, "text").replace("Released: ", "")) # type: ignore
+                    release_year = int(safe_attr(i, "text").replace("Released: ", ""))  # type: ignore
                 except (ValueError, TypeError):
                     release_year = None
 

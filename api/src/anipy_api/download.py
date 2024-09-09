@@ -250,6 +250,7 @@ class Downloader:
         download_path: Path,
         container: Optional[str] = None,
         ffmpeg: bool = False,
+        maxRetry: int = 3,
     ) -> Path:
         """Generic download function that determines the best way to download a
         specific stream and downloads it. The suffix should be omitted here,
@@ -271,6 +272,34 @@ class Downloader:
         Returns:
             The path of the resulting file
         """
+        curr_exc: Exception | None = None
+        for i in range(maxRetry):
+            try:
+                path = self.__download_single_try(
+                    stream, download_path, container, ffmpeg
+                )
+                return path
+            except DownloadError as e:
+                self._info_callback(f"A download error occurred during download: {e}")
+                curr_exc = e
+            except Exception as e:
+                self._info_callback(f"An error occurred during download: {e}")
+                curr_exc = e
+            self._info_callback(f"{maxRetry-i-1} retries remain")
+
+        # Impossible, but to make the type
+        # checker happy
+        if curr_exc is None:
+            raise DownloadError("Unknown error occurred")
+        raise curr_exc
+
+    def __download_single_try(
+        self,
+        stream: "ProviderStream",
+        download_path: Path,
+        container: Optional[str] = None,
+        ffmpeg: bool = False,
+    ) -> Path:
         download_path.parent.mkdir(parents=True, exist_ok=True)
 
         for p in download_path.parent.iterdir():
