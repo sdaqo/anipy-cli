@@ -51,7 +51,7 @@ class Downloader:
         Args:
             progress_callback: A callback with an percentage argument, that gets called on download progress.
             info_callback: A callback with an message argument, that gets called on certain events.
-            error_callback: A callback with a message argument, when certain events cause a non-fatal error (if non given, alternative fallback is info_callback).
+            soft_error_callback: A callback with a message argument, when certain events cause a non-fatal error (if none given, alternative fallback is info_callback).
         """
         self._progress_callback: ProgressCallback = progress_callback or (
             lambda percentage: None
@@ -273,6 +273,7 @@ class Downloader:
                 Containers may include all containers supported by FFmpeg e.g. ".mp4", ".mkv" etc...
             ffmpeg: Wheter to automatically default to
                 [ffmpeg_download][anipy_api.download.Downloader.ffmpeg_download] for m3u8/hls streams.
+            maxRetry: The amount of times the API can retry the download
 
         Returns:
             The path of the resulting file
