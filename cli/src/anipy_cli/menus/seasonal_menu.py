@@ -10,7 +10,7 @@ from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
 
-from anipy_cli.colors import colors
+from anipy_cli.colors import color, colors
 from anipy_cli.config import Config
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
@@ -208,14 +208,22 @@ class SeasonalMenu(MenuBase):
             def info_display(message: str):
                 s.write(f"> {message}")
 
-            downloader = Downloader(progress_indicator, info_display)
+            def error_display(message: str):
+                s.write(f"{colors.RED}! {message}{colors.END}")
+
+            downloader = Downloader(progress_indicator, info_display, error_display)
 
             for anime, lang, eps in picked:
                 for ep in eps:
                     try:
                         self.__download_ep(anime, lang, downloader, ep, s)
                     except Exception:
-                        s.write("> Issues occurred during download, downloads stopped")
+                        s.write(
+                            color(
+                                colors.RED,
+                                "> Issues occurred during download, downloads stopped",
+                            )
+                        )
                         self.print_options(clear_screen=False)
                         return
 

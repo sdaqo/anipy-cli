@@ -82,7 +82,10 @@ class DownloadCli(CliBase):
             def info_display(message: str):
                 s.write(f"> {message}")
 
-            downloader = Downloader(progress_indicator, info_display)
+            def error_display(message: str):
+                s.write(f"{colors.RED}! {message}{colors.END}")
+
+            downloader = Downloader(progress_indicator, info_display, error_display)
 
             for e in self.episodes:
                 s.set_text(
@@ -104,14 +107,20 @@ class DownloadCli(CliBase):
                 )
                 s.set_text("Downloading...")
 
-                downloader.download(
-                    stream,
-                    get_download_path(
-                        self.anime, stream, parent_directory=self.dl_path
-                    ),
-                    container=config.remux_to,
-                    ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-                )
+                try:
+                    downloader.download(
+                        stream,
+                        get_download_path(
+                            self.anime, stream, parent_directory=self.dl_path
+                        ),
+                        container=config.remux_to,
+                        ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
+                    )
+                except Exception as e:
+                    error_display(str(e))
+                    error_display(
+                        f"Ran into issues downloading {stream.episode} of {self.anime.name} ({self.lang}); skipping."
+                    )
 
     def show(self):
         pass

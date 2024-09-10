@@ -44,17 +44,22 @@ class Downloader:
         self,
         progress_callback: Optional[ProgressCallback] = None,
         info_callback: Optional[InfoCallback] = None,
+        soft_error_callback: Optional[InfoCallback] = None,
     ):
         """__init__ of Downloader.
 
         Args:
             progress_callback: A callback with an percentage argument, that gets called on download progress.
             info_callback: A callback with an message argument, that gets called on certain events.
+            error_callback: A callback with a message argument, when certain events cause a non-fatal error (if non given, alternative fallback is info_callback).
         """
         self._progress_callback: ProgressCallback = progress_callback or (
             lambda percentage: None
         )
         self._info_callback: InfoCallback = info_callback or (lambda message: None)
+        self._soft_error_callback: InfoCallback = (
+            soft_error_callback or info_callback or (lambda message: None)
+        )
 
         self._session = requests.Session()
 
@@ -280,17 +285,19 @@ class Downloader:
                 )
                 return path
             except DownloadError as e:
-                self._info_callback(f"A download error occurred during download: {e}")
+                self._soft_error_callback(str(e))
                 curr_exc = e
             except Exception as e:
-                self._info_callback(f"An error occurred during download: {e}")
+                self._soft_error_callback(f"An error occurred during download: {e}")
                 curr_exc = e
-            self._info_callback(f"{maxRetry-i-1} retries remain")
+            self._soft_error_callback(f"{maxRetry-i-1} retries remain")
 
         # Impossible, but to make the type
         # checker happy
         if curr_exc is None:
             raise DownloadError("Unknown error occurred")
+        # If retrying doesn't work, double it and
+        # give it to the next exception handler
         raise curr_exc
 
     def __download_single_try(
