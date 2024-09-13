@@ -2,7 +2,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple
 
-from anipy_cli.comps.download_component import DownloadComponent
+from anipy_cli.download_component import DownloadComponent
 
 from anipy_api.anime import Anime
 from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional, List
 
-from anipy_cli.comps.download_component import DownloadComponent
+from anipy_cli.download_component import DownloadComponent
 
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint

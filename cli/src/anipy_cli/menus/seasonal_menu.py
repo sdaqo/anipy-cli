@@ -1,7 +1,7 @@
 import sys
 from typing import TYPE_CHECKING, List, Tuple
 
-from anipy_cli.comps.download_component import DownloadComponent
+from anipy_cli.download_component import DownloadComponent
 
 from anipy_api.anime import Anime
 from anipy_api.provider import LanguageTypeEnum
