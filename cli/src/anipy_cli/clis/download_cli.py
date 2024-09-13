@@ -1,8 +1,6 @@
 from typing import TYPE_CHECKING, Optional, List
 
-from anipy_cli.comps.DownloadComp import DownloadComponent
-
-from anipy_api.download import Downloader
+from anipy_cli.comps.download_component import DownloadComponent
 
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
@@ -13,10 +11,6 @@ from anipy_cli.prompts import (
     search_show_prompt,
     lang_prompt,
     parse_auto_search,
-)
-from anipy_cli.util import (
-    DotSpinner,
-    get_download_path,
 )
 
 if TYPE_CHECKING:
@@ -75,8 +69,10 @@ class DownloadCli(CliBase):
         assert self.anime is not None
         assert self.lang is not None
 
-        errors = DownloadComponent(self.options, self.dl_path).download_anime([(self.anime, self.lang, self.episodes)], only_skip_ep_on_err=True)
-        DownloadComponent.serve_download_errors(errors)
+        errors = DownloadComponent(self.options, self.dl_path).download_anime(
+            [(self.anime, self.lang, self.episodes)], only_skip_ep_on_err=True
+        )
+        DownloadComponent.serve_download_errors(errors, only_skip_ep_on_err=True)
 
     def show(self):
         pass

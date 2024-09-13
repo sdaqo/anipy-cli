@@ -2,10 +2,9 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple
 
-from anipy_cli.comps.DownloadComp import DownloadComponent
+from anipy_cli.comps.download_component import DownloadComponent
 
 from anipy_api.anime import Anime
-from anipy_api.download import Downloader
 from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
@@ -16,7 +15,7 @@ from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
 
 from anipy_cli.arg_parser import CliArgs
-from anipy_cli.colors import color, colors, cprint
+from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.mal_proxy import MyAnimeListProxy
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
@@ -25,7 +24,6 @@ from anipy_cli.util import (
     error,
     find_closest,
     get_configured_player,
-    get_download_path,
     migrate_locallist,
 )
 from anipy_cli.prompts import search_show_prompt
@@ -257,22 +255,27 @@ class MALMenu(MenuBase):
             return
         else:
             print(f"Downloading a total of {total_eps} episode(s)")
-        
+
         convert: Dict[Anime, MALAnime] = {d[0]: d[1] for d in picked}
-        new_picked = [(anime_info[0], anime_info[2], anime_info[3]) for anime_info in picked]
+        new_picked = [
+            (anime_info[0], anime_info[2], anime_info[3]) for anime_info in picked
+        ]
 
-        def onSuccessDownload(anime: Anime, ep: Episode, _: LanguageTypeEnum):
-            if all: return
+        def on_successful_download(anime: Anime, ep: Episode, lang: LanguageTypeEnum):
+            if all:
+                return
             self.mal_proxy.update_show(
-                    convert[anime],
-                    status=MALMyListStatusEnum.WATCHING,
-                    episode=int(ep),
-                )
+                convert[anime],
+                status=MALMyListStatusEnum.WATCHING,
+                episode=int(ep),
+            )
 
-        errors = DownloadComponent(self.options, self.dl_path).download_anime(new_picked, onSuccessDownload)
+        errors = DownloadComponent(self.options, self.dl_path).download_anime(
+            new_picked, on_successful_download
+        )
         DownloadComponent.serve_download_errors(errors)
 
-        self.print_options(clear_screen=len(errors)==0)
+        self.print_options(clear_screen=len(errors) == 0)
 
     def binge_latest(self):
         picked = self._choose_latest()

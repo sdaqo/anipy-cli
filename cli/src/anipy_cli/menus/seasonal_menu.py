@@ -1,10 +1,9 @@
 import sys
 from typing import TYPE_CHECKING, List, Tuple
 
-from anipy_cli.comps.DownloadComp import DownloadComponent
+from anipy_cli.comps.download_component import DownloadComponent
 
 from anipy_api.anime import Anime
-from anipy_api.download import Downloader
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
 from anipy_api.locallist import LocalList, LocalListEntry
@@ -12,14 +11,13 @@ from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
 
-from anipy_cli.colors import color, colors
+from anipy_cli.colors import colors
 from anipy_cli.config import Config
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
     error,
     get_configured_player,
-    get_download_path,
     migrate_locallist,
 )
 from anipy_cli.prompts import pick_episode_prompt, search_show_prompt, lang_prompt
@@ -203,14 +201,16 @@ class SeasonalMenu(MenuBase):
         else:
             print(f"Downloading a total of {total_eps} episode(s)")
 
-        def onSuccessfulDownload(anime: Anime, ep: Episode, lang: LanguageTypeEnum):
+        def on_successful_download(anime: Anime, ep: Episode, lang: LanguageTypeEnum):
             self.seasonal_list.update(anime, episode=ep, language=lang)
 
-        failed_series = DownloadComponent(self.options, self.dl_path).download_anime(picked, onSuccessfulDownload)
+        failed_series = DownloadComponent(self.options, self.dl_path).download_anime(
+            picked, on_successful_download
+        )
 
         if not self.options.auto_update:
             # Clear screen only if there were no issues
-            self.print_options(clear_screen=len(failed_series)==0)
+            self.print_options(clear_screen=len(failed_series) == 0)
 
     def binge_latest(self):
         picked = self._choose_latest()
