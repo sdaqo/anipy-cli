@@ -44,17 +44,22 @@ class Downloader:
         self,
         progress_callback: Optional[ProgressCallback] = None,
         info_callback: Optional[InfoCallback] = None,
+        soft_error_callback: Optional[InfoCallback] = None,
     ):
         """__init__ of Downloader.
 
         Args:
             progress_callback: A callback with an percentage argument, that gets called on download progress.
             info_callback: A callback with an message argument, that gets called on certain events.
+            soft_error_callback: A callback with a message argument, when certain events cause a non-fatal error (if none given, alternative fallback is info_callback).
         """
         self._progress_callback: ProgressCallback = progress_callback or (
             lambda percentage: None
         )
         self._info_callback: InfoCallback = info_callback or (lambda message: None)
+        self._soft_error_callback: InfoCallback = (
+            soft_error_callback or info_callback or (lambda message: None)
+        )
 
         self._session = requests.Session()
 
@@ -250,6 +255,7 @@ class Downloader:
         download_path: Path,
         container: Optional[str] = None,
         ffmpeg: bool = False,
+        max_retry: int = 3,
     ) -> Path:
         """Generic download function that determines the best way to download a
         specific stream and downloads it. The suffix should be omitted here,
@@ -267,10 +273,41 @@ class Downloader:
                 Containers may include all containers supported by FFmpeg e.g. ".mp4", ".mkv" etc...
             ffmpeg: Wheter to automatically default to
                 [ffmpeg_download][anipy_api.download.Downloader.ffmpeg_download] for m3u8/hls streams.
+            maxRetry: The amount of times the API can retry the download
 
         Returns:
             The path of the resulting file
         """
+        curr_exc: Exception | None = None
+        for i in range(max_retry):
+            try:
+                path = self._download_single_try(
+                    stream, download_path, container, ffmpeg
+                )
+                return path
+            except DownloadError as e:
+                self._soft_error_callback(str(e))
+                curr_exc = e
+            except Exception as e:
+                self._soft_error_callback(f"An error occurred during download: {e}")
+                curr_exc = e
+            self._soft_error_callback(f"{max_retry-i-1} retries remain")
+
+        # Impossible, but to make the type
+        # checker happy
+        if curr_exc is None:
+            raise DownloadError("Unknown error occurred")
+        # If retrying doesn't work, double it and
+        # give it to the next exception handler
+        raise curr_exc
+
+    def _download_single_try(
+        self,
+        stream: "ProviderStream",
+        download_path: Path,
+        container: Optional[str] = None,
+        ffmpeg: bool = False,
+    ) -> Path:
         download_path.parent.mkdir(parents=True, exist_ok=True)
 
         for p in download_path.parent.iterdir():

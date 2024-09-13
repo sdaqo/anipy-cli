@@ -2,8 +2,9 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple
 
+from anipy_cli.download_component import DownloadComponent
+
 from anipy_api.anime import Anime
-from anipy_api.download import Downloader
 from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
@@ -23,7 +24,6 @@ from anipy_cli.util import (
     error,
     find_closest,
     get_configured_player,
-    get_download_path,
     migrate_locallist,
 )
 from anipy_cli.prompts import search_show_prompt
@@ -249,7 +249,6 @@ class MALMenu(MenuBase):
 
     def download(self, all: bool = False):
         picked = self._choose_latest(all=all)
-        config = Config()
         total_eps = sum([len(e) for a, m, lang, e in picked])
         if total_eps == 0:
             print("Nothing to download, returning...")
@@ -257,49 +256,26 @@ class MALMenu(MenuBase):
         else:
             print(f"Downloading a total of {total_eps} episode(s)")
 
-        with DotSpinner("Starting Download...") as s:
+        convert: Dict[Anime, MALAnime] = {d[0]: d[1] for d in picked}
+        new_picked = [
+            (anime_info[0], anime_info[2], anime_info[3]) for anime_info in picked
+        ]
 
-            def progress_indicator(percentage: float):
-                s.set_text(f"Progress: {percentage:.1f}%")
+        def on_successful_download(anime: Anime, ep: Episode, lang: LanguageTypeEnum):
+            if all:
+                return
+            self.mal_proxy.update_show(
+                convert[anime],
+                status=MALMyListStatusEnum.WATCHING,
+                episode=int(ep),
+            )
 
-            def info_display(message: str):
-                s.write(f"> {message}")
+        errors = DownloadComponent(self.options, self.dl_path).download_anime(
+            new_picked, on_successful_download
+        )
+        DownloadComponent.serve_download_errors(errors)
 
-            downloader = Downloader(progress_indicator, info_display)
-
-            for anime, mal_anime, lang, eps in picked:
-                for ep in eps:
-                    s.set_text(
-                        "Extracting streams for ",
-                        colors.BLUE,
-                        f"{anime.name} ({lang})",
-                        colors.END,
-                        " Episode ",
-                        ep,
-                        "...",
-                    )
-
-                    stream = anime.get_video(
-                        ep, lang, preferred_quality=self.options.quality
-                    )
-
-                    info_display(
-                        f"Downloading Episode {stream.episode} of {anime.name} ({lang})"
-                    )
-                    s.set_text("Downloading...")
-
-                    downloader.download(
-                        stream,
-                        get_download_path(anime, stream, parent_directory=self.dl_path),
-                        container=config.remux_to,
-                        ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-                    )
-                    if not all:
-                        self.mal_proxy.update_show(
-                            mal_anime,
-                            status=MALMyListStatusEnum.WATCHING,
-                            episode=int(ep),
-                        )
+        self.print_options(clear_screen=len(errors) == 0)
 
     def binge_latest(self):
         picked = self._choose_latest()
@@ -416,6 +392,10 @@ class MALMenu(MenuBase):
 
             if e.my_list_status.num_episodes_watched == e.num_episodes:
                 mylist.pop(i)
+
+        if not mylist:
+            error("MAL is empty", False)
+            return []
 
         if not (all or self.options.auto_update):
             choices = inquirer.fuzzy(  # type: ignore

@@ -211,7 +211,10 @@ class Menu(MenuBase):
             def info_display(message: str):
                 s.write(f"> {message}")
 
-            downloader = Downloader(progress_indicator, info_display)
+            def error_display(message: str):
+                s.write(f"{colors.RED}! {message}{colors.END}")
+
+            downloader = Downloader(progress_indicator, info_display, error_display)
 
             s.set_text(
                 "Extracting streams for ",

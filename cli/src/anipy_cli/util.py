@@ -59,16 +59,17 @@ def error(error: str, fatal: bool = False) -> Union[NoReturn, None]:
         sys.stderr.write(
             color(colors.RED, "anipy-cli: error: ", colors.END, f"{error}\n")
         )
-    else:
-        sys.stderr.write(
-            color(
-                colors.RED,
-                "anipy-cli: fatal error: ",
-                colors.END,
-                f"{error}, exiting\n",
-            )
+        return
+
+    sys.stderr.write(
+        color(
+            colors.RED,
+            "anipy-cli: fatal error: ",
+            colors.END,
+            f"{error}, exiting\n",
         )
-        sys.exit(1)
+    )
+    sys.exit(1)
 
 
 def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:

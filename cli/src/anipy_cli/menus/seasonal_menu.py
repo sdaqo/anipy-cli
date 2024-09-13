@@ -1,8 +1,9 @@
 import sys
 from typing import TYPE_CHECKING, List, Tuple
 
+from anipy_cli.download_component import DownloadComponent
+
 from anipy_api.anime import Anime
-from anipy_api.download import Downloader
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
 from anipy_api.locallist import LocalList, LocalListEntry
@@ -17,7 +18,6 @@ from anipy_cli.util import (
     DotSpinner,
     error,
     get_configured_player,
-    get_download_path,
     migrate_locallist,
 )
 from anipy_cli.prompts import pick_episode_prompt, search_show_prompt, lang_prompt
@@ -75,6 +75,9 @@ class SeasonalMenu(MenuBase):
         if self.options.auto_update:
             return [ch.value for ch in choices]
 
+        if not choices:
+            return []
+
         choices = inquirer.fuzzy(  # type: ignore
             message="Select Seasonals to catch up to:",
             choices=choices,
@@ -86,6 +89,7 @@ class SeasonalMenu(MenuBase):
                 {"long_instruction": "fg:#5FAFFF bg:#222"}, style_override=False
             ),
         ).execute()
+
         return choices or []
 
     def add_anime(self):
@@ -180,65 +184,39 @@ class SeasonalMenu(MenuBase):
                 print(f"> {new_lang} is for {e.name} not available")
 
     def list_animes(self):
-        for i in self.seasonal_list.get_all():
+        all_seasonals = self.seasonal_list.get_all()
+        if not all_seasonals:
+            error("No seasonals configured.")
+            return
+
+        for i in all_seasonals:
             print(i)
 
     def download_latest(self):
         picked = self._choose_latest()
-        config = Config()
         total_eps = sum([len(e) for _a, _d, e in picked])
         if total_eps == 0:
-            print("Nothing to download, returning...")
+            print("All up to date on downloads.")
             return
         else:
             print(f"Downloading a total of {total_eps} episode(s)")
-        with DotSpinner("Starting Download...") as s:
 
-            def progress_indicator(percentage: float):
-                s.set_text(f"Progress: {percentage:.1f}%")
+        def on_successful_download(anime: Anime, ep: Episode, lang: LanguageTypeEnum):
+            self.seasonal_list.update(anime, episode=ep, language=lang)
 
-            def info_display(message: str):
-                s.write(f"> {message}")
-
-            downloader = Downloader(progress_indicator, info_display)
-
-            for anime, lang, eps in picked:
-                for ep in eps:
-                    s.set_text(
-                        "Extracting streams for ",
-                        colors.BLUE,
-                        f"{anime.name} ({lang})",
-                        colors.END,
-                        " Episode ",
-                        ep,
-                        "...",
-                    )
-
-                    stream = anime.get_video(
-                        ep, lang, preferred_quality=self.options.quality
-                    )
-
-                    info_display(
-                        f"Downloading Episode {stream.episode} of {anime.name}"
-                    )
-                    s.set_text("Downloading...")
-
-                    downloader.download(
-                        stream,
-                        get_download_path(anime, stream, parent_directory=self.dl_path),
-                        container=config.remux_to,
-                        ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-                    )
-                    self.seasonal_list.update(anime, episode=ep, language=lang)
+        failed_series = DownloadComponent(self.options, self.dl_path).download_anime(
+            picked, on_successful_download
+        )
 
         if not self.options.auto_update:
-            self.print_options(clear_screen=True)
+            # Clear screen only if there were no issues
+            self.print_options(clear_screen=len(failed_series) == 0)
 
     def binge_latest(self):
         picked = self._choose_latest()
         total_eps = sum([len(e) for _a, _d, e in picked])
         if total_eps == 0:
-            print("Nothing to watch, returning...")
+            print("Up to date on binge.")
             return
         else:
             print(f"Playing a total of {total_eps} episode(s)")

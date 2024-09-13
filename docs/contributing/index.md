@@ -8,7 +8,7 @@ If you did this before you probably know the gist, but check out this little gui
 1. Install [Poetry](https://python-poetry.org/docs/#installation) for project managment, it is like pip but better and feature-richer. You can work on this project without it, but I highly recommend not to do this.
 2. Clone: `git clone https://github.com/sdaqo/anipy-cli && cd anipy-cli`
 3. Initiate your environment: `poetry install --with dev,docs`, this installs all the dependencies and some development tools.
-4. (Optional) If you are working on the API and you want to be able to test your changes in the cli, you can run `poetry poe enter-dev`. (this changes the api dependency to the local `../api`)
+4. (Optional) If you are working on the API and you want to be able to test your changes in the cli, you can run `poetry run poe enter-dev`. (this changes the api dependency to the local `../api`)
 5. Open your edior, you can either run `poetry run <your-editor>` or `poetry shell` to get a shell in the virtual environment and run your editor from there, some editors like vscode automatically enter the venv as far as I know.
 6. Make your changes :)
 7. Check your changes
