@@ -2,6 +2,8 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple
 
+from anipy_cli.comps.DownloadComp import DownloadComponent
+
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
 from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
@@ -255,81 +257,22 @@ class MALMenu(MenuBase):
             return
         else:
             print(f"Downloading a total of {total_eps} episode(s)")
+        
+        convert: Dict[Anime, MALAnime] = {d[0]: d[1] for d in picked}
+        new_picked = [(anime_info[0], anime_info[2], anime_info[3]) for anime_info in picked]
 
-        with DotSpinner("Starting Download...") as s:
-            self._download_picked_mal(picked, all, s)
-
-    def _download_picked_mal(
-        self,
-        picked: List[Tuple[Anime, MALAnime, LanguageTypeEnum, List[Episode]]],
-        all: bool,
-        s: DotSpinner,
-    ):
-        def progress_indicator(percentage: float):
-            s.set_text(f"Progress: {percentage:.1f}%")
-
-        def info_display(message: str):
-            s.write(f"> {message}")
-
-        def error_display(message: str):
-            s.write(color(colors.RED, "! ", message))
-
-        downloader = Downloader(progress_indicator, info_display, error_display)
-
-        try:
-            for anime, mal_anime, lang, eps in picked:
-                for ep in eps:
-                    self._download_ep(all, s, downloader, anime, mal_anime, lang, ep)
-        except Exception as e:
-            s.write(color(colors.RED, f"! Error: {e}"))
-            s.write(
-                color(
-                    colors.RED,
-                    "! Too many errors occurred during download. Aborting...",
-                )
-            )
-
-    def _download_ep(
-        self,
-        all: bool,
-        s: DotSpinner,
-        downloader: Downloader,
-        anime: Anime,
-        mal_anime: MALAnime,
-        lang: LanguageTypeEnum,
-        ep: Episode,
-    ):
-        config = Config()
-
-        s.set_text(
-            "Extracting streams for ",
-            colors.BLUE,
-            f"{anime.name} ({lang})",
-            colors.END,
-            " Episode ",
-            ep,
-            "...",
-        )
-
-        stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
-
-        s.write(f"> Downloading Episode {stream.episode} of {anime.name} ({lang})")
-
-        s.set_text("Downloading...")
-
-        downloader.download(
-            stream,
-            get_download_path(anime, stream, parent_directory=self.dl_path),
-            container=config.remux_to,
-            ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-        )
-
-        if not all:
+        def onSuccessDownload(anime: Anime, ep: Episode, _: LanguageTypeEnum):
+            if all: return
             self.mal_proxy.update_show(
-                mal_anime,
-                status=MALMyListStatusEnum.WATCHING,
-                episode=int(ep),
-            )
+                    convert[anime],
+                    status=MALMyListStatusEnum.WATCHING,
+                    episode=int(ep),
+                )
+
+        errors = DownloadComponent(self.options, self.dl_path).download_anime(new_picked, onSuccessDownload)
+        DownloadComponent.serve_download_errors(errors)
+
+        self.print_options(clear_screen=len(errors)==0)
 
     def binge_latest(self):
         picked = self._choose_latest()

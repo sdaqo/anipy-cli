@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Optional, List
 
+from anipy_cli.comps.DownloadComp import DownloadComponent
+
 from anipy_api.download import Downloader
 
 from anipy_cli.clis.base_cli import CliBase
@@ -73,54 +75,8 @@ class DownloadCli(CliBase):
         assert self.anime is not None
         assert self.lang is not None
 
-        config = Config()
-        with DotSpinner("Starting Download...") as s:
-
-            def progress_indicator(percentage: float):
-                s.set_text(f"Progress: {percentage:.1f}%")
-
-            def info_display(message: str):
-                s.write(f"> {message}")
-
-            def error_display(message: str):
-                s.write(f"{colors.RED}! {message}{colors.END}")
-
-            downloader = Downloader(progress_indicator, info_display, error_display)
-
-            for e in self.episodes:
-                s.set_text(
-                    "Extracting streams for ",
-                    colors.BLUE,
-                    f"{self.anime.name} ({self.lang})",
-                    colors.END,
-                    " Episode ",
-                    e,
-                    "...",
-                )
-
-                stream = self.anime.get_video(
-                    e, self.lang, preferred_quality=self.options.quality
-                )
-
-                info_display(
-                    f"Downloading Episode {stream.episode} of {self.anime.name} ({self.lang})"
-                )
-                s.set_text("Downloading...")
-
-                try:
-                    downloader.download(
-                        stream,
-                        get_download_path(
-                            self.anime, stream, parent_directory=self.dl_path
-                        ),
-                        container=config.remux_to,
-                        ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-                    )
-                except Exception as e:
-                    error_display(str(e))
-                    error_display(
-                        f"Ran into issues downloading {stream.episode} of {self.anime.name} ({self.lang}); skipping."
-                    )
+        errors = DownloadComponent(self.options, self.dl_path).download_anime([(self.anime, self.lang, self.episodes)], only_skip_ep_on_err=True)
+        DownloadComponent.serve_download_errors(errors)
 
     def show(self):
         pass

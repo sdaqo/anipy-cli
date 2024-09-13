@@ -1,6 +1,8 @@
 import sys
 from typing import TYPE_CHECKING, List, Tuple
 
+from anipy_cli.comps.DownloadComp import DownloadComponent
+
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
 from anipy_api.provider import LanguageTypeEnum
@@ -200,69 +202,15 @@ class SeasonalMenu(MenuBase):
             return
         else:
             print(f"Downloading a total of {total_eps} episode(s)")
-        with DotSpinner("Starting Download...") as s:
 
-            def progress_indicator(percentage: float):
-                s.set_text(f"Progress: {percentage:.1f}%")
+        def onSuccessfulDownload(anime: Anime, ep: Episode, lang: LanguageTypeEnum):
+            self.seasonal_list.update(anime, episode=ep, language=lang)
 
-            def info_display(message: str):
-                s.write(f"> {message}")
-
-            def error_display(message: str):
-                s.write(f"{colors.RED}! {message}{colors.END}")
-
-            downloader = Downloader(progress_indicator, info_display, error_display)
-
-            for anime, lang, eps in picked:
-                for ep in eps:
-                    try:
-                        self.__download_ep(anime, lang, downloader, ep, s)
-                    except Exception:
-                        s.write(
-                            color(
-                                colors.RED,
-                                "> Issues occurred during download, downloads stopped",
-                            )
-                        )
-                        self.print_options(clear_screen=False)
-                        return
+        failed_series = DownloadComponent(self.options, self.dl_path).download_anime(picked, onSuccessfulDownload)
 
         if not self.options.auto_update:
-            self.print_options(clear_screen=True)
-
-    def __download_ep(
-        self,
-        anime: Anime,
-        lang: LanguageTypeEnum,
-        downloader: Downloader,
-        ep: Episode,
-        s: DotSpinner,
-    ):
-        config = Config()
-        s.set_text(
-            "Extracting streams for ",
-            colors.BLUE,
-            f"{anime.name} ({lang})",
-            colors.END,
-            " Episode ",
-            ep,
-            "...",
-        )
-
-        stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
-
-        s.write(f"> Downloading Episode {stream.episode} of {anime.name}")
-        s.set_text("Downloading...")
-
-        downloader.download(
-            stream,
-            get_download_path(anime, stream, parent_directory=self.dl_path),
-            container=config.remux_to,
-            ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-            maxRetry=3,
-        )
-
-        self.seasonal_list.update(anime, episode=ep, language=lang)
+            # Clear screen only if there were no issues
+            self.print_options(clear_screen=len(failed_series)==0)
 
     def binge_latest(self):
         picked = self._choose_latest()
