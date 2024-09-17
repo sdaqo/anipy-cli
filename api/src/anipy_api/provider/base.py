@@ -139,12 +139,19 @@ class BaseProvider(ABC):
             A brand new session
         """
         if hasattr(self, "session"):
-            print("Closing last session...")
             self.session.close()
         self.session = Session()
         return self.session
 
     def request_page(self, req: Request):
+        """Prepare a request and send it, but create a new session if self.session is broken
+        
+        Args:
+            req: The request
+
+        Returns:
+            out: Response of the request
+        """
         try:
             return request_page(self.session, req)
         except RequestConnectionError:
