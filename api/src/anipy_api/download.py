@@ -273,7 +273,7 @@ class Downloader:
                 Containers may include all containers supported by FFmpeg e.g. ".mp4", ".mkv" etc...
             ffmpeg: Wheter to automatically default to
                 [ffmpeg_download][anipy_api.download.Downloader.ffmpeg_download] for m3u8/hls streams.
-            maxRetry: The amount of times the API can retry the download
+            max_retry: The amount of times the API can retry the download
 
         Returns:
             The path of the resulting file
