@@ -260,7 +260,7 @@ class GoGoProvider(BaseProvider):
         parsed = urlparse(embed_url)
         ajax_url = f"{parsed.scheme}://{parsed.netloc}/encrypt-ajax.php?"
 
-        enc_keys = _get_enc_keys(self.session, embed_url)
+        enc_keys = self._get_enc_keys(embed_url)
         data = _aes_decrypt(crypto, enc_keys["key"], enc_keys["iv"]).decode()
         data = dict(parse_qsl(data))
 

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Set, Union
 
-from requests import Request, Session
+from requests import Request, Session, ConnectionError as RequestConnectionError
 
 from anipy_api.provider.filter import FilterCapabilities, Filters, Status
 from anipy_api.provider.utils import request_page
@@ -147,7 +147,7 @@ class BaseProvider(ABC):
     def request_page(self, req: Request):
         try:
             return request_page(self.session, req)
-        except ConnectionError:
+        except RequestConnectionError:
             # If there is a connection error,
             # give it a second try with a
             # new session
