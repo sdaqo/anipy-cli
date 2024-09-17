@@ -23,7 +23,6 @@ from anipy_api.provider.filter import (
     Season,
     Status,
 )
-from anipy_api.provider.utils import request_page
 
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
@@ -92,7 +91,7 @@ class YugenProvider(BaseProvider):
         page = 0
         while has_next:
             req.params["page"] = page + 1
-            res = request_page(self.session, req).json()
+            res = self.request_page(req).json()
             has_next = res["hasNext"]
 
             soup = BeautifulSoup(res.get("query"), "html.parser")
@@ -130,7 +129,7 @@ class YugenProvider(BaseProvider):
     def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List["Episode"]:
         identifier = base64.b64decode(identifier).decode()
         req = Request("GET", f"{self.BASE_URL}/anime/{identifier}")
-        result = request_page(self.session, req)
+        result = self.request_page(req)
 
         if lang == LanguageTypeEnum.SUB:
             match = re.search(
@@ -152,7 +151,7 @@ class YugenProvider(BaseProvider):
     def get_info(self, identifier: str) -> "ProviderInfoResult":
         identifier = base64.b64decode(identifier).decode()
         req = Request("GET", f"{self.BASE_URL}/anime/{identifier}")
-        result = request_page(self.session, req)
+        result = self.request_page(req)
         data_map = {
             "name": None,
             "image": None,
@@ -226,12 +225,12 @@ class YugenProvider(BaseProvider):
             },
             headers={"x-requested-with": "XMLHttpRequest"},
         )
-        res = request_page(self.session, req)
+        res = self.request_page(req)
         res = res.json()
         streams = []
         for playlist in res["hls"]:
             req = Request("GET", playlist)
-            res = request_page(self.session, req)
+            res = self.request_page(req)
             content = m3u8.M3U8(res.text, base_uri=urljoin(res.url, "."))
             if len(content.playlists) == 0:
                 streams.append(

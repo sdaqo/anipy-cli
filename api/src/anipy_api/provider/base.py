@@ -3,9 +3,10 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Set, Union
 
-from requests import Session
+from requests import Request, Session
 
 from anipy_api.provider.filter import FilterCapabilities, Filters, Status
+from anipy_api.provider.utils import request_page
 
 Episode = Union[int, float]
 """Episode type, float or integer."""
@@ -120,7 +121,7 @@ class BaseProvider(ABC):
         if base_url_override is not None:
             self.BASE_URL = base_url_override
 
-        self.session = Session()
+        self.generate_new_session()
 
     def __init_subclass__(cls) -> None:
         for v in ["NAME", "BASE_URL", "FILTER_CAPS"]:
@@ -130,6 +131,27 @@ class BaseProvider(ABC):
                         v, cls.__name__
                     )
                 )
+
+    def generate_new_session(self):
+        """Close the last session, and create a new one.
+
+        Returns:
+            A brand new session
+        """
+        if hasattr(self, "session"):
+            print("Closing last session...")
+            self.session.close()
+        self.session = Session()
+        return self.session
+
+    def request_page(self, req: Request):
+        try:
+            return request_page(self.session, req)
+        except ConnectionError:
+            # If there is a connection error,
+            # give it a second try with a
+            # new session
+            return request_page(self.generate_new_session(), req)
 
     @abstractmethod
     def get_search(
