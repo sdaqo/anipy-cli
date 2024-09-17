@@ -10,7 +10,7 @@ import m3u8
 from bs4 import BeautifulSoup
 from Cryptodome.Cipher import AES
 from requests import Request
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, ConnectionError as RequestConnectionError
 
 from anipy_api.error import BeautifulSoupLocationError, LangTypeNotAvailableError
 from anipy_api.provider import (
@@ -28,10 +28,32 @@ from anipy_api.provider.filter import (
     Season,
     Status,
 )
-from anipy_api.provider.utils import parsenum, safe_attr
+from anipy_api.provider.utils import parsenum, request_page, safe_attr
 
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
+    from requests import Session
+
+
+@functools.lru_cache()
+def _get_enc_keys(session: "Session", embed_url: str):
+    # This method is outside of the main class
+    # so the cache is not bound to the class
+    # instance
+    page = request_page(session, Request("GET", embed_url)).text
+
+    keys = re.findall(r"(?:container|videocontent)-(\d+)", page)
+
+    if not keys:
+        return {}
+
+    key, iv, second_key = keys
+
+    return {
+        "key": key.encode(),
+        "second_key": second_key.encode(),
+        "iv": iv.encode(),
+    }
 
 
 def _aes_encrypt(data, key, iv):
@@ -109,7 +131,7 @@ class GoGoProvider(BaseProvider):
         req = Request("GET", search_url)
         req = GoGoFilter(req).apply(query, filters)
 
-        res = self.request_page(req)
+        res = self._request_page(req)
         soup = BeautifulSoup(res.content, "html.parser")
 
         pages = soup.find_all("a", attrs={"data-page": re.compile(r"^ *\d[\d ]*$")})
@@ -123,7 +145,7 @@ class GoGoProvider(BaseProvider):
 
         for p in range(pages):
             req.params["page"] = p + 1
-            res = self.request_page(req)
+            res = self._request_page(req)
             soup = BeautifulSoup(res.content, "html.parser")
             links = soup.find_all("p", attrs={"class": "name"})
             if links is None:
@@ -164,7 +186,7 @@ class GoGoProvider(BaseProvider):
 
     def get_info(self, identifier: str) -> "ProviderInfoResult":
         req = Request("GET", f"{self.BASE_URL}/category/{identifier}")
-        res = self.request_page(req)
+        res = self._request_page(req)
 
         soup = BeautifulSoup(res.text, "html.parser")
         info_body = soup.find("div", {"class": "anime_info_body_bg"})
@@ -219,7 +241,7 @@ class GoGoProvider(BaseProvider):
         for u in urls:
             try:
                 req = Request("GET", u)
-                res = self.request_page(req)
+                res = self._request_page(req)
                 break
             except HTTPError:
                 continue
@@ -236,7 +258,7 @@ class GoGoProvider(BaseProvider):
                 raise LangTypeNotAvailableError(identifier, self.NAME, lang)
             else:
                 req = Request("GET", f"{self.BASE_URL}{filtered_res[0]}")
-                res = self.request_page(req)
+                res = self._request_page(req)
 
         soup = BeautifulSoup(res.content, "html.parser")
         link = soup.find("a", {"class": "active", "rel": "1"})
@@ -247,7 +269,7 @@ class GoGoProvider(BaseProvider):
         embed_url: str = link["data-video"]
 
         req = Request("GET", embed_url)
-        res = self.request_page(req)
+        res = self._request_page(req)
 
         soup = BeautifulSoup(res.content, "html.parser")
         crypto = soup.find("script", {"data-name": "episode"})
@@ -275,7 +297,7 @@ class GoGoProvider(BaseProvider):
             ajax_url + urlencode(data) + f"&alias={id_param}",
             headers=headers,
         )
-        res = self.request_page(req)
+        res = self._request_page(req)
 
         json_res = json.loads(
             _aes_decrypt(res.json().get("data"), enc_keys["second_key"], enc_keys["iv"])
@@ -287,7 +309,7 @@ class GoGoProvider(BaseProvider):
         for s in source_data:
             if s["type"] == "hls":
                 req = Request("GET", s["file"])
-                res = self.request_page(req)
+                res = self._request_page(req)
                 content = m3u8.M3U8(res.text, base_uri=urljoin(res.url, "."))
                 if len(content.playlists) == 0:
                     streams.append(
@@ -336,7 +358,7 @@ class GoGoProvider(BaseProvider):
         for u in urls:
             try:
                 req = Request("GET", u)
-                res = self.request_page(req)
+                res = self._request_page(req)
                 break
             except HTTPError:
                 continue
@@ -353,7 +375,7 @@ class GoGoProvider(BaseProvider):
             "https://ajax.gogocdn.net/ajax/load-list-episode",
             params={"ep_start": 0, "ep_end": 9999, "id": self.movie_id},
         )
-        res = self.request_page(req)
+        res = self._request_page(req)
 
         ep_list = [
             (
@@ -370,19 +392,9 @@ class GoGoProvider(BaseProvider):
 
         return ep_list
 
-    @functools.lru_cache()
     def _get_enc_keys(self, embed_url: str):
-        page = self.request_page(Request("GET", embed_url)).text
-
-        keys = re.findall(r"(?:container|videocontent)-(\d+)", page)
-
-        if not keys:
-            return {}
-
-        key, iv, second_key = keys
-
-        return {
-            "key": key.encode(),
-            "second_key": second_key.encode(),
-            "iv": iv.encode(),
-        }
+        try:
+            return _get_enc_keys(self.session, embed_url)
+        except RequestConnectionError:
+            return _get_enc_keys(self._generate_new_session(), embed_url)
+        

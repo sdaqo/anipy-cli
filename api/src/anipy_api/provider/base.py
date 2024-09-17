@@ -121,7 +121,7 @@ class BaseProvider(ABC):
         if base_url_override is not None:
             self.BASE_URL = base_url_override
 
-        self.generate_new_session()
+        self._generate_new_session()
 
     def __init_subclass__(cls) -> None:
         for v in ["NAME", "BASE_URL", "FILTER_CAPS"]:
@@ -132,7 +132,7 @@ class BaseProvider(ABC):
                     )
                 )
 
-    def generate_new_session(self):
+    def _generate_new_session(self):
         """Close the last session, and create a new one.
 
         Returns:
@@ -143,7 +143,7 @@ class BaseProvider(ABC):
         self.session = Session()
         return self.session
 
-    def request_page(self, req: Request):
+    def _request_page(self, req: Request):
         """Prepare a request and send it, but create a new session if self.session is broken
         
         Args:
@@ -158,7 +158,7 @@ class BaseProvider(ABC):
             # If there is a connection error,
             # give it a second try with a
             # new session
-            return request_page(self.generate_new_session(), req)
+            return request_page(self._generate_new_session(), req)
 
     @abstractmethod
     def get_search(
