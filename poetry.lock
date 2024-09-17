@@ -2,13 +2,13 @@
 
 [[package]]
 name = "anipy-api"
-version = "3.2.0"
+version = "3.2.1"
 description = "api for anipy-cli"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "anipy_api-3.2.0-py3-none-any.whl", hash = "sha256:8245671fd3ab0ee7fc7e57f5780d247d85a94ea73ab785ba3dae82b01654d81d"},
-    {file = "anipy_api-3.2.0.tar.gz", hash = "sha256:67e8fc0de7575a14582e03a5b1c293336e31855e1aadc353df746916e747a20d"},
+    {file = "anipy_api-3.2.1-py3-none-any.whl", hash = "sha256:fcb81ece1b04296dfe2960599e6b71f8a01dd03716c2e532c34b24615c064f9e"},
+    {file = "anipy_api-3.2.1.tar.gz", hash = "sha256:402780428e585029620ba7e72a79f1dd98aa72db67503034f7715f511748fb65"},
 ]
 
 [package.dependencies]
@@ -23,7 +23,7 @@ requests = ">=2.32.0,<3.0.0"
 
 [[package]]
 name = "anipy-cli"
-version = "3.2.0"
+version = "3.2.1"
 description = "Watch and Download anime from the comfort of your Terminal"
 optional = false
 python-versions = "^3.9"
@@ -31,7 +31,7 @@ files = []
 develop = true
 
 [package.dependencies]
-anipy-api = "^3.2.0"
+anipy-api = "^3.2.1"
 appdirs = "^1.4.4"
 inquirerpy = "^0.3.4"
 pypresence = "^4.3.0"
@@ -373,14 +373,17 @@ colorama = ">=0.4"
 
 [[package]]
 name = "idna"
-version = "3.8"
+version = "3.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "idna-3.8-py3-none-any.whl", hash = "sha256:050b4e5baadcd44d760cedbd2b8e639f2ff89bbc7a5730fcc662954303377aac"},
-    {file = "idna-3.8.tar.gz", hash = "sha256:d838c2c0ed6fced7693d5e8ab8e734d5f8fda53a039c0164afb0b82e771e3603"},
+    {file = "idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3"},
+    {file = "idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9"},
 ]
+
+[package.extras]
+all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
 name = "importlib-metadata"
@@ -973,13 +976,13 @@ docs = ["Sphinx (>=4.1.2,<5.0.0)", "furo (>=2021.8.17-beta.43,<2022.0.0)", "myst
 
 [[package]]
 name = "platformdirs"
-version = "4.3.2"
+version = "4.3.6"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "platformdirs-4.3.2-py3-none-any.whl", hash = "sha256:eb1c8582560b34ed4ba105009a4badf7f6f85768b30126f351328507b2beb617"},
-    {file = "platformdirs-4.3.2.tar.gz", hash = "sha256:9e5e27a08aa095dd127b9f2e764d74254f482fef22b0970773bfba79d091ab8c"},
+    {file = "platformdirs-4.3.6-py3-none-any.whl", hash = "sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb"},
+    {file = "platformdirs-4.3.6.tar.gz", hash = "sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907"},
 ]
 
 [package.extras]
