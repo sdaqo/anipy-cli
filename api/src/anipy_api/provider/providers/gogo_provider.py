@@ -205,7 +205,7 @@ class GoGoProvider(BaseProvider):
         other_info = info_body.find_all("p", {"class": "type"})  # type: ignore
         status, release_year, genres = None, None, []
         for i in other_info:
-            cat_name = safe_attr(i.find("span"), "text")
+            cat_name = safe_attr(i.find("span"), "text").strip()
 
             if cat_name == "Genre:":
                 genres = [x["title"] for x in i.find_all("a")]
