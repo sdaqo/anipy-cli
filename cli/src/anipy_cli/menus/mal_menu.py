@@ -427,9 +427,14 @@ class MALMenu(MenuBase):
             for e in mylist:
                 s.write(f"> Checking out episodes of {e.title}")
 
-                episodes_to_watch = list(
-                    range(e.my_list_status.num_episodes_watched + 1, e.num_episodes + 1)  # type: ignore
-                )
+                if e.num_episodes != 0:
+                    episodes_to_watch = list(
+                        range(e.my_list_status.num_episodes_watched + 1, e.num_episodes + 1)  # type: ignore
+                    )
+                elif e.num_episodes == 0:
+                    episodes_to_watch = list(
+                        range(e.my_list_status.num_episodes_watched + 1, e.my_list_status.num_episodes_watched + 2)  # type: ignore
+                    )
 
                 result = self.mal_proxy.map_from_mal(e)
 
