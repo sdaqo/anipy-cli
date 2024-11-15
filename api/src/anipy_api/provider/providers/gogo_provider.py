@@ -397,4 +397,3 @@ class GoGoProvider(BaseProvider):
             return _get_enc_keys(self.session, embed_url)
         except RequestConnectionError:
             return _get_enc_keys(self._generate_new_session(), embed_url)
-        

@@ -145,7 +145,7 @@ class BaseProvider(ABC):
 
     def _request_page(self, req: Request):
         """Prepare a request and send it, but create a new session if self.session is broken
-        
+
         Args:
             req: The request
 

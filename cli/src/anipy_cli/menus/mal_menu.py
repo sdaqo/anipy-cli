@@ -390,7 +390,9 @@ class MALMenu(MenuBase):
                 mylist.pop(i)
                 continue
 
-            if e.my_list_status.num_episodes_watched == e.num_episodes:
+            if (e.my_list_status.num_episodes_watched == e.num_episodes) and (
+                e.my_list_status.num_episodes_watched != 0
+            ):
                 mylist.pop(i)
 
         if not mylist:
