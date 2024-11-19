@@ -433,7 +433,7 @@ class MALMenu(MenuBase):
                     )
                 elif e.num_episodes == 0:
                     episodes_to_watch = list(
-                        range(e.my_list_status.num_episodes_watched + 1, 101)  # type: ignore
+                        range(e.my_list_status.num_episodes_watched + 1, 10000)  # type: ignore
                     )
 
                 result = self.mal_proxy.map_from_mal(e)
