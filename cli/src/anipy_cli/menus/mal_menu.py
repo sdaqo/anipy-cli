@@ -481,6 +481,8 @@ class MALMenu(MenuBase):
                             s.write(
                                 f"> Episode {ep} not found in provider, skipping..."
                             )
+                            if e.num_episodes == 0:
+                                break
 
                 to_watch.append((result, e, lang, will_watch))
 
