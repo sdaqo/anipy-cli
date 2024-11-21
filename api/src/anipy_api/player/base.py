@@ -167,7 +167,9 @@ class SubProcessPlayerBase(PlayerBase):
             if os.name in ("nt", "dos"):
                 sub_proc = sp.Popen(player_command)
             else:
-                sub_proc = sp.Popen(player_command, stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+                sub_proc = sp.Popen(
+                    player_command, stdout=sp.DEVNULL, stderr=sp.DEVNULL
+                )
         except FileNotFoundError:
             raise PlayerError(f"Executable {player_command[0]} was not found")
 

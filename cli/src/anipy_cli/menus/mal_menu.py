@@ -390,7 +390,9 @@ class MALMenu(MenuBase):
                 mylist.pop(i)
                 continue
 
-            if e.my_list_status.num_episodes_watched == e.num_episodes:
+            if (e.my_list_status.num_episodes_watched == e.num_episodes) and (
+                e.my_list_status.num_episodes_watched != 0
+            ):
                 mylist.pop(i)
 
         if not mylist:
@@ -425,9 +427,14 @@ class MALMenu(MenuBase):
             for e in mylist:
                 s.write(f"> Checking out episodes of {e.title}")
 
-                episodes_to_watch = list(
-                    range(e.my_list_status.num_episodes_watched + 1, e.num_episodes + 1)  # type: ignore
-                )
+                if e.num_episodes != 0:
+                    episodes_to_watch = list(
+                        range(e.my_list_status.num_episodes_watched + 1, e.num_episodes + 1)  # type: ignore
+                    )
+                elif e.num_episodes == 0:
+                    episodes_to_watch = list(
+                        range(e.my_list_status.num_episodes_watched + 1, 10000)  # type: ignore
+                    )
 
                 result = self.mal_proxy.map_from_mal(e)
 
@@ -474,6 +481,8 @@ class MALMenu(MenuBase):
                             s.write(
                                 f"> Episode {ep} not found in provider, skipping..."
                             )
+                            if e.num_episodes == 0:
+                                break
 
                 to_watch.append((result, e, lang, will_watch))
 
