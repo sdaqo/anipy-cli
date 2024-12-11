@@ -37,14 +37,7 @@ jobs:
       
       - name: Lock cli
         run: |
-          while true; do 
-            pypi_page=$(curl --silent -L "https://pypi.org/project/anipy-api")
-            if grep -q "${GITHUB_REF#refs/*/v}" <<< $pypi_page; then
-              break
-            fi
-            sleep 2
-          done
-
+          sleep 20
           poetry -C cli/ lock
       
       - name: Build and publish cli to pypi
