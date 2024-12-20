@@ -29,6 +29,7 @@ class Mpv(SubProcessPlayerBase):
             "{stream_url}",
             "--force-media-title={media_title}",
             "--force-window=immediate",
+            "--referrer={referrer}",
             *extra_args,
         ]
 

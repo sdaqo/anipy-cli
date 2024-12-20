@@ -52,6 +52,7 @@ class MpvControllable(PlayerBase):
 
     def play_title(self, anime: "Anime", stream: "ProviderStream"):
         self.mpv.force_media_title = self._get_media_title(anime, stream)
+        self.mpv.referrer = stream.referrer
 
         self.mpv.play(stream.url)
 

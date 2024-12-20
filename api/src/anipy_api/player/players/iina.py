@@ -24,6 +24,7 @@ class Iina(SubProcessPlayerBase):
         self.player_args_template = [
             "{stream_url}",
             "--mpv-force-media-title={media_title}",
+            "--referrer={referrer}",
             *extra_args,
         ]
 

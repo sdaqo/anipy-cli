@@ -99,8 +99,7 @@ class Downloader:
         temp_folder = download_path.parent / "temp"
         temp_folder.mkdir(exist_ok=True)
         download_path = download_path.with_suffix(".ts")
-
-        res = self._session.get(stream.url)
+        res = self._session.get(stream.url, headers={"Referer": stream.referrer})
         res.raise_for_status()
 
         m3u8_content = m3u8.M3U8(res.text, base_uri=urljoin(res.url, "."))
@@ -117,7 +116,7 @@ class Downloader:
                 temp_folder / self._get_valid_pathname(segment_uri.stem)
             ).with_suffix(segment_uri.suffix)
             try:
-                res = self._session.get(str(url))
+                res = self._session.get(str(url), headers={"Referer": stream.referrer})
                 res.raise_for_status()
 
                 with fname.open("wb") as fout:
@@ -186,7 +185,7 @@ class Downloader:
         Returns:
             The download path with a ".mp4" suffix
         """
-        r = self._session.get(stream.url, stream=True)
+        r = self._session.get(stream.url, stream=True, headers={"Referer": stream.referrer})
         r.raise_for_status()
         total = int(r.headers.get("content-length", 0))
         try:
@@ -220,7 +219,8 @@ class Downloader:
         """
         ffmpeg = FFmpeg(executable="ffprobe").input(
             stream.url, print_format="json", show_format=None
-        )
+        ).option("headers", f"Referer: {stream.referrer}")
+
         meta = json.loads(ffmpeg.execute())
         duration = float(meta["format"]["duration"])
 
@@ -228,6 +228,7 @@ class Downloader:
             FFmpeg()
             .option("y")
             .option("v", "warning")
+            .option("headers", f"Referer: {stream.referrer}")
             .option("stats")
             .input(stream.url)
             .output(
@@ -340,7 +341,7 @@ class Downloader:
             new_path = path.with_suffix(container)
             download = self.ffmpeg_download(
                 ProviderStream(
-                    str(path), stream.resolution, stream.episode, stream.language
+                    str(path), stream.resolution, stream.episode, stream.language, stream.referrer
                 ),
                 new_path,
             )

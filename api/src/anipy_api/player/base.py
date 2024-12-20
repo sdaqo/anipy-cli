@@ -134,7 +134,8 @@ class SubProcessPlayerBase(PlayerBase):
     def play_title(self, anime: "Anime", stream: "ProviderStream"):
         player_cmd = [
             i.format(
-                media_title=self._get_media_title(anime, stream), stream_url=stream.url
+                media_title=self._get_media_title(anime, stream),
+                stream_url=stream.url, referrer=stream.referrer
             )
             for i in self.player_args_template
         ]
@@ -142,7 +143,6 @@ class SubProcessPlayerBase(PlayerBase):
 
         if isinstance(self._sub_proc, sp.Popen):
             self.kill_player()
-
         self._sub_proc = self._open_sproc(player_cmd)
         self._call_play_callback(anime, stream)
 
