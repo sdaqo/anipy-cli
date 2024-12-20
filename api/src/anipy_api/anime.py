@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Optional, Set, Union, List
 
+from anipy_api.error import ProviderNotAvailable
 from anipy_api.provider import Episode, list_providers
 
 if TYPE_CHECKING:
@@ -55,7 +56,11 @@ class Anime:
         Returns:
             Anime Object
         """
-        provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()))
+        provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()), None)
+
+        if provider is None:
+            raise ProviderNotAvailable(entry.provider)
+
         return Anime(provider(), entry.name, entry.identifier, entry.languages)
 
     def __init__(

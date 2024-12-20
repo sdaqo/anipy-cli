@@ -91,3 +91,15 @@ class ArgumentError(Exception):
             message: Failure reason
         """
         super().__init__(message)
+
+
+class ProviderNotAvailable(Exception):
+    """Error that gets raised if a requested provider is not available."""
+
+    def __init__(self, provider: str):
+        """__init__ for ProviderNotAvailable
+
+        Args:
+            provider: Provider in question 
+        """
+        super().__init__(f"Could not find provider '{provider}'")
