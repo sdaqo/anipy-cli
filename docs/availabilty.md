@@ -6,9 +6,11 @@ This is page lists available/supported providers/players and their capabilities.
 
 Version: 3.3.0
 
+### Providers
+
 | Identifier | URL                                            | Filter capabilties [^1]                    | Season Search [^2] | Notes                                                                                                                                                            | Reference                                                                        |
 | ---------- | ---------------------------------------------- | ------------------------------------------ | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| gogoanime  | [https://gogoanime3.co](https://gogoanime3.co) | YEAR, SEASON, STATUS, NO_QUERY             | Yes                | [Hover Me]("If possible search for the japanese name instead of the english one, some entries in gogo do not have their alternative names configured properly.") | [GoGoProvider][anipy_api.provider.providers.gogo_provider.GoGoProvider]          |
+| gogoanime  | [https://gogoanime3.co](https://gogoanime3.co) | YEAR, SEASON, STATUS, NO_QUERY             | Yes                | [Hover Me]("As of now this provider does not update it's content, but is still online.")                                                                         | [GoGoProvider][anipy_api.provider.providers.gogo_provider.GoGoProvider]          |
 | anivibe    | [https://anivibe.net/](https://anivibe.net/)   | YEAR, SEASON, STATUS, MEDIA_TYPE, NO_QUERY | Yes                | [Hover Me]("Placeholder for future reference") **Recommended**                                                                                                   | [AnivibeProvider][anipy_api.provider.providers.anivibe_provider.AnivibeProvider] |
 
 ### Players
@@ -24,6 +26,8 @@ Version: 3.3.0
 ## Version 3.2.0
 
 Version: 3.2.0
+
+### Providers
 
 | Identifier | URL                                            | Filter capabilties [^1]                    | Season Search [^2] | Notes                                                                                                                                                            | Reference                                                                  |
 | ---------- | ---------------------------------------------- | ------------------------------------------ | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
