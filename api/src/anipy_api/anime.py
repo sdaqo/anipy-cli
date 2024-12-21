@@ -56,7 +56,9 @@ class Anime:
         Returns:
             Anime Object
         """
-        provider = next(filter(lambda x: x.NAME == entry.provider, list_providers()), None)
+        provider = next(
+            filter(lambda x: x.NAME == entry.provider, list_providers()), None
+        )
 
         if provider is None:
             raise ProviderNotAvailable(entry.provider)

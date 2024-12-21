@@ -100,6 +100,6 @@ class ProviderNotAvailable(Exception):
         """__init__ for ProviderNotAvailable
 
         Args:
-            provider: Provider in question 
+            provider: Provider in question
         """
         super().__init__(f"Could not find provider '{provider}'")

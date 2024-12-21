@@ -185,7 +185,9 @@ class Downloader:
         Returns:
             The download path with a ".mp4" suffix
         """
-        r = self._session.get(stream.url, stream=True, headers={"Referer": stream.referrer})
+        r = self._session.get(
+            stream.url, stream=True, headers={"Referer": stream.referrer}
+        )
         r.raise_for_status()
         total = int(r.headers.get("content-length", 0))
         try:
@@ -217,9 +219,11 @@ class Downloader:
             The download path, this should be the same as the
             passed one as ffmpeg will remux to about any container.
         """
-        ffmpeg = FFmpeg(executable="ffprobe").input(
-            stream.url, print_format="json", show_format=None
-        ).option("headers", f"Referer: {stream.referrer}")
+        ffmpeg = (
+            FFmpeg(executable="ffprobe")
+            .input(stream.url, print_format="json", show_format=None)
+            .option("headers", f"Referer: {stream.referrer}")
+        )
 
         meta = json.loads(ffmpeg.execute())
         duration = float(meta["format"]["duration"])
@@ -341,7 +345,11 @@ class Downloader:
             new_path = path.with_suffix(container)
             download = self.ffmpeg_download(
                 ProviderStream(
-                    str(path), stream.resolution, stream.episode, stream.language, stream.referrer
+                    str(path),
+                    stream.resolution,
+                    stream.episode,
+                    stream.language,
+                    stream.referrer,
                 ),
                 new_path,
             )

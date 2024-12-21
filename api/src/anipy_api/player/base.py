@@ -135,7 +135,8 @@ class SubProcessPlayerBase(PlayerBase):
         player_cmd = [
             i.format(
                 media_title=self._get_media_title(anime, stream),
-                stream_url=stream.url, referrer=stream.referrer
+                stream_url=stream.url,
+                referrer=stream.referrer,
             )
             for i in self.player_args_template
         ]
