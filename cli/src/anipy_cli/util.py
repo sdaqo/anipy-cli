@@ -94,7 +94,8 @@ def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
             fatal=True,
         )
 
-    yield providers
+    for p in providers:
+        yield p
 
 
 def get_download_path(
