@@ -1,12 +1,15 @@
 import sys
 from typing import TYPE_CHECKING, List, Tuple
 
+from anipy_api.mal import MyAnimeListAdapter
+
 from anipy_cli.download_component import DownloadComponent
 
 from anipy_api.anime import Anime
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
 from anipy_api.locallist import LocalList, LocalListEntry
+from anipy_api.error import ProviderNotAvailable
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
@@ -17,10 +20,13 @@ from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
     error,
+    find_closest,
     get_configured_player,
+    get_prefered_providers,
     migrate_locallist,
 )
 from anipy_cli.prompts import pick_episode_prompt, search_show_prompt, lang_prompt
+
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs
@@ -43,6 +49,7 @@ class SeasonalMenu(MenuBase):
             MenuOption("Add Anime", self.add_anime, "a"),
             MenuOption("Delete one anime from seasonals", self.del_anime, "e"),
             MenuOption("List anime in seasonals", self.list_animes, "l"),
+            MenuOption("Migrate to current provider", self.migrate_provider, "m"),
             MenuOption("Change dub/sub of anime in seasonals", self.change_lang, "c"),
             MenuOption("Download newest episodes", self.download_latest, "d"),
             MenuOption("Binge watch newest episodes", self.binge_latest, "w"),
@@ -56,7 +63,16 @@ class SeasonalMenu(MenuBase):
         with DotSpinner("Fetching status of shows in seasonals..."):
             choices = []
             for s in self.seasonal_list.get_all():
-                anime = Anime.from_local_list_entry(s)
+                try:
+                    anime = Anime.from_local_list_entry(s)
+                except ProviderNotAvailable:
+                    error(
+                        f"Can not load '{s.name}' because the configured provider"
+                        f" '{s.provider}' was not found, maybe try to migrate"
+                        " providers with 'm'."
+                    )
+                    continue
+
                 lang = s.language
                 episodes = anime.get_episodes(lang)
 
@@ -93,7 +109,7 @@ class SeasonalMenu(MenuBase):
         return choices or []
 
     def add_anime(self):
-        anime = search_show_prompt("default")
+        anime = search_show_prompt("seasonal")
 
         if anime is None:
             return
@@ -191,6 +207,56 @@ class SeasonalMenu(MenuBase):
 
         for i in all_seasonals:
             print(i)
+
+    def migrate_provider(self):
+        config = Config()
+        all_seasonals = self.seasonal_list.get_all()
+        current_providers = list(get_prefered_providers("seasonal"))
+        print(
+            "Migrating to configured providers:",
+            ", ".join([p.NAME for p in current_providers]),
+        )
+        for s in all_seasonals:
+            if s.provider in [p.NAME for p in current_providers]:
+                continue
+
+            print(f"Mapping: {s.name}")
+
+            search_results: List[Anime] = []
+            for p in current_providers:
+                search_results.extend(
+                    [Anime.from_search_result(p, r) for r in p.get_search(s.name)]
+                )
+
+            best_anime = None
+            best_ratio = 0
+            for r in search_results:
+                titles = {r.name}
+                titles |= set(r.get_info().alternative_names or [])
+                ratio = MyAnimeListAdapter._find_best_ratio(titles, {s.name})
+
+                if ratio > best_ratio:
+                    best_ratio = ratio
+                    best_anime = r
+
+                if best_ratio == 1:
+                    break
+
+            if best_anime is None:
+                continue
+
+            if best_ratio >= config.mal_mapping_min_similarity:
+                self.seasonal_list.delete(s)
+            else:
+                print(f"Could not autmatically map {s.name}, you can map it manually.")
+                best_anime = search_show_prompt("seasonal", skip_season_search=True)
+                if best_anime is None:
+                    continue
+
+            episode = find_closest(best_anime.get_episodes(s.language), s.episode)
+            self.seasonal_list.update(best_anime, language=s.language, episode=episode)
+
+        self.print_options(clear_screen=True)
 
     def download_latest(self):
         picked = self._choose_latest()

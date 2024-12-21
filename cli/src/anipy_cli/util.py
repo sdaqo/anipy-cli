@@ -78,14 +78,23 @@ def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
 
     if not preferred_providers:
         error(
-            f"you have no providers set for {mode} mode, look into your config",
+            f"you have no providers set for '{mode}' mode, look into your config",
             fatal=True,
         )
 
+    providers = []
     for i in list_providers():
         if i.NAME in preferred_providers:
             url_override = config.provider_urls.get(i.NAME, None)
-            yield i(url_override)
+            providers.append(i(url_override))
+
+    if not providers:
+        error(
+            f"there are no working providers for '{mode}' mode, look into your config",
+            fatal=True,
+        )
+
+    yield providers
 
 
 def get_download_path(
@@ -135,7 +144,7 @@ def parsenum(n: str):
         return float(n)
 
 
-def find_closest(episodes: List["Episode"], target: int) -> "Episode":
+def find_closest(episodes: List["Episode"], target: "Episode") -> "Episode":
     left, right = 0, len(episodes) - 1
     while left < right:
         if abs(episodes[left] - target) <= abs(episodes[right] - target):

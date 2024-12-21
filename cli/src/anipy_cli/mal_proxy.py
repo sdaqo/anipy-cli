@@ -167,9 +167,15 @@ class MyAnimeListProxy:
             return mapping
 
         if self.local_list.mappings[anime.id].mappings:
-            map = list(self.local_list.mappings[anime.id].mappings.values())[0]
-            provider = next(filter(lambda x: x.NAME == map.provider, list_providers()))
-            return Anime(provider(), map.name, map.identifier, map.languages)
+            for map in self.local_list.mappings[anime.id].mappings.values():
+                provider = next(
+                    filter(lambda x: x.NAME == map.provider, list_providers()), None
+                )
+
+                if provider is None:
+                    continue
+
+                return Anime(provider(), map.name, map.identifier, map.languages)
 
         config = Config()
         result = None
