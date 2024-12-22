@@ -222,8 +222,10 @@ class Downloader:
         ffmpeg = (
             FFmpeg(executable="ffprobe")
             .input(stream.url, print_format="json", show_format=None)
-            .option("headers", f"Referer: {stream.referrer}")
         )
+
+        if stream.referrer:
+            ffmpeg.option("headers", f"Referer: {stream.referrer}")
 
         meta = json.loads(ffmpeg.execute())
         duration = float(meta["format"]["duration"])
@@ -232,7 +234,6 @@ class Downloader:
             FFmpeg()
             .option("y")
             .option("v", "warning")
-            .option("headers", f"Referer: {stream.referrer}")
             .option("stats")
             .input(stream.url)
             .output(
@@ -240,6 +241,9 @@ class Downloader:
                 {"c:v": "copy", "c:a": "copy", "c:s": "mov_text"},
             )
         )
+
+        if stream.referrer:
+            ffmpeg.option("headers", f"Referer: {stream.referrer}")
 
         @ffmpeg.on("progress")
         def on_progress(progress: Progress):
@@ -349,7 +353,6 @@ class Downloader:
                     stream.resolution,
                     stream.episode,
                     stream.language,
-                    stream.referrer,
                 ),
                 new_path,
             )
