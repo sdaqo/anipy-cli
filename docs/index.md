@@ -37,4 +37,4 @@ If you want to contribute as well check out [Contributing](contributing/index.md
 
 ---
 
-[Legal Disclaimer](https://github.com/sdaqo/anipy-cli/blob/master/disclaimer.md)
+[Legal Disclaimer](https://github.com/sdaqo/anipy-cli/blob/master/DISCLAIMER.md)

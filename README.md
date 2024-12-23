@@ -44,4 +44,4 @@ If you want to contribute as well, check this out: https://sdaqo.github.io/anipy
 
 ---
 
-[Legal Disclaimer](disclaimer.md)
+[Legal Disclaimer](DISCLAIMER.md)
