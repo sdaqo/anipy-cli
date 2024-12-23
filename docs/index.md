@@ -3,6 +3,8 @@
 A Little tool written in python to watch and download anime from the terminal (the better way to watch anime).
 This project's main aim is to create a enjoyable anime watching and downloading experience, directly in the terminal - your favorite place.
 
+**Features include: Seaonals mode, MyAnimeList integration, custom post-download scripts, automatic remuxing, discord presence and many more!**
+
 Since the version 3 rewrite this project is split into api and frontend, this makes it easy to integrate this into your project!
 
 ## You are just here for the client?
@@ -32,3 +34,7 @@ Feel free to - please check out [Getting Started - API](getting-started-api/inde
 </a>
 
 If you want to contribute as well check out [Contributing](contributing/index.md)
+
+---
+
+[Legal Disclaimer](https://github.com/sdaqo/anipy-cli/blob/master/disclaimer.md)
