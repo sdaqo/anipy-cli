@@ -1,6 +1,5 @@
 # ANIPY-CLI
 **Anime from the comfort of your Terminal**
-
 <p align="center"><img src="https://github.com/sdaqo/anipy-cli/assets/63876564/1dafa5fb-4273-4dc1-a7ab-2664dd668fc9" /> </p>
 
 ## What even is this?
@@ -42,3 +41,7 @@ Please check out [Getting Started - API](https://sdaqo.github.io/anipy-cli/getti
 </a>
 
 If you want to contribute as well, check this out: https://sdaqo.github.io/anipy-cli/contributing
+
+---
+
+[Legal Disclaimer](disclaimer.md)
