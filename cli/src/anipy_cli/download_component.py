@@ -3,7 +3,7 @@ from typing import List, Protocol, Tuple
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import color, colors
 from anipy_cli.config import Config
-from anipy_cli.util import DotSpinner, get_download_path
+from anipy_cli.util import DotSpinner, get_download_path, get_post_download_scripts_hook
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
@@ -31,9 +31,10 @@ class DownloadComponent:
     the ani-py CLI.
     """
 
-    def __init__(self, cliArgs: CliArgs, dl_path: Path) -> None:
-        self.options = cliArgs
+    def __init__(self, options: CliArgs, dl_path: Path, mode: str) -> None:
+        self.options = options 
         self.dl_path = dl_path
+        self.mode = mode
 
     def download_anime(
         self,
@@ -142,6 +143,7 @@ class DownloadComponent:
             get_download_path(anime, stream, parent_directory=self.dl_path),
             container=config.remux_to,
             ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
+            post_dl_cb=get_post_download_scripts_hook(self.mode, anime)
         )
 
     @staticmethod

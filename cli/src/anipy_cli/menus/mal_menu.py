@@ -270,7 +270,7 @@ class MALMenu(MenuBase):
                 episode=int(ep),
             )
 
-        errors = DownloadComponent(self.options, self.dl_path).download_anime(
+        errors = DownloadComponent(self.options, self.dl_path, "mal").download_anime(
             new_picked, on_successful_download
         )
         DownloadComponent.serve_download_errors(errors)

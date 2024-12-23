@@ -85,7 +85,6 @@ class Config:
         defaults = {
             "default": ["anivibe"],
             "download": ["anivibe"],
-            "history": ["anivibe"],
             "seasonal": ["anivibe"],
             "binge": ["anivibe"],
             "mal": ["anivibe"],
@@ -222,6 +221,47 @@ class Config:
             "download_name_format", "{show_name}_{episode_number}", str
         )
         return str(Path(value).with_suffix(""))
+
+    @property
+    def post_download_scripts(self) -> Dict[str, List[str]]:
+        """With this option you can define scripts that run after a file
+        has been downloaded. As with the 'providers' option, you can configure
+        different behaviour, depending on which part of anipy-cli the download occurs.
+        Configurable areas are as follows: default (and history), download (-D), seasonal (-S)
+        and mal (-M). The example will show you how it is done! Please note that if you define 
+        several scripts for one area, they will run in the order you put them in the list.
+        You can also define a timeout (in seconds), after which a script will be terminated,
+        if set to null there will be no timeout and any script will run forever.
+
+        A "script" is a path to an executable file which accepts following parameters (in this order):
+            1. Path to the file
+            2. Name of series
+            3. Episode
+            4. Provider
+            5. Quality
+            6. Language profile
+
+        Examples:
+            post_download_scripts:
+                default: [] # used in default mode and for the history
+                download: ["/scripts/send_notification.sh", "/scripts/move_and_rename.sh"]
+                seasonal: ["link_to_jellyfin.bat", "jellyfin_library_update.exe"] # All executable files should work, including windows specific
+                mal: ["hard_link_to_shoko"]
+                timeout: 60 # terminate any script after running for 60 seconds
+        """
+        defaults = {
+            "default": [],
+            "download": [],
+            "seasonal": [],
+            "mal": [],
+            "timeout": None
+        }
+
+        value = self._get_value("post_download_scripts", defaults, dict)
+
+        # Merge Dicts
+        defaults.update(value)
+        return defaults
 
     @property
     def dc_presence(self) -> bool:

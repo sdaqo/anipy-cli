@@ -270,7 +270,7 @@ class SeasonalMenu(MenuBase):
         def on_successful_download(anime: Anime, ep: Episode, lang: LanguageTypeEnum):
             self.seasonal_list.update(anime, episode=ep, language=lang)
 
-        failed_series = DownloadComponent(self.options, self.dl_path).download_anime(
+        failed_series = DownloadComponent(self.options, self.dl_path, "seasonal").download_anime(
             picked, on_successful_download
         )
 

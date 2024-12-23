@@ -3,7 +3,7 @@ import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Optional, Protocol
+from typing import Callable, Optional, Protocol
 from urllib.parse import urljoin
 
 import m3u8
@@ -36,6 +36,17 @@ class InfoCallback(Protocol):
         """
         ...
 
+class PostDownloadCallback(Protocol):
+    """Callback that accepts a message argument."""
+
+    def __call__(self, path: Path, stream: "ProviderStream"):
+        """
+
+        Args:
+            path: Path of the resulting download, passed to the callback
+            stream: ProviderStream object passed to the callback 
+        """
+        ...
 
 class Downloader:
     """Downloader class to download streams retrieved by the Providers."""
@@ -265,6 +276,7 @@ class Downloader:
         container: Optional[str] = None,
         ffmpeg: bool = False,
         max_retry: int = 3,
+        post_dl_cb: Optional[PostDownloadCallback] = None
     ) -> Path:
         """Generic download function that determines the best way to download a
         specific stream and downloads it. The suffix should be omitted here,
@@ -283,15 +295,17 @@ class Downloader:
             ffmpeg: Wheter to automatically default to
                 [ffmpeg_download][anipy_api.download.Downloader.ffmpeg_download] for m3u8/hls streams.
             max_retry: The amount of times the API can retry the download
+            post_dl_cb: Called when completing download, not called when file already exsists
 
         Returns:
             The path of the resulting file
         """
         curr_exc: Exception | None = None
+        post_dl_cb = post_dl_cb or (lambda path, stream: None)
         for i in range(max_retry):
             try:
                 path = self._download_single_try(
-                    stream, download_path, container, ffmpeg
+                    stream, download_path, post_dl_cb, container, ffmpeg
                 )
                 return path
             except DownloadError as e:
@@ -314,6 +328,7 @@ class Downloader:
         self,
         stream: "ProviderStream",
         download_path: Path,
+        post_dl_cb: PostDownloadCallback,
         container: Optional[str] = None,
         ffmpeg: bool = False,
     ) -> Path:
@@ -344,6 +359,7 @@ class Downloader:
 
         if container:
             if container == path.suffix:
+                post_dl_cb(path, stream)
                 return path
             self._info_callback(f"Remuxing to {container} container")
             new_path = path.with_suffix(container)
@@ -357,6 +373,8 @@ class Downloader:
                 new_path,
             )
             path.unlink()
+            post_dl_cb(download, stream)
             return download
 
+        post_dl_cb(path, stream)
         return path
