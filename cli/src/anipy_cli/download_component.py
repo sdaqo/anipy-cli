@@ -143,7 +143,7 @@ class DownloadComponent:
             get_download_path(anime, stream, parent_directory=self.dl_path),
             container=config.remux_to,
             ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-            post_dl_cb=get_post_download_scripts_hook(self.mode, anime)
+            post_dl_cb=get_post_download_scripts_hook(self.mode, anime, spinner)
         )
 
     @staticmethod

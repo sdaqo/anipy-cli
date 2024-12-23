@@ -233,7 +233,7 @@ class Menu(MenuBase):
                 get_download_path(self.anime, self.stream),
                 container=config.remux_to,
                 ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-                post_dl_cb=get_post_download_scripts_hook("default", self.anime)
+                post_dl_cb=get_post_download_scripts_hook("default", self.anime, s)
             )
 
         if Config().auto_open_dl_defaultcli:

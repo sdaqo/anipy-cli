@@ -121,12 +121,13 @@ def get_download_path(
 
     return download_folder / anime_name / filename
 
-def get_post_download_scripts_hook(mode: str, anime: "Anime") -> PostDownloadCallback:
+def get_post_download_scripts_hook(mode: str, anime: "Anime", spinner: DotSpinner) -> PostDownloadCallback:
     config = Config()
     scripts = config.post_download_scripts[mode]
     timeout = config.post_download_scripts["timeout"]
 
     def hook(path: Path, stream: "ProviderStream"):
+        spinner.hide()
         arguments = [
             str(path), anime.name,
             str(stream.episode), anime.provider.NAME,
@@ -135,6 +136,7 @@ def get_post_download_scripts_hook(mode: str, anime: "Anime") -> PostDownloadCal
         for s in scripts:
             sub_proc = sp.Popen([s, *arguments])
             sub_proc.wait(timeout) # type: ignore
+        spinner.show()
 
     return hook
 
