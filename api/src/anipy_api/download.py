@@ -3,7 +3,7 @@ import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Callable, Optional, Protocol
+from typing import Optional, Protocol
 from urllib.parse import urljoin
 
 import m3u8
@@ -36,6 +36,7 @@ class InfoCallback(Protocol):
         """
         ...
 
+
 class PostDownloadCallback(Protocol):
     """Callback that accepts a message argument."""
 
@@ -44,9 +45,10 @@ class PostDownloadCallback(Protocol):
 
         Args:
             path: Path of the resulting download, passed to the callback
-            stream: ProviderStream object passed to the callback 
+            stream: ProviderStream object passed to the callback
         """
         ...
+
 
 class Downloader:
     """Downloader class to download streams retrieved by the Providers."""
@@ -230,9 +232,8 @@ class Downloader:
             The download path, this should be the same as the
             passed one as ffmpeg will remux to about any container.
         """
-        ffmpeg = (
-            FFmpeg(executable="ffprobe")
-            .input(stream.url, print_format="json", show_format=None)
+        ffmpeg = FFmpeg(executable="ffprobe").input(
+            stream.url, print_format="json", show_format=None
         )
 
         if stream.referrer:
@@ -276,7 +277,7 @@ class Downloader:
         container: Optional[str] = None,
         ffmpeg: bool = False,
         max_retry: int = 3,
-        post_dl_cb: Optional[PostDownloadCallback] = None
+        post_dl_cb: Optional[PostDownloadCallback] = None,
     ) -> Path:
         """Generic download function that determines the best way to download a
         specific stream and downloads it. The suffix should be omitted here,
