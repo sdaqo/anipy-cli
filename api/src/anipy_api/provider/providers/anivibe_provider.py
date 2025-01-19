@@ -1,4 +1,3 @@
-import json
 import re
 from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
@@ -185,23 +184,60 @@ class AnivibeProvider(BaseProvider):
     ) -> List["ProviderStream"]:
         req = Request("GET", f"{self.BASE_URL}/{identifier}-episode-{episode}")
         res = self._request_page(req)
-        data = re.search(r"loadIframePlayer\('(.+)'", res.text)
-        if data is None:
-            raise BeautifulSoupLocationError("streams", res.url)
+        soup = BeautifulSoup(res.text, 'html.parser')
+        div_tag = soup.find('div', {'id': 'w-servers', 'class': 'bixbox'})
+        video_data = {}
+        types = soup.find_all('div', class_='type')
+        for type_div in types:
+            type_name=type_div['data-type']
+            video_data[type_name] = []
 
-        data = json.loads(data.group(1))
-        stream = next(filter(lambda x: x["type"] == lang.name, data), None)
+            li_elements = type_div.find_all('li')
+            if li_elements:
+                for li in li_elements:
+                    video_url = li.get('data-video')
+                    video_label = li.get_text(strip=True)
+                    if video_url:
+                        video_data[type_name].append({'label': video_label, 'url': video_url})
+        multi_provider="Vidhide"
+        streams = video_data.get(lang.name, [])
+        stream = next(filter(lambda x: x["label"] == multi_provider, streams), None)
         if stream is None:
             raise LangTypeNotAvailableError(identifier, self.NAME, lang)
 
         substreams = []
         req = Request("GET", stream["url"], headers={"referer": self.BASE_URL})
         res = self._request_page(req)
+        soup = BeautifulSoup(res.text, 'html.parser')
+        obsucated = str(soup.find('script', text=re.compile(r"eval\(function\(p,a,c,k,e,d\)")))
+        def to_string(n,a):
+            if n==0:
+                return "0"
+            digits = "0123456789abcdefghijklmnopqrstuvwxyz"
+            result = []
+            while n:
+                result.append(digits[n % a])
+                n //= a
+            return ''.join(reversed(result))
+        def dejs(p, a, c, k):
+            while c > 0:
+                c -= 1
+                if k[c]:
+                    p = re.sub(r'\b' + to_string(c,a) + r'\b', k[c], p)
+            return p
+        find_str="}('"
+        parameter=obsucated.find(find_str)
+        pattern = r"(?<!\\)'"
+        segments = re.split(pattern, obsucated[parameter+len(find_str):])
+        data = dejs(segments[0], int(segments[1].split(',')[1]), int(segments[1].split(',')[2]), segments[2].split('|'))
+        url=re.search(r'file:"(https?://[^\s"]+)"', data).group(1)
+        req = Request("GET", url)
+        res = self._request_page(req)
         content = m3u8.M3U8(res.text, base_uri=urljoin(res.url, "."))
         if len(content.playlists) == 0:
             substreams.append(
                 ProviderStream(
-                    url=stream["url"],
+                    url=url,
                     resolution=1080,
                     episode=episode,
                     language=lang,
