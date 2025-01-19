@@ -210,7 +210,7 @@ class AnivibeProvider(BaseProvider):
         res = self._request_page(req)
         soup = BeautifulSoup(res.text, 'html.parser')
         obsucated = str(soup.find('script', text=re.compile(r"eval\(function\(p,a,c,k,e,d\)")))
-        def toString(n,a):
+        def to_string(n,a):
             if n==0:
                 return "0"
             digits = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -223,7 +223,7 @@ class AnivibeProvider(BaseProvider):
             while c > 0:
                 c -= 1
                 if k[c]:
-                    p = re.sub(r'\b' + toString(c,a) + r'\b', k[c], p)
+                    p = re.sub(r'\b' + to_string(c,a) + r'\b', k[c], p)
             return p
         find_str="}('"
         parameter=obsucated.find(find_str)
