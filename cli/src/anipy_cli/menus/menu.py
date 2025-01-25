@@ -10,7 +10,13 @@ from anipy_api.locallist import LocalList
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
-from anipy_cli.util import DotSpinner, error, get_download_path, get_post_download_scripts_hook, migrate_locallist
+from anipy_cli.util import (
+    DotSpinner,
+    error,
+    get_download_path,
+    get_post_download_scripts_hook,
+    migrate_locallist,
+)
 from anipy_cli.prompts import pick_episode_prompt, search_show_prompt
 
 
@@ -233,7 +239,7 @@ class Menu(MenuBase):
                 get_download_path(self.anime, self.stream),
                 container=config.remux_to,
                 ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-                post_dl_cb=get_post_download_scripts_hook("default", self.anime, s)
+                post_dl_cb=get_post_download_scripts_hook("default", self.anime, s),
             )
 
         if Config().auto_open_dl_defaultcli:

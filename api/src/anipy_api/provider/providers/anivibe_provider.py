@@ -103,10 +103,18 @@ class AnivibeProvider(BaseProvider):
                     continue
 
                 name = a.find("span", attrs={"class": "d-title"}).get_text()
-                languages = {LanguageTypeEnum.SUB}
+
+                languages = set()
+                has_sub = a.find("span", attrs={"class": "sb sub"})
+                if has_sub is not None:
+                    languages.add(LanguageTypeEnum.SUB)
+
                 has_dub = a.find("span", attrs={"class": "sb dub"})
                 if has_dub is not None:
                     languages.add(LanguageTypeEnum.DUB)
+
+                if len(languages) == 0:
+                    languages.add(LanguageTypeEnum.SUB)
 
                 results.append(
                     ProviderSearchResult(

@@ -32,7 +32,7 @@ class DownloadComponent:
     """
 
     def __init__(self, options: CliArgs, dl_path: Path, mode: str) -> None:
-        self.options = options 
+        self.options = options
         self.dl_path = dl_path
         self.mode = mode
 
@@ -143,7 +143,7 @@ class DownloadComponent:
             get_download_path(anime, stream, parent_directory=self.dl_path),
             container=config.remux_to,
             ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-            post_dl_cb=get_post_download_scripts_hook(self.mode, anime, spinner)
+            post_dl_cb=get_post_download_scripts_hook(self.mode, anime, spinner),
         )
 
     @staticmethod
