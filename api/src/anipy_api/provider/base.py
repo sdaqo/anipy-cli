@@ -81,6 +81,7 @@ class ProviderStream:
             of the stream. (e.g. 1080, 720 etc.)
         episode: The episode this stream is from
         language: The language type this stream is in
+        subtitle: The subtitles available from this stream
         referrer: Referrer to be set when downloading/viewing
             if necassary.
     """
@@ -89,6 +90,7 @@ class ProviderStream:
     resolution: int
     episode: Episode
     language: LanguageTypeEnum
+    subtitle: Optional[List[str]] = None
     referrer: Optional[str] = None
 
     def __hash__(self) -> int:
