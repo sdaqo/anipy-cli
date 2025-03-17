@@ -162,7 +162,11 @@ class AnimekaiFilter(BaseFilter):
         self._request.params.update({"season[]": [mapping[season]]})
 
     def _apply_status(self, status: Status):
-        mapping = {v: k.capitalize() for k, v in Status._member_map_.items()}
+        mapping = {
+            Status.UPCOMING: "info",
+            Status.ONGOING: "releasing",
+            Status.COMPLETED: "completed"
+        }
         self._request.params.update({"status[]": [mapping[status]]})
 
     def _apply_media_type(self, media_type: MediaType):
@@ -302,7 +306,7 @@ class AnimekaiProvider(BaseProvider):
             elif text == "Status:":
                 desc = safe_attr(i.find("span"), "text")
                 if desc is not None:
-                    map = {"Not Yet Aired": "UPCOMING", "Releasing": "ONGOING", "Completed": "COMPLETED"}
+                    map = {"Info": "UPCOMING", "Releasing": "ONGOING", "Completed": "COMPLETED"}
                     data_map["status"] = Status[map[desc]]
             elif text == "Premiered:":
                 desc = safe_attr(i.find("a"), "text")
