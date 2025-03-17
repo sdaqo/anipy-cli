@@ -72,7 +72,7 @@ class Config:
 
         For an updated list of providers look here: https://sdaqo.github.io/anipy-cli/availabilty
 
-        Supported providers (as of $version): gogoanime, anivibe
+        Supported providers (as of $version): animekai, gogoanime, anivibe
 
         Examples:
             providers:
@@ -83,11 +83,11 @@ class Config:
                 mal: ["provider2", "provider3"]
         """
         defaults = {
-            "default": ["anivibe"],
-            "download": ["anivibe"],
-            "seasonal": ["anivibe"],
-            "binge": ["anivibe"],
-            "mal": ["anivibe"],
+            "default": ["animekai"],
+            "download": ["animekai"],
+            "seasonal": ["animekai"],
+            "binge": ["animekai"],
+            "mal": ["animekai"],
         }
 
         value = self._get_value("providers", defaults, dict)
