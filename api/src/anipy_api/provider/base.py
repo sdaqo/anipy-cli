@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Set, Union
+from typing import List, Optional, Set, Union, Dict
 
 from requests import Request, Session, ConnectionError as RequestConnectionError
 
@@ -90,7 +90,7 @@ class ProviderStream:
     resolution: int
     episode: Episode
     language: LanguageTypeEnum
-    subtitle: Optional[List[str]] = None
+    subtitle: Optional[Dict[str, str]] = None
     referrer: Optional[str] = None
 
     def __hash__(self) -> int:

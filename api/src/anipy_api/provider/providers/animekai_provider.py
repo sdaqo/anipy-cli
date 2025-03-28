@@ -1,4 +1,5 @@
 import urllib.parse
+import sys
 import json
 import base64
 from Cryptodome.Cipher import ARC4
@@ -356,7 +357,7 @@ class AnimekaiProvider(BaseProvider):
             servers = i.find_all("span", class_="server")
             for server in servers:
                 video_entry=[]
-                video_subtitles=[]
+                video_subtitles={}
                 id = safe_attr(server, "data-lid")
                 req = Request(
                     "GET",
@@ -377,7 +378,7 @@ class AnimekaiProvider(BaseProvider):
                 video_entry.append(json_res["sources"][0]["file"])
                 for track in json_res.get("tracks", []):
                     if track.get("kind") == "captions":
-                        video_subtitles.append(track["file"])
+                        video_subtitles[track.get("label")]=track["file"]
                 video_entry.append(video_subtitles)
                 video_url.append(video_entry)
 

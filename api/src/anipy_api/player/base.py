@@ -1,4 +1,6 @@
 import os
+import requests
+import tempfile
 import subprocess as sp
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List, Optional, Protocol
@@ -74,6 +76,18 @@ class PlayerBase(ABC):
     @staticmethod
     def _get_media_title(anime: "Anime", stream: "ProviderStream"):
         return f"[{anime.provider.NAME}] {anime.name} E{stream.episode} [{stream.language}][{stream.resolution}p]"
+    
+    @staticmethod
+    def _get_media_sub(stream: "ProviderStream"):
+        subtitles = {}
+        if stream.subtitle:
+            for name, url in stream.subtitle.items():
+                subtitle_file = tempfile.NamedTemporaryFile("w+", delete=False)
+                req = requests.get(url)
+                subtitle_file.write(req.text)
+                subtitles[name]=subtitle_file.name
+        return subtitles
+
 
 
 class SubProcessPlayerBase(PlayerBase):
@@ -136,11 +150,14 @@ class SubProcessPlayerBase(PlayerBase):
             i.format(
                 media_title=self._get_media_title(anime, stream),
                 stream_url=stream.url,
+                subtitles="#".join(self._get_media_sub(stream).values()) if self._player_exec=="vlc" else ":".join(self._get_media_sub(stream).values()),
                 referrer=stream.referrer,
             )
             for i in self.player_args_template
         ]
         player_cmd.insert(0, self._player_exec)
+        if self._player_exec=="vlc":
+            player_cmd.append("--sub-track=0")
 
         if isinstance(self._sub_proc, sp.Popen):
             self.kill_player()

@@ -28,6 +28,7 @@ class Mpv(SubProcessPlayerBase):
         self.player_args_template = [
             "{stream_url}",
             "--force-media-title={media_title}",
+            "--sub-files={subtitles}",
             "--force-window=immediate",
             "--referrer={referrer}",
             *extra_args,
