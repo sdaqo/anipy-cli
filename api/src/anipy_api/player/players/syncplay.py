@@ -24,6 +24,7 @@ class Syncplay(SubProcessPlayerBase):
         self.player_args_template = [
             "--",
             "--meta-title='{media_title}'",
+            "--sub-files={subtitles}",
             "--referrer={referrer}" "{stream_url}",
             *extra_args,
         ]
