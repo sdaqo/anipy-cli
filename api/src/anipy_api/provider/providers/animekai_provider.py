@@ -83,38 +83,40 @@ def generate_token(n):
     )
 
 def decode(n):
-    n = substitute(
-      transform(
-        "fnxEj3tD4Bl0X",
+    n = transform(
+        'A6mkJw3XMsruY',
         base64_url_decode(
-          reverse_it(
-            reverse_it(
-              transform(
-                "IjilzMV57GrnF",
-                base64_url_decode(
-                  substitute(
+            substitute(
+                reverse_it(
                     reverse_it(
-                      substitute(
                         transform(
-                          "PlzI69YVCtGwoa8",
-                          base64_url_decode(base64_url_decode(n))
-                        ),
-                        "c2IfHZwSX1mj",
-                        "mwfXcS2ZjI1H"
-                      )
-                    ),
-                    "82NkgQDYbIF",
-                    "82IQNkFgYbD"
-                  )
-                )
-              )
+                            'Sv7tijKFrwDxsl9',
+                            base64_url_decode(
+                                substitute(
+                                    transform(
+                                        'j8971KLwSyI',
+                                        base64_url_decode(
+                                            reverse_it(
+                                                substitute(
+                                                    base64_url_decode(n),
+                                                    'kxV4iJtRZg3',
+                                                    'VJx34RtgkZi',
+                                                )
+                                            )
+                                        ),
+                                    ),
+                                    'BjZ9dF6AxHTqn',
+                                    'jxqZdB6n9FTHA',
+                                )
+                            ),
+                        )
+                    )
+                ),
+                'FpPBdhzCyGYoDvO',
+                'YGFpvoBdCyDPhzO',
             )
-          )
-        )
-      ),
-      "crwkth05iJR8",
-      "JRkt8rw0i5ch"
-    );
+        ),
+    )
     return urllib.parse.unquote(n)
 
 def decode_iframe_data(n):
