@@ -233,71 +233,17 @@ def convert_letter_to_season(letter: str) -> Optional[str]:
 
 
 def migrate_locallist(file: Path) -> LocalListData:
-    import json
-    import re
-
     error(
-        f"{file} is in an unsuported format, trying to migrate the old gogoanime entries..."
+        f"{file} is in an unsuported format..."
     )
 
-    old_data = json.load(file.open("r"))
     new_list = LocalListData({})
-    gogo = get_provider(
-        "gogoanime", base_url_override=Config().provider_urls.get("gogoanime", None)
-    )
-    assert gogo is not None
-
-    try:
-        for k, v in old_data.items():
-            name = k
-            name = re.sub(r"\s?\((dub|japanese\sdub)\)", "", name, flags=re.IGNORECASE)
-            identifier = Path(v.get("category_url", v["category-link"])).name
-            is_dub = identifier.endswith("-dub") or identifier.endswith("-japanese-dub")
-            identifier = identifier.removesuffix("-dub").removesuffix("-japanese-dub")
-            episode = v["ep"]
-            unique_id = f"gogoanime:{identifier}"
-
-            langs = set()
-
-            try:
-                gogo.get_episodes(identifier, lang=LanguageTypeEnum.DUB)
-                langs.add(LanguageTypeEnum.DUB)
-                gogo.get_episodes(identifier, lang=LanguageTypeEnum.SUB)
-                langs.add(LanguageTypeEnum.SUB)
-            except LangTypeNotAvailableError:
-                pass
-
-            if not langs:
-                error(f"> failed to migrate {name}, as it was not found in gogoanime")
-
-            if is_dub and LanguageTypeEnum.DUB not in langs:
-                error(
-                    f"> failed to migrate {name}, as it was configured as dub but"
-                    f"{gogo.BASE_URL}/category/{identifier}-dub or {gogo.BASE_URL}/category/{identifier}-japanese-dub was not found!"
-                )
-                continue
-
-            new_entry = LocalListEntry(
-                provider="gogoanime",
-                name=name,
-                identifier=identifier,
-                episode=episode,
-                language=LanguageTypeEnum.DUB if is_dub else LanguageTypeEnum.SUB,
-                languages=langs,
-                timestamp=int(time.time()),
-            )
-
-            new_list.data[unique_id] = new_entry
-
-        new_list.write(file)
+    choice = inquirer.confirm(  # type: ignore
+        message="Should it be delted?",
+        default=False,
+    ).execute()
+    if choice:
+        file.unlink()
         return new_list
-    except KeyError:
-        choice = inquirer.confirm(  # type: ignore
-            message=f"Can not migrate {file}, should it be delted?",
-            default=False,
-        ).execute()
-        if choice:
-            file.unlink()
-            return new_list
-        else:
-            error("could not read {file}", fatal=True)
+    else:
+        error("could not read {file}", fatal=True)
