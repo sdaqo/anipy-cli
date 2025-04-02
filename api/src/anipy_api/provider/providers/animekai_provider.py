@@ -83,39 +83,37 @@ def generate_token(n):
     )
 
 def decode(n):
-    n = transform(
-        'A6mkJw3XMsruY',
-        base64_url_decode(
-            substitute(
+    n = substitute(
+        transform(
+            "Pga3kHbfN1",
+            base64_url_decode(
                 reverse_it(
-                    reverse_it(
+                    substitute(
                         transform(
-                            'Sv7tijKFrwDxsl9',
+                            "twUI4s9kDrT3qb",
                             base64_url_decode(
-                                substitute(
-                                    transform(
-                                        'j8971KLwSyI',
-                                        base64_url_decode(
-                                            reverse_it(
-                                                substitute(
-                                                    base64_url_decode(n),
-                                                    'kxV4iJtRZg3',
-                                                    'VJx34RtgkZi',
-                                                )
-                                            )
+                                reverse_it(
+                                    substitute(
+                                        transform(
+                                            "TyrGFfhi40zq",
+                                            base64_url_decode(
+                                                reverse_it(base64_url_decode(n))
+                                            ),
                                         ),
-                                    ),
-                                    'BjZ9dF6AxHTqn',
-                                    'jxqZdB6n9FTHA',
+                                        "4zSetv9CNImRdiq",
+                                        "i94NvzeIRCqdtSm",
+                                    )
                                 )
                             ),
-                        )
+                        ),
+                        "vfIiqFKutaW",
+                        "tqaiKIfuvWF",
                     )
-                ),
-                'FpPBdhzCyGYoDvO',
-                'YGFpvoBdCyDPhzO',
-            )
+                )
+            ),
         ),
+        "vnb0rLzdZN6a",
+        "vNZnrzd60baL",
     )
     return urllib.parse.unquote(n)
 
