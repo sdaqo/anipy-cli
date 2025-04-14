@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from anipy_api.provider import Episode
     from requests import Session
 
-DECODE_URL: str = "https://raw.githubusercontent.com/sdaqo/anipy-cli/refs/heads/master/scripts/decoder/generated/kai.json"
+DECODE_URL: str = "https://raw.githubusercontent.com/sdaqo/anipy-cli/refs/heads/key-gen/scripts/decoder/generated/kai.json"
 AnimekaiDecodeFunc = None
 
 @functools.lru_cache()
