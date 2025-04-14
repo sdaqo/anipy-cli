@@ -1,12 +1,13 @@
 import urllib.parse
 import json
+import functools
 import base64
 from Cryptodome.Cipher import ARC4
 import re
 from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
 
-from anipy_api.provider.utils import parsenum, safe_attr
+from anipy_api.provider.utils import parsenum, safe_attr, request_page
 import m3u8
 from bs4 import BeautifulSoup
 from requests import Request
@@ -30,9 +31,17 @@ from anipy_api.provider.filter import (
 
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
+    from requests import Session
 
-DECODE_URL: str = "https://raw.githubusercontent.com/random2907/anipy-cli/refs/heads/master/scripts/decoder/generated/kai.json"
+DECODE_URL: str = "https://raw.githubusercontent.com/sdaqo/anipy-cli/refs/heads/master/scripts/decoder/generated/kai.json"
 AnimekaiDecodeFunc = None
+
+@functools.lru_cache()
+def fetch_decode(session: "Session"):
+    global AnimekaiDecodeFunc
+    req = Request("GET", DECODE_URL)
+    res = request_page(session, req)
+    AnimekaiDecodeFunc = json.loads(res.text)
 
 def reverse_it(n):
     return n[::-1]
@@ -112,16 +121,6 @@ class AnimekaiProvider(BaseProvider):
         | FilterCapabilities.MEDIA_TYPE
         | FilterCapabilities.NO_QUERY
     )
-
-    def __init__(self,url_override=None):
-        super().__init__(url_override)
-        self.fetch_decode()
-
-    def fetch_decode(self):
-        global AnimekaiDecodeFunc
-        req = Request("GET", DECODE_URL)
-        res = self._request_page(req)
-        AnimekaiDecodeFunc = json.loads(res.text)
     
     def get_search(
         self, query: str, filters: "Filters" = Filters()
@@ -160,9 +159,13 @@ class AnimekaiProvider(BaseProvider):
             page += 1
         return results
 
+    def fetch_decode(self):
+        return fetch_decode(self.session)
+
     def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List["Episode"]:
         req = Request("GET", f"{self.BASE_URL}/watch/{identifier}")
         result = self._request_page(req)
+        self.fetch_decode()
         soup = BeautifulSoup(result.text, "html.parser")
         ani_id = safe_attr(soup.find("div", class_="rate-box"),"data-id")
         req = Request(
