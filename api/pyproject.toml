@@ -23,6 +23,7 @@ beautifulsoup4 = "^4.12.3"
 python-mpv = "^1.0.6"
 dataclasses-json = "^0.6.4"
 levenshtein = "^0.26.0"
+simpleeval = "^1.0.3"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/sdaqo/anipy-cli/issues"
