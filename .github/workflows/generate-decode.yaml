@@ -1,0 +1,28 @@
+name: Update Decode Output
+
+on:
+  schedule:
+    - cron: '5 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate JSON
+        working-directory: scripts/decoder
+        run:  |
+          npm install
+          npm start
+      - name: Commit generated JSON
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add scripts/decoder/generated/kai.json
+          git commit -m "Update generated kai.json"
+          git push
+

@@ -1,5 +1,4 @@
 import urllib.parse
-import sys
 import json
 import base64
 from Cryptodome.Cipher import ARC4
@@ -32,6 +31,9 @@ from anipy_api.provider.filter import (
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
 
+DECODE_URL: str = "https://raw.githubusercontent.com/random2907/anipy-cli/refs/heads/master/scripts/decoder/generated/kai.json"
+AnimekaiDecodeFunc = None
+
 def reverse_it(n):
     return n[::-1]
 
@@ -52,104 +54,13 @@ def base64_url_decode(s):
     return base64.b64decode(s.replace('-', '+').replace('_', '/')).decode('latin-1')
 
 def generate_token(n):
-    return base64_url_encode(
-        substitute(
-            base64_url_encode(
-                transform(
-                    'sXmH96C4vhRrgi8',
-                    reverse_it(
-                        reverse_it(
-                            base64_url_encode(
-                                transform(
-                                    'kOCJnByYmfI',
-                                    substitute(
-                                        substitute(
-                                            reverse_it(base64_url_encode(transform('0DU8ksIVlFcia2', n))),
-                                            '1wctXeHqb2',
-                                            '1tecHq2Xbw'
-                                        ),
-                                        '48KbrZx1ml',
-                                        'Km8Zb4lxr1'
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            ),
-            'hTn79AMjduR5',
-            'djn5uT7AMR9h'
-        )
-    )
-
-def decode(n):
-    n = substitute(
-        transform(
-            "Pga3kHbfN1",
-            base64_url_decode(
-                reverse_it(
-                    substitute(
-                        transform(
-                            "twUI4s9kDrT3qb",
-                            base64_url_decode(
-                                reverse_it(
-                                    substitute(
-                                        transform(
-                                            "TyrGFfhi40zq",
-                                            base64_url_decode(
-                                                reverse_it(base64_url_decode(n))
-                                            ),
-                                        ),
-                                        "4zSetv9CNImRdiq",
-                                        "i94NvzeIRCqdtSm",
-                                    )
-                                )
-                            ),
-                        ),
-                        "vfIiqFKutaW",
-                        "tqaiKIfuvWF",
-                    )
-                )
-            ),
-        ),
-        "vnb0rLzdZN6a",
-        "vNZnrzd60baL",
-    )
-    return urllib.parse.unquote(n)
+    return eval(AnimekaiDecodeFunc["generate_token"])
 
 def decode_iframe_data(n):
-    n = transform(
-      '0DU8ksIVlFcia2',
-      base64_url_decode(
-        reverse_it(
-          substitute(
-            substitute(
-              transform(
-                'kOCJnByYmfI',
-                base64_url_decode(
-                  reverse_it(
-                    reverse_it(
-                      transform(
-                        'sXmH96C4vhRrgi8',
-                        base64_url_decode(
-                          substitute(base64_url_decode(n), 'djn5uT7AMR9h', 'hTn79AMjduR5')
-                        )
-                      )
-                    )
-                  )
-                )
-              ),
-              'Km8Zb4lxr1',
-              '48KbrZx1ml'
-            ),
-            '1tecHq2Xbw',
-            '1wctXeHqb2'
-          )
-        )
-      )
-    );
-    return urllib.parse.unquote(n)
+    return urllib.parse.unquote(eval(AnimekaiDecodeFunc["decode_iframe_data"]))
 
+def decode(n):
+    return urllib.parse.unquote(eval(AnimekaiDecodeFunc["decode"]))
 
 class AnimekaiFilter(BaseFilter):
     def _apply_query(self, query: str):
@@ -202,6 +113,16 @@ class AnimekaiProvider(BaseProvider):
         | FilterCapabilities.NO_QUERY
     )
 
+    def __init__(self,url_override=None):
+        super().__init__(url_override)
+        self.fetch_decode()
+
+    def fetch_decode(self):
+        global AnimekaiDecodeFunc
+        req = Request("GET", DECODE_URL)
+        res = self._request_page(req)
+        AnimekaiDecodeFunc = json.loads(res.text)
+    
     def get_search(
         self, query: str, filters: "Filters" = Filters()
     ) -> List[ProviderSearchResult]:
