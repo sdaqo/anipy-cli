@@ -269,6 +269,21 @@ class Downloader:
 
         return download_path
 
+    def download_sub(self, stream: "ProviderStream", download_path: Path):
+        if not stream.subtitle:
+            return
+
+        self._info_callback("Downloading external sub")
+        for s in stream.subtitle.values():
+            res = self._session.get(s.url, headers={"Referer": stream.referrer})
+
+            suffix = f".{s.shortcode}.{s.codec}"
+            self._info_callback(str(download_path.with_suffix(suffix)))
+            self._info_callback(str(download_path))
+            path = download_path.with_suffix(suffix)
+            with path.open("w") as fp:
+                fp.write(res.text)
+
     def download(
         self,
         stream: "ProviderStream",
@@ -338,6 +353,8 @@ class Downloader:
             if p.with_suffix("").name == download_path.name:
                 self._info_callback("Episode is already downloaded, skipping")
                 return p
+
+        self.download_sub(stream, download_path)
 
         if "m3u8" in stream.url:
             if ffmpeg:

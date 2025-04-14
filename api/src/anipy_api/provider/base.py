@@ -70,6 +70,12 @@ class ProviderInfoResult:
     status: Optional[Status] = None
     alternative_names: Optional[List[str]] = None
 
+@dataclass
+class ExternalSub:
+    url: str
+    lang: str
+    codec: str
+    shortcode: Optional[str]
 
 @dataclass
 class ProviderStream:
@@ -90,7 +96,7 @@ class ProviderStream:
     resolution: int
     episode: Episode
     language: LanguageTypeEnum
-    subtitle: Optional[Dict[str, str]] = None
+    subtitle: Optional[Dict[str, ExternalSub]] = None
     referrer: Optional[str] = None
 
     def __hash__(self) -> int:

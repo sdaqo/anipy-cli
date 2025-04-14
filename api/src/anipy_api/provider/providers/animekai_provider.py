@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
 from requests import Session
 
+from anipy_api.provider.base import ExternalSub
 import m3u8
 from bs4 import BeautifulSoup
 from Cryptodome.Cipher import ARC4
@@ -29,7 +30,7 @@ from anipy_api.provider.filter import (
     Season,
     Status,
 )
-from anipy_api.provider.utils import parsenum, request_page, safe_attr
+from anipy_api.provider.utils import get_language_code2, parsenum, request_page, safe_attr
 
 if TYPE_CHECKING:
     from requests import Session
@@ -325,7 +326,9 @@ class AnimekaiProvider(BaseProvider):
                 video_entry.append(json_res["sources"][0]["file"])
                 for track in json_res.get("tracks", []):
                     if track.get("kind") == "captions":
-                        video_subtitles[track.get("label")] = track["file"]
+                        lang_name = track.get("label").split()[0]
+                        lang_code = get_language_code2(lang_name)
+                        video_subtitles[track.get("label")] = ExternalSub(url=track["file"], lang=lang_name, shortcode=lang_code, codec="vtt")
                 video_entry.append(video_subtitles)
                 video_url.append(video_entry)
 

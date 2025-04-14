@@ -1,5 +1,6 @@
 """These are only internal utils, which are not made to be used outside"""
 
+import pycountry
 from typing import TYPE_CHECKING
 from typing import Union, Optional
 
@@ -52,3 +53,12 @@ def safe_attr(
         return bs_obj.get_text()
 
     return bs_obj.get(attr)  # type: ignore
+
+
+def get_language_code2(language: str) -> Optional[str]:
+    try:
+        code = pycountry.languages.get(name=language)
+        return code.alpha_2 if code else None
+    except AttributeError:
+        return
+

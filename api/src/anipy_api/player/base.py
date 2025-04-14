@@ -1,5 +1,6 @@
 import os
 import requests
+import atexit
 import tempfile
 import subprocess as sp
 from abc import ABC, abstractmethod
@@ -81,11 +82,18 @@ class PlayerBase(ABC):
     def _get_media_sub(stream: "ProviderStream"):
         subtitles = {}
         if stream.subtitle:
-            for name, url in stream.subtitle.items():
-                subtitle_file = tempfile.NamedTemporaryFile("w+", delete=False)
-                req = requests.get(url)
+            for name, sub in stream.subtitle.items():
+                suffix = f".{sub.shortcode}.{sub.codec}"
+                subtitle_file = tempfile.NamedTemporaryFile("w+", delete=False, suffix=suffix)
+                req = requests.get(sub.url, headers={"Referer": stream.referrer})
                 subtitle_file.write(req.text)
-                subtitles[name]=subtitle_file.name
+                subtitles[name] = subtitle_file.name
+
+        def delete_files(files):
+            for f in files.values():
+                os.remove(f)
+
+        atexit.register(delete_files, subtitles)
         return subtitles
 
 
