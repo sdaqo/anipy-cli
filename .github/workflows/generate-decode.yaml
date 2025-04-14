@@ -25,6 +25,6 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add scripts/decoder/generated/kai.json
-          git diff-index --quiet HEAD || git commit -m "Update generated kai.json"
+          git commit -m "Update generated kai.json" || exit 0
           git push
 
