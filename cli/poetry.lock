@@ -2,14 +2,14 @@
 
 [[package]]
 name = "anipy-api"
-version = "3.4.2"
+version = "3.4.3"
 description = "api for anipy-cli"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "anipy_api-3.4.2-py3-none-any.whl", hash = "sha256:46f73b0e86c0e96ff5c51145456d3555e7e6f4ce8fbc7041e21fa372a53e2ad1"},
-    {file = "anipy_api-3.4.2.tar.gz", hash = "sha256:0e7c5db075b5cb8765d3211925f08c51d09bacf3dc897a76933216d8286cd0d9"},
+    {file = "anipy_api-3.4.3-py3-none-any.whl", hash = "sha256:37d90e56a761d15bc4e87d72d216acfbb9f12c28d113ad8e0017218100c7e63e"},
+    {file = "anipy_api-3.4.3.tar.gz", hash = "sha256:602b1ea9e6ceab57de153e4de2abc402ac8c920054ebe86ffb8e47c8755c202e"},
 ]
 
 [package.dependencies]
@@ -21,6 +21,7 @@ pycryptodomex = ">=3.20.0,<4.0.0"
 python-ffmpeg = ">=2.0.11,<3.0.0"
 python-mpv = ">=1.0.6,<2.0.0"
 requests = ">=2.32.0,<3.0.0"
+simpleeval = ">=1.0.3,<2.0.0"
 
 [[package]]
 name = "appdirs"
@@ -772,6 +773,18 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
+name = "simpleeval"
+version = "1.0.3"
+description = "A simple, safe single expression evaluator library."
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "simpleeval-1.0.3-py3-none-any.whl", hash = "sha256:e3bdbb8c82c26297c9a153902d0fd1858a6c3774bf53ff4f134788c3f2035c38"},
+    {file = "simpleeval-1.0.3.tar.gz", hash = "sha256:67bbf246040ac3b57c29cf048657b9cf31d4e7b9d6659684daa08ca8f1e45829"},
+]
+
+[[package]]
 name = "soupsieve"
 version = "2.6"
 description = "A modern CSS selector implementation for Beautiful Soup."
@@ -874,4 +887,4 @@ termcolor = ">=2.2.0,<2.4.0"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "f9b13fc06788a252cf49ab11bb71cf7619bf6c29427259005b13023b36f56d76"
+content-hash = "79d2dcc015dd0a3d51815e5b22b0236b6408063dd064a0e385f29b400e9991cd"
