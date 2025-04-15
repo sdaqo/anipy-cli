@@ -273,13 +273,11 @@ class Downloader:
         if not stream.subtitle:
             return
 
-        self._info_callback("Downloading external sub")
+        self._info_callback("Downloading external subs")
         for s in stream.subtitle.values():
             res = self._session.get(s.url, headers={"Referer": stream.referrer})
 
             suffix = f".{s.shortcode}.{s.codec}"
-            self._info_callback(str(download_path.with_suffix(suffix)))
-            self._info_callback(str(download_path))
             path = download_path.with_suffix(suffix)
             with path.open("w") as fp:
                 fp.write(res.text)
