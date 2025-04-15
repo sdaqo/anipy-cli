@@ -151,6 +151,8 @@ async function deobfuscate(url, func1, func2) {
         const main_function_end = main_function_start.split("{}]")[0];
         const extractedFunctions = find_all_functions(main_function_end, /function\s+\w\(\s*\w+(\s*,\s*\w+)*\s*\)\s*\{/g);
         const map = new Map();
+        map.set("u", "substitute")
+        map.set("r", "reverse_it")
         let decodeFunc;
         let encodeFunc;
         for (let i = 0; i < extractedFunctions.length; i++) {
