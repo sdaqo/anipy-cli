@@ -183,9 +183,9 @@ async function deobfuscate(url, func1, func2) {
                 map.set(matchHt[0].split("=")[0].trim().split(" ")[1], "reverse_it");
         }
         
-        const dollarT = main_function_end.match(/var\s+(\w+)\s*=\s*\w+\.\$t\s*;/);
-        if (matchHt !== null) {
-                map.set(dollarT[0].split("=")[0].trim().split(" ")[1], "substitute");
+        const matchDollarT = main_function_end.match(/var\s+(\w+)\s*=\s*\w+\.\$t\s*;/);
+        if (matchDollarT !== null) {
+                map.set(matchDollarT[0].split("=")[0].trim().split(" ")[1], "substitute");
         }
 
         for (let [key, value] of map) {
