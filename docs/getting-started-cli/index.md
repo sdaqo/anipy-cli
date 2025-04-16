@@ -3,7 +3,7 @@
 ## Installation
 
 ### Pre-requesits
-- [Python](https://www.python.org/downloads/) (3.9 higher, this is not tested ;) but I think that this is the case)
+- [Python](https://www.python.org/downloads/) (3.9 higher, this is not tested ;) but I think that this is the case). If you are on windows avoid the python from the Microsoft Store and use the official one linked.
 - [Pip](https://pip.pypa.io/en/stable/installation/)
 - [Pipx](https://pipx.pypa.io/stable/installation/) (optional, but very much recommended, I mean it, get this)
 - [mpv](https://mpv.io/) or any other player listed [here](../availabilty.md/#current-version), but I strongly recommended mpv or a derivative because it **✨ just works ✨**.
