@@ -279,7 +279,7 @@ class Downloader:
 
             suffix = f".{s.shortcode}.{s.codec}"
             path = download_path.with_suffix(suffix)
-            with path.open("w") as fp:
+            with path.open("w", encoding="utf-8") as fp:
                 fp.write(res.text)
 
     def download(

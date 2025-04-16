@@ -84,7 +84,7 @@ class PlayerBase(ABC):
         if stream.subtitle:
             for name, sub in stream.subtitle.items():
                 suffix = f".{sub.shortcode}.{sub.codec}"
-                subtitle_file = tempfile.NamedTemporaryFile("w+", delete=False, suffix=suffix)
+                subtitle_file = tempfile.NamedTemporaryFile("w+", delete=False, suffix=suffix, encoding="utf-8")
                 req = requests.get(sub.url, headers={"Referer": stream.referrer})
                 subtitle_file.write(req.text)
                 subtitles[name] = subtitle_file.name
