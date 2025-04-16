@@ -225,16 +225,17 @@ class AnimekaiProvider(BaseProvider):
         }
 
         soup = BeautifulSoup(result.text, "html.parser")
-
         data_map["name"] = safe_attr(soup.find("div", class_="title"), "text")
         data_map["synopsis"] = safe_attr(
             soup.find("div", class_="desc text-expand"), "text"
         )
         data_map["image"] = safe_attr(soup.select_one(".poster img"), "src")
         soup.find("div", class_="detail")
-        data_map["alternative_names"] = safe_attr(
-            soup.find("div", class_="title"), "data-jp"
+        
+        alt_names = safe_attr(
+            soup.find("small", attrs={"class": "al-title"}), "text"
         )
+        data_map["alternative_names"] = alt_names.split(";") if alt_names else []
 
         data = soup.find("div", class_="detail")
         if data is None:
