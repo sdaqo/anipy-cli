@@ -2,6 +2,7 @@ import time
 from typing import TYPE_CHECKING, Optional, List, Tuple
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
+from anipy_api.mal import MyAnimeListAdapter
 from anipy_api.provider import (
     BaseProvider,
     FilterCapabilities,
@@ -13,6 +14,7 @@ from anipy_api.anime import Anime
 
 from anipy_cli.util import (
     DotSpinner,
+    find_closest,
     get_anime_season,
     get_prefered_providers,
     error,
@@ -25,6 +27,7 @@ from anipy_cli.config import Config
 
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
+    from anipy_api.locallist import LocalList
 
 
 def search_show_prompt(
@@ -332,3 +335,53 @@ def parse_auto_search(
         error("could not determine any epiosdes from search parameter", fatal=True)
 
     return result, lang, chosen
+
+def migrate_provider(mode: str, local_list: "LocalList"):
+    config = Config()
+    all_entries = local_list.get_all()
+    current_providers = list(get_prefered_providers(mode))
+    print(
+        f"Migrating to configured providers ({mode}):",
+        ", ".join([p.NAME for p in current_providers]),
+    )
+    for s in all_entries:
+        if s.provider in [p.NAME for p in current_providers]:
+            continue
+
+        print(f"Mapping: {s.name}")
+
+        search_results: List[Anime] = []
+        for p in current_providers:
+            search_results.extend(
+                [Anime.from_search_result(p, r) for r in p.get_search(s.name)]
+            )
+
+        best_anime = None
+        best_ratio = 0
+        for r in search_results:
+            titles = {r.name}
+            titles |= set(r.get_info().alternative_names or [])
+            ratio = MyAnimeListAdapter._find_best_ratio(titles, {s.name})
+
+            if ratio > best_ratio:
+                best_ratio = ratio
+                best_anime = r
+
+            if best_ratio == 1:
+                break
+
+        if best_anime is None:
+            continue
+
+        if best_ratio >= config.mal_mapping_min_similarity:
+            local_list.delete(s)
+        else:
+            print(f"Could not autmatically map {s.name}, you can map it manually.")
+            best_anime = search_show_prompt("seasonal", skip_season_search=True)
+            if best_anime is None:
+                continue
+            local_list.delete(s)
+
+        episode = find_closest(best_anime.get_episodes(s.language), s.episode)
+        local_list.update(best_anime, language=s.language, episode=episode)
+

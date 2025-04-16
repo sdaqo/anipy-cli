@@ -25,7 +25,7 @@ from anipy_cli.util import (
     get_prefered_providers,
     migrate_locallist,
 )
-from anipy_cli.prompts import pick_episode_prompt, search_show_prompt, lang_prompt
+from anipy_cli.prompts import pick_episode_prompt, search_show_prompt, lang_prompt, migrate_provider
 
 
 if TYPE_CHECKING:
@@ -209,54 +209,7 @@ class SeasonalMenu(MenuBase):
             print(i)
 
     def migrate_provider(self):
-        config = Config()
-        all_seasonals = self.seasonal_list.get_all()
-        current_providers = list(get_prefered_providers("seasonal"))
-        print(
-            "Migrating to configured providers:",
-            ", ".join([p.NAME for p in current_providers]),
-        )
-        for s in all_seasonals:
-            if s.provider in [p.NAME for p in current_providers]:
-                continue
-
-            print(f"Mapping: {s.name}")
-
-            search_results: List[Anime] = []
-            for p in current_providers:
-                search_results.extend(
-                    [Anime.from_search_result(p, r) for r in p.get_search(s.name)]
-                )
-
-            best_anime = None
-            best_ratio = 0
-            for r in search_results:
-                titles = {r.name}
-                titles |= set(r.get_info().alternative_names or [])
-                ratio = MyAnimeListAdapter._find_best_ratio(titles, {s.name})
-
-                if ratio > best_ratio:
-                    best_ratio = ratio
-                    best_anime = r
-
-                if best_ratio == 1:
-                    break
-
-            if best_anime is None:
-                continue
-
-            if best_ratio >= config.mal_mapping_min_similarity:
-                self.seasonal_list.delete(s)
-            else:
-                print(f"Could not autmatically map {s.name}, you can map it manually.")
-                best_anime = search_show_prompt("seasonal", skip_season_search=True)
-                if best_anime is None:
-                    continue
-                self.seasonal_list.delete(s)
-
-            episode = find_closest(best_anime.get_episodes(s.language), s.episode)
-            self.seasonal_list.update(best_anime, language=s.language, episode=episode)
-
+        migrate_provider("seasonal", self.seasonal_list)
         self.print_options(clear_screen=True)
 
     def download_latest(self):

@@ -14,6 +14,7 @@ class CliArgs:
     seasonal: bool
     mal: bool
     delete: bool
+    migrate_hist: bool
     quality: Optional[Union[str, int]]
     ffmpeg: bool
     auto_update: bool
@@ -97,6 +98,14 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         dest="delete",
         action="store_true",
         help="Delete your History.",
+    )
+
+    actions_group.add_argument(
+        "--migrate-history",
+        required=False,
+        dest="migrate_hist",
+        action="store_true",
+        help="Migrate your history to the current provider.",
     )
 
     options_group.add_argument(

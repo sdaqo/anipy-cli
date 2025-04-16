@@ -2,10 +2,13 @@ from typing import Optional
 
 from pypresence.exceptions import DiscordNotFound
 
+from anipy_api.locallist import LocalList
+from anipy_cli.prompts import migrate_provider
+
 from anipy_cli.arg_parser import parse_args
 from anipy_cli.clis import *
 from anipy_cli.colors import colors, cprint
-from anipy_cli.util import error, DotSpinner
+from anipy_cli.util import error, DotSpinner, migrate_locallist
 from anipy_cli.config import Config
 from anipy_cli.discord import DiscordPresence
 
@@ -44,6 +47,12 @@ def run_cli(override_args: Optional[list[str]] = None):
             cprint(colors.RED, "Done")
         except FileNotFoundError:
             error("no history file found")
+        return
+    elif args.migrate_hist:
+        history_list = LocalList(
+            Config()._history_file_path, migrate_cb=migrate_locallist
+        )
+        migrate_provider("default", history_list)
         return
 
     clis_dict = {
