@@ -252,6 +252,7 @@ class SeasonalMenu(MenuBase):
                 best_anime = search_show_prompt("seasonal", skip_season_search=True)
                 if best_anime is None:
                     continue
+                self.seasonal_list.delete(s)
 
             episode = find_closest(best_anime.get_episodes(s.language), s.episode)
             self.seasonal_list.update(best_anime, language=s.language, episode=episode)
