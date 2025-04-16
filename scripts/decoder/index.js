@@ -148,11 +148,9 @@ async function deobfuscate(url, func1, func2) {
         const lastFuncAfter = result.code.indexOf("{", lastFuncPos);
         const function_name = result.code.slice(lastFuncPos - 5, lastFuncAfter + 1);
         const main_function_start = result.code.split(function_name)[1];
-        const main_function_end = main_function_start.split("{}]")[0];
+        const main_function_end = main_function_start.split("}]")[0];
         const extractedFunctions = find_all_functions(main_function_end, /function\s+\w\(\s*\w+(\s*,\s*\w+)*\s*\)\s*\{/g);
         const map = new Map();
-        map.set("u", "substitute")
-        map.set("r", "reverse_it")
         let decodeFunc;
         let encodeFunc;
         for (let i = 0; i < extractedFunctions.length; i++) {
@@ -184,6 +182,12 @@ async function deobfuscate(url, func1, func2) {
         if (matchHt !== null) {
                 map.set(matchHt[0].split("=")[0].trim().split(" ")[1], "reverse_it");
         }
+        
+        const dollarT = main_function_end.match(/var\s+(\w+)\s*=\s*\w+\.\$t\s*;/);
+        if (matchHt !== null) {
+                map.set(dollarT[0].split("=")[0].trim().split(" ")[1], "substitute");
+        }
+
         for (let [key, value] of map) {
                 const regex = new RegExp(`\\b${key}\\b`, 'g');
                 decodeFunc = decodeFunc.replace(regex, value);
