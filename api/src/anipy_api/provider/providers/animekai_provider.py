@@ -305,6 +305,10 @@ class AnimekaiProvider(BaseProvider):
 
         substreams = []
         video_url = []
+        corrections = {
+            "English Espaأ±ol": "Spanish",
+            "English Portuguأھs (Brasil)": "Portuguese"
+        }
         for i in div_tag:
             servers = i.find_all("span", class_="server")
             for server in servers:
@@ -327,7 +331,7 @@ class AnimekaiProvider(BaseProvider):
                 video_entry.append(json_res["sources"][0]["file"])
                 for track in json_res.get("tracks", []):
                     if track.get("kind") == "captions":
-                        lang_name = track.get("label").split()[0]
+                        lang_name = corrections.get(track.get("label"), track.get("label")).split()[0]
                         lang_code = get_language_code2(lang_name)
                         video_subtitles[track.get("label")] = ExternalSub(url=track["file"], lang=lang_name, shortcode=lang_code, codec="vtt")
                 video_entry.append(video_subtitles)

@@ -25,6 +25,7 @@ class CliArgs:
     mal_password: Optional[str]
     config: bool
     seasonal_search: Optional[str]
+    subtitles: bool
 
 
 def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
@@ -173,6 +174,15 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         type=Path,
         default=None,
         help="Override all configured download locations",
+    )
+
+    options_group.add_argument(
+        "-so",
+        "--sub-only",
+        required=False,
+        dest="subtitles",
+        action="store_true",
+        help="Download only subtitles",
     )
 
     options_group.add_argument(
