@@ -86,7 +86,7 @@ class PlayerBase(ABC):
                 suffix = f".{sub.shortcode}.{sub.codec}"
                 subtitle_file = tempfile.NamedTemporaryFile("w+", delete=False, suffix=suffix, encoding="utf-8")
                 req = requests.get(sub.url, headers={"Referer": stream.referrer})
-                subtitle_file.write(req.text)
+                subtitle_file.write(req.content.decode())
                 subtitles[name] = subtitle_file.name
 
         def delete_files(files):
