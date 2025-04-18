@@ -41,6 +41,7 @@ class DownloadComponent:
         picked: List[Tuple[Anime, LanguageTypeEnum, List[Episode]]],
         after_success_ep: SuccessfulEpDownload = lambda anime, ep, lang: None,
         only_skip_ep_on_err: bool = False,
+        sub_only: bool = False,
     ) -> List[Tuple[Anime, Episode]]:
         """
         Attributes:
@@ -72,6 +73,7 @@ class DownloadComponent:
                     eps,
                     after_success_ep,
                     only_skip_ep_on_err,
+                    sub_only,
                 )
 
             return failed
@@ -85,11 +87,12 @@ class DownloadComponent:
         eps: List[Episode],
         after_success_ep: SuccessfulEpDownload = lambda anime, ep, lang: None,
         only_skip_ep_on_err: bool = False,
+        sub_only: bool = False,
     ) -> List[Tuple[Anime, Episode]]:
         fails = []
         for ep in eps:
             try:
-                self.download_ep(spinner, downloader, anime, lang, ep)
+                self.download_ep(spinner, downloader, anime, lang, ep, sub_only)
             except Exception as e:
                 if only_skip_ep_on_err:
                     error_msg = f"! Issues downloading episode {ep} of {anime.name}. Skipping..."
@@ -117,6 +120,7 @@ class DownloadComponent:
         anime: Anime,
         lang: LanguageTypeEnum,
         ep: Episode,
+        sub_only: bool = False,
     ):
         config = Config()
 
@@ -137,14 +141,20 @@ class DownloadComponent:
         )
 
         spinner.set_text("Downloading...")
-
-        downloader.download(
-            stream,
-            get_download_path(anime, stream, parent_directory=self.dl_path),
-            container=config.remux_to,
-            ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-            post_dl_cb=get_post_download_scripts_hook(self.mode, anime, spinner)
-        )
+        
+        if not sub_only:
+            downloader.download(
+                stream,
+                get_download_path(anime, stream, parent_directory=self.dl_path),
+                container=config.remux_to,
+                ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
+                post_dl_cb=get_post_download_scripts_hook(self.mode, anime, spinner)
+            )
+        else:
+            downloader.download_sub(
+                stream,
+                get_download_path(anime, stream, parent_directory=self.dl_path)
+            )
 
     @staticmethod
     def serve_download_errors(
