@@ -6,6 +6,7 @@ import urllib.parse
 from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
 from requests import Session
+from requests import HTTPError
 
 from anipy_api.provider.base import ExternalSub
 import m3u8
@@ -339,7 +340,10 @@ class AnimekaiProvider(BaseProvider):
 
         for video in video_url:
             req = Request("GET", video[0])
-            res = self._request_page(req)
+            try:
+                res = self._request_page(req)
+            except HTTPError:
+                continue
             content = m3u8.M3U8(res.text, base_uri=urljoin(res.url, "."))
             if len(content.playlists) == 0:
                 substreams.append(
@@ -364,4 +368,5 @@ class AnimekaiProvider(BaseProvider):
                         referrer=self.BASE_URL,
                     )
                 )
+
         return substreams
