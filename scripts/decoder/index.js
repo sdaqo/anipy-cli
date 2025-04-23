@@ -1,6 +1,7 @@
 import { webcrack } from 'webcrack';
 import fs from 'fs';
 
+
 function transform(n, t) {
         var s = [], j = 0, x, res = '';
         for (var i = 0; i < 256; i++) {
@@ -49,6 +50,37 @@ function base64_url_decode(n) {
 function reverse_it(n) {
         return n.split("").reverse().join("");
 }
+
+function strictEncode(n, ops) {
+  const opsArr = ops.split(";");
+  const result = [];
+
+  for (let i = 0; i < n.length; i++) {
+    const charCode = n.charCodeAt(i);
+    const op = opsArr[i % opsArr.length];
+    const transformed = Function("n", `return ${op};`)(charCode);
+    result.push(transformed & 255);
+  }
+
+  const encoded = String.fromCharCode.apply(null, result);
+  return btoa(encoded).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function strictDecode(n, ops) {
+  const opsArr = ops.split(";");
+  const base = atob(n.replace(/-/g, "+").replace(/_/g, "/"));
+  const result = [];
+
+  for (let i = 0; i < base.length; i++) {
+    const charCode = base.charCodeAt(i);
+    const op = opsArr[i % opsArr.length];
+    const transformed = Function("n", `return ${op};`)(charCode);
+    result.push(transformed & 255);
+  }
+
+  return decodeURIComponent(String.fromCharCode.apply(null, result));
+}
+
 
 function find_all_functions(jsCode, functionPattern) {
         const matches = [];
@@ -142,6 +174,7 @@ async function deobfuscate(url, func1, func2) {
         let res = await fetch(url);
         const data = await res.text();
         const result = await webcrack(data);
+        fs.writeFileSync("./kai.js",result.code);
         const btoaPos = result.code.indexOf("btoa(");
         const btoaBefore = result.code.slice(0, btoaPos);
         const lastFuncPos = btoaBefore.lastIndexOf("[function");
@@ -149,20 +182,36 @@ async function deobfuscate(url, func1, func2) {
         const function_name = result.code.slice(lastFuncPos - 5, lastFuncAfter + 1);
         const main_function_start = result.code.split(function_name)[1];
         const main_function_end = main_function_start.split("}]")[0];
-        const extractedFunctions = find_all_functions(main_function_end, /function\s+\w\(\s*\w+(\s*,\s*\w+)*\s*\)\s*\{/g);
+        const extractedFunctions = find_all_functions(main_function_end, /(\w+:\s+)?function\s+([\w$]+)?\(\s*\w+(\s*,\s*\w+)*\s*\)\s*\{/g);
         const map = new Map();
+        const strictMap = new Map(); 
+        let matchCharTransformations = /\(n\)\s*{\s*return\s+.*[~%>^]/g
         let decodeFunc;
         let encodeFunc;
+        let strictDecodeFunc;
+        let strictEncodeFunc;
+
         for (let i = 0; i < extractedFunctions.length; i++) {
-                if (extractedFunctions[i].includes("256")) {
+                if (extractedFunctions[i].match(matchCharTransformations)) {
+                        strictMap.set(get_name(extractedFunctions[i]), extractedFunctions[i].split("return ")[1].split(";")[0].trim().replace("n >>>", "(n & 0xFF) >>"));
+                } else if (extractedFunctions[i].includes("256")) {
                         map.set(get_name(extractedFunctions[i]), "transform");
+                } else if (extractedFunctions[i].includes("255")) {
+                        let matchOpsArray = extractedFunctions[i].match(/var\s+\w\s+=\s+\[.+\]/g);
+                        matchOpsArray = matchOpsArray[0].split("[")[1].split("]")[0].replace(/\s+/g, "").trim();
+
+                        if (extractedFunctions[i].includes("switch")) {
+                            strictEncodeFunc = matchOpsArray;
+                        } else {
+                            strictDecodeFunc = matchOpsArray;
+                        }
                 } else if (extractedFunctions[i].includes("btoa")) {
                         map.set(get_name(extractedFunctions[i]), "base64_url_encode");
                 } else if (extractedFunctions[i].includes("atob")) {
                         map.set(get_name(extractedFunctions[i]), "base64_url_decode");
-                } else if (extractedFunctions[i].includes("return n =") || extractedFunctions[i].includes("encodeURIComponent")) {
-                        if (extractedFunctions[i].includes("encodeURIComponent")) {
-                                encodeFunc = extractedFunctions[i].replace('n = encodeURIComponent(n)', 'n').split("return n = ")[1].split(";")[0].trim();
+                } else if (extractedFunctions[i].includes("return n =") || extractedFunctions[i].includes("z2(`${n}`)")) {
+                        if (extractedFunctions[i].includes("z2")) {
+                                encodeFunc = extractedFunctions[i].replace('z2(`${n}`)', 'n').split("return")[1].split(";")[0].trim();
                         } else {
                                 encodeFunc = extractedFunctions[i].split("return n = ")[1].split(";")[0].trim();
                         }
@@ -170,14 +219,17 @@ async function deobfuscate(url, func1, func2) {
                         map.set(get_name(extractedFunctions[i]), "reverse_it");
                 } else if (extractedFunctions[i].includes(".map")) {
                         map.set(get_name(extractedFunctions[i]), "substitute");
-                } else if (extractedFunctions[i].includes("n = `${n}`;") || extractedFunctions[i].includes("decodeURIComponent")) {
-                        if (extractedFunctions[i].includes("decodeURIComponent")) {
+                } else if (extractedFunctions[i].includes("n = `${n}`;") || extractedFunctions[i].includes("return l1(") || extractedFunctions[i].includes("return decodeURIComponent(n)")) {
+                        if (extractedFunctions[i].includes("return l1(")) {
+                                decodeFunc = extractedFunctions[i].split("return l1(")[1].split(");")[0].trim();
+                        } else if (extractedFunctions[i].includes("decodeURIComponent")) {
                                 decodeFunc = extractedFunctions[i].replace('n = `${n}`', 'n').split("n =")[1].split(";")[0].trim();
                         } else {
                                 decodeFunc = extractedFunctions[i].split("n = `${n}`")[1].split("n =")[1].split(";")[0].trim();
                         }
-                }
+                }  
         }
+
         const matchHt = main_function_end.match(/var\s+(\w+)\s*=\s*\w+\.Ht\s*;/);
         if (matchHt !== null) {
                 map.set(matchHt[0].split("=")[0].trim().split(" ")[1], "reverse_it");
@@ -197,7 +249,16 @@ async function deobfuscate(url, func1, func2) {
                 const regex = new RegExp(`\\b${key}\\b`, 'g');
                 encodeFunc = encodeFunc.replace(regex, value);
         }
-        return { [func1]: encodeFunc, [func2]: decodeFunc }
+        
+        if (strictDecodeFunc && strictEncodeFunc) {
+
+          strictEncodeFunc = `strictEncode(n, "${strictEncodeFunc.split(",").map((op) => strictMap.get(op)).join(";")}")`
+          strictDecodeFunc = `strictDecode(n, "${strictDecodeFunc.split(",").map((op) => strictMap.get(op)).join(";")}")`
+
+          return { [func1]: strictEncodeFunc, [func2]: strictDecodeFunc }
+        } else {
+          return { [func1]: encodeFunc, [func2]: decodeFunc }
+        }
 }
 
 const home = await animekai_home();
