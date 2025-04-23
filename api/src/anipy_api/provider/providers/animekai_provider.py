@@ -58,6 +58,8 @@ def safe_eval(exp, n):
         "base64_url_decode": base64_url_decode,
         "reverse_it": reverse_it,
         "substitute": substitute,
+        "strict_decode": strict_decode,
+        "strict_encode": strict_encode
     }
     return simple_eval(exp, names={"n": n}, functions=allowed_funcs)
 
@@ -96,6 +98,33 @@ def decode_iframe_data(n):
 
 def decode(n):
     return urllib.parse.unquote(safe_eval(fetch_decode()["decode"], n))
+
+def strict_decode(n, ops):
+    ops_arr = ops.split(";")
+    padded = n + "=" * (-len(n) % 4)
+    raw = base64.b64decode(padded.replace('-', '+').replace('_', '/'))
+    result = []
+
+    for i, b in enumerate(raw):
+        op = ops_arr[i % len(ops_arr)]
+        transformed = simple_eval(op, names={"n": b})
+        result.append(transformed & 255)
+
+    return ''.join(map(chr, result))
+
+def strict_encode(n, ops):
+    ops_arr = ops.split(";")
+    result = []
+
+    for i, ch in enumerate(n):
+        code = ord(ch)
+        op = ops_arr[i % len(ops_arr)]
+        transformed = simple_eval(op, names={"n": code})
+        result.append(transformed & 255)
+
+    byte_string = bytes(result)
+    b64 = base64.b64encode(byte_string).decode()
+    return b64.replace('+', '-').replace('/', '_').rstrip('=')
 
 
 class AnimekaiFilter(BaseFilter):
