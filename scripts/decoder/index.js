@@ -51,7 +51,7 @@ function reverse_it(n) {
         return n.split("").reverse().join("");
 }
 
-function strictEncode(n, ops) {
+function strict_encode(n, ops) {
   const opsArr = ops.split(";");
   const result = [];
 
@@ -66,7 +66,7 @@ function strictEncode(n, ops) {
   return btoa(encoded).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function strictDecode(n, ops) {
+function strict_decode(n, ops) {
   const opsArr = ops.split(";");
   const base = atob(n.replace(/-/g, "+").replace(/_/g, "/"));
   const result = [];
@@ -174,7 +174,6 @@ async function deobfuscate(url, func1, func2) {
         let res = await fetch(url);
         const data = await res.text();
         const result = await webcrack(data);
-        fs.writeFileSync("./kai.js",result.code);
         const btoaPos = result.code.indexOf("btoa(");
         const btoaBefore = result.code.slice(0, btoaPos);
         const lastFuncPos = btoaBefore.lastIndexOf("[function");
@@ -252,8 +251,8 @@ async function deobfuscate(url, func1, func2) {
         
         if (strictDecodeFunc && strictEncodeFunc) {
 
-          strictEncodeFunc = `strictEncode(n, "${strictEncodeFunc.split(",").map((op) => strictMap.get(op)).join(";")}")`
-          strictDecodeFunc = `strictDecode(n, "${strictDecodeFunc.split(",").map((op) => strictMap.get(op)).join(";")}")`
+          strictEncodeFunc = `strict_encode(n, "${strictEncodeFunc.split(",").map((op) => strictMap.get(op)).join(";")}")`
+          strictDecodeFunc = `strict_decode(n, "${strictDecodeFunc.split(",").map((op) => strictMap.get(op)).join(";")}")`
 
           return { [func1]: strictEncodeFunc, [func2]: strictDecodeFunc }
         } else {
