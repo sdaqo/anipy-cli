@@ -174,6 +174,7 @@ async function deobfuscate(url, func1, func2) {
         let res = await fetch(url);
         const data = await res.text();
         const result = await webcrack(data);
+        fs.writeFileSync("./kai.js",result.code);
         const btoaPos = result.code.indexOf("btoa(");
         const btoaBefore = result.code.slice(0, btoaPos);
         const lastFuncPos = btoaBefore.lastIndexOf("[function");
@@ -208,9 +209,9 @@ async function deobfuscate(url, func1, func2) {
                         map.set(get_name(extractedFunctions[i]), "base64_url_encode");
                 } else if (extractedFunctions[i].includes("atob")) {
                         map.set(get_name(extractedFunctions[i]), "base64_url_decode");
-                } else if (extractedFunctions[i].includes("return n =") || extractedFunctions[i].includes("z2(`${n}`)")) {
-                        if (extractedFunctions[i].includes("z2")) {
-                                encodeFunc = extractedFunctions[i].replace('z2(`${n}`)', 'n').split("return")[1].split(";")[0].trim();
+                } else if (extractedFunctions[i].includes("return n =")  || extractedFunctions[i].includes("n = encodeURIComponent")) {
+                        if (extractedFunctions[i].includes("encodeURIComponent")) {
+                                encodeFunc = extractedFunctions[i].replace('n = encodeURIComponent(n)', 'n').split("return n = ")[1].split(";")[0].trim();
                         } else {
                                 encodeFunc = extractedFunctions[i].split("return n = ")[1].split(";")[0].trim();
                         }
@@ -218,10 +219,8 @@ async function deobfuscate(url, func1, func2) {
                         map.set(get_name(extractedFunctions[i]), "reverse_it");
                 } else if (extractedFunctions[i].includes(".map")) {
                         map.set(get_name(extractedFunctions[i]), "substitute");
-                } else if (extractedFunctions[i].includes("n = `${n}`;") || extractedFunctions[i].includes("return l1(") || extractedFunctions[i].includes("return decodeURIComponent(n)")) {
-                        if (extractedFunctions[i].includes("return l1(")) {
-                                decodeFunc = extractedFunctions[i].split("return l1(")[1].split(");")[0].trim();
-                        } else if (extractedFunctions[i].includes("decodeURIComponent")) {
+                } else if (extractedFunctions[i].includes("n = `${n}`;")  || extractedFunctions[i].includes("return decodeURIComponent(n)")) {
+                        if (extractedFunctions[i].includes("decodeURIComponent")) {
                                 decodeFunc = extractedFunctions[i].replace('n = `${n}`', 'n').split("n =")[1].split(";")[0].trim();
                         } else {
                                 decodeFunc = extractedFunctions[i].split("n = `${n}`")[1].split("n =")[1].split(";")[0].trim();
@@ -239,15 +238,6 @@ async function deobfuscate(url, func1, func2) {
                 map.set(matchDollarT[0].split("=")[0].trim().split(" ")[1], "substitute");
         }
 
-        for (let [key, value] of map) {
-                const regex = new RegExp(`\\b${key}\\b`, 'g');
-                decodeFunc = decodeFunc.replace(regex, value);
-        }
-
-        for (let [key, value] of map) {
-                const regex = new RegExp(`\\b${key}\\b`, 'g');
-                encodeFunc = encodeFunc.replace(regex, value);
-        }
         
         if (strictDecodeFunc && strictEncodeFunc) {
 
@@ -256,6 +246,15 @@ async function deobfuscate(url, func1, func2) {
 
           return { [func1]: strictEncodeFunc, [func2]: strictDecodeFunc }
         } else {
+          for (let [key, value] of map) {
+                  const regex = new RegExp(`\\b${key}\\b`, 'g');
+                  decodeFunc = decodeFunc.replace(regex, value);
+          }
+
+          for (let [key, value] of map) {
+                  const regex = new RegExp(`\\b${key}\\b`, 'g');
+                  encodeFunc = encodeFunc.replace(regex, value);
+          }
           return { [func1]: encodeFunc, [func2]: decodeFunc }
         }
 }
