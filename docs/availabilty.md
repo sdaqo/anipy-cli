@@ -4,6 +4,27 @@ This is page lists available/supported providers/players and their capabilities.
 
 ## Current Version
 
+Version: 3.5.0
+
+### Providers
+
+| Identifier | URL                                            | Filter capabilties [^1]                    | Season Search [^2] | Notes                                                                                                                                                            | Reference                                                                           |
+| ---------- | ---------------------------------------------- | ------------------------------------------ | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| allanime   | [https://allmanga.to/](https://allmanga.to/)   | YEAR, SEASON, MEDIA_TYPE, NO_QUERY         | Yes                | [Hover Me]("Placeholder for future reference") **Recommended**                                                                                                   | [AllAnimeProvider][anipy_api.provider.providers.allanime_provider.AllAnimeProvider] |
+| animekai   | [https://animekai.to/](https://animekai.to/)   | YEAR, SEASON, STATUS, MEDIA_TYPE, NO_QUERY | Yes                | [Hover Me]("Pretty unstable and may not work for extended periods of time, better use allanime")                                                                 | [AnimekaiProvider][anipy_api.provider.providers.animekai_provider.AnimekaiProvider] |
+
+### Players
+
+| Name             | Recognised Stem(s) [^3] | Project URL(s)                                                                                                           | Sub-process | Code Reference                                                          |
+| ---------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------- | ----------------------------------------------------------------------- |
+| mpv              | mpv, mpvnet             | [https://mpv.io/](https://mpv.io/), [https://github.com/mpvnet-player/mpv.net](https://github.com/mpvnet-player/mpv.net) | Yes         | [Mpv][anipy_api.player.players.mpv.Mpv]                                 |
+| Syncplay         | syncplay                | [https://syncplay.pl/](https://syncplay.pl/])                                                                            | Yes         | [Syncplay][anipy_api.player.players.syncplay.Syncplay]                  |
+| VLC Media Player | vlc                     | [https://www.videolan.org/vlc/](https://www.videolan.org/vlc/)                                                           | Yes         | [Vlc][anipy_api.player.players.vlc.Vlc]                                 |
+| Mpv Controlled   | mpv-controlled          | [https://github.com/jaseg/python-mpv](https://github.com/jaseg/python-mpv)                                               | No          | [MpvControllable][anipy_api.player.players.mpv_control.MpvControllable] |
+| IINA             | iina                    | [https://iina.io/](https://iina.io/)                                                                                     | Yes         | [Iina][anipy_api.player.players.iina.Iina]                              |
+
+## Version 3.4.0
+
 Version: 3.4.0
 
 ### Providers
