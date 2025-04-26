@@ -121,7 +121,7 @@ class Anime:
             A stream
         """
         streams = self.provider.get_video(self.identifier, episode, lang)
-        streams.sort(key=lambda s: s.resolution)
+        streams.sort(key=lambda s: s.resolution + (10 if s.subtitle else 0))
 
         if preferred_quality == "worst":
             stream = streams[0]

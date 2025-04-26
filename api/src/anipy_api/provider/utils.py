@@ -62,3 +62,9 @@ def get_language_code2(language: str) -> Optional[str]:
     except AttributeError:
         return
 
+def get_language_name(lang_code: str) -> Optional[str]:
+    try:
+        language = pycountry.languages.get(alpha_2=lang_code) or pycountry.languages.get(alpha_3=lang_code)
+        return language.name if language else None
+    except AttributeError:
+        return

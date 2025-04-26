@@ -72,7 +72,7 @@ class Config:
 
         For an updated list of providers look here: https://sdaqo.github.io/anipy-cli/availabilty
 
-        Supported providers (as of $version): animekai
+        Supported providers (as of $version): allanime, animekai
 
         Examples:
             providers:
@@ -83,11 +83,11 @@ class Config:
                 mal: ["provider2", "provider3"]
         """
         defaults = {
-            "default": ["animekai"],
-            "download": ["animekai"],
-            "seasonal": ["animekai"],
-            "binge": ["animekai"],
-            "mal": ["animekai"],
+            "default": ["allanime"],
+            "download": ["allanime"],
+            "seasonal": ["allanime"],
+            "binge": ["allanime"],
+            "mal": ["allanime"],
         }
 
         value = self._get_value("providers", defaults, dict)
