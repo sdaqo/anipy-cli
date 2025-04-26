@@ -128,9 +128,9 @@ class AllAnimeProvider(BaseProvider):
     at the [base class][anipy_api.provider.base.BaseProvider].
 
     Attributes:
-        NAME: kickassanime
-        BASE_URL: https://kaa.mx/
-        FILTER_CAPS:
+        NAME: allanime
+        BASE_URL: https://allanime.day
+        FILTER_CAPS: YEAR, MEDIA_TYPE, SEASON, NO_QUERY
     """
 
     NAME: str = "allanime"
