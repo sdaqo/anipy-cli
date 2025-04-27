@@ -1,8 +1,6 @@
-import base64
 import functools
 import json
 import re
-import urllib.parse
 from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
 from requests import Session
@@ -11,9 +9,7 @@ from requests import HTTPError
 from anipy_api.provider.base import ExternalSub
 import m3u8
 from bs4 import BeautifulSoup
-from Cryptodome.Cipher import ARC4
 from requests import Request
-from simpleeval import simple_eval
 
 from anipy_api.error import BeautifulSoupLocationError, LangTypeNotAvailableError
 from anipy_api.provider import (
@@ -39,92 +35,29 @@ if TYPE_CHECKING:
     from anipy_api.provider import Episode
 
 DECODE_URL: str = (
-    "https://raw.githubusercontent.com/sdaqo/anipy-cli/refs/heads/key-gen/scripts/decoder/generated/kai.json"
+    "https://raw.githubusercontent.com/random2907/anipy-cli/refs/heads/master/scripts/animekai_decoded.py"
 )
 AnimekaiDecodeFunc = None
-
 
 @functools.lru_cache()
 def fetch_decode():
     req = Request("GET", DECODE_URL)
     res = request_page(Session(), req)
-    return json.loads(res.text)
-
-
-def safe_eval(exp, n):
-    allowed_funcs = {
-        "transform": transform,
-        "base64_url_encode": base64_url_encode,
-        "base64_url_decode": base64_url_decode,
-        "reverse_it": reverse_it,
-        "substitute": substitute,
-        "strict_decode": strict_decode,
-        "strict_encode": strict_encode
-    }
-    return simple_eval(exp, names={"n": n}, functions=allowed_funcs)
-
-
-def reverse_it(n):
-    return n[::-1]
-
-
-def transform(n: str, t: str) -> str:
-    cipher = ARC4.new(n.encode("latin-1"))
-    encrypted = cipher.encrypt(t.encode("latin-1"))
-    return encrypted.decode("latin-1")
-
-
-def substitute(input_str: str, keys: str, values: str) -> str:
-    translation_table = str.maketrans(keys, values)
-    return input_str.translate(translation_table)
-
-
-def base64_url_encode(s):
-    return base64.urlsafe_b64encode(s.encode("latin-1")).decode().rstrip("=")
-
-
-def base64_url_decode(s):
-    s = s + "=" * (4 - (len(s) % 4)) if len(s) % 4 else s
-    return base64.b64decode(s.replace("-", "+").replace("_", "/")).decode("latin-1")
-
+    exec(res.text, globals())
 
 def generate_token(n):
-    return safe_eval(fetch_decode()["generate_token"], n)
+    fetch_decode()
+    return KAICODEX.enc(n)
 
 
 def decode_iframe_data(n):
-    return urllib.parse.unquote(safe_eval(fetch_decode()["decode_iframe_data"], n))
+    fetch_decode();
+    return KAICODEX.dec(n)
 
 
 def decode(n):
-    return urllib.parse.unquote(safe_eval(fetch_decode()["decode"], n))
-
-def strict_decode(n, ops):
-    ops_arr = ops.split(";")
-    padded = n + "=" * (-len(n) % 4)
-    raw = base64.b64decode(padded.replace('-', '+').replace('_', '/'))
-    result = []
-
-    for i, b in enumerate(raw):
-        op = ops_arr[i % len(ops_arr)]
-        transformed = simple_eval(op, names={"n": b})
-        result.append(transformed & 255)
-
-    return ''.join(map(chr, result))
-
-def strict_encode(n, ops):
-    ops_arr = ops.split(";")
-    result = []
-
-    for i, ch in enumerate(n):
-        code = ord(ch)
-        op = ops_arr[i % len(ops_arr)]
-        transformed = simple_eval(op, names={"n": code})
-        result.append(transformed & 255)
-
-    byte_string = bytes(result)
-    b64 = base64.b64encode(byte_string).decode()
-    return b64.replace('+', '-').replace('/', '_').rstrip('=')
+    fetch_decode()
+    return KAICODEX.dec_mega(n)
 
 
 class AnimekaiFilter(BaseFilter):
