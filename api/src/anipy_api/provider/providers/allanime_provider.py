@@ -210,12 +210,12 @@ class AllAnimeProvider(BaseProvider):
             "Releasing": Status.ONGOING,
             "Finished": Status.COMPLETED
         }
-
+        
         return ProviderInfoResult(
             name=data["name"],
             image=data["thumbnail"],
             genres=data["genres"],
-            status=status_map[data["status"]],
+            status=status_map.get(data["status"], None),
             synopsis=data["description"], 
             release_year=data["airedStart"]["year"], 
             alternative_names=[a for a in data["altNames"]]
