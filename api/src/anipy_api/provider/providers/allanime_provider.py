@@ -212,13 +212,13 @@ class AllAnimeProvider(BaseProvider):
         }
         
         return ProviderInfoResult(
-            name=data["name"],
-            image=data["thumbnail"],
-            genres=data["genres"],
+            name=data.get("name", None),
+            image=data.get("thumbnail", None),
+            genres=data.get("genres", None),
             status=status_map.get(data["status"], None),
-            synopsis=data["description"], 
-            release_year=data["airedStart"]["year"], 
-            alternative_names=[a for a in data["altNames"]]
+            synopsis=data.get("description", None), 
+            release_year=data.get("airedStart", {}).get("year", None), 
+            alternative_names=data.get("altNames", None)
         )
    
 
