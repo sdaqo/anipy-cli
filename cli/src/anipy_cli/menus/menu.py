@@ -165,6 +165,13 @@ class Menu(MenuBase):
         print(f"Provider: {self.anime.provider.NAME}")
         print(f"Stream Url: {self.stream.url}")
         print(f"Quality: {self.stream.resolution}p")
+        if self.stream.referrer:
+            print(f"Referer: {self.stream.referrer}")
+
+        if self.stream.subtitle:
+            print(f"Subtitles:")
+            for name, sub in self.stream.subtitle.items():
+                print(f" {name} - {sub.url}")
 
     def add_seasonal(self):
         self.seasonal_list.update(
