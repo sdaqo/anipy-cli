@@ -6,6 +6,7 @@ from InquirerPy.base.control import Choice
 from anipy_api.download import Downloader
 from anipy_api.provider import LanguageTypeEnum, ProviderStream
 from anipy_api.locallist import LocalList
+from anipy_api.provider.base import ExternalSub
 
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
@@ -194,8 +195,8 @@ class Menu(MenuBase):
 
         if stream is None:
             return
-
-        stream = ProviderStream(**stream)
+        
+        stream = next(filter(lambda x: x.url == stream["url"], streams))
         self.options.quality = stream.resolution
         self.stream = stream
         self.player.play_title(self.anime, self.stream)
