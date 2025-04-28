@@ -230,8 +230,10 @@ class Downloader:
             The download path, this should be the same as the
             passed one as ffmpeg will remux to about any container.
         """
+
         ffmpeg = (
             FFmpeg(executable="ffprobe")
+            .option("extension_picky", 0)
             .input(stream.url, print_format="json", show_format=None)
         )
 
@@ -240,12 +242,12 @@ class Downloader:
 
         meta = json.loads(ffmpeg.execute())
         duration = float(meta["format"]["duration"])
-
         ffmpeg = (
             FFmpeg()
             .option("y")
             .option("v", "warning")
             .option("stats")
+            .option("extension_picky", 0)
             .input(stream.url)
             .output(
                 download_path,
