@@ -231,23 +231,41 @@ class Downloader:
             passed one as ffmpeg will remux to about any container.
         """
 
-        ffmpeg = (
+        ffprobe = (
             FFmpeg(executable="ffprobe")
-            .option("extension_picky", 0)
+            .option("v", 0)
+            .option("of", "json")
+            .option("show_program_version")
+        )
+        version = json.loads(ffprobe.execute())
+        version = [int(v) for v in version["program_version"]["version"].split(".")]
+        
+        if len(version) < 3:
+            version.append(0)
+
+        major_v, minor_v, patch_v = version
+
+        extension_picky = major_v >= 7 and minor_v >=1 and patch_v >= 1
+
+        ffprobe = (
+            FFmpeg(executable="ffprobe")
             .input(stream.url, print_format="json", show_format=None)
         )
 
         if stream.referrer:
-            ffmpeg.option("headers", f"Referer: {stream.referrer}")
+            ffprobe.option("headers", f"Referer: {stream.referrer}")
 
-        meta = json.loads(ffmpeg.execute())
+        if extension_picky:
+            ffprobe.option("extension_picky", 0)
+
+        meta = json.loads(ffprobe.execute())
         duration = float(meta["format"]["duration"])
+
         ffmpeg = (
             FFmpeg()
             .option("y")
             .option("v", "warning")
             .option("stats")
-            .option("extension_picky", 0)
             .input(stream.url)
             .output(
                 download_path,
@@ -257,6 +275,9 @@ class Downloader:
 
         if stream.referrer:
             ffmpeg.option("headers", f"Referer: {stream.referrer}")
+
+        if extension_picky:
+            ffmpeg.option("extension_picky", 0)
 
         @ffmpeg.on("progress")
         def on_progress(progress: Progress):
