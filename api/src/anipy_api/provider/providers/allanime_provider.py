@@ -10,6 +10,7 @@ import m3u8
 from bs4 import BeautifulSoup
 from requests import Request
 from Cryptodome.Cipher import AES
+from requests.exceptions import HTTPError
 
 from anipy_api.provider import (
     BaseProvider,
@@ -244,12 +245,8 @@ class AllAnimeProvider(BaseProvider):
 
             decrypted_path = self._decrypt(provider["sourceUrl"].replace("--", "")).replace("clock", "clock.json")
 
-            if "tools.fast4speed.rsvp" in decrypted_path:
-                req = Request(
-                    "GET", decrypted_path,
-                    headers={"Referer": self.BASE_URL}
-                )
 
+            if "tools.fast4speed.rsvp" in decrypted_path:
                 streams.append(
                     ProviderStream(
                         url=decrypted_path,
@@ -260,12 +257,16 @@ class AllAnimeProvider(BaseProvider):
                     )
                 )
                 continue
-
+            
             req = Request(
                 "GET", f"{self.BASE_URL}{decrypted_path}",
                 headers={"Referer": "https://allmanga.to/"}
             )
-            result = self._request_page(req).json()
+            try:
+                result = self._request_page(req).json()
+            except HTTPError:
+                continue
+
             for l in result["links"]:
                 link = l["link"]
                 if "repackager.wixmp.com" in link:
@@ -302,7 +303,10 @@ class AllAnimeProvider(BaseProvider):
                     "GET", link,
                     headers={"Referer": referer}
                 )
-                result = self._request_page(req)
+                try:
+                    result = self._request_page(req)
+                except HTTPError:
+                    continue
 
                 base_uri = urljoin(link, ".")
 
