@@ -393,7 +393,7 @@ class Downloader:
             self._info_callback(
                 "No fitting downloader available for stream, using FFMPEG downloader as fallback"
             )
-            path = self.ffmpeg_download(stream, download_path)
+            path = self.ffmpeg_download(stream, download_path.with_suffix(container or ".mp4"))
 
         if container:
             if container == path.suffix:
