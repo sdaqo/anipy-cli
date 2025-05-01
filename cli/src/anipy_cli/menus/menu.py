@@ -6,12 +6,17 @@ from InquirerPy.base.control import Choice
 from anipy_api.download import Downloader
 from anipy_api.provider import LanguageTypeEnum, ProviderStream
 from anipy_api.locallist import LocalList
-from anipy_api.provider.base import ExternalSub
 
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
-from anipy_cli.util import DotSpinner, error, get_download_path, get_post_download_scripts_hook, migrate_locallist
+from anipy_cli.util import (
+    DotSpinner,
+    error,
+    get_download_path,
+    get_post_download_scripts_hook,
+    migrate_locallist,
+)
 from anipy_cli.prompts import pick_episode_prompt, search_show_prompt
 
 
@@ -169,7 +174,7 @@ class Menu(MenuBase):
             print(f"Referer: {self.stream.referrer}")
 
         if self.stream.subtitle:
-            print(f"Subtitles:")
+            print("Subtitles:")
             for name, sub in self.stream.subtitle.items():
                 print(f" {name} - {sub.url}")
 
@@ -202,7 +207,7 @@ class Menu(MenuBase):
 
         if stream is None:
             return
-        
+
         stream = next(filter(lambda x: x.url == stream["url"], streams))
         self.options.quality = stream.resolution
         self.stream = stream
@@ -241,7 +246,7 @@ class Menu(MenuBase):
                 get_download_path(self.anime, self.stream),
                 container=config.remux_to,
                 ffmpeg=self.options.ffmpeg or config.ffmpeg_hls,
-                post_dl_cb=get_post_download_scripts_hook("default", self.anime, s)
+                post_dl_cb=get_post_download_scripts_hook("default", self.anime, s),
             )
 
         if Config().auto_open_dl_defaultcli:

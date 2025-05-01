@@ -70,12 +70,14 @@ class ProviderInfoResult:
     status: Optional[Status] = None
     alternative_names: Optional[List[str]] = None
 
+
 @dataclass
 class ExternalSub:
     url: str
     lang: str
     codec: str
     shortcode: Optional[str]
+
 
 @dataclass
 class ProviderStream:

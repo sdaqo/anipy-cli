@@ -1,7 +1,6 @@
 import sys
 from typing import TYPE_CHECKING, List, Tuple
 
-from anipy_api.mal import MyAnimeListAdapter
 
 from anipy_cli.download_component import DownloadComponent
 
@@ -20,12 +19,15 @@ from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
     error,
-    find_closest,
     get_configured_player,
-    get_prefered_providers,
     migrate_locallist,
 )
-from anipy_cli.prompts import pick_episode_prompt, search_show_prompt, lang_prompt, migrate_provider
+from anipy_cli.prompts import (
+    pick_episode_prompt,
+    search_show_prompt,
+    lang_prompt,
+    migrate_provider,
+)
 
 
 if TYPE_CHECKING:
@@ -224,9 +226,9 @@ class SeasonalMenu(MenuBase):
         def on_successful_download(anime: Anime, ep: Episode, lang: LanguageTypeEnum):
             self.seasonal_list.update(anime, episode=ep, language=lang)
 
-        failed_series = DownloadComponent(self.options, self.dl_path, "seasonal").download_anime(
-            picked, on_successful_download
-        )
+        failed_series = DownloadComponent(
+            self.options, self.dl_path, "seasonal"
+        ).download_anime(picked, on_successful_download)
 
         if not self.options.auto_update:
             # Clear screen only if there were no issues

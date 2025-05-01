@@ -228,7 +228,7 @@ class Config:
         has been downloaded. As with the 'providers' option, you can configure
         different behaviour, depending on which part of anipy-cli the download occurs.
         Configurable areas are as follows: default (and history), download (-D), seasonal (-S)
-        and mal (-M). The example will show you how it is done! Please note that if you define 
+        and mal (-M). The example will show you how it is done! Please note that if you define
         several scripts for one area, they will run in the order you put them in the list.
         You can also define a timeout (in seconds), after which a script will be terminated,
         if set to null there will be no timeout and any script will run forever.
@@ -254,7 +254,7 @@ class Config:
             "download": [],
             "seasonal": [],
             "mal": [],
-            "timeout": None
+            "timeout": None,
         }
 
         value = self._get_value("post_download_scripts", defaults, dict)

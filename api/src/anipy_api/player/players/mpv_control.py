@@ -56,7 +56,7 @@ class MpvControllable(PlayerBase):
 
         self.mpv.play(stream.url)
         for name, sub in self._get_media_sub(stream).items():
-            self.mpv.sub_add(title=name,url=sub)
+            self.mpv.sub_add(title=name, url=sub)
         self.mpv.sub = 1
         self._call_play_callback(anime, stream)
 

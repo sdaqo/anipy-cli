@@ -1,15 +1,9 @@
-import base64
 import json
-import re
-import time
-import hashlib
-from typing import TYPE_CHECKING, List, Tuple, Optional
-from urllib.parse import urljoin, urlparse
+from typing import TYPE_CHECKING, List
+from urllib.parse import urljoin
 
 import m3u8
-from bs4 import BeautifulSoup
 from requests import Request
-from Cryptodome.Cipher import AES
 from requests.exceptions import HTTPError
 
 from anipy_api.provider import (
@@ -17,7 +11,7 @@ from anipy_api.provider import (
     ProviderInfoResult,
     ProviderSearchResult,
     ProviderStream,
-    Episode
+    Episode,
 )
 from anipy_api.provider.base import ExternalSub, LanguageTypeEnum
 from anipy_api.provider.filter import (
@@ -98,6 +92,7 @@ INFO_QUERY = """
     }
 """
 
+
 class AllAnimeFilter(BaseFilter):
     def _apply_query(self, query: str):
         if not query:
@@ -121,7 +116,9 @@ class AllAnimeFilter(BaseFilter):
             MediaType.OVA: "OVA",
             MediaType.ONA: "ONA",
         }
-        self._request.params["variables"]["search"].update({"types": [mapping[media_type]]})
+        self._request.params["variables"]["search"].update(
+            {"types": [mapping[media_type]]}
+        )
 
 
 class AllAnimeProvider(BaseProvider):
@@ -150,18 +147,26 @@ class AllAnimeProvider(BaseProvider):
     ) -> List[ProviderSearchResult]:
         req = Request(
             "GET",
-            self.API_URL, 
-            params={"variables": {"search": {}, "limit": 26, "page": 1, "countryOrigin": "ALL"}, "query": SEARCH_QURY}, 
-            headers={"Referer": "https://allmanga.to/"}
+            self.API_URL,
+            params={
+                "variables": {
+                    "search": {},
+                    "limit": 26,
+                    "page": 1,
+                    "countryOrigin": "ALL",
+                },
+                "query": SEARCH_QURY,
+            },
+            headers={"Referer": "https://allmanga.to/"},
         )
         req = AllAnimeFilter(req).apply(query, filters)
-            
+
         results = []
         page = 1
         while True:
             req.params["variables"]["page"] = page
             final_req = deepcopy(req)
-            final_req.params["variables"] = json.dumps(final_req.params['variables'])
+            final_req.params["variables"] = json.dumps(final_req.params["variables"])
             res = self._request_page(final_req).json()
 
             provider_results = res["data"]["shows"]["edges"]
@@ -185,12 +190,16 @@ class AllAnimeProvider(BaseProvider):
 
     def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List[Episode]:
         req = Request(
-            "GET", self.API_URL,
-            params={"variables": json.dumps({"showId": identifier}), "query": EPISODES_QUERY},
-            headers={"Referer": "https://allmanga.to/"}
+            "GET",
+            self.API_URL,
+            params={
+                "variables": json.dumps({"showId": identifier}),
+                "query": EPISODES_QUERY,
+            },
+            headers={"Referer": "https://allmanga.to/"},
         )
         result = self._request_page(req).json()
-        
+
         if lang == LanguageTypeEnum.DUB:
             episodes = result["data"]["show"]["availableEpisodesDetail"]["dub"]
         else:
@@ -200,38 +209,47 @@ class AllAnimeProvider(BaseProvider):
 
     def get_info(self, identifier: str) -> "ProviderInfoResult":
         req = Request(
-            "GET", self.API_URL,
-            params={"variables": json.dumps({"showId": identifier}), "query": INFO_QUERY},
-            headers={"Referer": "https://allmanga.to/"}
+            "GET",
+            self.API_URL,
+            params={
+                "variables": json.dumps({"showId": identifier}),
+                "query": INFO_QUERY,
+            },
+            headers={"Referer": "https://allmanga.to/"},
         )
         result = self._request_page(req).json()
         data = result["data"]["show"]
 
-        status_map = {
-            "Releasing": Status.ONGOING,
-            "Finished": Status.COMPLETED
-        }
-        
+        status_map = {"Releasing": Status.ONGOING, "Finished": Status.COMPLETED}
+
         return ProviderInfoResult(
             name=data.get("name", None),
             image=data.get("thumbnail", None),
             genres=data.get("genres", None),
             status=status_map.get(data["status"], None),
-            synopsis=data.get("description", None), 
-            release_year=data.get("airedStart", {}).get("year", None), 
-            alternative_names=data.get("altNames", None)
+            synopsis=data.get("description", None),
+            release_year=data.get("airedStart", {}).get("year", None),
+            alternative_names=data.get("altNames", None),
         )
-   
 
-    def get_video(self, identifier: str, episode: Episode, lang: LanguageTypeEnum) -> List[ProviderStream]:
+    def get_video(
+        self, identifier: str, episode: Episode, lang: LanguageTypeEnum
+    ) -> List[ProviderStream]:
         tt = "dub" if lang == LanguageTypeEnum.DUB else "sub"
         req = Request(
-            "GET", self.API_URL,
-            params={"variables":
-                    json.dumps(
-                        {"showId": identifier, "translationType": tt, "episodeString": str(episode)}),
-                    "query": STREAMURL_QUERY},
-            headers={"Referer": "https://allmanga.to/"}
+            "GET",
+            self.API_URL,
+            params={
+                "variables": json.dumps(
+                    {
+                        "showId": identifier,
+                        "translationType": tt,
+                        "episodeString": str(episode),
+                    }
+                ),
+                "query": STREAMURL_QUERY,
+            },
+            headers={"Referer": "https://allmanga.to/"},
         )
         result = self._request_page(req).json()
 
@@ -243,8 +261,9 @@ class AllAnimeProvider(BaseProvider):
             if provider["sourceName"] not in providers:
                 continue
 
-            decrypted_path = self._decrypt(provider["sourceUrl"].replace("--", "")).replace("clock", "clock.json")
-
+            decrypted_path = self._decrypt(
+                provider["sourceUrl"].replace("--", "")
+            ).replace("clock", "clock.json")
 
             if "tools.fast4speed.rsvp" in decrypted_path:
                 streams.append(
@@ -253,22 +272,23 @@ class AllAnimeProvider(BaseProvider):
                         resolution=1080,
                         episode=episode,
                         language=lang,
-                        referrer=self.BASE_URL
+                        referrer=self.BASE_URL,
                     )
                 )
                 continue
-            
+
             req = Request(
-                "GET", f"{self.BASE_URL}{decrypted_path}",
-                headers={"Referer": "https://allmanga.to/"}
+                "GET",
+                f"{self.BASE_URL}{decrypted_path}",
+                headers={"Referer": "https://allmanga.to/"},
             )
             try:
                 result = self._request_page(req).json()
             except HTTPError:
                 continue
 
-            for l in result["links"]:
-                link = l["link"]
+            for links in result["links"]:
+                link = links["link"]
                 if "repackager.wixmp.com" in link:
                     link = link.split(".urlset")[0]
                     link = link.replace("repackager.wixmp.com/", "")
@@ -282,12 +302,12 @@ class AllAnimeProvider(BaseProvider):
                                 resolution=int(qual.replace("p", "")),
                                 episode=episode,
                                 language=lang,
-                                referrer=self.BASE_URL
+                                referrer=self.BASE_URL,
                             )
                         )
                     continue
-                
-                subs_provider = l.get("subtitles", [])
+
+                subs_provider = links.get("subtitles", [])
                 subs = {}
 
                 for sub in subs_provider:
@@ -295,14 +315,11 @@ class AllAnimeProvider(BaseProvider):
                         url=sub["src"],
                         shortcode=sub["lang"],
                         codec="vtt",
-                        lang=get_language_name(sub["lang"]) or sub["label"]
+                        lang=get_language_name(sub["lang"]) or sub["label"],
                     )
 
-                referer = l.get("headers", {}).get("Referer", self.BASE_URL)
-                req = Request(
-                    "GET", link,
-                    headers={"Referer": referer}
-                )
+                referer = links.get("headers", {}).get("Referer", self.BASE_URL)
+                req = Request("GET", link, headers={"Referer": referer})
                 try:
                     result = self._request_page(req)
                 except HTTPError:
@@ -318,9 +335,12 @@ class AllAnimeProvider(BaseProvider):
                 else:
                     for sub_playlist in content.playlists:
                         playlists_resolution.append(
-                            (urljoin(base_uri, sub_playlist.uri), sub_playlist.stream_info.resolution[1])
+                            (
+                                urljoin(base_uri, sub_playlist.uri),
+                                sub_playlist.stream_info.resolution[1],
+                            )
                         )
-                
+
                 for plst in playlists_resolution:
                     streams.append(
                         ProviderStream(
@@ -329,15 +349,17 @@ class AllAnimeProvider(BaseProvider):
                             episode=episode,
                             language=lang,
                             subtitle=subs if subs else None,
-                            referrer=referer
+                            referrer=referer,
                         )
                     )
         return streams
 
     @staticmethod
     def _decrypt(provider_id) -> str:
-        decrypted = ''
-        for hex_value in [provider_id[i:i+2] for i in range(0, len(provider_id), 2)]:
+        decrypted = ""
+        for hex_value in [
+            provider_id[i : i + 2] for i in range(0, len(provider_id), 2)
+        ]:
             dec = int(hex_value, 16)
             xor = dec ^ 56
             oct_value = oct(xor)[2:].zfill(3)
