@@ -201,10 +201,11 @@ class Downloader:
         )
         r.raise_for_status()
         total = int(r.headers.get("content-length", 0))
+        size = 0
         try:
-            file_handle = download_path.with_suffix(".mp4").open("w")
+            file_handle = download_path.with_suffix(".mp4").open("wb")
             for data in r.iter_content(chunk_size=1024):
-                size = file_handle.write(data)
+                size += file_handle.write(data)
                 self._progress_callback(size / total * 100)
         except KeyboardInterrupt:
             self._info_callback("Download Interrupted, deleting partial file.")
