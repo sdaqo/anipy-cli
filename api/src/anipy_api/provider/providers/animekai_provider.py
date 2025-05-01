@@ -31,7 +31,12 @@ from anipy_api.provider.filter import (
     Season,
     Status,
 )
-from anipy_api.provider.utils import get_language_code2, parsenum, request_page, safe_attr
+from anipy_api.provider.utils import (
+    get_language_code2,
+    parsenum,
+    request_page,
+    safe_attr,
+)
 
 if TYPE_CHECKING:
     from requests import Session
@@ -59,7 +64,7 @@ def safe_eval(exp, n):
         "reverse_it": reverse_it,
         "substitute": substitute,
         "strict_decode": strict_decode,
-        "strict_encode": strict_encode
+        "strict_encode": strict_encode,
     }
     return simple_eval(exp, names={"n": n}, functions=allowed_funcs)
 
@@ -99,10 +104,11 @@ def decode_iframe_data(n):
 def decode(n):
     return urllib.parse.unquote(safe_eval(fetch_decode()["decode"], n))
 
+
 def strict_decode(n, ops):
     ops_arr = ops.split(";")
     padded = n + "=" * (-len(n) % 4)
-    raw = base64.b64decode(padded.replace('-', '+').replace('_', '/'))
+    raw = base64.b64decode(padded.replace("-", "+").replace("_", "/"))
     result = []
 
     for i, b in enumerate(raw):
@@ -110,7 +116,8 @@ def strict_decode(n, ops):
         transformed = simple_eval(op, names={"n": b})
         result.append(transformed & 255)
 
-    return ''.join(map(chr, result))
+    return "".join(map(chr, result))
+
 
 def strict_encode(n, ops):
     ops_arr = ops.split(";")
@@ -124,7 +131,7 @@ def strict_encode(n, ops):
 
     byte_string = bytes(result)
     b64 = base64.b64encode(byte_string).decode()
-    return b64.replace('+', '-').replace('/', '_').rstrip('=')
+    return b64.replace("+", "-").replace("/", "_").rstrip("=")
 
 
 class AnimekaiFilter(BaseFilter):
@@ -261,10 +268,8 @@ class AnimekaiProvider(BaseProvider):
         )
         data_map["image"] = safe_attr(soup.select_one(".poster img"), "src")
         soup.find("div", class_="detail")
-        
-        alt_names = safe_attr(
-            soup.find("small", attrs={"class": "al-title"}), "text"
-        )
+
+        alt_names = safe_attr(soup.find("small", attrs={"class": "al-title"}), "text")
         data_map["alternative_names"] = alt_names.split(";") if alt_names else []
 
         data = soup.find("div", class_="detail")
@@ -337,7 +342,7 @@ class AnimekaiProvider(BaseProvider):
         video_url = []
         corrections = {
             "English Espaأ±ol": "Spanish",
-            "English Portuguأھs (Brasil)": "Portuguese"
+            "English Portuguأھs (Brasil)": "Portuguese",
         }
         for i in div_tag:
             servers = i.find_all("span", class_="server")
@@ -361,9 +366,16 @@ class AnimekaiProvider(BaseProvider):
                 video_entry.append(json_res["sources"][0]["file"])
                 for track in json_res.get("tracks", []):
                     if track.get("kind") == "captions":
-                        lang_name = corrections.get(track.get("label"), track.get("label")).split()[0]
+                        lang_name = corrections.get(
+                            track.get("label"), track.get("label")
+                        ).split()[0]
                         lang_code = get_language_code2(lang_name)
-                        video_subtitles[track.get("label")] = ExternalSub(url=track["file"], lang=lang_name, shortcode=lang_code, codec="vtt")
+                        video_subtitles[track.get("label")] = ExternalSub(
+                            url=track["file"],
+                            lang=lang_name,
+                            shortcode=lang_code,
+                            codec="vtt",
+                        )
                 video_entry.append(video_subtitles)
                 video_url.append(video_entry)
 

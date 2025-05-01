@@ -336,6 +336,7 @@ def parse_auto_search(
 
     return result, lang, chosen
 
+
 def migrate_provider(mode: str, local_list: "LocalList"):
     config = Config()
     all_entries = local_list.get_all()
@@ -384,4 +385,3 @@ def migrate_provider(mode: str, local_list: "LocalList"):
 
         episode = find_closest(best_anime.get_episodes(s.language), s.episode)
         local_list.update(best_anime, language=s.language, episode=episode)
-

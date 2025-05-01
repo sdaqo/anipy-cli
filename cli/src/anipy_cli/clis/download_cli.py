@@ -69,8 +69,12 @@ class DownloadCli(CliBase):
         assert self.anime is not None
         assert self.lang is not None
 
-        errors = DownloadComponent(self.options, self.dl_path, "download").download_anime(
-            [(self.anime, self.lang, self.episodes)], only_skip_ep_on_err=True, sub_only=self.options.subtitles
+        errors = DownloadComponent(
+            self.options, self.dl_path, "download"
+        ).download_anime(
+            [(self.anime, self.lang, self.episodes)],
+            only_skip_ep_on_err=True,
+            sub_only=self.options.subtitles,
         )
         DownloadComponent.serve_download_errors(errors, only_skip_ep_on_err=True)
 

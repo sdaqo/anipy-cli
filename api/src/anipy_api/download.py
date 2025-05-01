@@ -3,7 +3,7 @@ import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Callable, Optional, Protocol
+from typing import Optional, Protocol
 from urllib.parse import urljoin
 
 import m3u8
@@ -36,6 +36,7 @@ class InfoCallback(Protocol):
         """
         ...
 
+
 class PostDownloadCallback(Protocol):
     """Callback that accepts a message argument."""
 
@@ -44,9 +45,10 @@ class PostDownloadCallback(Protocol):
 
         Args:
             path: Path of the resulting download, passed to the callback
-            stream: ProviderStream object passed to the callback 
+            stream: ProviderStream object passed to the callback
         """
         ...
+
 
 class Downloader:
     """Downloader class to download streams retrieved by the Providers."""
@@ -202,10 +204,13 @@ class Downloader:
         r.raise_for_status()
         total = int(r.headers.get("content-length", 0))
         try:
-            file_handle = download_path.with_suffix(".mp4").open("w")
-            for data in r.iter_content(chunk_size=1024):
-                size = file_handle.write(data)
-                self._progress_callback(size / total * 100)
+
+            with download_path.with_suffix(".mp4").open("wb") as file_handle:
+                downloaded_size = 0
+                for data in r.iter_content(chunk_size=1024):
+                    downloaded_size += file_handle.write(data)
+                    self._progress_callback(downloaded_size / total * 100)
+
         except KeyboardInterrupt:
             self._info_callback("Download Interrupted, deleting partial file.")
             download_path.unlink()
@@ -239,17 +244,16 @@ class Downloader:
         )
         version = json.loads(ffprobe.execute())
         version = [int(v) for v in version["program_version"]["version"].split(".")]
-        
+
         if len(version) < 3:
             version.append(0)
 
         major_v, minor_v, patch_v = version
 
-        extension_picky = major_v >= 7 and minor_v >=1 and patch_v >= 1
+        extension_picky = major_v >= 7 and minor_v >= 1 and patch_v >= 1
 
-        ffprobe = (
-            FFmpeg(executable="ffprobe")
-            .input(stream.url, print_format="json", show_format=None)
+        ffprobe = FFmpeg(executable="ffprobe").input(
+            stream.url, print_format="json", show_format=None
         )
 
         if stream.referrer:
@@ -312,7 +316,7 @@ class Downloader:
         container: Optional[str] = None,
         ffmpeg: bool = False,
         max_retry: int = 3,
-        post_dl_cb: Optional[PostDownloadCallback] = None
+        post_dl_cb: Optional[PostDownloadCallback] = None,
     ) -> Path:
         """Generic download function that determines the best way to download a
         specific stream and downloads it. The suffix should be omitted here,
@@ -393,7 +397,9 @@ class Downloader:
             self._info_callback(
                 "No fitting downloader available for stream, using FFMPEG downloader as fallback"
             )
-            path = self.ffmpeg_download(stream, download_path.with_suffix(container or ".mp4"))
+            path = self.ffmpeg_download(
+                stream, download_path.with_suffix(container or ".mp4")
+            )
 
         if container:
             if container == path.suffix:

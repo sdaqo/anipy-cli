@@ -1,10 +1,8 @@
 import sys
-import time
 import subprocess as sp
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
-    Callable,
     Iterator,
     List,
     Literal,
@@ -16,10 +14,9 @@ from typing import (
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader, PostDownloadCallback
-from anipy_api.error import LangTypeNotAvailableError
-from anipy_api.locallist import LocalListData, LocalListEntry
+from anipy_api.locallist import LocalListData
 from anipy_api.player import get_player
-from anipy_api.provider import LanguageTypeEnum, get_provider, list_providers
+from anipy_api.provider import list_providers
 from InquirerPy import inquirer
 from yaspin.core import Yaspin
 from yaspin.spinners import Spinners
@@ -121,7 +118,10 @@ def get_download_path(
 
     return download_folder / anime_name / filename
 
-def get_post_download_scripts_hook(mode: str, anime: "Anime", spinner: DotSpinner) -> PostDownloadCallback:
+
+def get_post_download_scripts_hook(
+    mode: str, anime: "Anime", spinner: DotSpinner
+) -> PostDownloadCallback:
     config = Config()
     scripts = config.post_download_scripts[mode]
     timeout = config.post_download_scripts["timeout"]
@@ -129,16 +129,20 @@ def get_post_download_scripts_hook(mode: str, anime: "Anime", spinner: DotSpinne
     def hook(path: Path, stream: "ProviderStream"):
         spinner.hide()
         arguments = [
-            str(path), anime.name,
-            str(stream.episode), anime.provider.NAME,
-            str(stream.resolution), stream.language.name
+            str(path),
+            anime.name,
+            str(stream.episode),
+            anime.provider.NAME,
+            str(stream.resolution),
+            stream.language.name,
         ]
         for s in scripts:
             sub_proc = sp.Popen([s, *arguments])
-            sub_proc.wait(timeout) # type: ignore
+            sub_proc.wait(timeout)  # type: ignore
         spinner.show()
 
     return hook
+
 
 def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episode"]:
     picked = set()
@@ -233,9 +237,7 @@ def convert_letter_to_season(letter: str) -> Optional[str]:
 
 
 def migrate_locallist(file: Path) -> LocalListData:
-    error(
-        f"{file} is in an unsuported format..."
-    )
+    error(f"{file} is in an unsuported format...")
 
     new_list = LocalListData({})
     choice = inquirer.confirm(  # type: ignore
