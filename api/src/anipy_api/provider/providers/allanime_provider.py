@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
 
 import m3u8
+import Levenshtein
 from requests import Request
 from requests.exceptions import HTTPError
 
@@ -186,6 +187,13 @@ class AllAnimeProvider(BaseProvider):
                     )
                 )
             page += 1
+        
+        # The results are not sorted properly so sort by best match to query
+        results.sort(
+            key=lambda x: Levenshtein.ratio(query, x.name, processor=str.lower), 
+            reverse=True
+        )
+
         return results
 
     def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List[Episode]:
