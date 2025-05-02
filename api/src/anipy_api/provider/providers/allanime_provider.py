@@ -288,7 +288,7 @@ class AllAnimeProvider(BaseProvider):
                     if raw_result.text != "":
                         break
                 else:
-                    raise ConnectionError("Server responds with empty text")
+                    raise ConnectionError("Server responded with empty data.")
 
                 result = raw_result.json()
             except HTTPError:
