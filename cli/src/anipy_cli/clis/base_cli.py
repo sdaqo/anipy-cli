@@ -30,5 +30,5 @@ class CliBase(ABC):
             func = getattr(self, f)
             ret = func()
 
-            if ret == False:  # noqa: E712
+            if ret is False:
                 break

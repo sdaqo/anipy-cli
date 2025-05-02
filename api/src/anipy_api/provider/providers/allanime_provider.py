@@ -291,7 +291,14 @@ class AllAnimeProvider(BaseProvider):
                 headers={"Referer": "https://allmanga.to/"},
             )
             try:
-                result = self._request_page(req).json()
+                for attempts in range(3):
+                    raw_result = self._request_page(req)
+                    if raw_result.text != "":
+                        break
+                else:
+                    raise ConnectionError("Server responded with empty data.")
+
+                result = raw_result.json()
             except HTTPError:
                 continue
 
