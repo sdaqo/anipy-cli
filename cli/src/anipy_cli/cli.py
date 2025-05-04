@@ -11,6 +11,7 @@ from anipy_cli.colors import colors, cprint
 from anipy_cli.util import error, DotSpinner, migrate_locallist
 from anipy_cli.config import Config
 from anipy_cli.discord import DiscordPresence
+from anipy_cli.logger import logger
 
 
 def run_cli(override_args: Optional[list[str]] = None):
@@ -18,6 +19,8 @@ def run_cli(override_args: Optional[list[str]] = None):
     config = Config()
     # This updates the config, adding new values doc changes and the like.
     config._create_config()
+
+    logger.info("Initializing program...")
 
     if config.dc_presence:
         with DotSpinner("Intializing Discord Presence...") as s:
