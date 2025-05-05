@@ -4,11 +4,52 @@ import logging
 import datetime
 import os
 from pathlib import Path
+import sys
+from types import TracebackType
+from typing import Protocol
 
 from anipy_cli.config import Config
 
 from anipy_cli import __appname__
 from appdirs import user_data_dir
+
+class FatalHandler(Protocol):
+    def __call__(self, exc_val: BaseException, exc_tb: TracebackType, logs_location: Path):
+        ...
+
+class FatalCatcher:
+    def __init__(self, logger: Logger, logs_location: Path, fatal_handler: FatalHandler | None = None, ignore_system_exit: bool = True):
+        self._logger = logger
+        self._fatal_handler = fatal_handler
+
+        self.logs_location = logs_location
+        self.ignore_system_exit = ignore_system_exit
+
+    def __enter__(self):
+        self._logger.info("Initializing program...")
+        return self
+
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None):
+        if (not exc_type) or (not exc_val) or (not exc_tb):
+            self._logger.info("Program exited successfully...")
+            return True
+
+        if (exc_type == SystemExit and self.ignore_system_exit):
+            return True
+
+        try:
+            # Attempt to let a handler know something is up
+            # so it can get to the user
+            if self._fatal_handler:
+                self._fatal_handler(exc_val, exc_tb, self.logs_location)
+        except Exception:
+            # If that fails, at least get something to the user
+            sys.stderr.write("An extra fatal error occurred...")
+
+        self._logger.fatal(f"A fatal error has occurred - {",".join(str(exc_val.args))}", exc_val)
+        self._logger.info("Program exited with fatal errors...")
+
+        return True # Return true because we have processed the error
 
 class Logger:
     """
@@ -85,7 +126,31 @@ class Logger:
             user_file_path = Path(user_data_dir(__appname__, appauthor=False))
         finally:
             return user_file_path / "logs"
-        
+    
+    def setCliVerbosity(self, level: int):
+        """
+        Set how extreme the error has to 
+        be for it to be printed in the CLI.
+
+        Default is 0.
+
+        0 = No Statements To CLI
+        1 = Fatal
+        2 = Warnings
+        3 = Info
+        """
+        level_conversion = {
+            0: 60,
+            1: 50,
+            2: 30,
+            3: 20,
+        }
+        other = 10 # If anything else, default to debug.
+        self.console_handler.setLevel(level_conversion.get(level, other))
+    
+    def safe(self, fatal_handler: FatalHandler|None = None):
+        return FatalCatcher(self, self.logs_location, fatal_handler)
+
     def debug(self, content: str, exc_info: logging._ExcInfoType = None, stack_info: bool = False):
         self._logger.debug(content, exc_info=exc_info, stack_info=stack_info)
 
@@ -100,5 +165,8 @@ class Logger:
 
     def fatal(self, content: str, exc_info: logging._ExcInfoType = None):
         self._logger.critical(content, exc_info=exc_info, stack_info=True)
+    
+    def log(self, level: int, content: str, exc_info: logging._ExcInfoType = None):
+        self._logger.log(level, content, exc_info=exc_info)
 
 logger = Logger(0)

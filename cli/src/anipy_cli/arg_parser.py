@@ -22,6 +22,7 @@ class CliArgs:
     optional_player: Optional[str]
     search: Optional[str]
     location: Optional[Path]
+    verbosity: int
     mal_password: Optional[str]
     config: bool
     seasonal_search: Optional[str]
@@ -177,6 +178,16 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
     )
 
     options_group.add_argument(
+        "-v",
+        "--verbose",
+        required=False,
+        dest="verbosity",
+        action="count",
+        default=0,
+        help="Verbosity levels in the console: -v = 'fatal' -vv = 'warnings' -vvv = 'info'"
+    )
+
+    options_group.add_argument(
         "-so",
         "--sub-only",
         required=False,
@@ -205,7 +216,7 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         "-h", "--help", action="help", help="show this help message and exit"
     )
 
-    info_group.add_argument("-v", "--version", action="version", version=__version__)
+    info_group.add_argument("--version", action="version", version=__version__)
 
     info_group.add_argument(
         "--config-path",
