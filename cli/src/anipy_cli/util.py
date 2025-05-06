@@ -53,10 +53,14 @@ class DotSpinner(Yaspin):
 @overload
 def error(error: str, fatal: Literal[True]) -> NoReturn: ...
 @overload
-def error(error: str, fatal: Literal[False] = ..., log_level: int = logging.INFO) -> None: ...
+def error(
+    error: str, fatal: Literal[False] = ..., log_level: int = logging.INFO
+) -> None: ...
 
 
-def error(error: str, fatal: bool = False, log_level: int = logging.INFO) -> Union[NoReturn, None]:
+def error(
+    error: str, fatal: bool = False, log_level: int = logging.INFO
+) -> Union[NoReturn, None]:
     if not fatal:
         sys.stderr.write(
             color(colors.RED, "anipy-cli: error: ", colors.END, f"{error}\n")

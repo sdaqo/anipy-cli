@@ -13,12 +13,20 @@ from anipy_cli.config import Config
 from anipy_cli import __appname__
 from appdirs import user_data_dir
 
+
 class FatalHandler(Protocol):
-    def __call__(self, exc_val: BaseException, exc_tb: TracebackType, logs_location: Path):
-        ...
+    def __call__(
+        self, exc_val: BaseException, exc_tb: TracebackType, logs_location: Path
+    ): ...
+
 
 class FatalCatcher:
-    def __init__(self, logs_location: Path, fatal_handler: FatalHandler | None = None, ignore_system_exit: bool = True):
+    def __init__(
+        self,
+        logs_location: Path,
+        fatal_handler: FatalHandler | None = None,
+        ignore_system_exit: bool = True,
+    ):
         self._fatal_handler = fatal_handler
 
         self.logs_location = logs_location
@@ -28,12 +36,17 @@ class FatalCatcher:
         info("Initializing program...")
         return self
 
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ):
         if (not exc_type) or (not exc_val) or (not exc_tb):
             info("Program exited successfully...")
             return True
 
-        if (exc_type == SystemExit and self.ignore_system_exit):
+        if exc_type == SystemExit and self.ignore_system_exit:
             return True
 
         try:
@@ -48,12 +61,14 @@ class FatalCatcher:
         fatal(f"A fatal error has occurred - {",".join(exc_val.args)}", exc_val)
         info("Program exited with fatal errors...")
 
-        return True # Return true because we have processed the error
+        return True  # Return true because we have processed the error
+
 
 LOGGER_NAME = "cli_logger"
 MAX_LOGS = 5
 DEFAULT_FILE_LOG_LEVEL = 0
 DEFAULT_CONSOLE_LOG_LEVEL = 60
+
 
 def get_logs_location():
     user_file_path = Path()
@@ -64,26 +79,30 @@ def get_logs_location():
     finally:
         return user_file_path / "logs"
 
+
 def _clean_logs():
     log_dir = get_logs_location()
-    if not os.path.exists(log_dir): 
+    if not os.path.exists(log_dir):
         os.mkdir(log_dir)
-    
-    alllogs = os.listdir(log_dir)
-    allsorted = sorted(alllogs, key = lambda log: os.path.getmtime(log_dir / log))
 
-    if (len(allsorted) < MAX_LOGS):
+    alllogs = os.listdir(log_dir)
+    allsorted = sorted(alllogs, key=lambda log: os.path.getmtime(log_dir / log))
+
+    if len(allsorted) < MAX_LOGS:
         return allsorted
-    
-    os.remove(log_dir / allsorted[0]) # Delete
-    allsorted.pop(0) # Remove from list
+
+    os.remove(log_dir / allsorted[0])  # Delete
+    allsorted.pop(0)  # Remove from list
     return allsorted
+
 
 _logger = logging.getLogger(LOGGER_NAME)
 
 _logger.setLevel(0)
 
-file_formatter = logging.Formatter("{asctime} - {levelname} - {message}", style="{", datefmt=r"%Y-%m-%d %H:%M:%S")
+file_formatter = logging.Formatter(
+    "{asctime} - {levelname} - {message}", style="{", datefmt=r"%Y-%m-%d %H:%M:%S"
+)
 console_formatter = logging.Formatter("{levelname} -> {message}", style="{")
 
 console_handler = logging.StreamHandler()
@@ -93,20 +112,27 @@ _logger.addHandler(console_handler)
 
 _clean_logs()
 current_time = datetime.datetime.now()
-file_handler = logging.FileHandler(get_logs_location() / f"{current_time.isoformat().replace(':', '.')}.log", mode="a", encoding="utf-8")
+file_handler = logging.FileHandler(
+    get_logs_location() / f"{current_time.isoformat().replace(':', '.')}.log",
+    mode="a",
+    encoding="utf-8",
+)
 file_handler.setFormatter(file_formatter)
 file_handler.setLevel(DEFAULT_FILE_LOG_LEVEL)
 _logger.addHandler(file_handler)
 
+
 def set_file_log_level(value: logging._Level):
     file_handler.setLevel(value)
+
 
 def set_console_log_level(value: logging._Level):
     console_handler.setLevel(value)
 
+
 def setCliVerbosity(level: int):
     """
-    Set how extreme the error has to 
+    Set how extreme the error has to
     be for it to be printed in the CLI.
 
     Default is 0.
@@ -122,26 +148,35 @@ def setCliVerbosity(level: int):
         2: 30,
         3: 20,
     }
-    other = 10 # If anything else, default to debug.
+    other = 10  # If anything else, default to debug.
     console_handler.setLevel(level_conversion.get(level, other))
 
-def safe(fatal_handler: FatalHandler|None = None):
+
+def safe(fatal_handler: FatalHandler | None = None):
     return FatalCatcher(get_logs_location(), fatal_handler)
 
-def debug(content: str, exc_info: logging._ExcInfoType = None, stack_info: bool = False):
+
+def debug(
+    content: str, exc_info: logging._ExcInfoType = None, stack_info: bool = False
+):
     _logger.debug(content, exc_info=exc_info, stack_info=stack_info)
+
 
 def info(content: str, exc_info: logging._ExcInfoType = None, stack_info: bool = False):
     _logger.info(content, exc_info=exc_info, stack_info=stack_info)
 
+
 def warn(content: str, exc_info: logging._ExcInfoType = None, stack_info: bool = False):
     _logger.warning(content, exc_info=exc_info, stack_info=stack_info)
+
 
 def error(content: str, exc_info: logging._ExcInfoType = None):
     _logger.error(content, exc_info=exc_info, stack_info=True)
 
+
 def fatal(content: str, exc_info: logging._ExcInfoType = None):
     _logger.critical(content, exc_info=exc_info, stack_info=True)
+
 
 def log(level: int, content: str, exc_info: logging._ExcInfoType = None):
     _logger.log(level, content, exc_info=exc_info)

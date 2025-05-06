@@ -19,11 +19,17 @@ def run_cli(override_args: Optional[list[str]] = None):
 
     logger.setCliVerbosity(args.verbosity)
 
-    def fatal_handler(exc_val: BaseException, exc_tb, logs_location): 
-        print(color(colors.RED, f"A fatal error of type [{exc_val.__class__.__name__}] has occurred with message \"{exc_val.args[0]}\". Logs can be found at {logs_location}."))
+    def fatal_handler(exc_val: BaseException, exc_tb, logs_location):
+        print(
+            color(
+                colors.RED,
+                f'A fatal error of type [{exc_val.__class__.__name__}] has occurred with message "{exc_val.args[0]}". Logs can be found at {logs_location}.',
+            )
+        )
 
     with logger.safe(fatal_handler):
         _safe_cli(args)
+
 
 def _safe_cli(args: CliArgs):
     config = Config()

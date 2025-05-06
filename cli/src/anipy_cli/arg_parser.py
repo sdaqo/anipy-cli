@@ -184,7 +184,7 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         dest="verbosity",
         action="count",
         default=0,
-        help="Verbosity levels in the console: -v = 'fatal' -vv = 'warnings' -vvv = 'info'"
+        help="Verbosity levels in the console: -v = 'fatal' -vv = 'warnings' -vvv = 'info'",
     )
 
     options_group.add_argument(
