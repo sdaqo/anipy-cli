@@ -11,7 +11,7 @@ from anipy_cli.colors import color, colors, cprint
 from anipy_cli.util import error, DotSpinner, migrate_locallist
 from anipy_cli.config import Config
 from anipy_cli.discord import DiscordPresence
-from anipy_cli.logger import logger
+import anipy_cli.logger as logger
 
 
 def run_cli(override_args: Optional[list[str]] = None):

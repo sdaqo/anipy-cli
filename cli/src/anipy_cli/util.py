@@ -13,7 +13,7 @@ from typing import (
     overload,
 )
 
-from anipy_cli.logger import logger
+import anipy_cli.logger as logger
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader, PostDownloadCallback
