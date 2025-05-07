@@ -6,6 +6,7 @@ from InquirerPy.base.control import Choice
 from anipy_api.download import Downloader
 from anipy_api.provider import LanguageTypeEnum, ProviderStream
 from anipy_api.locallist import LocalList
+import anipy_cli.logger as logger
 
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
@@ -221,10 +222,12 @@ class Menu(MenuBase):
             def progress_indicator(percentage: float):
                 s.set_text(f"Downloading ({percentage:.1f}%)")
 
-            def info_display(message: str):
+            def info_display(message: str, exc_info: BaseException|None = None):
+                logger.info(message, exc_info, exc_info is not None)
                 s.write(f"> {message}")
 
-            def error_display(message: str):
+            def error_display(message: str, exc_info: BaseException|None = None):
+                logger.error(message, exc_info)
                 s.write(f"{colors.RED}! {message}{colors.END}")
 
             downloader = Downloader(progress_indicator, info_display, error_display)

@@ -275,7 +275,7 @@ class MALMenu(MenuBase):
         )
         DownloadComponent.serve_download_errors(errors)
 
-        self.print_options(clear_screen=len(errors) == 0)
+        self.print_options(should_clear_screen=len(errors) == 0)
 
     def binge_latest(self):
         picked = self._choose_latest()

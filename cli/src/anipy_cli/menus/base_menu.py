@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Callable, List
 
 from anipy_cli.colors import color, colors
-from anipy_cli.util import error
+from anipy_cli.util import clear_screen, error
 
 
 @dataclass(frozen=True)
@@ -40,9 +40,9 @@ class MenuBase(ABC):
 
             op.callback()
 
-    def print_options(self, clear_screen=True):
-        if clear_screen:
-            os.system("cls" if os.name == "nt" else "clear")
+    def print_options(self, should_clear_screen=True):
+        if should_clear_screen:
+            clear_screen()
 
         self.print_header()
         for op in self.menu_options:

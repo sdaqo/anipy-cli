@@ -66,7 +66,7 @@ class FatalCatcher:
 
 LOGGER_NAME = "cli_logger"
 MAX_LOGS = 5
-DEFAULT_FILE_LOG_LEVEL = 0
+DEFAULT_FILE_LOG_LEVEL = 10
 DEFAULT_CONSOLE_LOG_LEVEL = 60
 
 
@@ -80,7 +80,7 @@ def get_logs_location():
         return user_file_path / "logs"
 
 
-def _clean_logs():
+def _rotate_logs():
     log_dir = get_logs_location()
     if not os.path.exists(log_dir):
         os.mkdir(log_dir)
@@ -98,7 +98,7 @@ def _clean_logs():
 
 _logger = logging.getLogger(LOGGER_NAME)
 
-_logger.setLevel(0)
+_logger.setLevel(10)
 
 file_formatter = logging.Formatter(
     "{asctime} - {levelname} - {message}", style="{", datefmt=r"%Y-%m-%d %H:%M:%S"
@@ -110,7 +110,7 @@ console_handler.setFormatter(console_formatter)
 console_handler.setLevel(DEFAULT_CONSOLE_LOG_LEVEL)
 _logger.addHandler(console_handler)
 
-_clean_logs()
+_rotate_logs()
 current_time = datetime.datetime.now()
 file_handler = logging.FileHandler(
     get_logs_location() / f"{current_time.isoformat().replace(':', '.')}.log",
@@ -122,12 +122,20 @@ file_handler.setLevel(DEFAULT_FILE_LOG_LEVEL)
 _logger.addHandler(file_handler)
 
 
-def set_file_log_level(value: logging._Level):
-    file_handler.setLevel(value)
+def get_console_log_level():
+    return console_handler.level
 
 
 def set_console_log_level(value: logging._Level):
     console_handler.setLevel(value)
+
+
+def get_file_log_level():
+    return file_handler.level
+
+
+def set_file_log_level(value: logging._Level):
+    file_handler.setLevel(value)
 
 
 def setCliVerbosity(level: int):

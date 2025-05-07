@@ -4,6 +4,7 @@ from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import color, colors
 from anipy_cli.config import Config
 from anipy_cli.util import DotSpinner, get_download_path, get_post_download_scripts_hook
+import anipy_cli.logger as logger
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
@@ -54,11 +55,13 @@ class DownloadComponent:
             def progress_indicator(percentage: float):
                 s.set_text(f"Progress: {percentage:.1f}%")
 
-            def info_display(message: str):
+            def info_display(message: str, exc_info: BaseException|None = None):
+                logger.info(message, exc_info, exc_info is not None)
                 s.write(f"> {message}")
 
-            def error_display(message: str):
-                s.write(color(colors.RED, "! ", message))
+            def error_display(message: str, exc_info: BaseException|None = None):
+                logger.error(message, exc_info)
+                s.write(f"{colors.RED}! {message}{colors.END}")
 
             downloader = Downloader(progress_indicator, info_display, error_display)
 
@@ -93,7 +96,9 @@ class DownloadComponent:
         for ep in eps:
             try:
                 self.download_ep(spinner, downloader, anime, lang, ep, sub_only)
-            except Exception as e:
+            except Exception as anime_download_error:
+                # Log it first so we don't run into another error below
+                logger.error(f"Error downloading episode {ep} of {anime.name}. Skipped.", anime_download_error)
                 if only_skip_ep_on_err:
                     error_msg = f"! Issues downloading episode {ep} of {anime.name}. Skipping..."
                 else:
@@ -101,7 +106,7 @@ class DownloadComponent:
                 spinner.write(
                     color(
                         colors.RED,
-                        f"! Error: {e}\n",
+                        f"! Error: {anime_download_error}\n",
                         error_msg,
                     )
                 )
@@ -136,8 +141,10 @@ class DownloadComponent:
 
         stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
 
+        download_message_update = f"Downloading Episode {stream.episode} of {anime.name} ({lang})"
+        logger.info(download_message_update)
         spinner.write(
-            f"> Downloading Episode {stream.episode} of {anime.name} ({lang})"
+            f"> {download_message_update}"
         )
 
         spinner.set_text("Downloading...")

@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import subprocess as sp
 from pathlib import Path
@@ -79,6 +80,10 @@ def error(
     logger.warn(error)
     sys.exit(1)
 
+def clear_screen():
+    if logger.get_console_log_level() < 60:
+        return
+    os.system("cls" if os.name == "nt" else "clear")
 
 def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
     config = Config()
