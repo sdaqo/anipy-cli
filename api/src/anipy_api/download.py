@@ -70,9 +70,13 @@ class Downloader:
         self._progress_callback: ProgressCallback = progress_callback or (
             lambda percentage: None
         )
-        self._info_callback: InfoCallback = info_callback or (lambda message,exc_info=None: None)
+        self._info_callback: InfoCallback = info_callback or (
+            lambda message, exc_info=None: None
+        )
         self._soft_error_callback: InfoCallback = (
-            soft_error_callback or info_callback or (lambda message,exc_info=None: None)
+            soft_error_callback
+            or info_callback
+            or (lambda message, exc_info=None: None)
         )
 
         self._session = requests.Session()

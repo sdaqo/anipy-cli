@@ -222,11 +222,11 @@ class Menu(MenuBase):
             def progress_indicator(percentage: float):
                 s.set_text(f"Downloading ({percentage:.1f}%)")
 
-            def info_display(message: str, exc_info: BaseException|None = None):
+            def info_display(message: str, exc_info: BaseException | None = None):
                 logger.info(message, exc_info, exc_info is not None)
                 s.write(f"> {message}")
 
-            def error_display(message: str, exc_info: BaseException|None = None):
+            def error_display(message: str, exc_info: BaseException | None = None):
                 logger.error(message, exc_info)
                 s.write(f"{colors.RED}! {message}{colors.END}")
 

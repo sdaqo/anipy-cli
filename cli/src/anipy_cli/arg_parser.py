@@ -193,7 +193,7 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         required=False,
         dest="stack_always",
         action="store_true",
-        help="Always show the stack trace on any log outputs."
+        help="Always show the stack trace on any log outputs.",
     )
 
     options_group.add_argument(

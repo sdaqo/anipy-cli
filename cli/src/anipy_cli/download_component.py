@@ -55,11 +55,11 @@ class DownloadComponent:
             def progress_indicator(percentage: float):
                 s.set_text(f"Progress: {percentage:.1f}%")
 
-            def info_display(message: str, exc_info: BaseException|None = None):
+            def info_display(message: str, exc_info: BaseException | None = None):
                 logger.info(message, exc_info, exc_info is not None)
                 s.write(f"> {message}")
 
-            def error_display(message: str, exc_info: BaseException|None = None):
+            def error_display(message: str, exc_info: BaseException | None = None):
                 logger.error(message, exc_info)
                 s.write(f"{colors.RED}! {message}{colors.END}")
 
@@ -98,7 +98,10 @@ class DownloadComponent:
                 self.download_ep(spinner, downloader, anime, lang, ep, sub_only)
             except Exception as anime_download_error:
                 # Log it first so we don't run into another error below
-                logger.error(f"Error downloading episode {ep} of {anime.name}. Skipped.", anime_download_error)
+                logger.error(
+                    f"Error downloading episode {ep} of {anime.name}. Skipped.",
+                    anime_download_error,
+                )
                 if only_skip_ep_on_err:
                     error_msg = f"! Issues downloading episode {ep} of {anime.name}. Skipping..."
                 else:
@@ -141,11 +144,11 @@ class DownloadComponent:
 
         stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
 
-        download_message_update = f"Downloading Episode {stream.episode} of {anime.name} ({lang})"
-        logger.info(download_message_update)
-        spinner.write(
-            f"> {download_message_update}"
+        download_message_update = (
+            f"Downloading Episode {stream.episode} of {anime.name} ({lang})"
         )
+        logger.info(download_message_update)
+        spinner.write(f"> {download_message_update}")
 
         spinner.set_text("Downloading...")
 
