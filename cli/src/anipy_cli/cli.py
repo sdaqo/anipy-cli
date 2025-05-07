@@ -18,6 +18,7 @@ def run_cli(override_args: Optional[list[str]] = None):
     args = parse_args(override_args)
 
     logger.setCliVerbosity(args.verbosity)
+    logger.set_stack_always(args.stack_always)
 
     def fatal_handler(exc_val: BaseException, exc_tb, logs_location):
         print(

@@ -164,18 +164,35 @@ def safe(fatal_handler: FatalHandler | None = None):
     return FatalCatcher(get_logs_location(), fatal_handler)
 
 
+_stack_always = False
+
+def set_stack_always(value: bool):
+    global _stack_always
+
+    _stack_always = value
+
+
+def is_stack_always(passthrough: bool):
+    """
+    If _stack_always is true, return true.
+
+    Otherwise return passthrough.
+    """
+    return True if _stack_always else passthrough
+
+
 def debug(
     content: str, exc_info: logging._ExcInfoType = None, stack_info: bool = False
 ):
-    _logger.debug(content, exc_info=exc_info, stack_info=stack_info)
+    _logger.debug(content, exc_info=exc_info, stack_info=is_stack_always(stack_info))
 
 
 def info(content: str, exc_info: logging._ExcInfoType = None, stack_info: bool = False):
-    _logger.info(content, exc_info=exc_info, stack_info=stack_info)
+    _logger.info(content, exc_info=exc_info, stack_info=is_stack_always(stack_info))
 
 
 def warn(content: str, exc_info: logging._ExcInfoType = None, stack_info: bool = False):
-    _logger.warning(content, exc_info=exc_info, stack_info=stack_info)
+    _logger.warning(content, exc_info=exc_info, stack_info=is_stack_always(stack_info))
 
 
 def error(content: str, exc_info: logging._ExcInfoType = None):
@@ -186,5 +203,5 @@ def fatal(content: str, exc_info: logging._ExcInfoType = None):
     _logger.critical(content, exc_info=exc_info, stack_info=True)
 
 
-def log(level: int, content: str, exc_info: logging._ExcInfoType = None):
-    _logger.log(level, content, exc_info=exc_info)
+def log(level: int, content: str, exc_info: logging._ExcInfoType = None, stack_info: bool = False):
+    _logger.log(level, content, exc_info=exc_info, stack_info=is_stack_always(stack_info))
