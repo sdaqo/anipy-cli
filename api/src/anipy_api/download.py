@@ -248,7 +248,9 @@ class Downloader:
             .option("show_program_version")
         )
         version = json.loads(ffprobe.execute())
-        version = [int(v) for v in version["program_version"]["version"].split(".")]
+        version = [
+            int(v) for v in version["program_version"]["version"].split("-")[0].split(".")
+        ]
 
         if len(version) < 3:
             version.append(0)
