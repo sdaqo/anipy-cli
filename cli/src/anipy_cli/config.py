@@ -72,7 +72,7 @@ class Config:
 
         For an updated list of providers look here: https://sdaqo.github.io/anipy-cli/availabilty
 
-        Supported providers (as of $version): allanime, animekai
+        Supported providers (as of $version): allanime, animekai (animekai is not functional for now)
 
         Examples:
             providers:
