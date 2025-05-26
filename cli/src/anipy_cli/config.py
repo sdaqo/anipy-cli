@@ -12,6 +12,8 @@ from anipy_cli import __appname__, __version__
 
 
 class Config:
+    _EXPAND_PATHS = True
+
     def __init__(self):
         self._config_file, self._yaml_conf = Config._read_config()
 
@@ -410,7 +412,10 @@ class Config:
             # os.path.expanduser is equivalent to Path().expanduser()
             # But because pathlib doesn't have expandvars(), we resort
             # to using the os module inside the Path constructor
-            return Path(os.path.expandvars(path)).expanduser()
+            if self._EXPAND_PATHS:
+                return Path(os.path.expandvars(path)).expanduser()
+
+            return Path(path)
         except RuntimeError:
             return fallback
 
@@ -424,6 +429,8 @@ class Config:
     def _create_config(self):
         self._get_config_path().mkdir(exist_ok=True, parents=True)
         self._config_file.touch()
+        
+        self._EXPAND_PATHS = False
 
         dump = ""
         # generate config based on attrs and default values of config class
@@ -448,7 +455,8 @@ class Config:
                 + yaml.dump({attribute: val}, indent=4, default_flow_style=False)
                 + "\n"
             )
-
+        
+        self._EXPAND_PATHS = True
         self._config_file.write_text(dump)
 
     @staticmethod
