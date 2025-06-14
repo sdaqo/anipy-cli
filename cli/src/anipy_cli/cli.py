@@ -61,6 +61,7 @@ def run_cli(override_args: Optional[list[str]] = None):
         args.seasonal: SeasonalCli,
         args.history: HistoryCli,
         args.mal: MalCli,
+        args.anilist: AniListCli,
     }
 
     cli_class = clis_dict.get(True, DefaultCli)

@@ -56,6 +56,26 @@ class MyAnimeListError(Exception):
         super().__init__(error_text)
 
 
+class AniListError(Exception):
+    """Error that gets raised by [AniList][anipy_api.anilist.AniList], this
+    may include authentication errors or other HTTP errors."""
+
+    def __init__(
+        self, url: str, status: int, anilist_api_error: Optional[Dict] = None
+    ) -> None:
+        """__init__ for AniListError.
+
+        Args:
+            url: Requested URL that caused the error
+            status: HTTP status code
+            anilist_api_error: AniList api error if returned
+        """
+        error_text = f"Error requesting {url}, status is {status}."
+        if anilist_api_error:
+            error_text = f"{error_text} Additional info from api {anilist_api_error}"
+
+        super().__init__(error_text)
+
 class DownloadError(Exception):
     """Error that gets raised by
     [Downloader][anipy_api.download.Downloader]."""

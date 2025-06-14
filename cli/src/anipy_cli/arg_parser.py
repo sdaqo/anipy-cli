@@ -13,12 +13,14 @@ class CliArgs:
     history: bool
     seasonal: bool
     mal: bool
+    anilist: bool
     delete: bool
     migrate_hist: bool
     quality: Optional[Union[str, int]]
     ffmpeg: bool
     auto_update: bool
     mal_sync_seasonals: bool
+    anilist_sync_seasonals: bool
     optional_player: Optional[str]
     search: Optional[str]
     location: Optional[Path]
@@ -91,6 +93,15 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         action="store_true",
         help="MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList "
         "(requires MAL account credentials to be set in config).",
+    )
+
+    actions_group.add_argument(
+        "-A",
+        "--anilist",
+        required=False,
+        dest="anilist",
+        action="store_true",
+        help="Anilist mode. Similar to seasonal mode, but using Anilist"
     )
 
     actions_group.add_argument(
@@ -199,6 +210,14 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         dest="mal_sync_seasonals",
         action="store_true",
         help="Automatically sync myanimelist to seasonals (only works with `-M`)",
+    )
+
+    options_group.add_argument(
+        "--anilist-sync-to-seasonals",
+        required=False,
+        dest="anilist_sync_seasonals",
+        action="store_true",
+        help="Automatically sync anilist to seasonals (only works with `-A`)",
     )
 
     info_group.add_argument(
