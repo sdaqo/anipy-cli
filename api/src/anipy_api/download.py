@@ -3,7 +3,7 @@ import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Optional, Protocol
+from typing import Any, Dict, Optional, Protocol
 from urllib.parse import urljoin
 
 import m3u8
@@ -267,6 +267,15 @@ class Downloader:
         meta = json.loads(ffprobe.execute())
         duration = float(meta["format"]["duration"])
 
+        output_options: Dict[str, Any] = {
+            "c:v": "copy",
+            "c:a": "copy",
+            "c:s": "mov_text"
+        }
+
+        if extension_picky:
+            output_options.update({"extension_picky": 0})
+
         ffmpeg = (
             FFmpeg()
             .option("y")
@@ -275,15 +284,12 @@ class Downloader:
             .input(stream.url)
             .output(
                 download_path,
-                {"c:v": "copy", "c:a": "copy", "c:s": "mov_text"},
+                output_options
             )
         )
 
         if stream.referrer:
             ffmpeg.option("headers", f"Referer: {stream.referrer}")
-
-        if extension_picky:
-            ffmpeg.option("extension_picky", 0)
 
         @ffmpeg.on("progress")
         def on_progress(progress: Progress):
