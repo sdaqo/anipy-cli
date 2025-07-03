@@ -46,7 +46,7 @@ class FatalCatcher:
             info("Program exited successfully...")
             return True
 
-        if exc_type == SystemExit and self.ignore_system_exit:
+        if exc_type is SystemExit and self.ignore_system_exit:
             return True
 
         try:
@@ -58,7 +58,7 @@ class FatalCatcher:
             # If that fails, at least get something to the user
             sys.stderr.write("An extra fatal error occurred...")
 
-        fatal(f"A fatal error has occurred - {",".join(exc_val.args)}", exc_val)
+        fatal(f"A fatal error has occurred - {','.join(exc_val.args)}", exc_val)
         info("Program exited with fatal errors...")
 
         return True  # Return true because we have processed the error
@@ -138,7 +138,7 @@ def set_file_log_level(value: logging._Level):
     file_handler.setLevel(value)
 
 
-def setCliVerbosity(level: int):
+def set_cli_verbosity(level: int):
     """
     Set how extreme the error has to
     be for it to be printed in the CLI.
