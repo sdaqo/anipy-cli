@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import logging
-import datetime
-import os
+import logging.handlers
 from pathlib import Path
 import sys
 from types import TracebackType
 from typing import Protocol
+import datetime
 
 from anipy_cli.config import Config
-
 from anipy_cli import __appname__
 from appdirs import user_data_dir
 
@@ -79,23 +78,6 @@ def get_logs_location():
     finally:
         return user_file_path / "logs"
 
-
-def _rotate_logs():
-    log_dir = get_logs_location()
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
-
-    alllogs = os.listdir(log_dir)
-    allsorted = sorted(alllogs, key=lambda log: os.path.getmtime(log_dir / log))
-
-    if len(allsorted) < MAX_LOGS:
-        return allsorted
-
-    os.remove(log_dir / allsorted[0])  # Delete
-    allsorted.pop(0)  # Remove from list
-    return allsorted
-
-
 _logger = logging.getLogger(LOGGER_NAME)
 
 _logger.setLevel(10)
@@ -110,11 +92,13 @@ console_handler.setFormatter(console_formatter)
 console_handler.setLevel(DEFAULT_CONSOLE_LOG_LEVEL)
 _logger.addHandler(console_handler)
 
-_rotate_logs()
+log_dir = get_logs_location()
+log_dir.mkdir(parents=True, exist_ok=True)
+
 current_time = datetime.datetime.now()
-file_handler = logging.FileHandler(
+file_handler = logging.handlers.RotatingFileHandler(
     get_logs_location() / f"{current_time.isoformat().replace(':', '.')}.log",
-    mode="a",
+    backupCount=5,
     encoding="utf-8",
 )
 file_handler.setFormatter(file_formatter)
