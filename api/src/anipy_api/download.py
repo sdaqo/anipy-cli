@@ -88,12 +88,12 @@ class Downloader:
     @staticmethod
     def _get_valid_pathname(name: str):
         if sys.platform == "win32":
-            INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|", '"', "."]
+            invalid_chars = ["\\", "/", ":", "*", "?", "<", ">", "|", '"', "."]
         else:
-            INVALID_CHARS = [".", "/"]
+            invalid_chars = [".", "/"]
 
         name = "".join(
-            [i for i in name if i.isascii() and i not in INVALID_CHARS]
+            [i for i in name if i.isascii() and i not in invalid_chars]
         )  # Verify all chars are ascii (eject if not)
 
         return name

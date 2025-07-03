@@ -56,7 +56,7 @@ def fetch_decode():
     return json.loads(res.text)
 
 
-def safe_eval(exp, n):
+def safe_eval(exp: str, n: str):
     allowed_funcs = {
         "transform": transform,
         "base64_url_encode": base64_url_encode,
@@ -69,7 +69,7 @@ def safe_eval(exp, n):
     return simple_eval(exp, names={"n": n}, functions=allowed_funcs)
 
 
-def reverse_it(n):
+def reverse_it(n: str):
     return n[::-1]
 
 
@@ -84,28 +84,28 @@ def substitute(input_str: str, keys: str, values: str) -> str:
     return input_str.translate(translation_table)
 
 
-def base64_url_encode(s):
+def base64_url_encode(s: str):
     return base64.urlsafe_b64encode(s.encode("latin-1")).decode().rstrip("=")
 
 
-def base64_url_decode(s):
+def base64_url_decode(s: str):
     s = s + "=" * (4 - (len(s) % 4)) if len(s) % 4 else s
     return base64.b64decode(s.replace("-", "+").replace("_", "/")).decode("latin-1")
 
 
-def generate_token(n):
+def generate_token(n: str):
     return safe_eval(fetch_decode()["generate_token"], n)
 
 
-def decode_iframe_data(n):
+def decode_iframe_data(n: str):
     return urllib.parse.unquote(safe_eval(fetch_decode()["decode_iframe_data"], n))
 
 
-def decode(n):
+def decode(n: str):
     return urllib.parse.unquote(safe_eval(fetch_decode()["decode"], n))
 
 
-def strict_decode(n, ops):
+def strict_decode(n: str, ops: str):
     ops_arr = ops.split(";")
     padded = n + "=" * (-len(n) % 4)
     raw = base64.b64decode(padded.replace("-", "+").replace("_", "/"))
@@ -119,7 +119,7 @@ def strict_decode(n, ops):
     return "".join(map(chr, result))
 
 
-def strict_encode(n, ops):
+def strict_encode(n: str , ops: str):
     ops_arr = ops.split(";")
     result = []
 

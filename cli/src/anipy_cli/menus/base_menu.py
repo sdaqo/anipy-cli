@@ -39,7 +39,7 @@ class MenuBase(ABC):
 
             op.callback()
 
-    def print_options(self, should_clear_screen=True):
+    def print_options(self, should_clear_screen: bool = True):
         if should_clear_screen:
             clear_screen()
 

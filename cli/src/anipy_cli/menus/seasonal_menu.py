@@ -8,7 +8,7 @@ from anipy_api.anime import Anime
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
 from anipy_api.locallist import LocalList, LocalListEntry
-from anipy_api.error import ProviderNotAvailable
+from anipy_api.error import ProviderNotAvailableError
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
@@ -67,7 +67,7 @@ class SeasonalMenu(MenuBase):
             for s in self.seasonal_list.get_all():
                 try:
                     anime = Anime.from_local_list_entry(s)
-                except ProviderNotAvailable:
+                except ProviderNotAvailableError:
                     error(
                         f"Can not load '{s.name}' because the configured provider"
                         f" '{s.provider}' was not found, maybe try to migrate"

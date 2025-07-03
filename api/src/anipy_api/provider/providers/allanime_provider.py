@@ -370,7 +370,7 @@ class AllAnimeProvider(BaseProvider):
         return streams
 
     @staticmethod
-    def _decrypt(provider_id) -> str:
+    def _decrypt(provider_id: str) -> str:
         decrypted = ""
         for hex_value in [
             provider_id[i : i + 2] for i in range(0, len(provider_id), 2)

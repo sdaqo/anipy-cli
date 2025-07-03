@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional, Set, Union, List
 
-from anipy_api.error import ProviderNotAvailable
+from anipy_api.error import ProviderNotAvailableError
 from anipy_api.provider import Episode, list_providers
 
 if TYPE_CHECKING:
@@ -61,7 +61,7 @@ class Anime:
         )
 
         if provider is None:
-            raise ProviderNotAvailable(entry.provider)
+            raise ProviderNotAvailableError(entry.provider)
 
         return Anime(provider(), entry.name, entry.identifier, entry.languages)
 

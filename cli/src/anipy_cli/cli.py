@@ -1,3 +1,5 @@
+from pathlib import Path
+from types import TracebackType
 from typing import Optional
 
 from pypresence.exceptions import DiscordNotFound
@@ -20,7 +22,7 @@ def run_cli(override_args: Optional[list[str]] = None):
     logger.set_cli_verbosity(args.verbosity)
     logger.set_stack_always(args.stack_always)
 
-    def fatal_handler(exc_val: BaseException, exc_tb, logs_location):
+    def fatal_handler(exc_val: BaseException, exc_tb: TracebackType, logs_location: Path):
         print(
             color(
                 colors.RED,
