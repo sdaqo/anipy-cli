@@ -1,3 +1,5 @@
+from pathlib import Path
+from types import TracebackType
 from typing import Optional
 
 from pypresence.exceptions import DiscordNotFound
@@ -5,16 +7,34 @@ from pypresence.exceptions import DiscordNotFound
 from anipy_api.locallist import LocalList
 from anipy_cli.prompts import migrate_provider
 
-from anipy_cli.arg_parser import parse_args
+from anipy_cli.arg_parser import CliArgs, parse_args
 from anipy_cli.clis import *
-from anipy_cli.colors import colors, cprint
+from anipy_cli.colors import color, colors, cprint
 from anipy_cli.util import error, DotSpinner, migrate_locallist
 from anipy_cli.config import Config
 from anipy_cli.discord import DiscordPresence
+import anipy_cli.logger as logger
 
 
 def run_cli(override_args: Optional[list[str]] = None):
     args = parse_args(override_args)
+
+    logger.set_cli_verbosity(args.verbosity)
+    logger.set_stack_always(args.stack_always)
+
+    def fatal_handler(exc_val: BaseException, exc_tb: TracebackType, logs_location: Path):
+        print(
+            color(
+                colors.RED,
+                f'A fatal error of type [{exc_val.__class__.__name__}] has occurred with message "{exc_val.args[0]}". Logs can be found at {logs_location}.',
+            )
+        )
+
+    with logger.safe(fatal_handler):
+        _safe_cli(args)
+
+
+def _safe_cli(args: CliArgs):
     config = Config()
     # This updates the config, adding new values doc changes and the like.
     config._create_config()

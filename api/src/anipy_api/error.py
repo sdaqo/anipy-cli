@@ -113,11 +113,11 @@ class ArgumentError(Exception):
         super().__init__(message)
 
 
-class ProviderNotAvailable(Exception):
+class ProviderNotAvailableError(Exception):
     """Error that gets raised if a requested provider is not available."""
 
     def __init__(self, provider: str):
-        """__init__ for ProviderNotAvailable
+        """__init__ for ProviderNotAvailableError
 
         Args:
             provider: Provider in question

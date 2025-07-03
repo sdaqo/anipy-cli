@@ -187,11 +187,11 @@ class AllAnimeProvider(BaseProvider):
                     )
                 )
             page += 1
-        
+
         # The results are not sorted properly so sort by best match to query
         results.sort(
-            key=lambda x: Levenshtein.ratio(query, x.name, processor=str.lower), 
-            reverse=True
+            key=lambda x: Levenshtein.ratio(query, x.name, processor=str.lower),
+            reverse=True,
         )
 
         return results
@@ -370,7 +370,7 @@ class AllAnimeProvider(BaseProvider):
         return streams
 
     @staticmethod
-    def _decrypt(provider_id) -> str:
+    def _decrypt(provider_id: str) -> str:
         decrypted = ""
         for hex_value in [
             provider_id[i : i + 2] for i in range(0, len(provider_id), 2)

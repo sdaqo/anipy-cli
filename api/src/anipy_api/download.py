@@ -27,12 +27,13 @@ class ProgressCallback(Protocol):
 
 
 class InfoCallback(Protocol):
-    """Callback that accepts a message argument."""
+    """Callback that accepts a message argument, and an exception."""
 
-    def __call__(self, message: str):
+    def __call__(self, message: str, exc_info: Optional[BaseException] = None):
         """
         Args:
             message: Message argument passed to the callback
+            exc_info: An exception to pass for logging
         """
         ...
 
@@ -69,9 +70,13 @@ class Downloader:
         self._progress_callback: ProgressCallback = progress_callback or (
             lambda percentage: None
         )
-        self._info_callback: InfoCallback = info_callback or (lambda message: None)
+        self._info_callback: InfoCallback = info_callback or (
+            lambda message, exc_info=None: None
+        )
         self._soft_error_callback: InfoCallback = (
-            soft_error_callback or info_callback or (lambda message: None)
+            soft_error_callback
+            or info_callback
+            or (lambda message, exc_info=None: None)
         )
 
         self._session = requests.Session()
@@ -83,12 +88,12 @@ class Downloader:
     @staticmethod
     def _get_valid_pathname(name: str):
         if sys.platform == "win32":
-            INVALID_CHARS = ["\\", "/", ":", "*", "?", "<", ">", "|", '"', "."]
+            invalid_chars = ["\\", "/", ":", "*", "?", "<", ">", "|", '"', "."]
         else:
-            INVALID_CHARS = [".", "/"]
+            invalid_chars = [".", "/"]
 
         name = "".join(
-            [i for i in name if i.isascii() and i not in INVALID_CHARS]
+            [i for i in name if i.isascii() and i not in invalid_chars]
         )  # Verify all chars are ascii (eject if not)
 
         return name

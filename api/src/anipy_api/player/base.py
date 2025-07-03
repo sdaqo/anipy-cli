@@ -4,7 +4,7 @@ import atexit
 import tempfile
 import subprocess as sp
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Optional, Protocol
+from typing import TYPE_CHECKING, Dict, List, Optional, Protocol
 
 from anipy_api.error import PlayerError
 
@@ -91,7 +91,7 @@ class PlayerBase(ABC):
                 subtitle_file.write(req.content.decode())
                 subtitles[name] = subtitle_file.name
 
-        def delete_files(files):
+        def delete_files(files: Dict[str, str]):
             for f in files.values():
                 os.remove(f)
 
@@ -177,7 +177,7 @@ class SubProcessPlayerBase(PlayerBase):
         self._sub_proc = self._open_sproc(player_cmd)
         self._call_play_callback(anime, stream)
 
-    def play_file(self, path):
+    def play_file(self, path: str):
         if isinstance(self._sub_proc, sp.Popen):
             self.kill_player()
 

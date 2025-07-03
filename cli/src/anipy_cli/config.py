@@ -426,7 +426,7 @@ class Config:
         except RuntimeError:
             return fallback
 
-    def _get_value(self, key: str, fallback, _type: Type) -> Any:
+    def _get_value(self, key: str, fallback: Any, _type: Type) -> Any:
         value = self._yaml_conf.get(key, fallback)
         if isinstance(value, _type):
             return value

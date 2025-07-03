@@ -46,4 +46,5 @@ bump-version = "./scripts/bump_version.sh"
 style = "black"
 
 [tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "N", "ANN0", "Q002"]
 ignore = ["F403", "F405"]

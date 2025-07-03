@@ -24,6 +24,8 @@ class CliArgs:
     optional_player: Optional[str]
     search: Optional[str]
     location: Optional[Path]
+    verbosity: int
+    stack_always: bool
     mal_password: Optional[str]
     config: bool
     seasonal_search: Optional[str]
@@ -185,6 +187,24 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         type=Path,
         default=None,
         help="Override all configured download locations",
+    )
+
+    options_group.add_argument(
+        "-V",
+        "--verbose",
+        required=False,
+        dest="verbosity",
+        action="count",
+        default=0,
+        help="Verbosity levels in the console: -V = 'fatal' -VV = 'warnings' -VVV = 'info'",
+    )
+
+    options_group.add_argument(
+        "--stack-always",
+        required=False,
+        dest="stack_always",
+        action="store_true",
+        help="Always show the stack trace on any log outputs.",
     )
 
     options_group.add_argument(

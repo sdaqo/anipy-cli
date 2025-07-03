@@ -1,8 +1,11 @@
+import logging
+import os
 import sys
 import subprocess as sp
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
     Iterator,
     List,
     Literal,
@@ -11,6 +14,8 @@ from typing import (
     Union,
     overload,
 )
+
+import anipy_cli.logger as logger
 
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader, PostDownloadCallback
@@ -31,7 +36,7 @@ if TYPE_CHECKING:
 
 
 class DotSpinner(Yaspin):
-    def __init__(self, *text_and_colors, **spinner_args):
+    def __init__(self, *text_and_colors: Any, **spinner_args: Any):
         super().__init__(
             text=color(*text_and_colors),
             color="cyan",
@@ -43,21 +48,26 @@ class DotSpinner(Yaspin):
         self.start()
         return self
 
-    def set_text(self, *text_and_colors):
+    def set_text(self, *text_and_colors: Any):
         self.text = color(*text_and_colors)
 
 
 @overload
 def error(error: str, fatal: Literal[True]) -> NoReturn: ...
 @overload
-def error(error: str, fatal: Literal[False] = ...) -> None: ...
+def error(
+    error: str, fatal: Literal[False] = ..., log_level: int = logging.INFO
+) -> None: ...
 
 
-def error(error: str, fatal: bool = False) -> Union[NoReturn, None]:
+def error(
+    error: str, fatal: bool = False, log_level: int = logging.INFO
+) -> Union[NoReturn, None]:
     if not fatal:
         sys.stderr.write(
             color(colors.RED, "anipy-cli: error: ", colors.END, f"{error}\n")
         )
+        logger.log(log_level, error)
         return
 
     sys.stderr.write(
@@ -68,7 +78,14 @@ def error(error: str, fatal: bool = False) -> Union[NoReturn, None]:
             f"{error}, exiting\n",
         )
     )
+    logger.warn(error)
     sys.exit(1)
+
+
+def clear_screen():
+    if logger.get_console_log_level() < 60:
+        return
+    os.system("cls" if os.name == "nt" else "clear")
 
 
 def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
@@ -206,7 +223,7 @@ def get_configured_player(player_override: Optional[str] = None) -> "PlayerBase"
     return get_player(player, args, discord_cb)
 
 
-def get_anime_season(month):
+def get_anime_season(month: int):
     if 1 <= month <= 3:
         return "Winter"
     elif 4 <= month <= 6:

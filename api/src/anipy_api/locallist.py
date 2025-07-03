@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import time
-from typing import Dict, Optional, Protocol, Set, Union, List
+from typing import Any, Dict, Optional, Protocol, Set, Union, List
 
 
 from anipy_api.error import ArgumentError
@@ -105,7 +105,7 @@ class LocalList:
         self.data = LocalListData.from_json(self.file.read_text())
 
     def update(
-        self, anime: Union[Anime, LocalListEntry], **update_fields
+        self, anime: Union[Anime, LocalListEntry], **update_fields: Any
     ) -> LocalListEntry:
         """Update (or add) an anime in the local list.
 
