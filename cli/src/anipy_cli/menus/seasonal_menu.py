@@ -212,7 +212,7 @@ class SeasonalMenu(MenuBase):
 
     def migrate_provider(self):
         migrate_provider("seasonal", self.seasonal_list)
-        self.print_options(clear_screen=True)
+        self.print_options(should_clear_screen=True)
 
     def download_latest(self):
         picked = self._choose_latest()
@@ -232,7 +232,7 @@ class SeasonalMenu(MenuBase):
 
         if not self.options.auto_update:
             # Clear screen only if there were no issues
-            self.print_options(clear_screen=len(failed_series) == 0)
+            self.print_options(should_clear_screen=len(failed_series) == 0)
 
     def binge_latest(self):
         picked = self._choose_latest()

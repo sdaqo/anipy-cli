@@ -187,11 +187,11 @@ class AllAnimeProvider(BaseProvider):
                     )
                 )
             page += 1
-        
+
         # The results are not sorted properly so sort by best match to query
         results.sort(
-            key=lambda x: Levenshtein.ratio(query, x.name, processor=str.lower), 
-            reverse=True
+            key=lambda x: Levenshtein.ratio(query, x.name, processor=str.lower),
+            reverse=True,
         )
 
         return results
