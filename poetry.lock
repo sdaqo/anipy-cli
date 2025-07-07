@@ -2,14 +2,14 @@
 
 [[package]]
 name = "anipy-api"
-version = "3.5.9"
+version = "3.6.0"
 description = "api for anipy-cli"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "anipy_api-3.5.9-py3-none-any.whl", hash = "sha256:c3e69cf11d9ea68ce47a74f5244129167614628af021ded65bf354c5a3668718"},
-    {file = "anipy_api-3.5.9.tar.gz", hash = "sha256:b78235e9bbd24a727112e2de676920c5f61d9cb25e37278274bc06f3859e5c30"},
+    {file = "anipy_api-3.6.0-py3-none-any.whl", hash = "sha256:35f2db7af2f0b3c144a1c8aebb43c0824348aef8e0e26bf60c72a7deee3a9fa2"},
+    {file = "anipy_api-3.6.0.tar.gz", hash = "sha256:38783227bece7d86249e763f66582b9d6142ee93d0ee5308d14bd41d57d8dce8"},
 ]
 
 [package.dependencies]
@@ -26,7 +26,7 @@ simpleeval = ">=1.0.3,<2.0.0"
 
 [[package]]
 name = "anipy-cli"
-version = "3.5.9"
+version = "3.6.0"
 description = "Watch and Download anime from the comfort of your Terminal"
 optional = false
 python-versions = "^3.9"
@@ -35,7 +35,7 @@ files = []
 develop = true
 
 [package.dependencies]
-anipy-api = "^3.5.9"
+anipy-api = "^3.6.0"
 appdirs = "^1.4.4"
 inquirerpy = "^0.3.4"
 pypresence = "^4.3.0"
