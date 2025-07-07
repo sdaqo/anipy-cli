@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 from anipy_cli.download_component import DownloadComponent
 
 from anipy_api.anime import Anime
-from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
+from anipy_api.anilist import AniListAnime, AniListMyListStatusEnum, AniList
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
 
@@ -17,7 +17,7 @@ from InquirerPy.utils import get_style
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
-from anipy_cli.mal_proxy import MyAnimeListProxy
+from anipy_cli.anilist_proxy import AniListProxy
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
 from anipy_cli.util import (
     DotSpinner,
@@ -29,13 +29,12 @@ from anipy_cli.util import (
 from anipy_cli.prompts import search_show_prompt
 
 
-class MALMenu(MenuBase):
-    def __init__(self, mal: MyAnimeList, options: CliArgs):
-        self.mal = mal
-        self.mal_proxy = MyAnimeListProxy(self.mal)
-
-        with DotSpinner("Fetching your MyAnimeList..."):
-            self.mal_proxy.get_list()
+class AniListMenu(MenuBase):
+    def __init__(self, anilist: AniList, options: CliArgs):
+        self.anilist = anilist
+        self.anilist_proxy = AniListProxy(self.anilist)
+        with DotSpinner("Fetching your AniList..."):
+            self.anilist_proxy.get_list()
 
         self.options = options
         self.player = get_configured_player(self.options.optional_player)
@@ -54,12 +53,12 @@ class MALMenu(MenuBase):
     def menu_options(self) -> List[MenuOption]:
         return [
             MenuOption("Add Anime", self.add_anime, "a"),
-            MenuOption("Delete one anime from MyAnimeList", self.del_anime, "e"),
-            MenuOption("List anime in MyAnimeList", self.list_anime, "l"),
-            MenuOption("Tag anime in MyAnimeList (dub/ignore)", self.tag_anime, "t"),
-            MenuOption("Map MyAnimeList anime to providers", self.manual_maps, "m"),
-            MenuOption("Sync MyAnimeList into seasonals", self.sync_mal_seasonls, "s"),
-            MenuOption("Sync seasonals into MyAnimeList", self.sync_seasonals_mal, "b"),
+            MenuOption("Delete one anime from AniList", self.del_anime, "e"),
+            MenuOption("List anime in AniList", self.list_anime, "l"),
+            MenuOption("Tag anime in AniList (dub/ignore)", self.tag_anime, "t"),
+            MenuOption("Map AniList anime to providers", self.manual_maps, "m"),
+            MenuOption("Sync AniList into seasonals", self.sync_anilist_seasonls, "s"),
+            MenuOption("Sync seasonals into AniList", self.sync_seasonals_anilist, "b"),
             MenuOption(
                 "Download newest episodes", lambda: self.download(all=False), "d"
             ),
@@ -81,11 +80,11 @@ class MALMenu(MenuBase):
             return
 
         with DotSpinner("Searching for ", colors.BLUE, query, "..."):
-            results = self.mal.get_search(query)
+            results = self.anilist.get_search(query)
 
         anime = inquirer.fuzzy(  # type: ignore
             message="Select Show:",
-            choices=[Choice(value=r, name=self._format_mal_anime(r)) for r in results],
+            choices=[Choice(value=r, name=self._format_anilist_anime(r)) for r in results],
             transformer=lambda x: x.split("|")[-1].strip(),
             long_instruction="To skip this prompt press crtl+z",
             mandatory=False,
@@ -94,21 +93,21 @@ class MALMenu(MenuBase):
         if anime is None:
             return
 
-        anime = MALAnime.from_dict(anime)
-        with DotSpinner("Adding ", colors.BLUE, anime.title, " to your MAL...") as s:
-            self.mal_proxy.update_show(anime, MALMyListStatusEnum.WATCHING)
+        anime = AniListAnime.from_dict(anime)
+        with DotSpinner("Adding ", colors.BLUE, anime.title.user_preferred, " to your AniList...") as s:
+            self.anilist_proxy.update_show(anime, AniListMyListStatusEnum.WATCHING)
             s.ok("✔")
 
     def del_anime(self):
         self.print_options()
-        with DotSpinner("Fetching your MAL..."):
-            mylist = self.mal_proxy.get_list()
-
+        with DotSpinner("Fetching your AniList..."):
+            mylist = self.anilist_proxy.get_list()
+        
         entries = (
             inquirer.fuzzy(  # type: ignore
                 message="Select Seasonals to delete:",
                 choices=[
-                    Choice(value=e, name=self._format_mal_anime(e)) for e in mylist
+                    Choice(value=e, name=self._format_anilist_anime(e)) for e in mylist
                 ],
                 multiselect=True,
                 transformer=lambda x: [e.split("|")[-1].strip() for e in x],
@@ -122,23 +121,23 @@ class MALMenu(MenuBase):
             or []
         )
 
-        with DotSpinner("Deleting anime from your MAL...") as s:
+        with DotSpinner("Deleting anime from your AniList...") as s:
             for e in entries:
-                self.mal_proxy.delete_show(MALAnime.from_dict(e))
+                self.anilist_proxy.delete_show(AniListAnime.from_dict(e))
             s.ok("✔")
 
     def list_anime(self):
-        with DotSpinner("Fetching your MAL..."):
+        with DotSpinner("Fetching your AniList..."):
             mylist = [
-                self._format_mal_anime(e)
-                for e in self.mal_proxy.get_list(
+                self._format_anilist_anime(e)
+                for e in self.anilist_proxy.get_list(
                     status_catagories=set(
                         [
-                            MALMyListStatusEnum.WATCHING,
-                            MALMyListStatusEnum.COMPLETED,
-                            MALMyListStatusEnum.ON_HOLD,
-                            MALMyListStatusEnum.PLAN_TO_WATCH,
-                            MALMyListStatusEnum.DROPPED,
+                            AniListMyListStatusEnum.WATCHING,
+                            AniListMyListStatusEnum.COMPLETED,
+                            AniListMyListStatusEnum.ON_HOLD,
+                            AniListMyListStatusEnum.PLAN_TO_WATCH,
+                            AniListMyListStatusEnum.DROPPED,
                         ]
                     )
                 )
@@ -160,10 +159,10 @@ class MALMenu(MenuBase):
         self.print_options()
 
     def tag_anime(self):
-        with DotSpinner("Fetching your MAL..."):
+        with DotSpinner("Fetching your AniList..."):
             mylist = [
-                Choice(value=e, name=self._format_mal_anime(e))
-                for e in self.mal_proxy.get_list()
+                Choice(value=e, name=self._format_anilist_anime(e))
+                for e in self.anilist_proxy.get_list()
             ]
 
         entries = (
@@ -181,7 +180,7 @@ class MALMenu(MenuBase):
             ).execute()
             or []
         )
-        entries = [MALAnime.from_dict(e) for e in entries]
+        entries = [AniListAnime.from_dict(e) for e in entries]
 
         if not entries:
             return
@@ -236,7 +235,7 @@ class MALMenu(MenuBase):
 
         for e in entries:
             if action == "Add":
-                self.mal_proxy.update_show(e, tags=set(tags))
+                self.anilist_proxy.update_show(e, tags=set(tags))
             else:
                 current_tags = e.my_list_status.tags if e.my_list_status else []
                 for t in tags:
@@ -245,7 +244,7 @@ class MALMenu(MenuBase):
                     except ValueError:
                         continue
 
-                self.mal_proxy.update_show(e, tags=set(current_tags))
+                self.anilist_proxy.update_show(e, tags=set(current_tags))
 
     def download(self, all: bool = False):
         picked = self._choose_latest(all=all)
@@ -256,7 +255,7 @@ class MALMenu(MenuBase):
         else:
             print(f"Downloading a total of {total_eps} episode(s)")
 
-        convert: Dict[Anime, MALAnime] = {d[0]: d[1] for d in picked}
+        convert: Dict[Anime, AniListAnime] = {d[0]: d[1] for d in picked}
         new_picked = [
             (anime_info[0], anime_info[2], anime_info[3]) for anime_info in picked
         ]
@@ -264,13 +263,13 @@ class MALMenu(MenuBase):
         def on_successful_download(anime: Anime, ep: Episode, lang: LanguageTypeEnum):
             if all:
                 return
-            self.mal_proxy.update_show(
+            self.anilist_proxy.update_show(
                 convert[anime],
-                status=MALMyListStatusEnum.WATCHING,
+                status=AniListMyListStatusEnum.WATCHING,
                 episode=int(ep),
             )
 
-        errors = DownloadComponent(self.options, self.dl_path, "mal").download_anime(
+        errors = DownloadComponent(self.options, self.dl_path, "anilist").download_anime(
             new_picked, on_successful_download
         )
         DownloadComponent.serve_download_errors(errors)
@@ -286,7 +285,7 @@ class MALMenu(MenuBase):
         else:
             print(f"Playing a total of {total_eps} episode(s)")
 
-        for anime, mal_anime, lang, eps in picked:
+        for anime, anilist_anime, lang, eps in picked:
             for ep in eps:
                 with DotSpinner(
                     "Extracting streams for ",
@@ -305,19 +304,19 @@ class MALMenu(MenuBase):
                 self.player.play_title(anime, stream)
                 self.player.wait()
 
-                self.mal_proxy.update_show(
-                    mal_anime, status=MALMyListStatusEnum.WATCHING, episode=int(ep)
+                self.anilist_proxy.update_show(
+                    anilist_anime, status=AniListMyListStatusEnum.WATCHING, episode=int(ep)
                 )
 
     def manual_maps(self):
-        mylist = self.mal_proxy.get_list()
-        self._create_maps_mal(mylist)
+        mylist = self.anilist_proxy.get_list()
+        self._create_maps_anilist(mylist)
 
-    def sync_seasonals_mal(self):
+    def sync_seasonals_anilist(self):
         config = Config()
         seasonals = self.seasonals_list.get_all()
         mappings = self._create_maps_provider(seasonals)
-        with DotSpinner("Syncing Seasonals into MyAnimeList") as s:
+        with DotSpinner("Syncing Seasonals into AniList") as s:
             for k, v in mappings.items():
                 tags = set()
                 if config.tracker_dub_tag:
@@ -329,19 +328,19 @@ class MALMenu(MenuBase):
                         continue
                     tags |= set(v.my_list_status.tags)
 
-                self.mal_proxy.update_show(
+                self.anilist_proxy.update_show(
                     v,
-                    status=MALMyListStatusEnum.WATCHING,
+                    status=AniListMyListStatusEnum.WATCHING,
                     episode=int(k.episode),
                     tags=tags,
                 )
             s.ok("✔")
 
-    def sync_mal_seasonls(self):
+    def sync_anilist_seasonls(self):
         config = Config()
-        mylist = self.mal_proxy.get_list()
-        mappings = self._create_maps_mal(mylist)
-        with DotSpinner("Syncing MyAnimeList into Seasonals") as s:
+        mylist = self.anilist_proxy.get_list()
+        mappings = self._create_maps_anilist(mylist)
+        with DotSpinner("Syncing AniList into Seasonals") as s:
             for k, v in mappings.items():
                 if config.tracker_dub_tag:
                     if k.my_list_status and config.tracker_dub_tag in k.my_list_status.tags:
@@ -375,15 +374,15 @@ class MALMenu(MenuBase):
 
     def _choose_latest(
         self, all: bool = False
-    ) -> List[Tuple[Anime, MALAnime, LanguageTypeEnum, List[Episode]]]:
+    ) -> List[Tuple[Anime, AniListAnime, LanguageTypeEnum, List[Episode]]]:
         cprint(
             colors.GREEN,
             "Hint: ",
             colors.END,
             "you can fine-tune mapping behaviour in your settings!",
         )
-        with DotSpinner("Fetching your MAL..."):
-            mylist = self.mal_proxy.get_list()
+        with DotSpinner("Fetching your AniList..."):
+            mylist = self.anilist_proxy.get_list()
 
         for i, e in enumerate(mylist):
             if e.my_list_status is None:
@@ -396,14 +395,14 @@ class MALMenu(MenuBase):
                 mylist.pop(i)
 
         if not mylist:
-            error("MAL is empty", False)
+            error("AniList is empty", False)
             return []
 
         if not (all or self.options.auto_update):
             choices = inquirer.fuzzy(  # type: ignore
                 message="Select shows to catch up to:",
                 choices=[
-                    Choice(value=e, name=self._format_mal_anime(e)) for e in mylist
+                    Choice(value=e, name=self._format_anilist_anime(e)) for e in mylist
                 ],
                 multiselect=True,
                 transformer=lambda x: [e.split("|")[-1].strip() for e in x],
@@ -418,14 +417,14 @@ class MALMenu(MenuBase):
             if choices is None:
                 return []
 
-            mylist = [MALAnime.from_dict(c) for c in choices]
+            mylist = [AniListAnime.from_dict(c) for c in choices]
 
         config = Config()
-        to_watch: List[Tuple[Anime, MALAnime, LanguageTypeEnum, List[Episode]]] = []
+        to_watch: List[Tuple[Anime, AniListAnime, LanguageTypeEnum, List[Episode]]] = []
 
         with DotSpinner("Fetching episodes...") as s:
             for e in mylist:
-                s.write(f"> Checking out episodes of {e.title}")
+                s.write(f"> Checking out episodes of {e.title.user_preferred}")
 
                 if e.num_episodes != 0:
                     episodes_to_watch = list(
@@ -436,11 +435,11 @@ class MALMenu(MenuBase):
                         range(e.my_list_status.num_episodes_watched + 1, 10000)  # type: ignore
                     )
 
-                result = self.mal_proxy.map_from_mal(e)
+                result = self.anilist_proxy.map_from_anilist(e)
 
                 if result is None:
                     s.write(
-                        f"> No mapping found for {e.title} please use the `m` option to map it"
+                        f"> No mapping found for {e.title.user_preferred} please use the `m` option to map it"
                     )
                     continue
 
@@ -490,7 +489,7 @@ class MALMenu(MenuBase):
 
         return to_watch
 
-    def _create_maps_mal(self, to_map: List[MALAnime]) -> Dict[MALAnime, Anime]:
+    def _create_maps_anilist(self, to_map: List[AniListAnime]) -> Dict[AniListAnime, Anime]:
         cprint(
             colors.GREEN,
             "Hint: ",
@@ -498,17 +497,17 @@ class MALMenu(MenuBase):
             "you can fine-tune mapping behaviour in your settings!",
         )
         with DotSpinner("Starting Automapping...") as s:
-            failed: List[MALAnime] = []
-            mappings: Dict[MALAnime, Anime] = {}
+            failed: List[AniListAnime] = []
+            mappings: Dict[AniListAnime, Anime] = {}
             counter = 0
 
-            def do_map(anime: MALAnime, to_map_length: int):
+            def do_map(anime: AniListAnime, to_map_length: int):
                 nonlocal failed, counter
                 try:
-                    result = self.mal_proxy.map_from_mal(anime)
+                    result = self.anilist_proxy.map_from_anilist(anime)
                     if result is None:
                         failed.append(anime)
-                        s.write(f"> Failed to map {anime.id} ({anime.title})")
+                        s.write(f"> Failed to map {anime.id} ({anime.title.user_preferred})")
                     else:
                         mappings.update({anime: result})
                         s.write(
@@ -536,11 +535,11 @@ class MALMenu(MenuBase):
 
         for f in failed:
             cprint("Manually mapping ", colors.BLUE, f.title)
-            anime = search_show_prompt("mal", skip_season_search=True)
+            anime = search_show_prompt("anilist", skip_season_search=True)
             if not anime:
                 continue
 
-            map = self.mal_proxy.map_from_mal(f, anime)
+            map = self.anilist_proxy.map_from_anilist(f, anime)
             if map is not None:
                 mappings.update({f: map})
 
@@ -549,17 +548,17 @@ class MALMenu(MenuBase):
 
     def _create_maps_provider(
         self, to_map: List[LocalListEntry]
-    ) -> Dict[LocalListEntry, MALAnime]:
+    ) -> Dict[LocalListEntry, AniListAnime]:
         with DotSpinner("Starting Automapping...") as s:
             failed: List[LocalListEntry] = []
-            mappings: Dict[LocalListEntry, MALAnime] = {}
+            mappings: Dict[LocalListEntry, AniListAnime] = {}
             counter = 0
 
             def do_map(entry: LocalListEntry, to_map_length: int):
                 nonlocal failed, counter
                 try:
                     anime = Anime.from_local_list_entry(entry)
-                    result = self.mal_proxy.map_from_provider(anime)
+                    result = self.anilist_proxy.map_from_provider(anime)
                     if result is None:
                         failed.append(entry)
                         s.write(f"> Failed to map {anime.identifier} ({anime.name})")
@@ -583,7 +582,7 @@ class MALMenu(MenuBase):
                     pool.shutdown(wait=False, cancel_futures=True)
                     raise
 
-        if not failed or self.options.auto_update or self.options.mal_sync_seasonals:
+        if not failed or self.options.auto_update or self.options.anilist_sync_seasonals:
             self.print_options()
             print("Everything is mapped")
             return mappings
@@ -600,12 +599,12 @@ class MALMenu(MenuBase):
                 continue
 
             with DotSpinner("Searching for ", colors.BLUE, query, "..."):
-                results = self.mal.get_search(query)
+                results = self.anilist.get_search(query)
 
             anime = inquirer.fuzzy(  # type: ignore
                 message="Select Show:",
                 choices=[
-                    Choice(value=r, name=self._format_mal_anime(r)) for r in results
+                    Choice(value=r, name=self._format_anilist_anime(r)) for r in results
                 ],
                 transformer=lambda x: x.split("|")[-1].strip(),
                 long_instruction="To skip this prompt press crtl+z",
@@ -615,8 +614,8 @@ class MALMenu(MenuBase):
             if not anime:
                 continue
 
-            anime = MALAnime.from_dict(anime)
-            map = self.mal_proxy.map_from_provider(
+            anime = AniListAnime.from_dict(anime)
+            map = self.anilist_proxy.map_from_provider(
                 Anime.from_local_list_entry(f), anime
             )
             if map is not None:
@@ -626,7 +625,7 @@ class MALMenu(MenuBase):
         return mappings
 
     @staticmethod
-    def _format_mal_anime(anime: MALAnime) -> str:
+    def _format_anilist_anime(anime: AniListAnime) -> str:
         config = Config()
         dub = (
             config.tracker_dub_tag in anime.my_list_status.tags
@@ -638,12 +637,12 @@ class MALMenu(MenuBase):
             (
                 (
                     anime.my_list_status.status.value.capitalize().replace("_", "")
-                    if anime.my_list_status.status != MALMyListStatusEnum.PLAN_TO_WATCH
+                    if anime.my_list_status.status != AniListMyListStatusEnum.PLAN_TO_WATCH
                     else "Planning"
                 )
                 if anime.my_list_status
                 else "Not Added"
             ),
             f"{anime.my_list_status.num_episodes_watched if anime.my_list_status else 0}/{anime.num_episodes}",
-            f"{anime.title} {'(dub)' if dub else ''}",
+            f"{anime.title.user_preferred} {'(dub)' if dub else ''}",
         )

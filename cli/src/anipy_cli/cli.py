@@ -81,6 +81,7 @@ def _safe_cli(args: CliArgs):
         args.seasonal: SeasonalCli,
         args.history: HistoryCli,
         args.mal: MalCli,
+        args.anilist: AniListCli,
     }
 
     cli_class = clis_dict.get(True, DefaultCli)

@@ -12,8 +12,6 @@ from anipy_cli import __appname__, __version__
 
 
 class Config:
-    _EXPAND_PATHS = True
-
     def __init__(self):
         self._config_file, self._yaml_conf = Config._read_config()
 
@@ -45,6 +43,10 @@ class Config:
         return self.user_files_path / "mal_list.json"
 
     @property
+    def _anilist_local_user_list_path(self) -> Path:
+        return self.user_files_path / "anilist_list.json"
+
+    @property
     def download_folder_path(self) -> Path:
         """Path to your download folder/directory.
 
@@ -68,8 +70,8 @@ class Config:
     def providers(self) -> Dict[str, List[str]]:
         """A list of pairs defining which providers will search for anime
         in different parts of the program. Configurable areas are as follows:
-        default (and history), download (-D), seasonal (-S), binge (-B) and mal
-        (-M) The example will show you how it is done! Please note that for seasonal
+        default (and history), download (-D), seasonal (-S), binge (-B), anilist (-A)
+        and mal (-M) The example will show you how it is done! Please note that for seasonal
         search always the first provider that supports it is used.
 
         For an updated list of providers look here: https://sdaqo.github.io/anipy-cli/availabilty
@@ -83,6 +85,7 @@ class Config:
                 seasonal: ["provider3"]
                 binge: ["provider4"]
                 mal: ["provider2", "provider3"]
+                anilist: ["provider1"]
         """
         defaults = {
             "default": ["allanime"],
@@ -90,6 +93,7 @@ class Config:
             "seasonal": ["allanime"],
             "binge": ["allanime"],
             "mal": ["allanime"],
+            "anilist": ["allanime"],
         }
 
         value = self._get_value("providers", defaults, dict)
@@ -229,9 +233,9 @@ class Config:
         """With this option you can define scripts that run after a file
         has been downloaded. As with the 'providers' option, you can configure
         different behaviour, depending on which part of anipy-cli the download occurs.
-        Configurable areas are as follows: default (and history), download (-D), seasonal (-S)
-        and mal (-M). The example will show you how it is done! Please note that if you define
-        several scripts for one area, they will run in the order you put them in the list.
+        Configurable areas are as follows: default (and history), download (-D), seasonal (-S),
+        anilist (-A) and mal (-M). The example will show you how it is done! Please note that 
+        if you define several scripts for one area, they will run in the order you put them in the list.
         You can also define a timeout (in seconds), after which a script will be terminated,
         if set to null there will be no timeout and any script will run forever.
 
@@ -256,6 +260,7 @@ class Config:
             "download": [],
             "seasonal": [],
             "mal": [],
+            "anilist": [],
             "timeout": None,
         }
 
@@ -282,6 +287,11 @@ class Config:
         return self._get_value("mal_user", "", str)
 
     @property
+    def anilist_token(self) -> str:
+        """Your AniList access token for AniList mode."""
+        return self._get_value("anilist_token", "", str)
+
+    @property
     def mal_password(self) -> str:
         """Your MyAnimeList password for MAL mode.
 
@@ -291,55 +301,55 @@ class Config:
         return self._get_value("mal_password", "", str)
 
     @property
-    def mal_ignore_tag(self) -> str:
+    def tracker_ignore_tag(self) -> str:
         """All anime in your MyAnimeList with this tag will be ignored by
         anipy-cli.
 
         Examples:
-            mal_ignore_tag: ignore # all anime with ignore tag will be ignored
-            mal_ignore_tag: "" # no anime will be ignored
+            tracker_ignore_tag: ignore # all anime with ignore tag will be ignored
+            tracker_ignore_tag: "" # no anime will be ignored
         """
-        return self._get_value("mal_ignore_tag", "ignore", str)
+        return self._get_value("tracker_ignore_tag", "ignore", str)
 
     @property
-    def mal_dub_tag(self) -> str:
-        """All anime in your MyAnimeList with this tag will be switched over to
-        dub in MAL mode, if the dub is available. If you do not specify a tag,
-        anipy-cli will use `preferred_type` to choose dub or sub in MAL mode.
+    def tracker_dub_tag(self) -> str:
+        """All anime in your Anime Tracker with this tag will be switched over to
+        dub in tracker mode, if the dub is available. If you do not specify a tag,
+        anipy-cli will use `preferred_type` to choose dub or sub in tracker mode.
 
         Examples:
-            mal_dub_tag: dub # all anime with this tag will be switched to dub
-            mal_dub_tag: "" # no anime will be switched to dub, except you have preferred_type on dub
+            tracker_dub_tag: dub # all anime with this tag will be switched to dub
+            tracker_dub_tag: "" # no anime will be switched to dub, except you have preferred_type on dub
         """
-        return self._get_value("mal_dub_tag", "dub", str)
+        return self._get_value("tracker_dub_tag", "dub", str)
 
     @property
-    def mal_tags(self) -> List[str]:
-        """Custom tags to tag all anime in your MyAnimeList that are
+    def tracker_tags(self) -> List[str]:
+        """Custom tags to tag all anime in your Anime Tracker that are
         altered/added by anipy-cli.
 
         Examples:
-            mal_tags: ["anipy-cli"] # tag all anime with anipy-cli
-            mal_tags: ["anipy-cli", "important"] # tag all anime with anipy-cli and important
-            mal_tags: null or mal_tags: [] # Do not tag the anime
+            tracker_tags: ["anipy-cli"] # tag all anime with anipy-cli
+            tracker_tags: ["anipy-cli", "important"] # tag all anime with anipy-cli and important
+            tracker_tags: null or tracker_tags: [] # Do not tag the anime
         """
-        return self._get_value("mal_tags", [], list)
+        return self._get_value("tracker_tags", [], list)
 
     @property
-    def mal_status_categories(self) -> List[str]:
-        """Status categories of your MyAnimeList that anipy-cli uses for
+    def tracker_status_categories(self) -> List[str]:
+        """Status categories of your Anime Tracker that anipy-cli uses for
         downloading/watching new episodes listing anime in your list and stuff
         like that. Normally the watching catagory should be enough as you would
         normally put anime you currently watch in the watching catagory.
 
         Valid values are: watching, completed, on_hold, dropped, plan_to_watch
         """
-        return self._get_value("mal_status_categories", ["watching"], list)
+        return self._get_value("tracker_status_categories", ["watching"], list)
 
     @property
-    def mal_mapping_min_similarity(self) -> float:
+    def tracker_mapping_min_similarity(self) -> float:
         """
-        The minumum similarity between titles when mapping anime in MAL mode.
+        The minumum similarity between titles when mapping anime in tracker mode.
         This is a decimal number from 0 - 1, 1 meaning 100% match and 0 meaning all characters are different.
         If the similarity of a map is below the threshold you will be prompted for a manual map.
 
@@ -349,24 +359,24 @@ class Config:
 
         If you are interested, the algorithm being used here is this: https://en.wikipedia.org/wiki/Levenshtein_distance
         """
-        return self._get_value("mal_mapping_min_similarity", 0.8, float)
+        return self._get_value("tracker_mapping_min_similarity", 0.8, float)
 
     @property
-    def mal_mapping_use_alternatives(self) -> bool:
+    def tracker_mapping_use_alternatives(self) -> bool:
         """Check alternative names when mapping anime.
 
         If turned on this will slow down mapping but provide better
         chances of finding a match.
         """
-        return self._get_value("mal_mapping_use_alternatives", True, bool)
+        return self._get_value("tracker_mapping_use_alternatives", True, bool)
 
     @property
-    def mal_mapping_use_filters(self) -> bool:
+    def tracker_mapping_use_filters(self) -> bool:
         """Use filters (e.g. year, season etc.) of providers to narrow down the
         results, this will lead to more accurate mapping, but provide wrong
         results if the filters of the provider do not work properly or if anime
         are not correctly marked with the correct data."""
-        return self._get_value("mal_mapping_use_filters", True, bool)
+        return self._get_value("tracker_mapping_use_filters", True, bool)
 
     @property
     def auto_sync_mal_to_seasonals(self) -> bool:
@@ -412,10 +422,7 @@ class Config:
             # os.path.expanduser is equivalent to Path().expanduser()
             # But because pathlib doesn't have expandvars(), we resort
             # to using the os module inside the Path constructor
-            if self._EXPAND_PATHS:
-                return Path(os.path.expandvars(path)).expanduser()
-
-            return Path(path)
+            return Path(os.path.expandvars(path)).expanduser()
         except RuntimeError:
             return fallback
 
@@ -429,8 +436,6 @@ class Config:
     def _create_config(self):
         self._get_config_path().mkdir(exist_ok=True, parents=True)
         self._config_file.touch()
-        
-        self._EXPAND_PATHS = False
 
         dump = ""
         # generate config based on attrs and default values of config class
@@ -455,8 +460,7 @@ class Config:
                 + yaml.dump({attribute: val}, indent=4, default_flow_style=False)
                 + "\n"
             )
-        
-        self._EXPAND_PATHS = True
+
         self._config_file.write_text(dump)
 
     @staticmethod
