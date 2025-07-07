@@ -230,7 +230,7 @@ class AniList:
     """
 
     API_BASE = "https://graphql.anilist.co"
-    CLIENT_ID = "26321"
+    CLIENT_ID = "28276"
     AUTH_URL = f"https://anilist.co/api/v2/oauth/authorize?client_id={CLIENT_ID}&response_type=token"
 
     RESPONSE_FIELDS = [
