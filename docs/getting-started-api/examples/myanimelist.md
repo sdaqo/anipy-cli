@@ -2,7 +2,7 @@
 
 Uhm, I did not find a proper implementation of the MyAnimeList v2 api for
 python... so yeah.
-
+    
 ## Authentication
 
 The [MyAnimeList][anipy_api.mal.MyAnimeList] class implement basic
