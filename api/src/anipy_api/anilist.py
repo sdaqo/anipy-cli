@@ -1,5 +1,4 @@
 import datetime
-import sys
 import json
 import base64
 from dataclasses import dataclass, field
@@ -167,7 +166,7 @@ class AniListStartSeason(DataClassJsonMixin):
 
 @dataclass
 class Title(DataClassJsonMixin):
-    userPreferred: str
+    user_preferred: str
 
 
 @dataclass
@@ -196,7 +195,7 @@ class AniListAnime(DataClassJsonMixin):
     my_list_status: Optional[AniListMyListStatus] = None
 
     def __repr__(self) -> str:
-        return self.title.userPreferred
+        return self.title.user_preferred
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -204,8 +203,8 @@ class AniListAnime(DataClassJsonMixin):
 
 @dataclass
 class AniListPaging(DataClassJsonMixin):
-    currentPage: int
-    hasNextPage: bool
+    current_page: int
+    has_next_page: bool
 
 
 # @dataclass
@@ -215,7 +214,7 @@ class AniListPaging(DataClassJsonMixin):
 
 @dataclass
 class AniListPagingResource(DataClassJsonMixin):
-    pageInfo: AniListPaging
+    page_info: AniListPaging
     media: List[AniListAnime]
 
 
@@ -301,7 +300,7 @@ class AniList:
         query = """
         query ($search: String!, $page: Int, $perPage: Int) {
           Page (page: $page, perPage: $perPage){
-          pageInfo {
+          page_info: pageInfo {
               currentPage
               hasNextPage
           }
@@ -310,7 +309,7 @@ class AniList:
           media_type: format
           num_episodes: episodes
           title {
-            userPreferred
+            user_preferred: userPreferred
           }
           alternative_titles: title {
             english
@@ -341,7 +340,7 @@ class AniList:
                 response = AniListPagingResource.from_dict(self._make_request(request)["data"]["Page"])
                 anime_list.extend(response.media)
 
-                next_page = response.pageInfo.hasNextPage
+                next_page = response.page_info.has_next_page
 
         return anime_list
 
@@ -363,7 +362,7 @@ class AniList:
             media_type: format
             num_episodes: episodes
             title {
-              userPreferred
+              user_preferred: userPreferred
             }
             alternative_titles: title {
               english
@@ -431,7 +430,7 @@ class AniList:
                   media_type: format
                   num_episodes: episodes
                   title {
-                      userPreferred
+                      user_preferred: userPreferred
                   }
                   alternative_titles: title {
                       english
@@ -453,8 +452,8 @@ class AniList:
           }
         }
         """
-        userId = self.get_user().id
-        variables = { "type": "ANIME", "userId": userId }
+        user_id = self.get_user().id
+        variables = { "type": "ANIME", "userId": user_id }
         request = Request("POST", self.API_BASE, json={ 'query': query, 'variables': variables })
        
         anime_list = []
@@ -635,7 +634,7 @@ class AniListAdapter:
         best_anime = None
         best_ratio = 0
         for i in results:
-            titles_mal = {i.title.userPreferred}
+            titles_mal = {i.title.user_preferred}
             titles_provider = {anime.name}
 
             if use_alternative_names:
@@ -686,7 +685,7 @@ class AniListAdapter:
             A Anime object if adapting was successfull
 
         """
-        anilist_titles = {anilist_anime.title.userPreferred}
+        anilist_titles = {anilist_anime.title.user_preferred}
         if use_alternative_names and anilist_anime.alternative_titles is not None:
             anilist_titles |= {
                 t
@@ -714,10 +713,6 @@ class AniListAdapter:
             ]
 
         if self.provider.FILTER_CAPS & FilterCapabilities.MEDIA_TYPE:
-            # if anilist_anime.media_type not in (
-            #     AniListMediaTypeEnum.UNKNOWN,
-            #     AniListMediaTypeEnum.CM,
-            # ):
             if anilist_anime.media_type == AniListMediaTypeEnum.TV_SHORT:
                 m_type = AniListMediaTypeEnum.TV
             else:
@@ -739,6 +734,7 @@ class AniListAdapter:
         for r in results:
             anime = Anime.from_search_result(self.provider, r)
             provider_titles = {anime.name}
+
             if use_alternative_names:
                 anime_info = anime.get_info()
                 if anime_info.release_year == anilist_anime.year:

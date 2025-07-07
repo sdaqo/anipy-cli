@@ -94,7 +94,7 @@ class AniListMenu(MenuBase):
             return
 
         anime = AniListAnime.from_dict(anime)
-        with DotSpinner("Adding ", colors.BLUE, anime.title.userPreferred, " to your AniList...") as s:
+        with DotSpinner("Adding ", colors.BLUE, anime.title.user_preferred, " to your AniList...") as s:
             self.anilist_proxy.update_show(anime, AniListMyListStatusEnum.WATCHING)
             s.ok("✔")
 
@@ -188,19 +188,19 @@ class AniListMenu(MenuBase):
         config = Config()
 
         choices = []
-        if config.mal_dub_tag:
+        if config.tracker_dub_tag:
             choices.append(
                 Choice(
-                    value=config.mal_dub_tag,
-                    name=f"{config.mal_dub_tag} (sets wheter you prefer to watch a particular anime in dub)",
+                    value=config.tracker_dub_tag,
+                    name=f"{config.tracker_dub_tag} (sets wheter you prefer to watch a particular anime in dub)",
                 )
             )
 
-        if config.mal_ignore_tag:
+        if config.tracker_ignore_tag:
             choices.append(
                 Choice(
-                    value=config.mal_ignore_tag,
-                    name=f"{config.mal_ignore_tag} (sets wheter anipy-cli will ignore a particular anime)",
+                    value=config.tracker_ignore_tag,
+                    name=f"{config.tracker_ignore_tag} (sets wheter anipy-cli will ignore a particular anime)",
                 )
             )
 
@@ -274,7 +274,7 @@ class AniListMenu(MenuBase):
         )
         DownloadComponent.serve_download_errors(errors)
 
-        self.print_options(clear_screen=len(errors) == 0)
+        self.print_options(should_clear_screen=len(errors) == 0)
 
     def binge_latest(self):
         picked = self._choose_latest()
@@ -319,12 +319,12 @@ class AniListMenu(MenuBase):
         with DotSpinner("Syncing Seasonals into AniList") as s:
             for k, v in mappings.items():
                 tags = set()
-                if config.mal_dub_tag:
+                if config.tracker_dub_tag:
                     if k.language == LanguageTypeEnum.DUB:
-                        tags.add(config.mal_dub_tag)
+                        tags.add(config.tracker_dub_tag)
 
                 if v.my_list_status:
-                    if config.mal_ignore_tag in v.my_list_status.tags:
+                    if config.tracker_ignore_tag in v.my_list_status.tags:
                         continue
                     tags |= set(v.my_list_status.tags)
 
@@ -342,8 +342,8 @@ class AniListMenu(MenuBase):
         mappings = self._create_maps_anilist(mylist)
         with DotSpinner("Syncing AniList into Seasonals") as s:
             for k, v in mappings.items():
-                if config.mal_dub_tag:
-                    if k.my_list_status and config.mal_dub_tag in k.my_list_status.tags:
+                if config.tracker_dub_tag:
+                    if k.my_list_status and config.tracker_dub_tag in k.my_list_status.tags:
                         pref_lang = LanguageTypeEnum.DUB
                     else:
                         pref_lang = LanguageTypeEnum.SUB
@@ -424,7 +424,7 @@ class AniListMenu(MenuBase):
 
         with DotSpinner("Fetching episodes...") as s:
             for e in mylist:
-                s.write(f"> Checking out episodes of {e.title.userPreferred}")
+                s.write(f"> Checking out episodes of {e.title.user_preferred}")
 
                 if e.num_episodes != 0:
                     episodes_to_watch = list(
@@ -439,12 +439,12 @@ class AniListMenu(MenuBase):
 
                 if result is None:
                     s.write(
-                        f"> No mapping found for {e.title.userPreferred} please use the `m` option to map it"
+                        f"> No mapping found for {e.title.user_preferred} please use the `m` option to map it"
                     )
                     continue
 
-                if config.mal_dub_tag:
-                    if e.my_list_status and config.mal_dub_tag in e.my_list_status.tags:
+                if config.tracker_dub_tag:
+                    if e.my_list_status and config.tracker_dub_tag in e.my_list_status.tags:
                         pref_lang = LanguageTypeEnum.DUB
                     else:
                         pref_lang = LanguageTypeEnum.SUB
@@ -507,7 +507,7 @@ class AniListMenu(MenuBase):
                     result = self.anilist_proxy.map_from_anilist(anime)
                     if result is None:
                         failed.append(anime)
-                        s.write(f"> Failed to map {anime.id} ({anime.title.userPreferred})")
+                        s.write(f"> Failed to map {anime.id} ({anime.title.user_preferred})")
                     else:
                         mappings.update({anime: result})
                         s.write(
@@ -628,7 +628,7 @@ class AniListMenu(MenuBase):
     def _format_anilist_anime(anime: AniListAnime) -> str:
         config = Config()
         dub = (
-            config.mal_dub_tag in anime.my_list_status.tags
+            config.tracker_dub_tag in anime.my_list_status.tags
             if anime.my_list_status
             else False
         )
@@ -644,5 +644,5 @@ class AniListMenu(MenuBase):
                 else "Not Added"
             ),
             f"{anime.my_list_status.num_episodes_watched if anime.my_list_status else 0}/{anime.num_episodes}",
-            f"{anime.title.userPreferred} {'(dub)' if dub else ''}",
+            f"{anime.title.user_preferred} {'(dub)' if dub else ''}",
         )

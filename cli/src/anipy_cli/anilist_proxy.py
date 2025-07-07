@@ -82,8 +82,7 @@ class AniListProxy:
         config = Config()
         for e in mylist:
             if self.local_list.mappings.get(e.id, None):
-                if e.my_list_status and config.mal_ignore_tag in e.my_list_status.tags:
-                # if e.my_list_status:
+                if e.my_list_status and config.tracker_ignore_tag in e.my_list_status.tags:
                     self.local_list.mappings.pop(e.id)
                 else:
                     self.local_list.mappings[e.id].anilist_anime = e
@@ -113,7 +112,7 @@ class AniListProxy:
             status_catagories
             if status_catagories is not None
             else set(
-                [AniListMyListStatusEnum[s.upper()] for s in config.mal_status_categories]
+                [AniListMyListStatusEnum[s.upper()] for s in config.tracker_status_categories]
             )
         )
 
@@ -121,7 +120,7 @@ class AniListProxy:
             mylist.extend(
                 filter(
                     lambda e: (
-                        config.mal_ignore_tag not in e.my_list_status.tags
+                        config.tracker_ignore_tag not in e.my_list_status.tags
                         if e.my_list_status
                         else True
                     ),
@@ -146,13 +145,10 @@ class AniListProxy:
         tags: Set[str] = set(),
     ) -> AniListMyListStatus:
         config = Config()
-        tags |= set(config.mal_tags)
+        tags |= set(config.tracker_tags)
         result = self.anilist.update_anime_list(
             anime.id, status=status, watched_episodes=episode, tags=list(tags)
         )
-        # result = self.anilist.update_anime_list(
-        #     anime.id, status=status, watched_episodes=episode
-        # )
         anime.my_list_status = result
         self._cache_list([anime])
         return result
@@ -187,9 +183,9 @@ class AniListProxy:
             adapter = AniListAdapter(self.anilist, p)
             result = adapter.from_anilist(
                 anime,
-                config.mal_mapping_min_similarity,
-                config.mal_mapping_use_filters,
-                config.mal_mapping_use_alternatives,
+                config.tracker_mapping_min_similarity,
+                config.tracker_mapping_use_filters,
+                config.tracker_mapping_use_alternatives,
             )
             if result is not None:
                 break
@@ -215,8 +211,8 @@ class AniListProxy:
         adapter = AniListAdapter(self.anilist, anime.provider)
         result = adapter.from_provider(
             anime,
-            config.mal_mapping_min_similarity,
-            config.mal_mapping_use_alternatives,
+            config.tracker_mapping_min_similarity,
+            config.tracker_mapping_use_alternatives,
         )
 
         if result:

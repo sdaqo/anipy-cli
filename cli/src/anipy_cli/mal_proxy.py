@@ -82,7 +82,7 @@ class MyAnimeListProxy:
         config = Config()
         for e in mylist:
             if self.local_list.mappings.get(e.id, None):
-                if e.my_list_status and config.mal_ignore_tag in e.my_list_status.tags:
+                if e.my_list_status and config.tracker_ignore_tag in e.my_list_status.tags:
                     self.local_list.mappings.pop(e.id)
                 else:
                     self.local_list.mappings[e.id].mal_anime = e
@@ -112,7 +112,7 @@ class MyAnimeListProxy:
             status_catagories
             if status_catagories is not None
             else set(
-                [MALMyListStatusEnum[s.upper()] for s in config.mal_status_categories]
+                [MALMyListStatusEnum[s.upper()] for s in config.tracker_status_categories]
             )
         )
 
@@ -120,7 +120,7 @@ class MyAnimeListProxy:
             mylist.extend(
                 filter(
                     lambda e: (
-                        config.mal_ignore_tag not in e.my_list_status.tags
+                        config.tracker_ignore_tag not in e.my_list_status.tags
                         if e.my_list_status
                         else True
                     ),
@@ -145,7 +145,7 @@ class MyAnimeListProxy:
         tags: Set[str] = set(),
     ) -> MALMyListStatus:
         config = Config()
-        tags |= set(config.mal_tags)
+        tags |= set(config.tracker_tags)
         result = self.mal.update_anime_list(
             anime.id, status=status, watched_episodes=episode, tags=list(tags)
         )
@@ -183,9 +183,9 @@ class MyAnimeListProxy:
             adapter = MyAnimeListAdapter(self.mal, p)
             result = adapter.from_myanimelist(
                 anime,
-                config.mal_mapping_min_similarity,
-                config.mal_mapping_use_filters,
-                config.mal_mapping_use_alternatives,
+                config.tracker_mapping_min_similarity,
+                config.tracker_mapping_use_filters,
+                config.tracker_mapping_use_alternatives,
             )
 
             if result is not None:
@@ -212,8 +212,8 @@ class MyAnimeListProxy:
         adapter = MyAnimeListAdapter(self.mal, anime.provider)
         result = adapter.from_provider(
             anime,
-            config.mal_mapping_min_similarity,
-            config.mal_mapping_use_alternatives,
+            config.tracker_mapping_min_similarity,
+            config.tracker_mapping_use_alternatives,
         )
 
         if result:
