@@ -17,7 +17,7 @@ for p in list_providers():
         provider = provider()
 
 # If you know the name of the provider you could also do:
-provider = get_provider("gogoanime", base_url_overrride="https://test.com") #(1)
+provider = get_provider("gogoanime", base_url_override="https://test.com") #(1)
 
 # You can also import
 from anipy_api.provider.providers import GoGoProvider
