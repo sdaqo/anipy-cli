@@ -44,7 +44,7 @@ def search_show_prompt(
         mandatory=False,
     ).execute()
 
-    if query is None:
+    if not (query and query.strip()):
         return None
 
     with DotSpinner("Searching for ", colors.BLUE, query, "..."):
@@ -132,7 +132,7 @@ def season_search_prompt(
             mandatory=False,
         ).execute()
 
-    if year is None:
+    if not year or not str(year).strip():
         return
 
     if season is None:
