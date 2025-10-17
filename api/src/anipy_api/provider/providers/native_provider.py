@@ -77,7 +77,7 @@ class NativeProvider(BaseProvider):
                 ProviderSearchResult(
                     identifier=k,
                     name=i["name"],
-                    languages={LanguageTypeEnum.SUB, LanguageTypeEnum.DUB}
+                    languages={LanguageTypeEnum.SUB}
                 )
             )
 
