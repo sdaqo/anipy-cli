@@ -76,7 +76,7 @@ class Config:
 
         For an updated list of providers look here: https://sdaqo.github.io/anipy-cli/availabilty
 
-        Supported providers (as of $version): allanime, animekai (animekai is not functional for now)
+        Supported providers (as of $version): allanime, animekai (animekai is not functional for now), native (filesystem provider, set root in provider_urls config)
 
         Examples:
             providers:
@@ -106,9 +106,12 @@ class Config:
     def provider_urls(self) -> Dict[str, str]:
         """A list of pairs to override the default urls that providers use.
 
+        Note: the native provider accepts a path instead of a url, it defaults to ~/Videos
+
         Examples:
             provider_urls:
               gogoanime: "https://gogoanime3.co"
+              native: "~/Videos"
             provider_urls: {} # do not override any urls
         """
 

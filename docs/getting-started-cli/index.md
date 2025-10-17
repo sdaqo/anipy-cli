@@ -181,6 +181,9 @@ nix profile remove <index-of-anipy-cli>
     `--ffmpeg`
     : This makes the downloader default the [ffmpeg](https://ffmpeg.org/) (except for .mp4 files), ffmpeg must be [installed](https://ffmpeg.org/download.html).
 
+    ### Native Provider
+    The native provider uses a directory on your filesystem to build an anime database that can be used in the cli. To use it, set your provider to `native` and set the provider url for the native provider to your anime directory! The implementation is very basic. Your folder structure is not really important, both a flat directory and a directory with season subdirectories works. What is important, is that, your files should sort properly, episodes numbers are assigned based on the alphabetical order of files in a directory.
+
 === "Help Output"
 
     This is just a paste from `anipy-cli --help`.
@@ -282,3 +285,4 @@ reference, if you are confused just
   [anilist.co](https://anilist.co/)
 - Discord Presence for the anime you currently watch. This is off by default,
   activate it in the config.
+- Native filesystem provider, turn your anime directory into a anime cli
