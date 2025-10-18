@@ -271,15 +271,8 @@ class Downloader:
 
         meta = json.loads(ffprobe.execute())
         duration = float(meta["format"]["duration"])
-
-        output_options: Dict[str, Any] = {
-            "c:v": "copy",
-            "c:a": "copy",
-            "c:s": "mov_text"
-        }
-
-        if extension_picky:
-            output_options.update({"extension_picky": 0})
+        format_name = meta["format"]["format_name"]
+        print(format_name)
 
         ffmpeg = (
             FFmpeg()
@@ -289,9 +282,16 @@ class Downloader:
             .input(stream.url)
             .output(
                 download_path,
-                output_options
+                {
+                    "c:v": "copy",
+                    "c:a": "copy",
+                    "c:s": "mov_text"
+                }
             )
         )
+
+        if extension_picky and format_name == "hls":
+            ffmpeg.option("extension_picky", 0)
 
         if stream.referrer:
             ffmpeg.option("headers", f"Referer: {stream.referrer}")
