@@ -2,7 +2,8 @@ name: docs-publish
 on:
   push:
     branches:
-      - master 
+      - master
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
