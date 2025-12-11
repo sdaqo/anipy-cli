@@ -14,7 +14,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 python-ffmpeg = "^2.0.11"
 pycryptodomex = "^3.20.0"
 requests = "^2.32.0"
@@ -22,9 +22,10 @@ m3u8 = "^4.1.0"
 beautifulsoup4 = "^4.12.3"
 python-mpv = "^1.0.6"
 dataclasses-json = "^0.6.4"
-levenshtein = "^0.26.0"
+levenshtein = "^0.27.3"
 simpleeval = "^1.0.3"
 pycountry = "^24.6.1"
+rapidfuzz = "^3.14.0"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/sdaqo/anipy-cli/issues"

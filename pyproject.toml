@@ -5,7 +5,7 @@ repository = "https://github.com/sdaqo/anipy-cli"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 anipy-cli = {path = "cli/", develop = true}
 
 [tool.poetry.group.dev]

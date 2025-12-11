@@ -5,7 +5,7 @@ in
 pkgs.mkShell {
   LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib/:/run/opengl-driver/lib/";
   packages = with pkgs; [
-    python3
+    python314
     ruff
     black
     ffmpeg

@@ -43,7 +43,7 @@ description = "Backport of Python 3.11's datetime.fromisoformat"
 optional = false
 python-versions = ">3"
 groups = ["main"]
-markers = "python_version < \"3.11\""
+markers = "python_version == \"3.10\""
 files = [
     {file = "backports_datetime_fromisoformat-2.0.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:5f681f638f10588fa3c101ee9ae2b63d3734713202ddfcfb6ec6cea0778a29d4"},
     {file = "backports_datetime_fromisoformat-2.0.3-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:cd681460e9142f1249408e5aee6d178c6d89b49e06d44913c8fdfb6defda8d1c"},
@@ -946,5 +946,5 @@ termcolor = ">=3.1,<4.0"
 
 [metadata]
 lock-version = "2.1"
-python-versions = "^3.9"
-content-hash = "8c17abe07ba4c9fd636632d240395940a6d5c350d6463574b28ba5782ed5acff"
+python-versions = "^3.10"
+content-hash = "016fcb5828ca55da2d8637dc7b61c561d6e2b7a004707fea90fc346c4e3cf136"
