@@ -76,6 +76,7 @@ class AniListError(Exception):
 
         super().__init__(error_text)
 
+
 class DownloadError(Exception):
     """Error that gets raised by
     [Downloader][anipy_api.download.Downloader]."""

@@ -144,6 +144,13 @@ class DownloadComponent:
 
         stream = anime.get_video(ep, lang, preferred_quality=self.options.quality)
 
+        if stream is None:
+            logger.info("Could not find a stream")
+            DownloadComponent.serve_download_errors(
+                [(anime, ep)], only_skip_ep_on_err=True
+            )
+            return
+
         download_message_update = (
             f"Downloading Episode {stream.episode} of {anime.name} ({lang})"
         )

@@ -3,7 +3,7 @@ import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Dict, Optional, Protocol
+from typing import Optional, Protocol
 from urllib.parse import urljoin
 
 import m3u8
@@ -249,7 +249,8 @@ class Downloader:
         )
         version = json.loads(ffprobe.execute())
         version = [
-            int(''.join(c for c in v if c.isdigit())) for v in version["program_version"]["version"].split("-")[0].split(".")
+            int("".join(c for c in v if c.isdigit()))
+            for v in version["program_version"]["version"].split("-")[0].split(".")
         ]
 
         if len(version) < 3:
@@ -280,14 +281,7 @@ class Downloader:
             .option("v", "warning")
             .option("stats")
             .input(stream.url)
-            .output(
-                download_path,
-                {
-                    "c:v": "copy",
-                    "c:a": "copy",
-                    "c:s": "mov_text"
-                }
-            )
+            .output(download_path, {"c:v": "copy", "c:a": "copy", "c:s": "mov_text"})
         )
 
         if extension_picky and format_name == "hls":

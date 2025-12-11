@@ -300,6 +300,8 @@ class MALMenu(MenuBase):
                     stream = anime.get_video(
                         ep, lang, preferred_quality=self.options.quality
                     )
+                    if stream is None:
+                        error("Could not find stream for requested episode, skipping")
                     s.ok("✔")
 
                 self.player.play_title(anime, stream)
@@ -344,7 +346,10 @@ class MALMenu(MenuBase):
         with DotSpinner("Syncing MyAnimeList into Seasonals") as s:
             for k, v in mappings.items():
                 if config.tracker_dub_tag:
-                    if k.my_list_status and config.tracker_dub_tag in k.my_list_status.tags:
+                    if (
+                        k.my_list_status
+                        and config.tracker_dub_tag in k.my_list_status.tags
+                    ):
                         pref_lang = LanguageTypeEnum.DUB
                     else:
                         pref_lang = LanguageTypeEnum.SUB
@@ -445,7 +450,10 @@ class MALMenu(MenuBase):
                     continue
 
                 if config.tracker_dub_tag:
-                    if e.my_list_status and config.tracker_dub_tag in e.my_list_status.tags:
+                    if (
+                        e.my_list_status
+                        and config.tracker_dub_tag in e.my_list_status.tags
+                    ):
                         pref_lang = LanguageTypeEnum.DUB
                     else:
                         pref_lang = LanguageTypeEnum.SUB

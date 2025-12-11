@@ -84,7 +84,9 @@ class AniListMenu(MenuBase):
 
         anime = inquirer.fuzzy(  # type: ignore
             message="Select Show:",
-            choices=[Choice(value=r, name=self._format_anilist_anime(r)) for r in results],
+            choices=[
+                Choice(value=r, name=self._format_anilist_anime(r)) for r in results
+            ],
             transformer=lambda x: x.split("|")[-1].strip(),
             long_instruction="To skip this prompt press crtl+z",
             mandatory=False,
@@ -94,7 +96,9 @@ class AniListMenu(MenuBase):
             return
 
         anime = AniListAnime.from_dict(anime)
-        with DotSpinner("Adding ", colors.BLUE, anime.title.user_preferred, " to your AniList...") as s:
+        with DotSpinner(
+            "Adding ", colors.BLUE, anime.title.user_preferred, " to your AniList..."
+        ) as s:
             self.anilist_proxy.update_show(anime, AniListMyListStatusEnum.WATCHING)
             s.ok("✔")
 
@@ -102,7 +106,7 @@ class AniListMenu(MenuBase):
         self.print_options()
         with DotSpinner("Fetching your AniList..."):
             mylist = self.anilist_proxy.get_list()
-        
+
         entries = (
             inquirer.fuzzy(  # type: ignore
                 message="Select Seasonals to delete:",
@@ -269,9 +273,9 @@ class AniListMenu(MenuBase):
                 episode=int(ep),
             )
 
-        errors = DownloadComponent(self.options, self.dl_path, "anilist").download_anime(
-            new_picked, on_successful_download
-        )
+        errors = DownloadComponent(
+            self.options, self.dl_path, "anilist"
+        ).download_anime(new_picked, on_successful_download)
         DownloadComponent.serve_download_errors(errors)
 
         self.print_options(should_clear_screen=len(errors) == 0)
@@ -299,13 +303,17 @@ class AniListMenu(MenuBase):
                     stream = anime.get_video(
                         ep, lang, preferred_quality=self.options.quality
                     )
+                    if stream is None:
+                        error("Could not find stream for requested episode, skipping")
                     s.ok("✔")
 
                 self.player.play_title(anime, stream)
                 self.player.wait()
 
                 self.anilist_proxy.update_show(
-                    anilist_anime, status=AniListMyListStatusEnum.WATCHING, episode=int(ep)
+                    anilist_anime,
+                    status=AniListMyListStatusEnum.WATCHING,
+                    episode=int(ep),
                 )
 
     def manual_maps(self):
@@ -343,7 +351,10 @@ class AniListMenu(MenuBase):
         with DotSpinner("Syncing AniList into Seasonals") as s:
             for k, v in mappings.items():
                 if config.tracker_dub_tag:
-                    if k.my_list_status and config.tracker_dub_tag in k.my_list_status.tags:
+                    if (
+                        k.my_list_status
+                        and config.tracker_dub_tag in k.my_list_status.tags
+                    ):
                         pref_lang = LanguageTypeEnum.DUB
                     else:
                         pref_lang = LanguageTypeEnum.SUB
@@ -444,7 +455,10 @@ class AniListMenu(MenuBase):
                     continue
 
                 if config.tracker_dub_tag:
-                    if e.my_list_status and config.tracker_dub_tag in e.my_list_status.tags:
+                    if (
+                        e.my_list_status
+                        and config.tracker_dub_tag in e.my_list_status.tags
+                    ):
                         pref_lang = LanguageTypeEnum.DUB
                     else:
                         pref_lang = LanguageTypeEnum.SUB
@@ -489,7 +503,9 @@ class AniListMenu(MenuBase):
 
         return to_watch
 
-    def _create_maps_anilist(self, to_map: List[AniListAnime]) -> Dict[AniListAnime, Anime]:
+    def _create_maps_anilist(
+        self, to_map: List[AniListAnime]
+    ) -> Dict[AniListAnime, Anime]:
         cprint(
             colors.GREEN,
             "Hint: ",
@@ -507,7 +523,9 @@ class AniListMenu(MenuBase):
                     result = self.anilist_proxy.map_from_anilist(anime)
                     if result is None:
                         failed.append(anime)
-                        s.write(f"> Failed to map {anime.id} ({anime.title.user_preferred})")
+                        s.write(
+                            f"> Failed to map {anime.id} ({anime.title.user_preferred})"
+                        )
                     else:
                         mappings.update({anime: result})
                         s.write(
@@ -582,7 +600,11 @@ class AniListMenu(MenuBase):
                     pool.shutdown(wait=False, cancel_futures=True)
                     raise
 
-        if not failed or self.options.auto_update or self.options.anilist_sync_seasonals:
+        if (
+            not failed
+            or self.options.auto_update
+            or self.options.anilist_sync_seasonals
+        ):
             self.print_options()
             print("Everything is mapped")
             return mappings
@@ -637,7 +659,8 @@ class AniListMenu(MenuBase):
             (
                 (
                     anime.my_list_status.status.value.capitalize().replace("_", "")
-                    if anime.my_list_status.status != AniListMyListStatusEnum.PLAN_TO_WATCH
+                    if anime.my_list_status.status
+                    != AniListMyListStatusEnum.PLAN_TO_WATCH
                     else "Planning"
                 )
                 if anime.my_list_status

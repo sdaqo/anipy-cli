@@ -256,6 +256,8 @@ class SeasonalMenu(MenuBase):
                     stream = anime.get_video(
                         ep, lang, preferred_quality=self.options.quality
                     )
+                    if stream is None:
+                        error("Could not find stream for requested episode, skipping")
                     s.ok("✔")
 
                 self.player.play_title(anime, stream)

@@ -78,6 +78,7 @@ def get_logs_location():
     finally:
         return user_file_path / "logs"
 
+
 _logger = logging.getLogger(LOGGER_NAME)
 
 _logger.setLevel(10)

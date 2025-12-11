@@ -13,7 +13,7 @@ from anipy_cli.prompts import (
     lang_prompt,
     parse_auto_search,
 )
-from anipy_cli.util import DotSpinner, get_configured_player, migrate_locallist
+from anipy_cli.util import DotSpinner, get_configured_player, migrate_locallist, error
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs
@@ -83,6 +83,9 @@ class BingeCli(CliBase):
                 stream = self.anime.get_video(
                     e, self.lang, preferred_quality=self.options.quality
                 )
+                if stream is None:
+                    error("Could not find stream for requested episode, skipping")
+                    continue
                 s.ok("✔")
 
             self.history_list.update(self.anime, episode=e, language=self.lang)

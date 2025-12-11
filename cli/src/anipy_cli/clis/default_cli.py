@@ -7,21 +7,18 @@ from anipy_cli.colors import colors
 from anipy_cli.config import Config
 from anipy_cli.menus import Menu
 from anipy_cli.prompts import (
-    pick_episode_prompt,
-    search_show_prompt,
     lang_prompt,
     parse_auto_search,
     parse_seasonal_search,
+    pick_episode_prompt,
+    search_show_prompt,
 )
-from anipy_cli.util import (
-    DotSpinner,
-    get_configured_player,
-    migrate_locallist,
-)
+from anipy_cli.util import DotSpinner, error, get_configured_player, migrate_locallist
 
 if TYPE_CHECKING:
     from anipy_api.anime import Anime
-    from anipy_api.provider import Episode, ProviderStream, LanguageTypeEnum
+    from anipy_api.provider import Episode, LanguageTypeEnum, ProviderStream
+
     from anipy_cli.arg_parser import CliArgs
 
 
@@ -91,6 +88,11 @@ class DefaultCli(CliBase):
             self.stream = self.anime.get_video(
                 self.epsiode, self.lang, preferred_quality=self.options.quality
             )
+            if not self.stream:
+                error(
+                    f"Could not find any streams for {self.anime.name} ({self.lang}) Episode {self.epsiode}",
+                    fatal=True,
+                )
 
     def show(self):
         assert self.anime is not None

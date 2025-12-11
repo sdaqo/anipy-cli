@@ -92,6 +92,9 @@ class Menu(MenuBase):
             self.stream = self.anime.get_video(
                 episode, self.lang, preferred_quality=self.options.quality
             )
+            if self.stream is None:
+                error("Could not find stream for requested Episode!")
+                return
 
         self.history_list.update(self.anime, episode=episode, language=self.lang)
         self.player.play_title(self.anime, self.stream)

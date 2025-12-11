@@ -103,7 +103,7 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         required=False,
         dest="anilist",
         action="store_true",
-        help="Anilist mode. Similar to seasonal mode, but using Anilist"
+        help="Anilist mode. Similar to seasonal mode, but using Anilist",
     )
 
     actions_group.add_argument(

@@ -1,7 +1,7 @@
 from typing import Any
 
 
-class colors: # noqa: N801
+class colors:  # noqa: N801
     """Just a class for colors."""
 
     GREEN = "\033[92m"

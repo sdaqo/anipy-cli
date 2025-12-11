@@ -102,10 +102,12 @@ class AniListUser(DataClassJsonMixin):
     name: str
     picture: Optional[Picture] = None
 
+
 def notes_to_tags(notes: Optional[str]) -> List[str]:
     if not notes:
         return []
     return [tag.strip() for tag in notes.split(",") if tag.strip()]
+
 
 @dataclass
 class AniListMyListStatus(DataClassJsonMixin):
@@ -128,7 +130,9 @@ class AniListMyListStatus(DataClassJsonMixin):
     num_episodes_watched: int
     status: AniListMyListStatusEnum
     score: int
-    tags: List[str] = field(default_factory=list, metadata=config(decoder=notes_to_tags))
+    tags: List[str] = field(
+        default_factory=list, metadata=config(decoder=notes_to_tags)
+    )
 
 
 @dataclass
@@ -190,7 +194,7 @@ class AniListAnime(DataClassJsonMixin):
     media_type: AniListMediaTypeEnum
     num_episodes: Optional[int] = None
     alternative_titles: Optional[AniListAlternativeTitles] = None
-    year: Optional[int]  = None
+    year: Optional[int] = None
     season: Optional[AniListSeasonEnum] = None
     my_list_status: Optional[AniListMyListStatus] = None
 
@@ -243,14 +247,12 @@ class AniList:
         "my_list_status{tags,num_episodes_watched,score,status}",
     ]
 
-
     @staticmethod
     def from_implicit_grant(
-        access_token: str,
-        client_id: Optional[str] = None
+        access_token: str, client_id: Optional[str] = None
     ) -> "AniList":
         """Authenticate via Implicit Grant to retrieve access token
-        
+
         Returns:
             The AniList client object
         """
@@ -280,12 +282,14 @@ class AniList:
         self._session = Session()
         self._session.headers.update(
             {
-                "Content-Type": "application/json", 
+                "Content-Type": "application/json",
                 "Accept": "application/json",
             }
         )
 
-    def get_search(self, search: str, limit: int = 20, pages: int = 1) -> List[AniListAnime]:
+    def get_search(
+        self, search: str, limit: int = 20, pages: int = 1
+    ) -> List[AniListAnime]:
         """Search AniList.
 
         Args:
@@ -335,16 +339,18 @@ class AniList:
 
         for page in range(pages):
             if next_page:
-                variables = { "search": search, "page": page+1, "perPage": limit }
-                request = Request("POST", self.API_BASE, json={ 'query': query, 'variables': variables })
-                response = AniListPagingResource.from_dict(self._make_request(request)["data"]["Page"])
+                variables = {"search": search, "page": page + 1, "perPage": limit}
+                request = Request(
+                    "POST", self.API_BASE, json={"query": query, "variables": variables}
+                )
+                response = AniListPagingResource.from_dict(
+                    self._make_request(request)["data"]["Page"]
+                )
                 anime_list.extend(response.media)
 
                 next_page = response.page_info.has_next_page
 
         return anime_list
-
-       
 
     def get_anime(self, anime_id: int) -> AniListAnime:
         """Get a MyAnimeList anime by its id.
@@ -381,8 +387,10 @@ class AniList:
           }
         }
         """
-        variables = { "id": anime_id }
-        request = Request("POST", self.API_BASE, json={ 'query': query, 'variables': variables })
+        variables = {"id": anime_id}
+        request = Request(
+            "POST", self.API_BASE, json={"query": query, "variables": variables}
+        )
         return AniListAnime.from_dict(self._make_request(request)["data"]["Media"])
 
     def get_user(self) -> AniListUser:
@@ -391,7 +399,7 @@ class AniList:
         Returns:
             A object with user information
         """
-        query="""
+        query = """
         query {
           Viewer {
             id
@@ -403,9 +411,7 @@ class AniList:
           }
         }
         """
-        request = Request(
-                "POST", self.API_BASE, json={ 'query': query }
-        )
+        request = Request("POST", self.API_BASE, json={"query": query})
         return AniListUser.from_dict(self._make_request(request)["data"]["Viewer"])
 
     def get_anime_list(
@@ -453,14 +459,20 @@ class AniList:
         }
         """
         user_id = self.get_user().id
-        variables = { "type": "ANIME", "userId": user_id }
-        request = Request("POST", self.API_BASE, json={ 'query': query, 'variables': variables })
-       
+        variables = {"type": "ANIME", "userId": user_id}
+        request = Request(
+            "POST", self.API_BASE, json={"query": query, "variables": variables}
+        )
+
         anime_list = []
-        for group in self._make_request(request)["data"]["MediaListCollection"]["lists"]:
+        for group in self._make_request(request)["data"]["MediaListCollection"][
+            "lists"
+        ]:
             for entry in group["entries"]:
                 anime = AniListAnime.from_dict(entry["media"])
-                user_status = anime.my_list_status.status if anime.my_list_status else None
+                user_status = (
+                    anime.my_list_status.status if anime.my_list_status else None
+                )
                 if status_filter is None or user_status == status_filter:
                     anime_list.append(anime)
 
@@ -512,9 +524,13 @@ class AniList:
             }.items()
             if v is not None
         }
-        request = Request("POST", self.API_BASE, json={ 'query': query, 'variables': variables })
+        request = Request(
+            "POST", self.API_BASE, json={"query": query, "variables": variables}
+        )
 
-        return AniListMyListStatus.from_dict(self._make_request(request)["data"]["SaveMediaListEntry"])
+        return AniListMyListStatus.from_dict(
+            self._make_request(request)["data"]["SaveMediaListEntry"]
+        )
 
     def remove_from_anime_list(self, anime_id: int):
         """Remove an anime from the currently authenticated user's anime list.
@@ -532,10 +548,11 @@ class AniList:
         my_list_status = self.get_anime(anime_id).my_list_status
         if my_list_status:
             list_entry_id = my_list_status.entry_id
-            variables = { "listEntryId": list_entry_id }
-            request = Request("POST", self.API_BASE, json={ 'query': query, 'variables': variables})
+            variables = {"listEntryId": list_entry_id}
+            request = Request(
+                "POST", self.API_BASE, json={"query": query, "variables": variables}
+            )
             self._make_request(request)
-
 
     def _make_request(self, request: Request) -> Dict[str, Any]:
         prepped = request.prepare()
@@ -552,26 +569,26 @@ class AniList:
 
         raise AniListError(response.url, response.status_code, response.json())
 
-    def _jwt_decode(self, token: str) -> Dict[str,Any]:
-        jwt_encoded = token.split('.')
+    def _jwt_decode(self, token: str) -> Dict[str, Any]:
+        jwt_encoded = token.split(".")
         for index, i in enumerate(jwt_encoded):
             missing_padding = 4 - len(i) % 4
             if missing_padding != 4:
-                jwt_encoded[index] += '='*missing_padding
-        
-        expire_time = datetime.datetime.fromtimestamp(int(json.loads(base64.urlsafe_b64decode(jwt_encoded[1]))["exp"]))
-        return { "token": token, "expire_time": expire_time }
+                jwt_encoded[index] += "=" * missing_padding
+
+        expire_time = datetime.datetime.fromtimestamp(
+            int(json.loads(base64.urlsafe_b64decode(jwt_encoded[1]))["exp"])
+        )
+        return {"token": token, "expire_time": expire_time}
 
     def _refresh_auth(self, access_token: str):
         time_now = datetime.datetime.now()
         if self._auth_expire_time > time_now:
             return True
-        
+
         jwt_decoded = self._jwt_decode(access_token)
         self._access_token = jwt_decoded["token"]
-        self._session.headers.update(
-            { "Authorization": "Bearer " + self._access_token }
-        )
+        self._session.headers.update({"Authorization": "Bearer " + self._access_token})
         self._auth_expire_time = jwt_decoded["expire_time"]
 
 
@@ -641,7 +658,10 @@ class AniListAdapter:
                 if i.alternative_titles is not None:
                     titles_mal |= {
                         t
-                        for t in [i.alternative_titles.native, i.alternative_titles.english]
+                        for t in [
+                            i.alternative_titles.native,
+                            i.alternative_titles.english,
+                        ]
                         if t is not None
                     }
                     titles_mal |= (
@@ -692,7 +712,7 @@ class AniListAdapter:
                 for t in [
                     anilist_anime.alternative_titles.native,
                     anilist_anime.alternative_titles.english,
-                    anilist_anime.alternative_titles.romaji
+                    anilist_anime.alternative_titles.romaji,
                 ]
                 if t is not None
             }
@@ -708,9 +728,7 @@ class AniListAdapter:
             self.provider.FILTER_CAPS & FilterCapabilities.SEASON
             and anilist_anime.season is not None
         ):
-            provider_filters.season = Season[
-                anilist_anime.season.value.upper()
-            ]
+            provider_filters.season = Season[anilist_anime.season.value.upper()]
 
         if self.provider.FILTER_CAPS & FilterCapabilities.MEDIA_TYPE:
             if anilist_anime.media_type == AniListMediaTypeEnum.TV_SHORT:

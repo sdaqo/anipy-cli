@@ -103,7 +103,7 @@ class Anime:
         episode: Episode,
         lang: "LanguageTypeEnum",
         preferred_quality: Optional[Union[str, int]] = None,
-    ) -> "ProviderStream":
+    ) -> Optional["ProviderStream"]:
         """Get a video stream for the specified episode, the quality to return
         is determined by the `preferred_quality` argument or if this is not
         defined by the best quality found. To get a list of streams use
@@ -122,6 +122,9 @@ class Anime:
         """
         streams = self.provider.get_video(self.identifier, episode, lang)
         streams.sort(key=lambda s: s.resolution + (10 if s.subtitle else 0))
+
+        if not streams:
+            return None
 
         if preferred_quality == "worst":
             stream = streams[0]

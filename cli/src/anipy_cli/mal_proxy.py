@@ -82,7 +82,10 @@ class MyAnimeListProxy:
         config = Config()
         for e in mylist:
             if self.local_list.mappings.get(e.id, None):
-                if e.my_list_status and config.tracker_ignore_tag in e.my_list_status.tags:
+                if (
+                    e.my_list_status
+                    and config.tracker_ignore_tag in e.my_list_status.tags
+                ):
                     self.local_list.mappings.pop(e.id)
                 else:
                     self.local_list.mappings[e.id].mal_anime = e
@@ -112,7 +115,10 @@ class MyAnimeListProxy:
             status_catagories
             if status_catagories is not None
             else set(
-                [MALMyListStatusEnum[s.upper()] for s in config.tracker_status_categories]
+                [
+                    MALMyListStatusEnum[s.upper()]
+                    for s in config.tracker_status_categories
+                ]
             )
         )
 

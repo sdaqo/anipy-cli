@@ -119,7 +119,7 @@ def strict_decode(n: str, ops: str):
     return "".join(map(chr, result))
 
 
-def strict_encode(n: str , ops: str):
+def strict_encode(n: str, ops: str):
     ops_arr = ops.split(";")
     result = []
 

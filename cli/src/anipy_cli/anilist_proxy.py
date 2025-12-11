@@ -57,7 +57,9 @@ class AniListLocalList(DataClassJsonMixin):
             return mylist
 
         try:
-            mylist: AniListLocalList = AniListLocalList.from_json(local_list.read_text())
+            mylist: AniListLocalList = AniListLocalList.from_json(
+                local_list.read_text()
+            )
         except KeyError:
             choice = inquirer.confirm(
                 message=f"Your local AniList ({str(local_list)}) is not in the correct format, should it be deleted?",
@@ -82,7 +84,10 @@ class AniListProxy:
         config = Config()
         for e in mylist:
             if self.local_list.mappings.get(e.id, None):
-                if e.my_list_status and config.tracker_ignore_tag in e.my_list_status.tags:
+                if (
+                    e.my_list_status
+                    and config.tracker_ignore_tag in e.my_list_status.tags
+                ):
                     self.local_list.mappings.pop(e.id)
                 else:
                     self.local_list.mappings[e.id].anilist_anime = e
@@ -112,7 +117,10 @@ class AniListProxy:
             status_catagories
             if status_catagories is not None
             else set(
-                [AniListMyListStatusEnum[s.upper()] for s in config.tracker_status_categories]
+                [
+                    AniListMyListStatusEnum[s.upper()]
+                    for s in config.tracker_status_categories
+                ]
             )
         )
 
