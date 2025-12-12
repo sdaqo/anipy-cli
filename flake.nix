@@ -3,7 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    poetry2nix.url = "github:nix-community/poetry2nix";
+    poetry2nix = {
+      url = "github:sdaqo/poetry2nix?ref=update-vendored-pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, poetry2nix }:
