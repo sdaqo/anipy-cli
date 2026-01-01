@@ -25,7 +25,7 @@ class MalCli(CliBase):
 
     def take_input(self):
         config = Config()
-        self.user = config.mal_user
+        self.user = self.options.mal_user or config.mal_user
         self.password = self.options.mal_password or config.mal_password
 
         if not self.user:

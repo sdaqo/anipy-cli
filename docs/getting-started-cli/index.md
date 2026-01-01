@@ -188,9 +188,11 @@ nix profile remove <index-of-anipy-cli>
 
     This is just a paste from `anipy-cli --help`.
     ```
-    usage: anipy-cli [-D | -B | -H | -S | -M | -A | --delete-history | --migrate-history] [-s SEARCH] [-ss [SEASONAL_SEARCH]]
-                     [-q QUALITY] [-f] [-a] [-p {mpv,vlc,iina,syncplay,mpvnet,mpv-controlled}] [-l LOCATION] [-V]
-                     [--stack-always] [-so] [--mal-password MAL_PASSWORD] [--mal-sync-to-seasonals]
+    usage: anipy-cli [-D | -B | -H | -S | -M | -A | --delete-history | --migrate-history]
+                     [-s SEARCH] [-ss [SEASONAL_SEARCH]] [-q QUALITY] [-f] [-a] 
+                     [-p {mpv,vlc,iina,syncplay,mpvnet,mpv-controlled}] [-l LOCATION]
+                     [-V] [--stack-always] [-so] [--mal-password MAL_PASSWORD] 
+                     [--mal-user MAL_USER] [--mal-sync-to-seasonals] 
                      [--anilist-sync-to-seasonals] [-h] [-v] [--config-path]
 
     Play Animes from online anime providers locally or download them, and much more.
@@ -202,8 +204,7 @@ nix profile remove <index-of-anipy-cli>
       -B, --binge           Binge mode. Binge multiple episodes like so: first_number-second_number (e.g. 1-3)
       -H, --history         Show your history of watched anime
       -S, --seasonal        Seasonal Anime mode. Bulk download or binge watch newest episodes.
-      -M, --my-anime-list   MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList (requires MAL account
-                            credentials to be set in config).
+      -M, --my-anime-list   MyAnimeList mode. Similar to seasonal mode, but using MyAnimeList (requires MAL account credentials to be set in config).
       -A, --anilist         Anilist mode. Similar to seasonal mode, but using Anilist
       --delete-history      Delete your History.
       --migrate-history     Migrate your history to the current provider.
@@ -212,17 +213,12 @@ nix profile remove <index-of-anipy-cli>
       Options to change the behaviour of anipy-cli
 
       -s SEARCH, --search SEARCH
-                            Provide a search term to Default, Download or Binge mode in this format: {query}:{episode
-                            range}:{dub/sub}. Examples: 'frieren:1-10:sub' or 'frieren:1:sub' or 'frieren:1-3 7-12:dub', this
-                            argument may be appended to any of the modes mentioned like so: 'anipy-cli (-D/B) -s <search>'
+                            Provide a search term to Default, Download or Binge mode in this format: {query}:{episode range}:{dub/sub}. Examples: 'frieren:1-10:sub' or 'frieren:1:sub' or 'frieren:1-3 7-12:dub', this argument may be appended to any of the modes mentioned like so: 'anipy-cli (-D/B) -s <search>'
       -ss [SEASONAL_SEARCH], --seasonal-search [SEASONAL_SEARCH]
-                            Provide search parameters for seasons to Default, Download, or Binge mode in this format:
-                            {year}:{season}. You can only use part of the season name if you wish. Examples: '2024:win' or
-                            '2020:fa'
+                            Provide search parameters for seasons to Default, Download, or Binge mode in this format: {year}:{season}. You can only use part of the season name if you wish. Examples: '2024:win' or '2020:fa'
       -q QUALITY, --quality QUALITY
                             Change the quality of the video, accepts: best, worst or 360, 480, 720 etc. Default: best
-      -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal
-                            downloader
+      -f, --ffmpeg          Use ffmpeg to download m3u8 playlists, may be more stable but is way slower than internal downloader
       -a, --auto-update     Automatically update and download all Anime in seasonals or mal mode from start EP to newest.
       -p {mpv,vlc,iina,syncplay,mpvnet,mpv-controlled}, --optional-player {mpv,vlc,iina,syncplay,mpvnet,mpv-controlled}
                             Override the player set in the config.
@@ -233,6 +229,7 @@ nix profile remove <index-of-anipy-cli>
       -so, --sub-only       Download only subtitles
       --mal-password MAL_PASSWORD
                             Provide password for MAL login (overrides password set in config)
+      --mal-user MAL_USER   Provide username for MAL login (overrides username set in config)
       --mal-sync-to-seasonals
                             Automatically sync myanimelist to seasonals (only works with `-M`)
       --anilist-sync-to-seasonals

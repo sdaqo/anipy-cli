@@ -26,6 +26,7 @@ class CliArgs:
     location: Optional[Path]
     verbosity: int
     stack_always: bool
+    mal_user: Optional[str]
     mal_password: Optional[str]
     config: bool
     seasonal_search: Optional[str]
@@ -222,6 +223,13 @@ def parse_args(override_args: Optional[list[str]] = None) -> CliArgs:
         dest="mal_password",
         action="store",
         help="Provide password for MAL login (overrides password set in config)",
+    )
+    options_group.add_argument(
+        "--mal-user",
+        required=False,
+        dest="mal_user",
+        action="store",
+        help="Provide username for MAL login (overrides username set in config)",
     )
 
     options_group.add_argument(
