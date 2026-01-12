@@ -2,6 +2,11 @@
 
 Uhm, I did not find a proper implementation of the MyAnimeList v2 api for
 python... so yeah.
+
+There is also support for [anilist](https://anilist.co/), the usage is generally the same,
+exepect for authentication. 
+For the API docs please see [AniList][anipy_api.anilist.AniList] and [AniListAdapter][anipy_api.anilist.AniListAdapter] 
+also check [anilist_cli.py](https://github.com/sdaqo/anipy-cli/blob/master/cli/src/anipy_cli/clis/anilist_cli.py) for a implementation example.
     
 ## Authentication
 

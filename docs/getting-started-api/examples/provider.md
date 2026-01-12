@@ -12,19 +12,19 @@ from anipy_api.provider import list_providers, get_provider
 
 # List providers
 for p in list_providers():
-    if p.NAME == "gogoanime":
+    if p.NAME == "allanime":
         # You have to instantiate the provider to use it.
-        provider = provider()
+        provider = p()
 
 # If you know the name of the provider you could also do:
-provider = get_provider("gogoanime", base_url_override="https://test.com") #(1)
+provider = get_provider("allanime", base_url_override="https://test.com") #(1)
 
 # You can also import
-from anipy_api.provider.providers import GoGoProvider
-provider = GoGoProvider()
+from anipy_api.provider.providers import AllAnimeProvider
+provider = AllAnimeProvider()
 
-print(provider.NAME) # -> gogoanime
-print(provider.BASE_URL) # -> https://test.com
+print(provider.NAME) # -> allanime
+print(provider.BASE_URL) # -> https://test.com (because of base_url_overide)
 ```
 
 1.  Furthermore, you can specify a url override for each provider!
@@ -65,7 +65,7 @@ if provider.FILTER_CAPS & ( # (1)
 ```python
 from anipy_api.provider import get_provider 
 
-provider = get_provider("gogoanime")
+provider = get_provider("allanime")
 frieren = provider.get_search("frieren")[0]
 
 if provider.FILTER_CAPS & (
