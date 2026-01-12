@@ -110,7 +110,7 @@ class Config:
 
         Examples:
             provider_urls:
-              gogoanime: "https://gogoanime3.co"
+              allanime: "https://allanime.day"
               native: "~/Videos"
             provider_urls: {} # do not override any urls
         """
@@ -390,10 +390,6 @@ class Config:
         Automatically sync MyAnimeList to Seasonals list.
         """
         return self._get_value("auto_sync_mal_to_seasonals", False, bool)
-
-    @property
-    def auto_map_mal_to_gogo(self) -> bool:
-        return self._get_value("auto_map_mal_to_gogo", False, bool)
 
     @property
     def preferred_type(self) -> Optional[str]:
