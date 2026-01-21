@@ -31,7 +31,7 @@ When reproducing, try running it with `-VVV` and `--stack-always` for the best d
 
 The location of your log files depends on which OS you are using:
 - Linux: ~/.local/share/anipy-cli/logs/
-- Windows:  C:\Users\%USERPROFILE%\AppData\Local\anipy-cli\logs
+- Windows:  C:\Users\\%USERPROFILE%\AppData\Local\anipy-cli\logs
 - MacOS: ~/Library/Application Support/anipy-cli/logs
 
 **Additional context**
