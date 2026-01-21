@@ -26,5 +26,13 @@ Post your output of `pip show anipy-cli`
  - OS: 
  - Maybe something else that is specific to your platform and may have impact on the bug
 
+**Log files**
+When reproducing, try running it with `-VVV` and `--stack-always` for the best debug information.
+
+The location of your log files depends on which OS you are using:
+- Linux: ~/.local/share/anipy-cli/logs/
+- Windows:  C:\Users\%USERPROFILE%\AppData\Local\anipy-cli\logs
+- MacOS: ~/Library/Application Support/anipy-cli/logs
+
 **Additional context**
 Add any other context about the problem here, e.g. your config if related.
