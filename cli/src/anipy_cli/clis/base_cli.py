@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Optional
+from requests import ConnectionError as ConnError
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs
@@ -33,6 +34,5 @@ class CliBase(ABC):
 
                 if ret is False:
                     break
-        except Exception as e:
-            print("An error occured :(\nPlease check your internet connection")
-
+        except ConnError:
+            print("Unable to connect to server :(")
