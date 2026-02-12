@@ -25,10 +25,14 @@ class CliBase(ABC):
     def post(self) -> Optional[bool]: ...
 
     def run(self):
-        funcs = ["print_header", "take_input", "process", "show", "post"]
-        for f in funcs:
-            func = getattr(self, f)
-            ret = func()
+        try:
+            funcs = ["print_header", "take_input", "process", "show", "post"]
+            for f in funcs:
+                func = getattr(self, f)
+                ret = func()
 
-            if ret is False:
-                break
+                if ret is False:
+                    break
+        except Exception as e:
+            print("An error occured :(\nPlease check your internet connection")
+
