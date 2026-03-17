@@ -2,19 +2,19 @@
 
 [[package]]
 name = "anipy-api"
-version = "3.8.3"
+version = "3.8.4"
 description = "api for anipy-cli"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "anipy_api-3.8.3-py3-none-any.whl", hash = "sha256:a92cf0fa6c47d18897a807443f33999af2024992a526a6fd08e5f374dc1bfaca"},
-    {file = "anipy_api-3.8.3.tar.gz", hash = "sha256:76cd15dbb6ee6293626a77ef4f16e72dd676d5edd8b37a47c75f954a3df7d701"},
+    {file = "anipy_api-3.8.4-py3-none-any.whl", hash = "sha256:9441508c40b6f5a91bd02d1804e90901b4dc1fe676fcc3519911a34c6068ce81"},
+    {file = "anipy_api-3.8.4.tar.gz", hash = "sha256:53695e2cafb764076b44eac26f7163e359630296d6c7717ef496fa92d5161717"},
 ]
 
 [package.dependencies]
 beautifulsoup4 = ">=4.12.3,<5.0.0"
-dataclasses-json = ">=0.6.4,<0.7.0"
+dataclasses-json = ">=0.6.7,<0.7.0"
 levenshtein = ">=0.27.3,<0.28.0"
 m3u8 = ">=4.1.0,<5.0.0"
 pycountry = ">=24.6.1,<25.0.0"
@@ -22,8 +22,9 @@ pycryptodomex = ">=3.20.0,<4.0.0"
 python-ffmpeg = ">=2.0.11,<3.0.0"
 python-mpv = ">=1.0.6,<2.0.0"
 rapidfuzz = ">=3.14.0,<4.0.0"
-requests = ">=2.32.0,<3.0.0"
-simpleeval = ">=1.0.3,<2.0.0"
+requests = ">=2.32.5,<3.0.0"
+simpleeval = ">=1.0.5,<2.0.0"
+urllib3 = ">=2.6.0,<3.0.0"
 
 [[package]]
 name = "appdirs"
@@ -819,14 +820,14 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "simpleeval"
-version = "1.0.3"
+version = "1.0.7"
 description = "A simple, safe single expression evaluator library."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "simpleeval-1.0.3-py3-none-any.whl", hash = "sha256:e3bdbb8c82c26297c9a153902d0fd1858a6c3774bf53ff4f134788c3f2035c38"},
-    {file = "simpleeval-1.0.3.tar.gz", hash = "sha256:67bbf246040ac3b57c29cf048657b9cf31d4e7b9d6659684daa08ca8f1e45829"},
+    {file = "simpleeval-1.0.7-py3-none-any.whl", hash = "sha256:97ac271bfd8f2af9e7b9a36ceea67617f26fa873f9d5ae1922f64d4c1442534b"},
+    {file = "simpleeval-1.0.7.tar.gz", hash = "sha256:1e10e5f9fec597814444e20c0892ed15162fa214c8a88f434b5b077cf2fef85b"},
 ]
 
 [[package]]
@@ -932,4 +933,4 @@ termcolor = ">=3.1,<4.0"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "24e3e087d5ff237aaee9ab7fca917e37819872419663dfbdecd841774edd11d4"
+content-hash = "a67ac90c8c1d316564a9d086d0fcc539c0bfb027a12dd145626234c9d977ddb1"
