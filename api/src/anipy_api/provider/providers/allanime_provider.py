@@ -98,14 +98,14 @@ class AllAnimeFilter(BaseFilter):
     def _apply_query(self, query: str):
         if not query:
             return
-        self._request.params["variables"]["search"].update({"query": query})
+        self._request.json["variables"]["search"].update({"query": query})
 
     def _apply_year(self, year: int):
-        self._request.params["variables"]["search"].update({"year": int(year)})
+        self._request.json["variables"]["search"].update({"year": int(year)})
 
     def _apply_season(self, season: Season):
         season_name = season.name.capitalize()
-        self._request.params["variables"]["search"].update({"season": season_name})
+        self._request.json["variables"]["search"].update({"season": season_name})
 
     def _apply_status(self, status: Status): ...
 
@@ -117,7 +117,7 @@ class AllAnimeFilter(BaseFilter):
             MediaType.OVA: "OVA",
             MediaType.ONA: "ONA",
         }
-        self._request.params["variables"]["search"].update(
+        self._request.json["variables"]["search"].update(
             {"types": [mapping[media_type]]}
         )
 
@@ -147,9 +147,9 @@ class AllAnimeProvider(BaseProvider):
         self, query: str, filters: "Filters" = Filters()
     ) -> List[ProviderSearchResult]:
         req = Request(
-            "GET",
+            "POST",
             self.API_URL,
-            params={
+            json={
                 "variables": {
                     "search": {},
                     "limit": 26,
@@ -165,9 +165,9 @@ class AllAnimeProvider(BaseProvider):
         results = []
         page = 1
         while True:
-            req.params["variables"]["page"] = page
+            req.json["variables"]["page"] = page
             final_req = deepcopy(req)
-            final_req.params["variables"] = json.dumps(final_req.params["variables"])
+            final_req.params["variables"] = json.dumps(final_req.json["variables"])
             res = self._request_page(final_req).json()
 
             provider_results = res["data"]["shows"]["edges"]
@@ -198,9 +198,9 @@ class AllAnimeProvider(BaseProvider):
 
     def get_episodes(self, identifier: str, lang: LanguageTypeEnum) -> List[Episode]:
         req = Request(
-            "GET",
+            "POST",
             self.API_URL,
-            params={
+            json={
                 "variables": json.dumps({"showId": identifier}),
                 "query": EPISODES_QUERY,
             },
@@ -217,9 +217,9 @@ class AllAnimeProvider(BaseProvider):
 
     def get_info(self, identifier: str) -> "ProviderInfoResult":
         req = Request(
-            "GET",
+            "POST",
             self.API_URL,
-            params={
+            json={
                 "variables": json.dumps({"showId": identifier}),
                 "query": INFO_QUERY,
             },
@@ -245,9 +245,9 @@ class AllAnimeProvider(BaseProvider):
     ) -> List[ProviderStream]:
         tt = "dub" if lang == LanguageTypeEnum.DUB else "sub"
         req = Request(
-            "GET",
+            "POST",
             self.API_URL,
-            params={
+            json={
                 "variables": json.dumps(
                     {
                         "showId": identifier,
