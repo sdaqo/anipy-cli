@@ -2,10 +2,13 @@ import json
 from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
 
+import hashlib
+import base64
 import m3u8
 import Levenshtein
 from requests import Request
 from requests.exceptions import HTTPError
+from Cryptodome.Cipher import AES
 
 from anipy_api.provider import (
     BaseProvider,
@@ -93,6 +96,13 @@ INFO_QUERY = """
     }
 """
 
+def _decode_tobeparsed(tbp: str):
+    raw = base64.b64decode(tbp)
+    key = hashlib.sha256("P7K2RGbFgauVtmiS"[::-1].encode()).digest()
+    iv, ciphertext, tag = raw[:12], raw[12:-16], raw[-16:]
+    cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
+    decrypted = cipher.decrypt_and_verify(ciphertext, tag).decode('utf-8')
+    return json.loads(decrypted)
 
 class AllAnimeFilter(BaseFilter):
     def _apply_query(self, query: str):
@@ -239,6 +249,7 @@ class AllAnimeProvider(BaseProvider):
             release_year=data.get("airedStart", {}).get("year", None),
             alternative_names=data.get("altNames", None),
         )
+   
 
     def get_video(
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
@@ -260,12 +271,17 @@ class AllAnimeProvider(BaseProvider):
             headers={"Referer": "https://allmanga.to/"},
         )
         result = self._request_page(req).json()
-
+        
         providers = ["Yt-mp4", "Luf-Mp4", "S-Mp4", "Default"]
 
         streams = []
 
-        for provider in result["data"]["episode"]["sourceUrls"]:
+        if "tobeparsed" in result["data"].keys():
+            data = _decode_tobeparsed(result["data"]["tobeparsed"])
+        else:
+            data = result["data"]
+        
+        for provider in data["episode"]["sourceUrls"]:
             if provider["sourceName"] not in providers:
                 continue
 
