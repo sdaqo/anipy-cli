@@ -1,0 +1,32 @@
+# Dockerfile.termux - FINAL VERSION (with cmake + ninja for levenshtein)
+FROM docker.io/termux/termux-docker:aarch64
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    TERMUX_ALLOW_MISSING_DEPENDENCIES=1
+
+USER root
+
+# pthread compatibility for pycryptodomex
+RUN /entrypoint.sh sh -c '\
+    echo "=== Creating libpthread.so.0 symlink ===" && \
+    mkdir -p /lib && \
+    ln -sfn /lib/libc.so /lib/libpthread.so.0 2>/dev/null || true'
+
+# Install everything needed for pip compilation
+RUN /entrypoint.sh sh -c "apt-get update && apt-get upgrade -y && \
+    apt-get install -y \
+        python \
+        clang \
+        make \
+        pkg-config \
+        libffi \
+        openssl \
+        cmake \
+        ninja"
+
+# Pre-install shiv
+RUN /entrypoint.sh sh -c "python -m pip install --break-system-packages --no-cache-dir shiv"
+
+WORKDIR /workspace
+
+RUN /entrypoint.sh sh -c "echo '=== Termux build environment ready ==='"

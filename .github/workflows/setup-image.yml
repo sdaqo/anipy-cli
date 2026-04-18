@@ -1,0 +1,53 @@
+name: Update Build Image
+on:
+  push:
+    paths:
+      - 'Dockerfile.termux'
+  workflow_dispatch:
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Generate Lowercase Image Name
+        run: |
+          echo "IMAGE_ID=ghcr.io/${OWNER,,}/termux-build:latest" >> ${GITHUB_ENV}
+        env:
+          OWNER: '${{ github.repository_owner }}'
+
+      - name: Build and push Termux build image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.termux
+          platforms: linux/arm64
+          push: true
+          pull: true
+          no-cache: true
+          tags: ${{ env.IMAGE_ID }}
+          # Add this for better reproducibility
+          provenance: false
+
+      - name: Verify Image (pull + inspect + test run)
+        run: |
+          echo "=== Pulling and inspecting ==="
+          docker pull --platform linux/arm64 ${{ env.IMAGE_ID }}
+          docker inspect ${{ env.IMAGE_ID }} | grep -E 'Architecture|Os|platform'
+
+          echo "=== Testing if it actually runs ==="
+          docker run --rm --platform linux/arm64 ${{ env.IMAGE_ID }} uname -m
+          docker run --rm --platform linux/arm64 ${{ env.IMAGE_ID }} /data/data/com.termux/files/usr/bin/sh -c "echo 'Termux sh works on ARM64' && uname -m"

@@ -1,0 +1,175 @@
+name: Build Multi-Platform Executables
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_run:
+    workflows: ["Update Build Image"]
+    types:
+      - completed
+  workflow_dispatch: # Allows you to trigger this manually for testing!
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  # JOB 1: Build Standard Windows and Linux Binaries
+  build-binaries:
+    name: Build for ${{ matrix.friendly_name }}
+    runs-on: ${{ matrix.runner }}
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - friendly_name: linux-x64
+            runner: ubuntu-latest
+            os_ext: ".pyz"
+          - friendly_name: linux-arm
+            runner: ubuntu-24.04-arm
+            os_ext: ".pyz"
+          - friendly_name: windows-x64
+            runner: windows-latest
+            os_ext: ".exe"
+          - friendly_name: windows-arm
+            runner: windows-11-arm
+            os_ext: ".exe"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: astral-sh/setup-uv@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Tools
+        run: uv pip install --system shiv pyinstaller
+        shell: bash
+
+      - name: Build
+        shell: bash
+        run: |
+          mkdir -p dist
+          OUT_NAME="anipy-cli-${{ matrix.friendly_name }}${{ matrix.os_ext }}"
+          if [[ "${{ matrix.os_ext }}" == ".pyz" ]]; then
+            shiv -c anipy-cli -o "dist/$OUT_NAME" ./api ./cli
+          else
+            pyinstaller --onefile --noconfirm --clean \
+              --paths ./api/src --paths ./cli/src \
+              --collect-all anipy_api --collect-all anipy_cli --collect-all yaspin \
+              --name "$OUT_NAME" cli/src/anipy_cli/cli.py
+          fi
+
+      - name: Upload to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.friendly_name }}
+          path: dist/*
+
+    # JOB 2: Build Termux PYZ inside REAL Termux Docker (FINAL)
+  build-termux-standalone:
+    name: Build Standalone PYZ for Termux
+    runs-on: ubuntu-24.04-arm
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set lower case owner name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >> ${GITHUB_ENV}
+        env:
+          OWNER: "${{ github.repository_owner }}"
+
+      - name: Build PYZ inside REAL Termux Docker
+        run: |
+          echo "Pulling image: ghcr.io/${{ env.OWNER_LC }}/termux-build:latest"
+          docker pull --platform linux/arm64 ghcr.io/${{ env.OWNER_LC }}/termux-build:latest
+
+          # Create directory on HOST first
+          mkdir -p arm_deps
+          # Ensure the current directory is writable by the container's root user
+          chmod 777 . 
+          chmod 777 arm_deps
+
+          docker run --rm \
+            --platform linux/arm64 \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            ghcr.io/${{ env.OWNER_LC }}/termux-build:latest \
+            /entrypoint.sh sh -c "
+              echo '=== Installing dependencies ==='
+              # Use --upgrade to avoid those 'directory already exists' warnings
+              python -m pip install --upgrade --target ./arm_deps \
+                pycryptodomex rapidfuzz levenshtein pyyaml requests \
+                beautifulsoup4 yaspin dataclasses-json marshmallow \
+                m3u8 pycountry python-ffmpeg python-mpv
+
+              python -m pip install --upgrade shiv
+
+              echo '=== Building PYZ ==='
+              # Force remove if exists to avoid permission collisions on overwrite
+              rm -f anipy-cli-termux.pyz 
+
+              python -m shiv \
+                --compressed \
+                --site-packages ./arm_deps \
+                --python '/data/data/com.termux/files/usr/bin/python' \
+                -c anipy-cli \
+                -o anipy-cli-termux.pyz \
+                ./api ./cli
+
+              echo '=== BUILD COMPLETE ==='
+              ls -lh anipy-cli-termux.pyz
+            "
+          # Fix ownership so the GitHub Runner can upload the artifact
+          sudo chown $(id -u):$(id -g) anipy-cli-termux.pyz
+
+      - name: Upload to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-termux
+          path: anipy-cli-termux.pyz
+
+
+
+  # JOB 3: Final Release (Combines everything)
+  publish-release:
+    name: Publish All Assets
+    needs: [build-binaries, build-termux-standalone]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('latest-build-{0}', github.run_number) }}
+          name: ${{ github.ref_type == 'tag' && github.ref_name || format('Development Build {0}', github.run_number) }}
+          generate_release_notes: true
+          make_latest: true
+          prerelease: ${{ github.ref_type != 'tag' }}
