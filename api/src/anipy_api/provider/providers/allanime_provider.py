@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 import hashlib
 import base64
 import m3u8
-import Levenshtein
+from rapidfuzz import fuzz as Levenshtein
 from requests import Request
 from requests.exceptions import HTTPError
 from Cryptodome.Cipher import AES

@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # Configuration
-REPO="Program-Adam/anipy-cli"
+REPO="sdaqo/anipy-cli"
 BINARY_NAME="anipy-cli"
 
 echo "[*] Cleaning up old versions..."
