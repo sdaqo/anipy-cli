@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
-import Levenshtein
+from rapidfuzz import fuzz as Levenshtein
 from dataclasses_json import DataClassJsonMixin, config
 from requests import Request, Session
 

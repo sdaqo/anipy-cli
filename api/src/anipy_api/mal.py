@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
-import Levenshtein
+from rapidfuzz import fuzz as Levenshtein
 from dataclasses_json import DataClassJsonMixin
 from requests import Request, Session
 
