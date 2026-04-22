@@ -9,7 +9,6 @@ import Levenshtein
 from requests import Request
 from requests.exceptions import HTTPError
 from Cryptodome.Cipher import AES
-from Cryptodome.Util import Counter
 
 from anipy_api.provider import (
     BaseProvider,
@@ -99,26 +98,11 @@ INFO_QUERY = """
 
 def _decode_tobeparsed(tbp: str):
     raw = base64.b64decode(tbp)
-    raw_size = len(raw)
-
-    iv = raw[1:13]
-    iv_hex = iv.hex()
-
-    ctr_hex = iv_hex + "00000002"
-    ctr_int = int(ctr_hex, 16)
-
-    ct_len = raw_size - 13 - 16
-
-    ciphertext = raw[13:13 + ct_len]
-
-    key_bytes = bytes.fromhex("a254aa27c410f297bd04ba33a0c0df7ff4e706bf3ae27271c6703f84e750f552")
-
-    ctr = Counter.new(128, initial_value=ctr_int)
-    cipher = AES.new(key_bytes, AES.MODE_CTR, counter=ctr)
-
-    plaintext = cipher.decrypt(ciphertext).decode(errors="ignore")
-
-    return json.loads(plaintext)
+    key = hashlib.sha256("Xot36i3lK3:v1".encode()).digest()
+    iv, ciphertext, tag = raw[1:13], raw[13:-16], raw[-16:]
+    cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
+    decrypted = cipher.decrypt_and_verify(ciphertext, tag).decode('utf-8')
+    return json.loads(decrypted)
 
 class AllAnimeFilter(BaseFilter):
     def _apply_query(self, query: str):
