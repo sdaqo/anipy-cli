@@ -268,7 +268,7 @@ class AllAnimeProvider(BaseProvider):
                 ),
                 "query": STREAMURL_QUERY,
             },
-            headers={"Referer": "https://allmanga.to/"},
+            headers={"Referer": "https://youtu-chan.com/"},
         )
         result = self._request_page(req).json()
         
