@@ -81,7 +81,12 @@ class SeasonalMenu(MenuBase):
                 if s.episode == -1:
                     to_watch = episodes
                 else:
-                    to_watch = episodes[episodes.index(s.episode) + 1 :]
+                    try:
+                        to_watch = episodes[episodes.index(s.episode) + 1 :]
+                    except ValueError:
+                        error(f"\nThe entry for anime \"{anime}\" is corrupt, please re-add (a) or delete (e) the anime!")
+                        continue
+
 
                 if len(to_watch) > 0:
                     ch = Choice(
