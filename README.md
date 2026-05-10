@@ -22,6 +22,12 @@ As one wise man once said:
 
 We do not have an .exe, but we have pipx: `pipx install anipy-cli`
 
+For our linux nerds just run this script
+
+```bash
+curl -s https://raw.githubusercontent.com/sdaqo/anipy-cli/refs/heads/master/install-linux.sh | bash
+```
+
 Check out [Getting Started - CLI](https://sdaqo.github.io/anipy-cli/getting-started-cli) for more installation options (pip, nix) and advice!
 
 ## You want to use the api for your project?
