@@ -266,33 +266,35 @@ class AllAnimeProvider(BaseProvider):
                         "episodeString": str(episode),
                     }
                 ),
-                "query": STREAMURL_QUERY,
+                "extensions": json.dumps(
+                    {
+                        "persistedQuery": {
+                            "version":1,
+                            "sha256Hash":"d405d0edd690624b66baba3068e0edc3ac90f1597d898a1ec8db4e5c43c00fec"
+                        }
+                    }
+                ),
             },
             headers={"Referer": "https://youtu-chan.com/"},
         )
         result = self._request_page(req).json()
-        
-        providers = ["Yt-mp4", "Luf-Mp4", "S-Mp4", "Default"]
-
+        providers = ["Yt-mp4", "S-Mp4", "Uv-mp4", "Ak", "Default"]
         streams = []
 
         if "tobeparsed" in result["data"].keys():
             data = _decode_tobeparsed(result["data"]["tobeparsed"])
         else:
             data = result["data"]
-        
+
         for provider in data["episode"]["sourceUrls"]:
             if provider["sourceName"] not in providers:
                 continue
+            print(provider["sourceName"])
 
-            decrypted_path = self._decrypt(
-                provider["sourceUrl"].replace("--", "")
-            ).replace("clock", "clock.json")
-
-            if "tools.fast4speed.rsvp" in decrypted_path:
+            if "tools.fast4speed.rsvp" in provider["sourceUrl"]:
                 streams.append(
                     ProviderStream(
-                        url=decrypted_path,
+                        url=provider["sourceUrl"],
                         resolution=1080,
                         episode=episode,
                         language=lang,
@@ -300,6 +302,11 @@ class AllAnimeProvider(BaseProvider):
                     )
                 )
                 continue
+
+            decrypted_path = self._decrypt(
+                provider["sourceUrl"].replace("--", "")
+            ).replace("clock", "clock.json")
+
 
             req = Request(
                 "GET",
