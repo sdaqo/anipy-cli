@@ -1,0 +1,2476 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="This is the full Documentation for the api from anipy-cli and the cli itself.">
+      
+      
+        <meta name="author" content="sdaqo">
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../changelog/">
+      
+      
+      <link rel="icon" href="../assets/anipy-logo-dark-compact.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>Availability - Documentation for anipy-cli and anipy-api</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#playerprovider-availabiltiy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Documentation for anipy-cli and anipy-api" class="md-header__button md-logo" aria-label="Documentation for anipy-cli and anipy-api" data-md-component="logo">
+      
+  <img src="../assets/anipy-logo-dark-compact.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Documentation for anipy-cli and anipy-api
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Availability
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1M8 13h8v-2H8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4a5 5 0 0 0 5-5 5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5M7 15a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sdaqo/anipy-cli" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sdaqo/anipy-cli
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href=".." class="md-tabs__link">
+          
+  
+    
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../getting-started-cli/" class="md-tabs__link">
+        
+  
+    
+  
+  Getting Started - CLI
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started-api/" class="md-tabs__link">
+          
+  
+    
+  
+  Getting Started - API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../contributing/" class="md-tabs__link">
+        
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/" class="md-tabs__link">
+          
+  
+    
+  
+  API Code Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Documentation for anipy-cli and anipy-api" class="md-nav__button md-logo" aria-label="Documentation for anipy-cli and anipy-api" data-md-component="logo">
+      
+  <img src="../assets/anipy-logo-dark-compact.png" alt="logo">
+
+    </a>
+    Documentation for anipy-cli and anipy-api
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sdaqo/anipy-cli" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sdaqo/anipy-cli
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Availability
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Availability
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#current-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Version
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Current Version">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-340" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version 3.4.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version 3.4.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-330" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version 3.3.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version 3.3.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-320" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version 3.2.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version 3.2.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-300" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version 3.0.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version 3.0.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started-cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started - CLI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../getting-started-api/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Getting Started - API
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started - API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started-api/examples/provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started-api/examples/anime/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Anime
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started-api/examples/downloader/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Downloader
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started-api/examples/player/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Player
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started-api/examples/myanimelist/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. MyAnimeList
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started-api/examples/locallist/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Local List
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../reference/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    API Code Reference
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            API Code Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    anipy_api
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            anipy_api
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/anilist/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    anilist
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/anime/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    anime
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/download/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    download
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/error/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    error
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/locallist/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    locallist
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/mal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2_7" id="__nav_5_2_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    player
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_7">
+            <span class="md-nav__icon md-icon"></span>
+            player
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/player/base/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    base
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/player/player/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    player
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_7_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2_7_3" id="__nav_5_2_7_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    players
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_2_7_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_7_3">
+            <span class="md-nav__icon md-icon"></span>
+            players
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/player/players/iina/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    iina
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/player/players/mpv/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mpv
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/player/players/mpv_control/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mpv_control
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/player/players/syncplay/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    syncplay
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/player/players/vlc/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    vlc
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2_8" id="__nav_5_2_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    provider
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_8">
+            <span class="md-nav__icon md-icon"></span>
+            provider
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/provider/base/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    base
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/provider/filter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    filter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/provider/provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_8_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2_8_4" id="__nav_5_2_8_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    providers
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_2_8_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_8_4">
+            <span class="md-nav__icon md-icon"></span>
+            providers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/provider/providers/allanime_provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    allanime_provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/provider/providers/animekai_provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    animekai_provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/provider/providers/native_provider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    native_provider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/anipy_api/provider/utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    utils
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#current-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Version
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Current Version">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-340" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version 3.4.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version 3.4.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-330" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version 3.3.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version 3.3.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-320" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version 3.2.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version 3.2.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-300" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version 3.0.0
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version 3.0.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providers_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Providers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#players_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Players
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="playerprovider-availabiltiy">Player/Provider Availabiltiy<a class="headerlink" href="#playerprovider-availabiltiy" title="Permanent link">&para;</a></h1>
+<p>This is page lists available/supported providers/players and their capabilities.</p>
+<h2 id="current-version">Current Version<a class="headerlink" href="#current-version" title="Permanent link">&para;</a></h2>
+<p>Version: 3.5.0</p>
+<h3 id="providers">Providers<a class="headerlink" href="#providers" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Identifier</th>
+<th>URL</th>
+<th>Filter capabilties <sup id="fnref5:1"><a class="footnote-ref" href="#fn:1">1</a></sup></th>
+<th>Season Search <sup id="fnref5:2"><a class="footnote-ref" href="#fn:2">2</a></sup></th>
+<th>Notes</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>allanime</td>
+<td><a href="https://allmanga.to/">https://allmanga.to/</a></td>
+<td>YEAR, SEASON, MEDIA_TYPE, NO_QUERY</td>
+<td>Yes</td>
+<td><a href="" title="Placeholder for future reference">Hover Me</a> <strong>Recommended</strong></td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/provider/providers/allanime_provider/#anipy_api.provider.providers.allanime_provider.AllAnimeProvider">AllAnimeProvider</a></td>
+</tr>
+<tr>
+<td>animekai</td>
+<td><a href="https://animekai.to/">https://animekai.to/</a></td>
+<td>YEAR, SEASON, STATUS, MEDIA_TYPE, NO_QUERY</td>
+<td>Yes</td>
+<td><a href="" title="Pretty unstable and may not work for extended periods of time, better use allanime">Hover Me</a></td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/provider/providers/animekai_provider/#anipy_api.provider.providers.animekai_provider.AnimekaiProvider">AnimekaiProvider</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="players">Players<a class="headerlink" href="#players" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Recognised Stem(s) <sup id="fnref5:3"><a class="footnote-ref" href="#fn:3">3</a></sup></th>
+<th>Project URL(s)</th>
+<th>Sub-process</th>
+<th>Code Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mpv</td>
+<td>mpv, mpvnet</td>
+<td><a href="https://mpv.io/">https://mpv.io/</a>, <a href="https://github.com/mpvnet-player/mpv.net">https://github.com/mpvnet-player/mpv.net</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv/#anipy_api.player.players.mpv.Mpv">Mpv</a></td>
+</tr>
+<tr>
+<td>Syncplay</td>
+<td>syncplay</td>
+<td><a href="https://syncplay.pl/]">https://syncplay.pl/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/syncplay/#anipy_api.player.players.syncplay.Syncplay">Syncplay</a></td>
+</tr>
+<tr>
+<td>VLC Media Player</td>
+<td>vlc</td>
+<td><a href="https://www.videolan.org/vlc/">https://www.videolan.org/vlc/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/vlc/#anipy_api.player.players.vlc.Vlc">Vlc</a></td>
+</tr>
+<tr>
+<td>Mpv Controlled</td>
+<td>mpv-controlled</td>
+<td><a href="https://github.com/jaseg/python-mpv">https://github.com/jaseg/python-mpv</a></td>
+<td>No</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv_control/#anipy_api.player.players.mpv_control.MpvControllable">MpvControllable</a></td>
+</tr>
+<tr>
+<td>IINA</td>
+<td>iina</td>
+<td><a href="https://iina.io/">https://iina.io/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/iina/#anipy_api.player.players.iina.Iina">Iina</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="version-340">Version 3.4.0<a class="headerlink" href="#version-340" title="Permanent link">&para;</a></h2>
+<p>Version: 3.4.0</p>
+<h3 id="providers_1">Providers<a class="headerlink" href="#providers_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Identifier</th>
+<th>URL</th>
+<th>Filter capabilties <sup id="fnref4:1"><a class="footnote-ref" href="#fn:1">1</a></sup></th>
+<th>Season Search <sup id="fnref4:2"><a class="footnote-ref" href="#fn:2">2</a></sup></th>
+<th>Notes</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>animekai</td>
+<td><a href="https://animekai.to/">https://animekai.to/</a></td>
+<td>YEAR, SEASON, STATUS, MEDIA_TYPE, NO_QUERY</td>
+<td>Yes</td>
+<td><a href="" title="Placeholder for future reference">Hover Me</a> <strong>Recommended</strong></td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/provider/providers/animekai_provider/#anipy_api.provider.providers.animekai_provider.AnimekaiProvider">AnimekaiProvider</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="players_1">Players<a class="headerlink" href="#players_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Recognised Stem(s) <sup id="fnref4:3"><a class="footnote-ref" href="#fn:3">3</a></sup></th>
+<th>Project URL(s)</th>
+<th>Sub-process</th>
+<th>Code Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mpv</td>
+<td>mpv, mpvnet</td>
+<td><a href="https://mpv.io/">https://mpv.io/</a>, <a href="https://github.com/mpvnet-player/mpv.net">https://github.com/mpvnet-player/mpv.net</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv/#anipy_api.player.players.mpv.Mpv">Mpv</a></td>
+</tr>
+<tr>
+<td>Syncplay</td>
+<td>syncplay</td>
+<td><a href="https://syncplay.pl/]">https://syncplay.pl/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/syncplay/#anipy_api.player.players.syncplay.Syncplay">Syncplay</a></td>
+</tr>
+<tr>
+<td>VLC Media Player</td>
+<td>vlc</td>
+<td><a href="https://www.videolan.org/vlc/">https://www.videolan.org/vlc/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/vlc/#anipy_api.player.players.vlc.Vlc">Vlc</a></td>
+</tr>
+<tr>
+<td>Mpv Controlled</td>
+<td>mpv-controlled</td>
+<td><a href="https://github.com/jaseg/python-mpv">https://github.com/jaseg/python-mpv</a></td>
+<td>No</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv_control/#anipy_api.player.players.mpv_control.MpvControllable">MpvControllable</a></td>
+</tr>
+<tr>
+<td>IINA</td>
+<td>iina</td>
+<td><a href="https://iina.io/">https://iina.io/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/iina/#anipy_api.player.players.iina.Iina">Iina</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="version-330">Version 3.3.0<a class="headerlink" href="#version-330" title="Permanent link">&para;</a></h2>
+<p>Version: 3.3.0</p>
+<h3 id="providers_2">Providers<a class="headerlink" href="#providers_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Identifier</th>
+<th>URL</th>
+<th>Filter capabilties <sup id="fnref3:1"><a class="footnote-ref" href="#fn:1">1</a></sup></th>
+<th>Season Search <sup id="fnref3:2"><a class="footnote-ref" href="#fn:2">2</a></sup></th>
+<th>Notes</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gogoanime</td>
+<td><a href="https://gogoanime3.co">https://gogoanime3.co</a></td>
+<td>YEAR, SEASON, STATUS, NO_QUERY</td>
+<td>Yes</td>
+<td><a href="" title="As of now this provider does not update it's content, but is still online.">Hover Me</a></td>
+<td>[GoGoProvider][anipy_api.provider.providers.gogo_provider.GoGoProvider]</td>
+</tr>
+<tr>
+<td>anivibe</td>
+<td><a href="https://anivibe.net/">https://anivibe.net/</a></td>
+<td>YEAR, SEASON, STATUS, MEDIA_TYPE, NO_QUERY</td>
+<td>Yes</td>
+<td><a href="" title="Placeholder for future reference">Hover Me</a></td>
+<td>[AnivibeProvider][anipy_api.provider.providers.anivibe_provider.AnivibeProvider]</td>
+</tr>
+</tbody>
+</table>
+<h3 id="players_2">Players<a class="headerlink" href="#players_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Recognised Stem(s) <sup id="fnref3:3"><a class="footnote-ref" href="#fn:3">3</a></sup></th>
+<th>Project URL(s)</th>
+<th>Sub-process</th>
+<th>Code Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mpv</td>
+<td>mpv, mpvnet</td>
+<td><a href="https://mpv.io/">https://mpv.io/</a>, <a href="https://github.com/mpvnet-player/mpv.net">https://github.com/mpvnet-player/mpv.net</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv/#anipy_api.player.players.mpv.Mpv">Mpv</a></td>
+</tr>
+<tr>
+<td>Syncplay</td>
+<td>syncplay</td>
+<td><a href="https://syncplay.pl/]">https://syncplay.pl/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/syncplay/#anipy_api.player.players.syncplay.Syncplay">Syncplay</a></td>
+</tr>
+<tr>
+<td>VLC Media Player</td>
+<td>vlc</td>
+<td><a href="https://www.videolan.org/vlc/">https://www.videolan.org/vlc/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/vlc/#anipy_api.player.players.vlc.Vlc">Vlc</a></td>
+</tr>
+<tr>
+<td>Mpv Controlled</td>
+<td>mpv-controlled</td>
+<td><a href="https://github.com/jaseg/python-mpv">https://github.com/jaseg/python-mpv</a></td>
+<td>No</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv_control/#anipy_api.player.players.mpv_control.MpvControllable">MpvControllable</a></td>
+</tr>
+<tr>
+<td>IINA</td>
+<td>iina</td>
+<td><a href="https://iina.io/">https://iina.io/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/iina/#anipy_api.player.players.iina.Iina">Iina</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="version-320">Version 3.2.0<a class="headerlink" href="#version-320" title="Permanent link">&para;</a></h2>
+<p>Version: 3.2.0</p>
+<h3 id="providers_3">Providers<a class="headerlink" href="#providers_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Identifier</th>
+<th>URL</th>
+<th>Filter capabilties <sup id="fnref2:1"><a class="footnote-ref" href="#fn:1">1</a></sup></th>
+<th>Season Search <sup id="fnref2:2"><a class="footnote-ref" href="#fn:2">2</a></sup></th>
+<th>Notes</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gogoanime</td>
+<td><a href="https://gogoanime3.co">https://gogoanime3.co</a></td>
+<td>YEAR, SEASON, STATUS, NO_QUERY</td>
+<td>Yes</td>
+<td><a href="" title="If possible search for the japanese name instead of the english one, some entries in gogo do not have their alternative names configured properly.">Hover Me</a></td>
+<td>[GoGoProvider][anipy_api.provider.providers.gogo_provider.GoGoProvider]</td>
+</tr>
+<tr>
+<td>yugenanime</td>
+<td><a href="https://yugenanime.tv">https://yugenanime.tv</a></td>
+<td>YEAR, SEASON, STATUS, MEDIA_TYPE, NO_QUERY</td>
+<td>Yes</td>
+<td><a href="" title="Placeholder for future reference">Hover Me</a> <strong>Recommended</strong></td>
+<td>[YugenProvider][anipy_api.provider.providers.yugen_provider.YugenProvider]</td>
+</tr>
+</tbody>
+</table>
+<h3 id="players_3">Players<a class="headerlink" href="#players_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Recognised Stem(s) <sup id="fnref2:3"><a class="footnote-ref" href="#fn:3">3</a></sup></th>
+<th>Project URL(s)</th>
+<th>Sub-process</th>
+<th>Code Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mpv</td>
+<td>mpv, mpvnet</td>
+<td><a href="https://mpv.io/">https://mpv.io/</a>, <a href="https://github.com/mpvnet-player/mpv.net">https://github.com/mpvnet-player/mpv.net</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv/#anipy_api.player.players.mpv.Mpv">Mpv</a></td>
+</tr>
+<tr>
+<td>Syncplay</td>
+<td>syncplay</td>
+<td><a href="https://syncplay.pl/]">https://syncplay.pl/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/syncplay/#anipy_api.player.players.syncplay.Syncplay">Syncplay</a></td>
+</tr>
+<tr>
+<td>VLC Media Player</td>
+<td>vlc</td>
+<td><a href="https://www.videolan.org/vlc/">https://www.videolan.org/vlc/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/vlc/#anipy_api.player.players.vlc.Vlc">Vlc</a></td>
+</tr>
+<tr>
+<td>Mpv Controlled</td>
+<td>mpv-controlled</td>
+<td><a href="https://github.com/jaseg/python-mpv">https://github.com/jaseg/python-mpv</a></td>
+<td>No</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv_control/#anipy_api.player.players.mpv_control.MpvControllable">MpvControllable</a></td>
+</tr>
+<tr>
+<td>IINA</td>
+<td>iina</td>
+<td><a href="https://iina.io/">https://iina.io/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/iina/#anipy_api.player.players.iina.Iina">Iina</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="version-300">Version 3.0.0<a class="headerlink" href="#version-300" title="Permanent link">&para;</a></h2>
+<p>Version: 3.0.0</p>
+<h3 id="providers_4">Providers<a class="headerlink" href="#providers_4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Identifier</th>
+<th>URL</th>
+<th>Filter capabilties <sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup></th>
+<th>Season Search <sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup></th>
+<th>Notes</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gogoanime</td>
+<td><a href="https://gogoanime3.co">https://gogoanime3.co</a></td>
+<td>YEAR, SEASON, STATUS, NO_QUERY</td>
+<td>Yes</td>
+<td><a href="" title="If possible search for the japanese name instead of the english one, some entries in gogo do not have their alternative names configured properly.">Hover Me</a> <strong>Recommended</strong></td>
+<td>[GoGoProvider][anipy_api.provider.providers.gogo_provider.GoGoProvider]</td>
+</tr>
+</tbody>
+</table>
+<h3 id="players_4">Players<a class="headerlink" href="#players_4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Recognised Stem(s) <sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup></th>
+<th>Project URL(s)</th>
+<th>Sub-process</th>
+<th>Code Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mpv</td>
+<td>mpv, mpvnet</td>
+<td><a href="https://mpv.io/">https://mpv.io/</a>, <a href="https://github.com/mpvnet-player/mpv.net">https://github.com/mpvnet-player/mpv.net</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv/#anipy_api.player.players.mpv.Mpv">Mpv</a></td>
+</tr>
+<tr>
+<td>Syncplay</td>
+<td>syncplay</td>
+<td><a href="https://syncplay.pl/]">https://syncplay.pl/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/syncplay/#anipy_api.player.players.syncplay.Syncplay">Syncplay</a></td>
+</tr>
+<tr>
+<td>VLC Media Player</td>
+<td>vlc</td>
+<td><a href="https://www.videolan.org/vlc/">https://www.videolan.org/vlc/</a></td>
+<td>Yes</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/vlc/#anipy_api.player.players.vlc.Vlc">Vlc</a></td>
+</tr>
+<tr>
+<td>Mpv Controlled</td>
+<td>mpv-controlled</td>
+<td><a href="https://github.com/jaseg/python-mpv">https://github.com/jaseg/python-mpv</a></td>
+<td>No</td>
+<td><a class="autorefs autorefs-internal" href="../reference/anipy_api/player/players/mpv_control/#anipy_api.player.players.mpv_control.MpvControllable">MpvControllable</a></td>
+</tr>
+</tbody>
+</table>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>Look here for infos about this
+<a href="../reference/anipy_api/provider/filter/#anipy_api.provider.filter.FilterCapabilities">here</a>,
+this is only important for API usage.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref4:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref5:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>This is a cli-specific capability, if a provider has the filter
+capabilities YEAR, SEASON and NO_QUERY it is eligible for this.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:2" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:2" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref4:2" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref5:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>The Stem is the end part of a path without it's suffix e.g. the stem of
+<code>mpv.exe</code> is <code>mpv</code>.&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:3" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:3" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref4:3" title="Jump back to footnote 3 in the text">&#8617;</a><a class="footnote-backref" href="#fnref5:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Index">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Index
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../changelog/" class="md-footer__link md-footer__link--next" aria-label="Next: Changelog">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Changelog
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.footer", "navigation.indexes", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.tracking", "content.code.annotate", "content.tooltips"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  </body>
+</html>
