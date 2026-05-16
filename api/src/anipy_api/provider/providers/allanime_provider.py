@@ -32,70 +32,6 @@ from copy import deepcopy
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
 
-
-SEARCH_QURY = """
-    query( $search: SearchInput
-           $limit: Int
-           $page: Int
-           $translationType: VaildTranslationTypeEnumType
-           $countryOrigin: VaildCountryOriginEnumType )
-    {
-        shows( search: $search
-                limit: $limit
-                page: $page
-                translationType: $translationType
-                countryOrigin: $countryOrigin )
-        {
-            edges 
-            {
-                _id,
-                name,
-                availableEpisodes
-            }
-        }
-    }
-"""
-
-EPISODES_QUERY = """
-    query ($showId: String!) {
-        show(
-            _id: $showId
-        ) {
-            availableEpisodesDetail,
-        }
-    }
-"""
-
-STREAMURL_QUERY = """
-    query ($showId: String!, $translationType: VaildTranslationTypeEnumType!, $episodeString: String!) {
-        episode(
-            showId: $showId
-            translationType: $translationType
-            episodeString: $episodeString
-        ) {
-            episodeString,
-            sourceUrls
-        }
-    }
-"""
-
-
-INFO_QUERY = """
-    query ($showId: String!) {
-        show(
-            _id: $showId
-        ) {
-            name,
-            altNames,
-            thumbnail,
-            genres,
-            status,
-            airedStart,
-            description
-        }
-    }
-"""
-
 def _decode_tobeparsed(tbp: str):
     raw = base64.b64decode(tbp)
     key = hashlib.sha256("Xot36i3lK3:v1".encode()).digest()
@@ -164,14 +100,21 @@ class AllAnimeProvider(BaseProvider):
                     "search": {},
                     "limit": 26,
                     "page": 1,
+                    "translationType": "sub",
                     "countryOrigin": "ALL",
                 },
-                "query": SEARCH_QURY,
+                "extensions": json.dumps(
+                    {
+                        "persistedQuery": {
+                            "version":1,
+                            "sha256Hash":"a24c500a1b765c68ae1d8dd85174931f661c71369c89b92b88b75a725afc471c"
+                        }
+                    }
+                ),
             },
             headers={"Referer": "https://allmanga.to/"},
         )
         req = AllAnimeFilter(req).apply(query, filters)
-
         results = []
         page = 1
         while True:
@@ -179,7 +122,6 @@ class AllAnimeProvider(BaseProvider):
             final_req = deepcopy(req)
             final_req.params["variables"] = json.dumps(final_req.json["variables"])
             res = self._request_page(final_req).json()
-
             provider_results = res["data"]["shows"]["edges"]
             if len(provider_results) == 0:
                 break
@@ -211,8 +153,15 @@ class AllAnimeProvider(BaseProvider):
             "POST",
             self.API_URL,
             json={
-                "variables": json.dumps({"showId": identifier}),
-                "query": EPISODES_QUERY,
+                "variables": json.dumps({"_id": identifier}),
+                "extensions": json.dumps(
+                    {
+                        "persistedQuery": {
+                            "version":1,
+                            "sha256Hash":"043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a"
+                        }
+                    }
+                ),
             },
             headers={"Referer": "https://allmanga.to/"},
         )
@@ -230,8 +179,15 @@ class AllAnimeProvider(BaseProvider):
             "POST",
             self.API_URL,
             json={
-                "variables": json.dumps({"showId": identifier}),
-                "query": INFO_QUERY,
+                "variables": json.dumps({"_id": identifier}),
+                "extensions": json.dumps(
+                    {
+                        "persistedQuery": {
+                            "version":1,
+                            "sha256Hash":"043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a"
+                        }
+                    }
+                ),
             },
             headers={"Referer": "https://allmanga.to/"},
         )
@@ -289,7 +245,6 @@ class AllAnimeProvider(BaseProvider):
         for provider in data["episode"]["sourceUrls"]:
             if provider["sourceName"] not in providers:
                 continue
-            print(provider["sourceName"])
 
             if "tools.fast4speed.rsvp" in provider["sourceUrl"]:
                 streams.append(
