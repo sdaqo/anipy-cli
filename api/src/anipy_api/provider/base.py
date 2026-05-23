@@ -140,7 +140,7 @@ class BaseProvider(ABC):
         for v in ["NAME", "BASE_URL", "FILTER_CAPS"]:
             if not hasattr(cls, v):
                 raise NotImplementedError(
-                    "Attribute '{}' has not been overriden in class '{}'".format(
+                    "Attribute '{}' has not been overridden in class '{}'".format(
                         v, cls.__name__
                     )
                 )

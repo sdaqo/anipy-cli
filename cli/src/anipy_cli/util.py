@@ -254,11 +254,11 @@ def convert_letter_to_season(letter: str) -> Optional[str]:
 
 
 def migrate_locallist(file: Path) -> LocalListData:
-    error(f"{file} is in an unsuported format...")
+    error(f"{file} is in an unsupported format...")
 
     new_list = LocalListData({})
     choice = inquirer.confirm(  # type: ignore
-        message="Should it be delted?",
+        message="Should it be deleted?",
         default=False,
     ).execute()
     if choice:

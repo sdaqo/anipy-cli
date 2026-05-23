@@ -193,7 +193,7 @@ class MALMenu(MenuBase):
             choices.append(
                 Choice(
                     value=config.tracker_dub_tag,
-                    name=f"{config.tracker_dub_tag} (sets wheter you prefer to watch a particular anime in dub)",
+                    name=f"{config.tracker_dub_tag} (sets whether you prefer to watch a particular anime in dub)",
                 )
             )
 
@@ -201,7 +201,7 @@ class MALMenu(MenuBase):
             choices.append(
                 Choice(
                     value=config.tracker_ignore_tag,
-                    name=f"{config.tracker_ignore_tag} (sets wheter anipy-cli will ignore a particular anime)",
+                    name=f"{config.tracker_ignore_tag} (sets whether anipy-cli will ignore a particular anime)",
                 )
             )
 

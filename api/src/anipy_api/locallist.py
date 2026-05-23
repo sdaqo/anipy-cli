@@ -148,7 +148,7 @@ class LocalList:
             if not ("episode" in update_fields and "language" in update_fields):
                 raise ArgumentError(
                     "The anime you are trying to update is not added to the list and you are not"
-                    "providing the neccessary update_fields `episode` and `language`, this can not be processed"
+                    "providing the necessary update_fields `episode` and `language`, this can not be processed"
                 )
 
             entry = LocalListEntry(

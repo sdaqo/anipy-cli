@@ -42,7 +42,7 @@ def _safe_cli(args: CliArgs):
     config._create_config()
 
     if config.dc_presence:
-        with DotSpinner("Intializing Discord Presence...") as s:
+        with DotSpinner("Initializing Discord Presence...") as s:
             try:
                 DiscordPresence()
                 s.set_text(colors.GREEN, "Initialized Discord Presence")

@@ -14,14 +14,14 @@
     ```
     # Install
     pipx install anipy-cli
-    
+
     # Update
     pipx upgrade anipy-cli
-    
+
     # Uninstall
     pipx uninstall anipy-cli
     ```
-- Via pipx (from source): 
+- Via pipx (from source):
 ```
 # Install
 pipx install "git+https://github.com/sdaqo/anipy-cli.git#subdirectory=cli"
@@ -32,7 +32,7 @@ pipx upgrade anipy-cli
 # Uninstall
 pipx uninstall anipy-cli
 ```
-- Via pip: 
+- Via pip:
 ```
 # Install
 pip install anipy-cli
@@ -43,7 +43,7 @@ pip --upgrade anipy-cli
 # Uninstall
 pip uninstall anipy-cli
 ```
-- Via pip (from source): 
+- Via pip (from source):
 ```
 # Install
 pip install "git+https://github.com/sdaqo/anipy-cli.git#subdirectory=cli"
@@ -54,7 +54,7 @@ pip --upgrade anipy-cli
 # Uninstall
 pip uninstall anipy-cli
 ```
-- NixOS: 
+- NixOS:
 ```
 # Make sure you have flakes enabled on your system!
 
@@ -62,7 +62,7 @@ pip uninstall anipy-cli
 nix run github:sdaqo/anipy-cli
 
 # Add them to your flake inputs (recommended)
-# 
+#
 # {
 #   anipy-cli.url = "github:sdaqo/anipy-cli";
 # }
@@ -83,7 +83,7 @@ nix profile remove <index-of-anipy-cli>
 
 ## Usage
 
-=== "Explainations for non-obvious stuff"
+=== "Explanations for non-obvious stuff"
 
     ### Seasonal Mode
     Seasonal Mode is one of the major modes of anipy-cli, with it you can
@@ -161,7 +161,7 @@ nix profile remove <index-of-anipy-cli>
 
     ### Auto Update
     Auto update is a flag in anipy-cli: `--auto-update` it will automatically update and download all anime in seasonals or mal mode from start
-    episode to newest. This is increadibly handy if you want to set up some [cron job](https://de.wikipedia.org/wiki/Cron) to keep your library up-to-date.
+    episode to newest. This is incredibly handy if you want to set up some [cron job](https://de.wikipedia.org/wiki/Cron) to keep your library up-to-date.
 
     !!! note
         This only works in combination with `-M` or `-S`
@@ -189,10 +189,10 @@ nix profile remove <index-of-anipy-cli>
     This is just a paste from `anipy-cli --help`.
     ```
     usage: anipy-cli [-D | -B | -H | -S | -M | -A | --delete-history | --migrate-history]
-                     [-s SEARCH] [-ss [SEASONAL_SEARCH]] [-q QUALITY] [-f] [-a] 
+                     [-s SEARCH] [-ss [SEASONAL_SEARCH]] [-q QUALITY] [-f] [-a]
                      [-p {mpv,vlc,iina,syncplay,mpvnet,mpv-controlled}] [-l LOCATION]
-                     [-V] [--stack-always] [-so] [--mal-password MAL_PASSWORD] 
-                     [--mal-user MAL_USER] [--mal-sync-to-seasonals] 
+                     [-V] [--stack-always] [-so] [--mal-password MAL_PASSWORD]
+                     [--mal-user MAL_USER] [--mal-sync-to-seasonals]
                      [--anilist-sync-to-seasonals] [-h] [-v] [--config-path]
 
     Play Animes from online anime providers locally or download them, and much more.

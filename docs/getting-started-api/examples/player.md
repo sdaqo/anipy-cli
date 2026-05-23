@@ -32,8 +32,8 @@ mpv_player.play_file("/some/file.mp4") # (2)
 1. You can also use the [list_players][anipy_api.player.player.list_players] function to get a list of players.
 2. With the [play_file][anipy_api.player.base.PlayerBase.play_file] function you can play local files.
 
-You can also use the mpv-controllable player, it wraps the [python-mpv](https://github.com/jaseg/python-mpv?tab=readme-ov-file#usage) 
-player which uses libmpv, check python-mpv's readme to know how to get libmpv. This allows you to controll the player in the code, check this out:
+You can also use the mpv-controllable player, it wraps the [python-mpv](https://github.com/jaseg/python-mpv?tab=readme-ov-file#usage)
+player which uses libmpv, check python-mpv's readme to know how to get libmpv. This allows you to control the player in the code, check this out:
 ```python
 from anipy_api.player import get_player, list_players
 from anipy_api.anime import Anime
@@ -44,7 +44,7 @@ def on_play(anime: Anime, stream: ProviderStream):
 
 mpv_controllable_player = get_player(
     "mpv-controllable",
-    play_callback=on_play 
+    play_callback=on_play
     # (1)
 )
 

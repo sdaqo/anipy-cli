@@ -377,7 +377,7 @@ def migrate_provider(mode: str, local_list: "LocalList"):
         if best_ratio >= config.mal_mapping_min_similarity:
             local_list.delete(s)
         else:
-            print(f"Could not autmatically map {s.name}, you can map it manually.")
+            print(f"Could not automatically map {s.name}, you can map it manually.")
             best_anime = search_show_prompt("seasonal", skip_season_search=True)
             if best_anime is None:
                 continue

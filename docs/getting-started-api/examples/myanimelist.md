@@ -4,10 +4,10 @@ Uhm, I did not find a proper implementation of the MyAnimeList v2 api for
 python... so yeah.
 
 There is also support for [anilist](https://anilist.co/), the usage is generally the same,
-exepect for authentication. 
-For the API docs please see [AniList][anipy_api.anilist.AniList] and [AniListAdapter][anipy_api.anilist.AniListAdapter] 
+exepect for authentication.
+For the API docs please see [AniList][anipy_api.anilist.AniList] and [AniListAdapter][anipy_api.anilist.AniListAdapter]
 also check [anilist_cli.py](https://github.com/sdaqo/anipy-cli/blob/master/cli/src/anipy_cli/clis/anilist_cli.py) for a implementation example.
-    
+
 ## Authentication
 
 The [MyAnimeList][anipy_api.mal.MyAnimeList] class implement basic
@@ -32,7 +32,7 @@ mal = MyAnimeList.from_rt_grant(
 1. Those functions may throw a
    [MyAnimeListError][anipy_api.error.MyAnimeListError] when auth fails, wrap
    them in a try/except.
-2. Please note that that currently no complex oauth autentication scheme is
+2. Please note that that currently no complex oauth authentication scheme is
    implemented, this client uses the client id of the official MyAnimeList
    android app, this gives us the ability to login via a username/password
    combination. If you pass your own client id you will not be able to use the
@@ -98,10 +98,10 @@ add that to your myanimelist, but you do not know which mal anime that is. The
 [MyAnimeListAdapter][anipy_api.mal.MyAnimeListAdapter] class can handle that for
 you.
 
-BUT this does not always work, there is a possibilty that the adapter can not
+BUT this does not always work, there is a possibility that the adapter can not
 match the anime, this class uses the
 [Levenshtein Distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
-algorithm to calculate the similiarty between names, you can tweak its
+algorithm to calculate the similarity between names, you can tweak its
 parameters and also other stuff to ensure you get a match.
 
 ```python
@@ -136,7 +136,7 @@ if anime is not None:
 
 1. The provider to or from which you want to adapt.
 2. The minimum accepted similarity ratio. This should be a number from 0-1, 1
-   meaning the names are identical 0 meaning there are no identical charachters
+   meaning the names are identical 0 meaning there are no identical characters
    whatsoever. If it is not met the function will return None.
 3. With this the alternative names will also be checked if available. This
    improves chances of matching but may take longer.
