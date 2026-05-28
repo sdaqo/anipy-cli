@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -87,7 +88,8 @@ class Downloader:
 
     @staticmethod
     def _get_valid_pathname(name: str):
-        if sys.platform == "win32":
+        is_android = "ANDROID_ROOT" in os.environ or "ANDROID_DATA" in os.environ
+        if sys.platform == "win32" or is_android:
             invalid_chars = ["\\", "/", ":", "*", "?", "<", ">", "|", '"', "."]
         else:
             invalid_chars = [".", "/"]
