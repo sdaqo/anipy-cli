@@ -13,7 +13,7 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 poethepoet = "^0.25.1"
-black = "^24.3.1"
+black = "^26.3.1"
 ruff = "^0.4.4"
 typer = "^0.12.3"
 tomlkit = "^0.12.5"
