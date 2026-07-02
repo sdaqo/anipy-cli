@@ -1,3 +1,4 @@
+import time
 import json
 from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
@@ -88,6 +89,36 @@ class AllAnimeProvider(BaseProvider):
     )
 
     API_URL: str = BASE_URL.replace("//", "//api.") + "/api"
+
+    def _request_page(self, req: Request):
+        """Prepare a request and send it, but create a new session if self.session is broken and handle timeout error
+
+        Args:
+            req: The request
+
+        Returns:
+            out: Response of the request
+        """
+
+        response = super()._request_page(req)
+
+        response_json = response.json()
+
+        if "errors" in response_json:
+            errors: list[dict] = response_json["errors"]
+
+            # only handle the first error for now
+            error_msg: str = errors[0]["message"]
+
+            if error_msg.startswith("Too many requests,"):
+                timeout = int(error_msg.removeprefix("Too many requests, please try again in ").removesuffix(" seconds."))
+                time.sleep(timeout)
+                return self._request_page(req)
+            else:
+                raise ConnectionError(f"Server responded with unknown error: {error_msg}")
+
+        else:
+            return response
 
     def get_search(
         self, query: str, filters: "Filters" = Filters()
