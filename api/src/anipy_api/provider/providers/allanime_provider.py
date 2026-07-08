@@ -59,7 +59,7 @@ def _decode_tobeparsed(tbp: str):
     raw = base64.b64decode(tbp)
     iv, ciphertext, tag = raw[1:13], raw[13:-16], raw[-16:]
     cipher = AES.new(_aa_key(), AES.MODE_GCM, nonce=iv)
-    decrypted = cipher.decrypt_and_verify(ciphertext, tag).decode('utf-8')
+    decrypted = cipher.decrypt_and_verify(ciphertext, tag).decode("utf-8")
     return json.loads(decrypted)
 
 
@@ -82,6 +82,7 @@ def _generate_aareq(query_hash: str) -> str:
         json.dumps(payload, separators=(",", ":")).encode()
     )
     return base64.b64encode(b"\x01" + iv + ciphertext + tag).decode()
+
 
 class AllAnimeFilter(BaseFilter):
     def _apply_query(self, query: str):
@@ -149,8 +150,8 @@ class AllAnimeProvider(BaseProvider):
                 "extensions": json.dumps(
                     {
                         "persistedQuery": {
-                            "version":1,
-                            "sha256Hash":"a24c500a1b765c68ae1d8dd85174931f661c71369c89b92b88b75a725afc471c"
+                            "version": 1,
+                            "sha256Hash": "a24c500a1b765c68ae1d8dd85174931f661c71369c89b92b88b75a725afc471c",
                         }
                     }
                 ),
@@ -200,8 +201,8 @@ class AllAnimeProvider(BaseProvider):
                 "extensions": json.dumps(
                     {
                         "persistedQuery": {
-                            "version":1,
-                            "sha256Hash":"043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a"
+                            "version": 1,
+                            "sha256Hash": "043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a",
                         }
                     }
                 ),
@@ -226,8 +227,8 @@ class AllAnimeProvider(BaseProvider):
                 "extensions": json.dumps(
                     {
                         "persistedQuery": {
-                            "version":1,
-                            "sha256Hash":"043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a"
+                            "version": 1,
+                            "sha256Hash": "043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a",
                         }
                     }
                 ),
@@ -248,7 +249,6 @@ class AllAnimeProvider(BaseProvider):
             release_year=data.get("airedStart", {}).get("year", None),
             alternative_names=data.get("altNames", None),
         )
-   
 
     def get_video(
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
@@ -309,7 +309,6 @@ class AllAnimeProvider(BaseProvider):
             decrypted_path = self._decrypt(
                 provider["sourceUrl"].replace("--", "")
             ).replace("clock", "clock.json")
-
 
             req = Request(
                 "GET",
