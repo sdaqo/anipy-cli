@@ -173,7 +173,7 @@ class AllAnimeProvider(BaseProvider):
                 name = a["name"]
                 identifier = a["_id"]
                 languages = {LanguageTypeEnum.SUB}
-                if a["availableEpisodes"]["dub"] > 0:
+                if a["availableEpisodes"].get("dub", 0) > 0:
                     languages |= {LanguageTypeEnum.DUB}
 
                 results.append(
