@@ -1,4 +1,5 @@
 import json
+import time
 from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
 
@@ -32,13 +33,56 @@ from copy import deepcopy
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
 
+# AllAnime protects the source-url query with an "aaReq" token that has to be
+# sent inside the GraphQL extensions object, otherwise the api answers with
+# AA_CRYPTO_MISSING. These values are baked into the current site build.
+_AAREQ_EPOCH = 4128
+_AAREQ_BUILD_ID = "9"
+_VIDEO_QUERY_HASH = "d405d0edd690624b66baba3068e0edc3ac90f1597d898a1ec8db4e5c43c00fec"
+
+
+def _aa_key() -> bytes:
+    # AES-256 key: a static hex secret xored with a static base64 secret. The
+    # same key is used for the aaReq token and for the tobeparsed response.
+    return bytes(
+        a ^ b
+        for a, b in zip(
+            bytes.fromhex(
+                "b1a9a4d051988f1b1b12dbb747439d9bd64b09ea17835600a7eaa4de87c1ad87"
+            ),
+            base64.b64decode("k7DLdv5SGiuEyGUtcncl5wQOR7r4aenLfDV3AOBKlAU="),
+        )
+    )
+
+
 def _decode_tobeparsed(tbp: str):
     raw = base64.b64decode(tbp)
-    key = hashlib.sha256("Xot36i3lK3:v1".encode()).digest()
     iv, ciphertext, tag = raw[1:13], raw[13:-16], raw[-16:]
-    cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
-    decrypted = cipher.decrypt_and_verify(ciphertext, tag).decode('utf-8')
+    cipher = AES.new(_aa_key(), AES.MODE_GCM, nonce=iv)
+    decrypted = cipher.decrypt_and_verify(ciphertext, tag).decode("utf-8")
     return json.loads(decrypted)
+
+
+def _generate_aareq(query_hash: str) -> str:
+    key = _aa_key()
+    # Timestamp is floored to a 5 minute window so it matches the server clock.
+    ts = int(time.time() * 1000) // 300000 * 300000
+    payload = {
+        "v": 1,
+        "ts": ts,
+        "epoch": _AAREQ_EPOCH,
+        "buildId": _AAREQ_BUILD_ID,
+        "qh": query_hash,
+    }
+    iv = hashlib.sha256(
+        f"{_AAREQ_EPOCH}:{_AAREQ_BUILD_ID}:{query_hash}:{ts}".encode()
+    ).digest()[:12]
+    cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
+    ciphertext, tag = cipher.encrypt_and_digest(
+        json.dumps(payload, separators=(",", ":")).encode()
+    )
+    return base64.b64encode(b"\x01" + iv + ciphertext + tag).decode()
+
 
 class AllAnimeFilter(BaseFilter):
     def _apply_query(self, query: str):
@@ -106,8 +150,8 @@ class AllAnimeProvider(BaseProvider):
                 "extensions": json.dumps(
                     {
                         "persistedQuery": {
-                            "version":1,
-                            "sha256Hash":"a24c500a1b765c68ae1d8dd85174931f661c71369c89b92b88b75a725afc471c"
+                            "version": 1,
+                            "sha256Hash": "a24c500a1b765c68ae1d8dd85174931f661c71369c89b92b88b75a725afc471c",
                         }
                     }
                 ),
@@ -130,7 +174,7 @@ class AllAnimeProvider(BaseProvider):
                 name = a["name"]
                 identifier = a["_id"]
                 languages = {LanguageTypeEnum.SUB}
-                if a["availableEpisodes"]["dub"] > 0:
+                if a["availableEpisodes"].get("dub", 0) > 0:
                     languages |= {LanguageTypeEnum.DUB}
 
                 results.append(
@@ -157,8 +201,8 @@ class AllAnimeProvider(BaseProvider):
                 "extensions": json.dumps(
                     {
                         "persistedQuery": {
-                            "version":1,
-                            "sha256Hash":"043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a"
+                            "version": 1,
+                            "sha256Hash": "043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a",
                         }
                     }
                 ),
@@ -183,8 +227,8 @@ class AllAnimeProvider(BaseProvider):
                 "extensions": json.dumps(
                     {
                         "persistedQuery": {
-                            "version":1,
-                            "sha256Hash":"043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a"
+                            "version": 1,
+                            "sha256Hash": "043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a",
                         }
                     }
                 ),
@@ -205,16 +249,17 @@ class AllAnimeProvider(BaseProvider):
             release_year=data.get("airedStart", {}).get("year", None),
             alternative_names=data.get("altNames", None),
         )
-   
 
     def get_video(
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
     ) -> List[ProviderStream]:
         tt = "dub" if lang == LanguageTypeEnum.DUB else "sub"
+        # The source query has to go through as a GET request with the aaReq
+        # token in the query string, otherwise the api returns AA_CRYPTO_MISSING.
         req = Request(
-            "POST",
+            "GET",
             self.API_URL,
-            json={
+            params={
                 "variables": json.dumps(
                     {
                         "showId": identifier,
@@ -225,9 +270,10 @@ class AllAnimeProvider(BaseProvider):
                 "extensions": json.dumps(
                     {
                         "persistedQuery": {
-                            "version":1,
-                            "sha256Hash":"d405d0edd690624b66baba3068e0edc3ac90f1597d898a1ec8db4e5c43c00fec"
-                        }
+                            "version": 1,
+                            "sha256Hash": _VIDEO_QUERY_HASH,
+                        },
+                        "aaReq": _generate_aareq(_VIDEO_QUERY_HASH),
                     }
                 ),
             },
@@ -237,10 +283,12 @@ class AllAnimeProvider(BaseProvider):
         providers = ["Yt-mp4", "S-Mp4", "Uv-mp4", "Ak", "Default"]
         streams = []
 
-        if "tobeparsed" in result["data"].keys():
-            data = _decode_tobeparsed(result["data"]["tobeparsed"])
-        else:
-            data = result["data"]
+        data = result.get("data") or {}
+        if "tobeparsed" in data:
+            data = _decode_tobeparsed(data["tobeparsed"])
+
+        if not data.get("episode"):
+            return streams
 
         for provider in data["episode"]["sourceUrls"]:
             if provider["sourceName"] not in providers:
@@ -261,7 +309,6 @@ class AllAnimeProvider(BaseProvider):
             decrypted_path = self._decrypt(
                 provider["sourceUrl"].replace("--", "")
             ).replace("clock", "clock.json")
-
 
             req = Request(
                 "GET",
