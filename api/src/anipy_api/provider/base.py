@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Set, Union, Dict
+from typing import List, Optional, Protocol, Set, Union, Dict
 
 from requests import Request, Session, ConnectionError as RequestConnectionError
 
@@ -105,6 +105,18 @@ class ProviderStream:
         return hash(self.url)
 
 
+class InfoCallback(Protocol):
+    """Callback that accepts a message argument, and an exception."""
+
+    def __call__(self, message: str, exc_info: Optional[BaseException] = None):
+        """
+        Args:
+            message: Message argument passed to the callback
+            exc_info: An exception to pass for logging
+        """
+        ...
+
+
 class BaseProvider(ABC):
     """
     This is the abstract base class for all the providers,
@@ -125,15 +137,24 @@ class BaseProvider(ABC):
     BASE_URL: str
     FILTER_CAPS: FilterCapabilities
 
-    def __init__(self, base_url_override: Optional[str] = None):
+    def __init__(
+        self,
+        base_url_override: Optional[str] = None,
+        info_callback: Optional[InfoCallback] = None,
+    ):
         """__init__ of BaseProvider
 
         Args:
             base_url_override: Override the url used by the provider.
+            info_callback: A callback with a message argument, that gets called
+                on certain events (e.g. when a provider refreshes api tokens).
         """
         if base_url_override is not None:
             self.BASE_URL = base_url_override
 
+        self._info_callback: InfoCallback = info_callback or (
+            lambda message, exc_info=None: None
+        )
         self._generate_new_session()
 
     def __init_subclass__(cls) -> None:

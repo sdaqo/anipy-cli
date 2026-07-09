@@ -1,7 +1,7 @@
 import json
 import re
 import time
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 from urllib.parse import urljoin
 
 import hashlib
@@ -54,8 +54,8 @@ _BROWSER_UA = (
     "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 )
 
-# Cached (expires_ms, epoch, key) from the last successful runtime fetch.
-_aa_crypto_cache: Optional[Tuple[float, int, bytes]] = None
+# Cached (expires_ms, epoch, key, mask) from the last successful runtime fetch.
+_aa_crypto_cache: Optional[Tuple[float, int, bytes, str]] = None
 
 
 def _xor_key(mask_hex: str, part_b: str) -> bytes:
@@ -66,12 +66,12 @@ def _xor_key(mask_hex: str, part_b: str) -> bytes:
     )
 
 
-def _fetch_aa_crypto(session: Session) -> Optional[Tuple[float, int, bytes]]:
+def _fetch_aa_crypto(session: Session) -> Optional[Tuple[float, int, bytes, str]]:
     """Fetch the current epoch and encryption key from the live site.
 
     epoch and partB are inlined as window.__aaCrypto on the frontend, the mask
     is a hex constant in the app js chunk it statically imports. Returns
-    (expires_ms, epoch, key) or None if anything is unavailable.
+    (expires_ms, epoch, key, mask) or None if anything is unavailable.
     """
     try:
         html = session.get(
@@ -100,18 +100,26 @@ def _fetch_aa_crypto(session: Session) -> Optional[Tuple[float, int, bytes]]:
                 continue
             masks = re.findall(r"[0-9a-f]{64}", js)
             if len(masks) == 1:
-                return expires, int(epoch), _xor_key(masks[0], part_b)
+                return expires, int(epoch), _xor_key(masks[0], part_b), masks[0]
         return None
     except Exception:
         return None
 
 
-def _get_aa_crypto(session: Session) -> Tuple[int, bytes]:
+def _get_aa_crypto(session: Session, info: Callable[[str], None]) -> Tuple[int, bytes]:
     """Return the current (epoch, key), fetching and caching it once per run and
     falling back to the last-known-good hardcoded values on failure."""
     global _aa_crypto_cache
     if _aa_crypto_cache is None or _aa_crypto_cache[0] <= time.time() * 1000:
-        _aa_crypto_cache = _fetch_aa_crypto(session) or _aa_crypto_cache
+        fetched = _fetch_aa_crypto(session)
+        if fetched is not None:
+            _aa_crypto_cache = fetched
+            info(
+                f"fetched aaReq crypto from site "
+                f"(epoch {fetched[1]}, hash {fetched[3][:8]})"
+            )
+        else:
+            info("could not fetch aaReq crypto, using fallback values")
     if _aa_crypto_cache is not None:
         return _aa_crypto_cache[1], _aa_crypto_cache[2]
     return _AAREQ_EPOCH, _xor_key(_AAREQ_KEY_A, _AAREQ_KEY_B)
@@ -315,7 +323,7 @@ class AllAnimeProvider(BaseProvider):
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
     ) -> List[ProviderStream]:
         tt = "dub" if lang == LanguageTypeEnum.DUB else "sub"
-        epoch, key = _get_aa_crypto(self.session)
+        epoch, key = _get_aa_crypto(self.session, self._info_callback)
         # The source query has to go through as a GET request with the aaReq
         # token in the query string, otherwise the api returns AA_CRYPTO_MISSING.
         req = Request(
