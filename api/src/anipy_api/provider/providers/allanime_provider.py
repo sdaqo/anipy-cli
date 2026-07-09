@@ -1,13 +1,14 @@
 import json
+import re
 import time
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional, Tuple
 from urllib.parse import urljoin
 
 import hashlib
 import base64
 import m3u8
 import Levenshtein
-from requests import Request
+from requests import Request, Session
 from requests.exceptions import HTTPError
 from Cryptodome.Cipher import AES
 
@@ -35,47 +36,107 @@ if TYPE_CHECKING:
 
 # AllAnime protects the source-url query with an "aaReq" token that has to be
 # sent inside the GraphQL extensions object, otherwise the api answers with
-# AA_CRYPTO_MISSING. These values are baked into the current site build.
+# AA_CRYPTO_MISSING. The token is AES-GCM encrypted with a key derived from an
+# "epoch" and two secrets that the site rotates every few days. Those live in
+# window.__aaCrypto on the frontend and in the app js chunk, so we fetch them
+# at runtime (see _fetch_aa_crypto) and only fall back to these last-known-good
+# values if that fails. buildId is not checked by the api.
 _AAREQ_EPOCH = 4128
 _AAREQ_BUILD_ID = "9"
 _VIDEO_QUERY_HASH = "d405d0edd690624b66baba3068e0edc3ac90f1597d898a1ec8db4e5c43c00fec"
+_AAREQ_KEY_A = "b1a9a4d051988f1b1b12dbb747439d9bd64b09ea17835600a7eaa4de87c1ad87"
+_AAREQ_KEY_B = "k7DLdv5SGiuEyGUtcncl5wQOR7r4aenLfDV3AOBKlAU="
+
+_MKISSA_URL = "https://mkissa.to/"
+_CDN_IMMUTABLE = "https://cdn.allanime.day/all/mk/_app/immutable/"
+_BROWSER_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+)
+
+# Cached (expires_ms, epoch, key) from the last successful runtime fetch.
+_aa_crypto_cache: Optional[Tuple[float, int, bytes]] = None
 
 
-def _aa_key() -> bytes:
-    # AES-256 key: a static hex secret xored with a static base64 secret. The
-    # same key is used for the aaReq token and for the tobeparsed response.
+def _xor_key(mask_hex: str, part_b: str) -> bytes:
+    # AES-256 key: a hex "mask" xored with a base64 secret. The same key is used
+    # for the aaReq token and for decrypting the tobeparsed response.
     return bytes(
-        a ^ b
-        for a, b in zip(
-            bytes.fromhex(
-                "b1a9a4d051988f1b1b12dbb747439d9bd64b09ea17835600a7eaa4de87c1ad87"
-            ),
-            base64.b64decode("k7DLdv5SGiuEyGUtcncl5wQOR7r4aenLfDV3AOBKlAU="),
-        )
+        a ^ b for a, b in zip(bytes.fromhex(mask_hex), base64.b64decode(part_b))
     )
 
 
-def _decode_tobeparsed(tbp: str):
+def _fetch_aa_crypto(session: Session) -> Optional[Tuple[float, int, bytes]]:
+    """Fetch the current epoch and encryption key from the live site.
+
+    epoch and partB are inlined as window.__aaCrypto on the frontend, the mask
+    is a hex constant in the app js chunk it statically imports. Returns
+    (expires_ms, epoch, key) or None if anything is unavailable.
+    """
+    try:
+        html = session.get(
+            _MKISSA_URL, headers={"User-Agent": _BROWSER_UA}, timeout=10
+        ).text
+        aa = json.loads(re.search(r"window\.__aaCrypto\s*=\s*(\{.*?\})", html).group(1))
+        part_b, epoch = aa["partB"], aa["epoch"]
+        expires = max(
+            aa.get("switchAt", 0) + aa.get("graceMs", 0), time.time() * 1000 + 3600_000
+        )
+
+        app = re.search(r"_app/immutable/(entry/app\.[^\"']+\.js)", html).group(1)
+        app_js = session.get(
+            _CDN_IMMUTABLE + app, headers={"User-Agent": _BROWSER_UA}, timeout=10
+        ).text
+        # The crypto chunk is one of the app's static imports and is the one
+        # holding the 32 byte mask (a lone 64 char hex string).
+        imports = re.findall(
+            r"(?:import|from)\s*[\"']\.\./(chunks/[A-Za-z0-9_\-]+\.js)[\"']", app_js
+        )
+        for chunk in imports:
+            js = session.get(
+                _CDN_IMMUTABLE + chunk, headers={"User-Agent": _BROWSER_UA}, timeout=10
+            ).text
+            if "__aaCrypto" not in js:
+                continue
+            masks = re.findall(r"[0-9a-f]{64}", js)
+            if len(masks) == 1:
+                return expires, int(epoch), _xor_key(masks[0], part_b)
+        return None
+    except Exception:
+        return None
+
+
+def _get_aa_crypto(session: Session) -> Tuple[int, bytes]:
+    """Return the current (epoch, key), fetching and caching it once per run and
+    falling back to the last-known-good hardcoded values on failure."""
+    global _aa_crypto_cache
+    if _aa_crypto_cache is None or _aa_crypto_cache[0] <= time.time() * 1000:
+        _aa_crypto_cache = _fetch_aa_crypto(session) or _aa_crypto_cache
+    if _aa_crypto_cache is not None:
+        return _aa_crypto_cache[1], _aa_crypto_cache[2]
+    return _AAREQ_EPOCH, _xor_key(_AAREQ_KEY_A, _AAREQ_KEY_B)
+
+
+def _decode_tobeparsed(tbp: str, key: bytes):
     raw = base64.b64decode(tbp)
     iv, ciphertext, tag = raw[1:13], raw[13:-16], raw[-16:]
-    cipher = AES.new(_aa_key(), AES.MODE_GCM, nonce=iv)
+    cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
     decrypted = cipher.decrypt_and_verify(ciphertext, tag).decode("utf-8")
     return json.loads(decrypted)
 
 
-def _generate_aareq(query_hash: str) -> str:
-    key = _aa_key()
+def _generate_aareq(query_hash: str, epoch: int, key: bytes) -> str:
     # Timestamp is floored to a 5 minute window so it matches the server clock.
     ts = int(time.time() * 1000) // 300000 * 300000
     payload = {
         "v": 1,
         "ts": ts,
-        "epoch": _AAREQ_EPOCH,
+        "epoch": epoch,
         "buildId": _AAREQ_BUILD_ID,
         "qh": query_hash,
     }
     iv = hashlib.sha256(
-        f"{_AAREQ_EPOCH}:{_AAREQ_BUILD_ID}:{query_hash}:{ts}".encode()
+        f"{epoch}:{_AAREQ_BUILD_ID}:{query_hash}:{ts}".encode()
     ).digest()[:12]
     cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
     ciphertext, tag = cipher.encrypt_and_digest(
@@ -254,6 +315,7 @@ class AllAnimeProvider(BaseProvider):
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
     ) -> List[ProviderStream]:
         tt = "dub" if lang == LanguageTypeEnum.DUB else "sub"
+        epoch, key = _get_aa_crypto(self.session)
         # The source query has to go through as a GET request with the aaReq
         # token in the query string, otherwise the api returns AA_CRYPTO_MISSING.
         req = Request(
@@ -273,7 +335,7 @@ class AllAnimeProvider(BaseProvider):
                             "version": 1,
                             "sha256Hash": _VIDEO_QUERY_HASH,
                         },
-                        "aaReq": _generate_aareq(_VIDEO_QUERY_HASH),
+                        "aaReq": _generate_aareq(_VIDEO_QUERY_HASH, epoch, key),
                     }
                 ),
             },
@@ -285,7 +347,7 @@ class AllAnimeProvider(BaseProvider):
 
         data = result.get("data") or {}
         if "tobeparsed" in data:
-            data = _decode_tobeparsed(data["tobeparsed"])
+            data = _decode_tobeparsed(data["tobeparsed"], key)
 
         if not data.get("episode"):
             return streams
