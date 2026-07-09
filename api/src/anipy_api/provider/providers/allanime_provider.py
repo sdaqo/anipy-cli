@@ -30,11 +30,6 @@ from copy import deepcopy
 if TYPE_CHECKING:
     from anipy_api.provider import Episode
 
-# The persisted-query hash (sha256 of the source query) the api expects for
-# episode sources. It rarely changes, unlike the rotating aaReq crypto, which
-# is handled by AllAnimeCrypto.
-_VIDEO_QUERY_HASH = "d405d0edd690624b66baba3068e0edc3ac90f1597d898a1ec8db4e5c43c00fec"
-
 
 class AllAnimeFilter(BaseFilter):
     def _apply_query(self, query: str):
@@ -214,7 +209,7 @@ class AllAnimeProvider(BaseProvider):
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
     ) -> List[ProviderStream]:
         tt = "dub" if lang == LanguageTypeEnum.DUB else "sub"
-        aareq, key = self._crypto.build_aareq(self.session, _VIDEO_QUERY_HASH)
+        query_hash, aareq, key = self._crypto.build_source_request(self.session)
         # The source query has to go through as a GET request with the aaReq
         # token in the query string, otherwise the api returns AA_CRYPTO_MISSING.
         req = Request(
@@ -232,7 +227,7 @@ class AllAnimeProvider(BaseProvider):
                     {
                         "persistedQuery": {
                             "version": 1,
-                            "sha256Hash": _VIDEO_QUERY_HASH,
+                            "sha256Hash": query_hash,
                         },
                         "aaReq": aareq,
                     }
