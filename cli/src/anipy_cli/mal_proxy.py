@@ -13,6 +13,7 @@ from anipy_api.provider import LanguageTypeEnum, list_providers
 from dataclasses_json import DataClassJsonMixin, config
 from InquirerPy import inquirer
 
+import anipy_cli.logger as logger
 from anipy_cli.config import Config
 from anipy_cli.util import error, get_prefered_providers
 
@@ -181,7 +182,12 @@ class MyAnimeListProxy:
                 if provider is None:
                     continue
 
-                return Anime(provider(), map.name, map.identifier, map.languages)
+                return Anime(
+                    provider(None, logger.info),
+                    map.name,
+                    map.identifier,
+                    map.languages,
+                )
 
         config = Config()
         result = None

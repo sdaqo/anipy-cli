@@ -102,7 +102,7 @@ def get_prefered_providers(mode: str) -> Iterator["BaseProvider"]:
     for i in list_providers():
         if i.NAME in preferred_providers:
             url_override = config.provider_urls.get(i.NAME, None)
-            providers.append(i(url_override))
+            providers.append(i(url_override, logger.info))
 
     if not providers:
         error(

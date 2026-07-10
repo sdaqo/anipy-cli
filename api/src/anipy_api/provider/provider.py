@@ -5,6 +5,7 @@ from anipy_api.provider.providers import __all__
 
 if TYPE_CHECKING:
     from anipy_api.provider import BaseProvider
+    from anipy_api.provider.base import InfoCallback
 
 
 def list_providers() -> Iterator[Type["BaseProvider"]]:
@@ -38,17 +39,20 @@ def list_providers() -> Iterator[Type["BaseProvider"]]:
 
 
 def get_provider(
-    name: str, base_url_override: Optional[str] = None
+    name: str,
+    base_url_override: Optional[str] = None,
+    info_callback: Optional["InfoCallback"] = None,
 ) -> Optional["BaseProvider"]:
     """Get a provider by name.
 
     Arguments:
         name: Name of the provider to get
         base_url_override: Override the url used by the provider.
+        info_callback: A callback that gets called on certain provider events.
 
     Returns:
         The provider by name, if it exsists
     """
     for p in list_providers():
         if p.NAME == name:
-            return p(base_url_override)
+            return p(base_url_override, info_callback)

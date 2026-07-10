@@ -1,2 +1,2 @@
 __appname__ = "anipy-api"
-__version__ = "3.8.13"
+__version__ = "3.8.14"
