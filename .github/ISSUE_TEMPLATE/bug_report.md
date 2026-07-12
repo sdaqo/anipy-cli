@@ -20,7 +20,7 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Info**
-Post your output of `pip show anipy-cli`
+Post your output of `anipy-cli --version` or `pip show anipy-cli`
 
 **Platform**
  - OS: 
