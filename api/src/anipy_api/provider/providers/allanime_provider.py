@@ -57,6 +57,8 @@ class AllAnimeCrypto:
     FALLBACK_QUERY_HASH = (
         "d405d0edd690624b66baba3068e0edc3ac90f1597d898a1ec8db4e5c43c00fec"
     )
+    # AllAnime encrypts the tobeparsed response with either the aaReq key or this static legacy key, depending on the rotation, so decoding tries both.
+    RESPONSE_STATIC_KEY = hashlib.sha256(b"Xot36i3lK3:v1").digest()
 
     def __init__(self, info_callback: Optional[Callable[[str], None]] = None):
         self._info: Callable[[str], None] = info_callback or (lambda message: None)
@@ -198,12 +200,24 @@ class AllAnimeCrypto:
         token = base64.b64encode(b"\x01" + iv + ciphertext + tag).decode()
         return query_hash, token, key
 
+    def invalidate(self):
+        """Drop the cached crypto so the next request refetches it."""
+        self._cache = None
+
     @staticmethod
     def decode_tobeparsed(tbp: str, key: bytes):
         raw = base64.b64decode(tbp)
         iv, ciphertext, tag = raw[1:13], raw[13:-16], raw[-16:]
-        cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
-        return json.loads(cipher.decrypt_and_verify(ciphertext, tag).decode("utf-8"))
+
+        # The response is signed with either the aaReq key or the static legacy key, so try both and use whichever authenticates.
+        for candidate in (key, AllAnimeCrypto.RESPONSE_STATIC_KEY):
+            try:
+                cipher = AES.new(candidate, AES.MODE_GCM, nonce=iv)
+                plain = cipher.decrypt_and_verify(ciphertext, tag)
+                return json.loads(plain.decode("utf-8"))
+            except ValueError:
+                continue
+        raise ValueError("tobeparsed could not be decrypted with any known key")
 
 
 class AllAnimeFilter(BaseFilter):
@@ -416,7 +430,12 @@ class AllAnimeProvider(BaseProvider):
 
         data = result.get("data") or {}
         if "tobeparsed" in data:
-            data = self._crypto.decode_tobeparsed(data["tobeparsed"], key)
+            try:
+                data = self._crypto.decode_tobeparsed(data["tobeparsed"], key)
+            except ValueError:
+                # Crypto rotated between the aaReq and the response, drop the cache so the next attempt refetches, and return no streams instead of crashing.
+                self._crypto.invalidate()
+                return streams
 
         if not data.get("episode"):
             return streams
