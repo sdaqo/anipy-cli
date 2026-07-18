@@ -51,9 +51,9 @@ class AllAnimeCrypto:
         "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
     )
     # Last known good values, only used when the runtime fetch fails.
-    FALLBACK_EPOCH = 4128
-    FALLBACK_MASK = "b1a9a4d051988f1b1b12dbb747439d9bd64b09ea17835600a7eaa4de87c1ad87"
-    FALLBACK_PART_B = "k7DLdv5SGiuEyGUtcncl5wQOR7r4aenLfDV3AOBKlAU="
+    FALLBACK_EPOCH = 4130
+    FALLBACK_MASK = "5264513ba898cb78c5c646bc1c12f2965a53a99891d91e83a2bf9244c36cca41"
+    FALLBACK_PART_B = "nSMmjt8SIaRRj6ebdfimy1qXlUBuvMoBlPoUiSFoORg="
     FALLBACK_QUERY_HASH = (
         "d405d0edd690624b66baba3068e0edc3ac90f1597d898a1ec8db4e5c43c00fec"
     )
@@ -145,7 +145,7 @@ class AllAnimeCrypto:
             # The crypto chunk is one of the app's static imports and is the one
             # holding the 32 byte mask (a lone 64 char hex string).
             imports = re.findall(
-                r"(?:import|from)\s*[\"']\.\./(chunks/[A-Za-z0-9_\-]+\.js)[\"']", app_js
+                r"\s*[\"']\.\./(chunks/[A-Za-z0-9_\-]+\.js)[\"']", app_js
             )
             for chunk in imports:
                 js = session.get(
