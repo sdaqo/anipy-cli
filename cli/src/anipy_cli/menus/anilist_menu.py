@@ -437,6 +437,8 @@ class AniListMenu(MenuBase):
             for e in mylist:
                 s.write(f"> Checking out episodes of {e.title.user_preferred}")
 
+                if e.num_episodes is None: e.num_episodes = 0
+
                 if e.num_episodes != 0:
                     episodes_to_watch = list(
                         range(e.my_list_status.num_episodes_watched + 1, e.num_episodes + 1)  # type: ignore
