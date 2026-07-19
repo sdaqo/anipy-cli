@@ -37,7 +37,7 @@ def source_query_hash(chunk_js: str) -> Optional[str]:
     template = next(
         (
             t
-            for t in re.findall(r"query\(([^`]*)`", chunk_js)
+            for t in re.findall(r"(\nquery\([^`]*)`", chunk_js)
             if "sourceUrls" in t and "episode(" in t
         ),
         None,
@@ -68,7 +68,6 @@ def source_query_hash(chunk_js: str) -> Optional[str]:
         return tmpl
 
     query = resolve(template)
-    print("hello: " + query)
     if "${" in query:
         return None
     return hashlib.sha256(query.encode()).hexdigest()
@@ -129,3 +128,4 @@ def current():
 
 if __name__ == "__main__":
     current()
+    print(open("./keygen.json", "r").read())
