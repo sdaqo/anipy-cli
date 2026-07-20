@@ -37,7 +37,7 @@ jobs:
       
       - name: Lock cli
         run: |
-          sleep 20
+          sleep 60
           poetry -C cli/ lock
       
       - name: Build and publish cli to pypi
