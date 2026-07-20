@@ -4,8 +4,6 @@ import base64
 import hashlib
 import requests
 import json
-from typing import Optional, Callable, Tuple
-from Cryptodome.Cipher import AES
 
 MKISSA_URL = "https://mkissa.to/"
 CDN_IMMUTABLE = "https://cdn.allanime.day/all/mk/_app/immutable/"
@@ -18,22 +16,8 @@ STATIC_KEY = "Xot36i3lK3:v1"
 
 SESSION = requests.session()
 
-def get_key(mask_hex: str, part_b: str) -> bytes:
-    # AES-256 key: a hex "mask" xored with a base64 secret. The same key is
-    # used for the aaReq token and for decrypting the tobeparsed response.
-    return bytes(
-        a ^ b for a, b in zip(bytes.fromhex(mask_hex), base64.b64decode(part_b))
-    )
-
 @staticmethod
-def source_query_hash(chunk_js: str) -> Optional[str]:
-    """sha256 of the episode-sources GraphQL query.
-
-    The query is a template literal in the chunk that interpolates other
-    fragments (``${fragment}``) and a helper (``${helper()}``). We assemble
-    it exactly like the site does and hash the result. Returns None if the
-    template cannot be fully resolved, so the caller falls back.
-    """
+def source_query_hash(chunk_js: str):
     template = next(
         (
             t
@@ -50,8 +34,7 @@ def source_query_hash(chunk_js: str) -> Optional[str]:
             return tmpl
         for name in re.findall(r"\$\{([^}]+)\}", tmpl):
             if name.endswith("()"):
-                # ``helper = e => e ? `...` : `...` ``, called without an
-                # argument, so the else branch is used.
+                # ``helper = e => e ? `...` : `...` ``
                 fn = re.search(
                     r"\b"
                     + re.escape(name[:-2])
@@ -73,11 +56,6 @@ def source_query_hash(chunk_js: str) -> Optional[str]:
     return hashlib.sha256(query.encode()).hexdigest()
 
 def fetch():
-    """Fetch (expires_ms, epoch, key, mask, query_hash) from the live site.
-
-    epoch and partB are inlined as window.__aaCrypto on the frontend, the
-    mask and the source query live in the app js chunk it imports.
-    """
     headers = {"User-Agent": BROWSER_UA}
     try:
         html = SESSION.get(MKISSA_URL, headers=headers, timeout=10).text
@@ -94,8 +72,6 @@ def fetch():
         app_js = SESSION.get(
             CDN_IMMUTABLE + app, headers=headers, timeout=10
         ).text
-        # The crypto chunk is one of the app's static imports and is the one
-        # holding the 32 byte mask (a lone 64 char hex string).
         imports = re.findall(
             r"\s*[\"']\.\./(chunks/[A-Za-z0-9_\-]+\.js)[\"']", app_js
         )
@@ -107,14 +83,16 @@ def fetch():
                 continue
             masks = re.findall(r"[0-9a-f]{64}", js)
             if len(masks) == 1:
-                key = get_key(masks[0], part_b)
-                query_hash = source_query_hash(js) # or FALLBACK_QUERY_HASH
+                key = bytes(
+                    a ^ b for a, b in zip(bytes.fromhex(masks[0]), base64.b64decode(part_b))
+                )
+                query_hash = source_query_hash(js)
                 return expires, int(epoch), key.hex(), masks[0], query_hash
         return None
     except Exception:
         return None
 
-def current():
+if __name__ == "__main__":
     fetched = fetch()
     file = open("./keygen.json", "w")
     json.dump({
@@ -123,9 +101,3 @@ def current():
         "query_hash": fetched[4],
         "static_key": STATIC_KEY
     }, file)
-
-
-
-if __name__ == "__main__":
-    current()
-    print(open("./keygen.json", "r").read())
