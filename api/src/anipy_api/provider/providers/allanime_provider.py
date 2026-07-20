@@ -316,7 +316,10 @@ class AllAnimeProvider(BaseProvider):
                     }
                 ),
             },
-            headers={"Referer": "https://youtu-chan.com/"},
+            headers={
+                "Referer": "https://youtu-chan.com/",
+                "Origin": "https://mkissa.to",
+            },
         )
         result = self._request_page(req).json()
         providers = ["Yt-mp4", "S-Mp4", "Uv-mp4", "Ak", "Default"]
