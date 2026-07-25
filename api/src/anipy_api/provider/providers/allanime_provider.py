@@ -52,7 +52,7 @@ def build_source_request(session: Session) -> Tuple[str, str]:
     payload = {"v": 1, "ts": ts, "epoch": keygen["epoch"], "qh": keygen["query_hash"]}
     # The iv is transmitted with the token, so it only has to be unique; the
     # server does not re-derive it (buildId used to sit in here).
-    iv = hashlib.sha256(f"{keygen["epoch"]}:{keygen["query_hash"]}:{ts}".encode()).digest()[:12]
+    iv = hashlib.sha256(f"{keygen['epoch']}:{keygen['query_hash']}:{ts}".encode()).digest()[:12]
     cipher = AES.new(bytes.fromhex(keygen["key"]), AES.MODE_GCM, nonce=iv)
     ciphertext, tag = cipher.encrypt_and_digest(
         json.dumps(payload, separators=(",", ":")).encode()
