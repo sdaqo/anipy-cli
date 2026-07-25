@@ -36,8 +36,7 @@ def source_query_hash(chunk_js: str):
             if name.endswith("()"):
                 # ``helper = e => e ? `...` : `...` ``
                 fn = re.search(
-                    r"\b"
-                    + re.escape(name[:-2])
+                    re.escape(name[:-2])
                     + r"\s*=\s*\w+\s*=>\s*\w+\s*\?\s*`[^`]*`\s*:\s*`([^`]*)`",
                     chunk_js,
                 )
