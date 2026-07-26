@@ -43,7 +43,7 @@ def source_query_hash(chunk_js: str):
                 repl = fn.group(1) if fn else ""
             else:
                 var = re.search(
-                    r"\b" + re.escape(name) + r"\s*=\s*`([^`]*)`", chunk_js
+                    re.escape(name) + r"\s*=\s*`([^`]*)`", chunk_js
                 )
                 repl = resolve(var.group(1), depth + 1) if var else ""
             tmpl = tmpl.replace("${" + name + "}", repl)
