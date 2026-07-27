@@ -6,6 +6,7 @@ import requests
 import json
 
 MKISSA_URL = "https://mkissa.to/"
+CRYPTO_URL = "https://api.mkissa.net/client-crypto/v1/bootstrap?buildId=72&k=k7"
 CDN_IMMUTABLE = "https://cdn.allanime.day/all/mk/_app/immutable/"
 BROWSER_UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -58,9 +59,20 @@ def fetch():
     headers = {"User-Agent": BROWSER_UA}
     try:
         html = SESSION.get(MKISSA_URL, headers=headers, timeout=10).text
-        aa = json.loads(
-            re.search(r"window\.__aaCrypto\s*=\s*(\{.*?\})", html).group(1)
-        )
+        aa_match = re.search(r"window\.__aaCrypto\s*=\s*(\{.*?\})", html)
+        if aa_match:
+            aa = json.loads(aa_match.group(1))
+        else:
+            crypto_headers = {
+                "x-build-id": "72",
+                "x-aa-boot": "221aca981efb2413205ad417d390f6ef494755bd958e131e29042111b0834e0a",
+                "Referer": MKISSA_URL
+            }
+            crypto_headers.update(headers)
+
+            res = SESSION.get(CRYPTO_URL, headers=crypto_headers)
+            aa = res.json()
+        k = aa["k"]
         part_b, epoch = aa["partB"], aa["epoch"]
         expires = max(
             aa.get("switchAt", 0) + aa.get("graceMs", 0),
@@ -78,17 +90,18 @@ def fetch():
             js = SESSION.get(
                 CDN_IMMUTABLE + chunk, headers=headers, timeout=10
             ).text
-            if "__aaCrypto" not in js:
+            if "x-aa-boot" not in js:
                 continue
-            masks = re.findall(r"[0-9a-f]{64}", js)
+            masks = ["221aca981efb2413205ad417d390f6ef494755bd958e131e29042111b0834e0a"] # re.findall(r"[0-9a-f]{64}", js)
             if len(masks) == 1:
                 key = bytes(
                     a ^ b for a, b in zip(bytes.fromhex(masks[0]), base64.b64decode(part_b))
                 )
                 query_hash = source_query_hash(js)
-                return expires, int(epoch), key.hex(), masks[0], query_hash
+                return expires, int(epoch), key.hex(), masks[0], query_hash, k
         return None
-    except Exception:
+    except Exception as e:
+        print(e)
         return None
 
 if __name__ == "__main__":
@@ -98,5 +111,6 @@ if __name__ == "__main__":
         "epoch": fetched[1],
         "key": fetched[2],
         "query_hash": fetched[4],
-        "static_key": STATIC_KEY
+        "k": fetched[5],
+        "static_key": STATIC_KEY,
     }, file)
