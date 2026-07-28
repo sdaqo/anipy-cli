@@ -3,6 +3,7 @@ import hashlib
 import json
 import functools
 import time
+import re
 from copy import deepcopy
 from typing import TYPE_CHECKING, List, Optional, Tuple
 from urllib.parse import urljoin
@@ -45,13 +46,19 @@ def fetch_keygen(session: Session):
 
 
 
-def build_source_request(session: Session) -> Tuple[str, str]:
+def build_source_request(session: Session) -> Tuple[str, str, str, str]:
     keygen = fetch_keygen(session)
 
     ts = int(time.time() * 1000) // 300000 * 300000
-    payload = {"v": 1, "ts": ts, "epoch": keygen["epoch"], "qh": keygen["query_hash"]}
-    # The iv is transmitted with the token, so it only has to be unique; the
-    # server does not re-derive it (buildId used to sit in here).
+    payload = {
+        "v": 1,
+        "ts": ts,
+        "epoch": keygen["epoch"],
+        "buildId": keygen["build_id"],
+        "qh": keygen["query_hash"],
+        "k": keygen["lane"],
+    }
+
     iv = hashlib.sha256(f"{keygen['epoch']}:{keygen['query_hash']}:{ts}".encode()).digest()[:12]
     cipher = AES.new(bytes.fromhex(keygen["key"]), AES.MODE_GCM, nonce=iv)
     ciphertext, tag = cipher.encrypt_and_digest(
@@ -59,7 +66,7 @@ def build_source_request(session: Session) -> Tuple[str, str]:
     )
     token = base64.b64encode(b"\x01" + iv + ciphertext + tag).decode()
 
-    return keygen["query_hash"], token
+    return keygen["query_hash"], token, keygen["lane"], keygen["build_id"]
 
 
 def decode_tobeparsed(session: Session, tbp: str):
@@ -113,12 +120,12 @@ class AllAnimeProvider(BaseProvider):
 
     Attributes:
         NAME: allanime
-        BASE_URL: https://allanime.day
+        BASE_URL: https://mkissa.to
         FILTER_CAPS: YEAR, MEDIA_TYPE, SEASON, NO_QUERY
     """
 
     NAME: str = "allanime"
-    BASE_URL: str = "https://allanime.day"
+    BASE_URL: str = "https://mkissa.to"
     FILTER_CAPS: FilterCapabilities = (
         FilterCapabilities.YEAR
         | FilterCapabilities.MEDIA_TYPE
@@ -126,7 +133,7 @@ class AllAnimeProvider(BaseProvider):
         | FilterCapabilities.NO_QUERY
     )
 
-    API_URL: str = BASE_URL.replace("//", "//api.") + "/api"
+    API_URL: str = "https://api.mkissa.net/api"
 
     def __init__(
         self,
@@ -292,7 +299,7 @@ class AllAnimeProvider(BaseProvider):
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
     ) -> List[ProviderStream]:
         tt = "dub" if lang == LanguageTypeEnum.DUB else "sub"
-        query_hash, aareq = build_source_request(self.session)
+        query_hash, aareq, lane, build_id = build_source_request(self.session)
         # The source query has to go through as a GET request with the aaReq
         # token in the query string, otherwise the api returns AA_CRYPTO_MISSING.
         req = Request(
@@ -313,16 +320,18 @@ class AllAnimeProvider(BaseProvider):
                             "sha256Hash": query_hash,
                         },
                         "aaReq": aareq,
+                        "k": lane
                     }
                 ),
             },
             headers={
-                "Referer": "https://youtu-chan.com/",
+                "Referer": "https://mkissa.to",
                 "Origin": "https://mkissa.to",
+                "x-build-id": build_id
             },
         )
         result = self._request_page(req).json()
-        providers = ["Yt-mp4", "S-Mp4", "Uv-mp4", "Ak", "Default"]
+        providers = ["Yt-mp4", "S-Mp4", "Uv-mp4", "Luf-Mp4", "Ak", "Default", "Mp4"]
         streams = []
 
         data = result.get("data") or {}
@@ -341,6 +350,25 @@ class AllAnimeProvider(BaseProvider):
             if provider["sourceName"] not in providers:
                 continue
 
+            if provider["sourceName"] == "Mp4":
+                try:
+                    response = request_page(
+                        self.session, Request("GET", provider["sourceUrl"])
+                    )
+                except HTTPError:
+                    continue
+                if link := re.search(r'src:\s*"([^"]+)"', response.text):
+                    streams.append(
+                        ProviderStream(
+                            link.group(1),
+                            1080,
+                            episode,
+                            lang,
+                            referrer="https://www.mp4upload.com",
+                        )
+                    )
+                continue
+
             if "tools.fast4speed.rsvp" in provider["sourceUrl"]:
                 streams.append(
                     ProviderStream(
@@ -356,11 +384,10 @@ class AllAnimeProvider(BaseProvider):
             decrypted_path = self._decrypt(
                 provider["sourceUrl"].replace("--", "")
             ).replace("clock", "clock.json")
-
             req = Request(
                 "GET",
-                f"{self.BASE_URL}{decrypted_path}",
-                headers={"Referer": "https://allmanga.to/"},
+                f"https://allanime.day{decrypted_path}",
+                headers={"Referer": "https://allanime.day/"},
             )
             try:
                 for attempts in range(3):
