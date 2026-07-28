@@ -3,17 +3,19 @@ import time
 import base64
 import hashlib
 import requests
+import hmac
 import json
 
 MKISSA_URL = "https://mkissa.to/"
-CRYPTO_URL = "https://api.mkissa.net/client-crypto/v1/bootstrap?buildId=72&k=k7"
-CDN_IMMUTABLE = "https://cdn.allanime.day/all/mk/_app/immutable/"
+MKISSA_API_URL = "https://api.mkissa.net"
+CDN_IMMUTABLE = "https://cdn.mkissa.net/all/mk/_app/immutable"
 BROWSER_UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 )
 
 STATIC_KEY = "Xot36i3lK3:v1"
+CRYPTO_MASK_BLOCKS = ("ywI+GGWyMFA= ww8pcwjGfeY= 8gjPB7mDWzc= nkCM5RxmdTY=").split()
 
 SESSION = requests.session()
 
@@ -55,62 +57,66 @@ def source_query_hash(chunk_js: str):
         return None
     return hashlib.sha256(query.encode()).hexdigest()
 
+
 def fetch():
     headers = {"User-Agent": BROWSER_UA}
-    try:
-        html = SESSION.get(MKISSA_URL, headers=headers, timeout=10).text
-        aa_match = re.search(r"window\.__aaCrypto\s*=\s*(\{.*?\})", html)
-        if aa_match:
-            aa = json.loads(aa_match.group(1))
-        else:
-            crypto_headers = {
-                "x-build-id": "72",
-                "x-aa-boot": "221aca981efb2413205ad417d390f6ef494755bd958e131e29042111b0834e0a",
-                "Referer": MKISSA_URL
-            }
-            crypto_headers.update(headers)
+    html = SESSION.get(MKISSA_URL, headers=headers, timeout=10).text
+    app_url = CDN_IMMUTABLE + re.search(
+        r"/entry/app\.[A-Za-z0-9_.-]+\.js", html
+    ).group()
 
-            res = SESSION.get(CRYPTO_URL, headers=crypto_headers)
-            aa = res.json()
-        k = aa["k"]
-        part_b, epoch = aa["partB"], aa["epoch"]
-        expires = max(
-            aa.get("switchAt", 0) + aa.get("graceMs", 0),
-            time.time() * 1000 + 3600_000,
-        )
+    app_js = SESSION.get(app_url, headers=headers, timeout=10).text
+    chunks = re.findall(r'"../(chunks/[A-Za-z0-9_.-]+\.js)"', app_js)[:5]
+    chunk_js = "".join(
+        SESSION.get(f"{CDN_IMMUTABLE}/{chunk}", headers=headers).text
+        for chunk in chunks
+    )
+    build_id = re.search(r'!=="string"\?"([0-9]+)"', chunk_js).group(1)
+    lane = re.search(r'const ..="(k[0-9]+)"', chunk_js).group(1)
+    now_ms = int(time.time() * 1000)
+    epoch = now_ms // 259_200_000
+    if now_ms - epoch * 259_200_000 < 86_400_000 and epoch > 0:
+        epoch -= 1
 
-        app = re.search(r"_app/immutable/(entry/app\.[^\"']+\.js)", html).group(1)
-        app_js = SESSION.get(
-            CDN_IMMUTABLE + app, headers=headers, timeout=10
-        ).text
-        imports = re.findall(
-            r"\s*[\"']\.\./(chunks/[A-Za-z0-9_\-]+\.js)[\"']", app_js
-        )
-        for chunk in imports:
-            js = SESSION.get(
-                CDN_IMMUTABLE + chunk, headers=headers, timeout=10
-            ).text
-            if "x-aa-boot" not in js:
-                continue
-            masks = ["221aca981efb2413205ad417d390f6ef494755bd958e131e29042111b0834e0a"] # re.findall(r"[0-9a-f]{64}", js)
-            if len(masks) == 1:
-                key = bytes(
-                    a ^ b for a, b in zip(bytes.fromhex(masks[0]), base64.b64decode(part_b))
-                )
-                query_hash = source_query_hash(js)
-                return expires, int(epoch), key.hex(), masks[0], query_hash, k
-        return None
-    except Exception as e:
-        print(e)
-        return None
+    embedded = b"".join(base64.b64decode(block) for block in CRYPTO_MASK_BLOCKS)
+    mask = bytes(
+        value
+        ^ (ord(build_id[index % len(build_id)]) ^ ((index * 17 + 31) & 0xFF))
+        ^ ((index // 8 * 41 + index % 8 * 7) & 0xFF)
+        for index, value in enumerate(embedded)
+    )
+    hmac_key = hmac.digest(mask, f"aa-boot:{build_id}".encode(), "sha256")
+    aa_boot = hmac.digest(
+        hmac_key,
+        f"{build_id}:mkissa:mkissa.to:{epoch}:{lane}".encode(),
+        "sha256",
+    ).hex()
+
+    bootstrap = SESSION.get(f"{MKISSA_API_URL}/client-crypto/v1/bootstrap",
+        params={"buildId": build_id, "k": lane},
+        headers={
+            "x-build-id": build_id,
+            "x-aa-boot": aa_boot,
+            "Referer": MKISSA_URL,
+            "Origin": MKISSA_URL,
+            "User-Agent": BROWSER_UA
+        },
+    ).json()
+
+    key = bytes(a ^ b for a, b in zip(mask, base64.b64decode(bootstrap["partB"])))
+
+    query_hash = source_query_hash(chunk_js)
+
+    return build_id, bootstrap["epoch"], bootstrap.get("k", lane), key.hex(), query_hash
 
 if __name__ == "__main__":
     fetched = fetch()
     file = open("./keygen.json", "w")
     json.dump({
+        "build_id": fetched[0],
         "epoch": fetched[1],
-        "key": fetched[2],
+        "lane": fetched[2],
+        "key": fetched[3],
         "query_hash": fetched[4],
-        "k": fetched[5],
         "static_key": STATIC_KEY,
     }, file)
