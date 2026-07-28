@@ -1,4 +1,7 @@
 import re
+import os
+from subprocess import Popen
+import subprocess
 import time
 import base64
 import hashlib
@@ -15,9 +18,28 @@ BROWSER_UA = (
 )
 
 STATIC_KEY = "Xot36i3lK3:v1"
-CRYPTO_MASK_BLOCKS = ("ywI+GGWyMFA= ww8pcwjGfeY= 8gjPB7mDWzc= nkCM5RxmdTY=").split()
 
 SESSION = requests.session()
+
+def get_crypto_mask(chunk_js: str):
+    git_clone = Popen(["git", "clone", "https://github.com/mbpowers/ani-extract", "./ani-extract"])
+    git_clone.wait()
+
+    fp = open("./ani-extract/chunk.js", "w")
+    fp.write(chunk_js)
+    fp.close()
+
+    npm_i = Popen(["npm", "i"], cwd="./ani-extract", stdout=subprocess.PIPE)
+    npm_i.wait()
+    node_run = Popen(
+        ["node", "ani-extract.js", "./chunk.js"],
+        cwd="./ani-extract", 
+        stdout=subprocess.PIPE
+    )
+    node_run.wait()
+    
+    out, _ = node_run.communicate()
+    return json.loads(out.decode("utf-8").strip().replace("'", "\""))
 
 @staticmethod
 def source_query_hash(chunk_js: str):
@@ -67,47 +89,49 @@ def fetch():
 
     app_js = SESSION.get(app_url, headers=headers, timeout=10).text
     chunks = re.findall(r'"../(chunks/[A-Za-z0-9_.-]+\.js)"', app_js)[:5]
-    chunk_js = "".join(
-        SESSION.get(f"{CDN_IMMUTABLE}/{chunk}", headers=headers).text
-        for chunk in chunks
-    )
-    build_id = re.search(r'!=="string"\?"([0-9]+)"', chunk_js).group(1)
-    lane = re.search(r'const ..="(k[0-9]+)"', chunk_js).group(1)
-    now_ms = int(time.time() * 1000)
-    epoch = now_ms // 259_200_000
-    if now_ms - epoch * 259_200_000 < 86_400_000 and epoch > 0:
-        epoch -= 1
+    for chunk in chunks:
+        chunk_js = SESSION.get(f"{CDN_IMMUTABLE}/{chunk}", headers=headers).text
+        if not ("VaildTranslationTypeEnumType" in chunk_js or "x-aa-boot" in chunk_js):
+            continue
 
-    embedded = b"".join(base64.b64decode(block) for block in CRYPTO_MASK_BLOCKS)
-    mask = bytes(
-        value
-        ^ (ord(build_id[index % len(build_id)]) ^ ((index * 17 + 31) & 0xFF))
-        ^ ((index // 8 * 41 + index % 8 * 7) & 0xFF)
-        for index, value in enumerate(embedded)
-    )
-    hmac_key = hmac.digest(mask, f"aa-boot:{build_id}".encode(), "sha256")
-    aa_boot = hmac.digest(
-        hmac_key,
-        f"{build_id}:mkissa:mkissa.to:{epoch}:{lane}".encode(),
-        "sha256",
-    ).hex()
+        build_id = re.search(r'!=="string"\?"([0-9]+)"', chunk_js).group(1)
+        lane = re.search(r'const ..="(k[0-9]+)"', chunk_js).group(1)
+        now_ms = int(time.time() * 1000)
+        epoch = now_ms // 259_200_000
+        if now_ms - epoch * 259_200_000 < 86_400_000 and epoch > 0:
+            epoch -= 1
 
-    bootstrap = SESSION.get(f"{MKISSA_API_URL}/client-crypto/v1/bootstrap",
-        params={"buildId": build_id, "k": lane},
-        headers={
-            "x-build-id": build_id,
-            "x-aa-boot": aa_boot,
-            "Referer": MKISSA_URL,
-            "Origin": MKISSA_URL,
-            "User-Agent": BROWSER_UA
-        },
-    ).json()
+        crypto_mask_blocks = get_crypto_mask(chunk_js)
+        embedded = b"".join(base64.b64decode(block) for block in crypto_mask_blocks)
+        mask = bytes(
+            value
+            ^ (ord(build_id[index % len(build_id)]) ^ ((index * 17 + 31) & 0xFF))
+            ^ ((index // 8 * 41 + index % 8 * 7) & 0xFF)
+            for index, value in enumerate(embedded)
+        )
+        hmac_key = hmac.digest(mask, f"aa-boot:{build_id}".encode(), "sha256")
+        aa_boot = hmac.digest(
+            hmac_key,
+            f"{build_id}:mkissa:mkissa.to:{epoch}:{lane}".encode(),
+            "sha256",
+        ).hex()
 
-    key = bytes(a ^ b for a, b in zip(mask, base64.b64decode(bootstrap["partB"])))
+        bootstrap = SESSION.get(f"{MKISSA_API_URL}/client-crypto/v1/bootstrap",
+            params={"buildId": build_id, "k": lane},
+            headers={
+                "x-build-id": build_id,
+                "x-aa-boot": aa_boot,
+                "Referer": MKISSA_URL,
+                "Origin": MKISSA_URL,
+                "User-Agent": BROWSER_UA
+            },
+        ).json()
 
-    query_hash = source_query_hash(chunk_js)
+        key = bytes(a ^ b for a, b in zip(mask, base64.b64decode(bootstrap["partB"])))
 
-    return build_id, bootstrap["epoch"], bootstrap.get("k", lane), key.hex(), query_hash
+        query_hash = source_query_hash(chunk_js)
+
+        return build_id, bootstrap["epoch"], bootstrap.get("k", lane), key.hex(), query_hash
 
 if __name__ == "__main__":
     fetched = fetch()
