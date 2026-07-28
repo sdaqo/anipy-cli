@@ -1,7 +1,9 @@
 import base64
-import hashlib
-import json
 import functools
+import hashlib
+import hmac
+import json
+import re
 import time
 from copy import deepcopy
 from typing import TYPE_CHECKING, List, Optional, Tuple
@@ -36,30 +38,93 @@ if TYPE_CHECKING:
 KEYGEN_URL: str = (
     "https://raw.githubusercontent.com/sdaqo/anipy-cli/refs/heads/key-gen/scripts/keygen/keygen.json"
 )
+CRYPTO_HOME_URL, CRYPTO_API_URL = "https://mkissa.to", "https://api.mkissa.net"
+CRYPTO_CDN_URL: str = "https://cdn.mkissa.net/all/mk/_app/immutable"
+CRYPTO_MASK_BLOCKS = ("10d13/213hI= XdTA6FaAQSo= KRCUT9lZh1o= Aj3ASCIDMnw=").split()
+SEARCH_QUERY = "query($search: SearchInput $limit: Int $page: Int $translationType: VaildTranslationTypeEnumType $countryOrigin: VaildCountryOriginEnumType) { shows(search: $search limit: $limit page: $page translationType: $translationType countryOrigin: $countryOrigin) { edges { _id name availableEpisodes } } }"
+SHOW_QUERY = "query($showId: String!) { show(_id: $showId) { _id name thumbnail genres status description airedStart altNames availableEpisodesDetail } }"
+
 
 @functools.lru_cache()
 def fetch_keygen(session: Session):
-    req = Request("GET", KEYGEN_URL)
-    res = request_page(session, req)
-    return json.loads(res.text)
+    keygen = request_page(session, Request("GET", KEYGEN_URL)).json()
+    html = request_page(session, Request("GET", CRYPTO_HOME_URL)).text
+    app_url = re.search(
+        re.escape(CRYPTO_CDN_URL) + r"/entry/app\.[A-Za-z0-9_.-]+\.js", html
+    ).group()
+    app_js = request_page(session, Request("GET", app_url)).text
+    chunks = re.findall(r'"../(chunks/[A-Za-z0-9_.-]+\.js)"', app_js)[:5]
+    chunk_js = "".join(
+        request_page(session, Request("GET", f"{CRYPTO_CDN_URL}/{chunk}")).text
+        for chunk in chunks
+    )
+
+    build_id = re.search(r'!=="string"\?"([0-9]+)"', chunk_js).group(1)
+    lane = re.search(r'const ..="(k[0-9]+)"', chunk_js).group(1)
+    now_ms = int(time.time() * 1000)
+    epoch = now_ms // 259_200_000
+    if now_ms - epoch * 259_200_000 < 86_400_000 and epoch > 0:
+        epoch -= 1
+
+    embedded = b"".join(base64.b64decode(block) for block in CRYPTO_MASK_BLOCKS)
+    mask = bytes(
+        value
+        ^ (ord(build_id[index % len(build_id)]) ^ ((index * 17 + 31) & 0xFF))
+        ^ ((index // 8 * 41 + index % 8 * 7) & 0xFF)
+        for index, value in enumerate(embedded)
+    )
+    hmac_key = hmac.digest(mask, f"aa-boot:{build_id}".encode(), "sha256")
+    aa_boot = hmac.digest(
+        hmac_key,
+        f"{build_id}:mkissa:mkissa.to:{epoch}:{lane}".encode(),
+        "sha256",
+    ).hex()
+    bootstrap = request_page(
+        session,
+        Request(
+            "GET",
+            f"{CRYPTO_API_URL}/client-crypto/v1/bootstrap",
+            params={"buildId": build_id, "k": lane},
+            headers={
+                "x-build-id": build_id,
+                "x-aa-boot": aa_boot,
+                "Referer": CRYPTO_HOME_URL,
+                "Origin": CRYPTO_HOME_URL,
+            },
+        ),
+    ).json()
+    key = bytes(a ^ b for a, b in zip(mask, base64.b64decode(bootstrap["partB"])))
+    keygen.update(
+        build_id=build_id,
+        epoch=bootstrap["epoch"],
+        k=bootstrap.get("k", lane),
+        key=key.hex(),
+    )
+    return keygen
 
 
-
-def build_source_request(session: Session) -> Tuple[str, str]:
+def build_source_request(session: Session) -> Tuple[str, str, str, str]:
     keygen = fetch_keygen(session)
 
     ts = int(time.time() * 1000) // 300000 * 300000
-    payload = {"v": 1, "ts": ts, "epoch": keygen["epoch"], "qh": keygen["query_hash"]}
-    # The iv is transmitted with the token, so it only has to be unique; the
-    # server does not re-derive it (buildId used to sit in here).
-    iv = hashlib.sha256(f"{keygen['epoch']}:{keygen['query_hash']}:{ts}".encode()).digest()[:12]
+    payload = {
+        "v": 1,
+        "ts": ts,
+        "epoch": keygen["epoch"],
+        "buildId": keygen["build_id"],
+        "qh": keygen["query_hash"],
+        "k": keygen["k"],
+    }
+    iv = hashlib.sha256(
+        f"{keygen['epoch']}:{keygen['query_hash']}:{ts}".encode()
+    ).digest()[:12]
     cipher = AES.new(bytes.fromhex(keygen["key"]), AES.MODE_GCM, nonce=iv)
     ciphertext, tag = cipher.encrypt_and_digest(
         json.dumps(payload, separators=(",", ":")).encode()
     )
     token = base64.b64encode(b"\x01" + iv + ciphertext + tag).decode()
 
-    return keygen["query_hash"], token
+    return keygen["query_hash"], token, keygen["k"], keygen["build_id"]
 
 
 def decode_tobeparsed(session: Session, tbp: str):
@@ -127,6 +192,7 @@ class AllAnimeProvider(BaseProvider):
     )
 
     API_URL: str = BASE_URL.replace("//", "//api.") + "/api"
+    SOURCE_API_URL: str = f"{CRYPTO_API_URL}/api"
 
     def __init__(
         self,
@@ -142,6 +208,7 @@ class AllAnimeProvider(BaseProvider):
             "POST",
             self.API_URL,
             json={
+                "query": SEARCH_QUERY,
                 "variables": {
                     "search": {},
                     "limit": 26,
@@ -149,14 +216,6 @@ class AllAnimeProvider(BaseProvider):
                     "translationType": "sub",
                     "countryOrigin": "ALL",
                 },
-                "extensions": json.dumps(
-                    {
-                        "persistedQuery": {
-                            "version": 1,
-                            "sha256Hash": "a24c500a1b765c68ae1d8dd85174931f661c71369c89b92b88b75a725afc471c",
-                        }
-                    }
-                ),
             },
             headers={"Referer": "https://allmanga.to/"},
         )
@@ -235,15 +294,8 @@ class AllAnimeProvider(BaseProvider):
             "POST",
             self.API_URL,
             json={
-                "variables": json.dumps({"_id": identifier}),
-                "extensions": json.dumps(
-                    {
-                        "persistedQuery": {
-                            "version": 1,
-                            "sha256Hash": "043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a",
-                        }
-                    }
-                ),
+                "query": SHOW_QUERY,
+                "variables": {"showId": identifier},
             },
             headers={"Referer": "https://allmanga.to/"},
         )
@@ -261,15 +313,8 @@ class AllAnimeProvider(BaseProvider):
             "POST",
             self.API_URL,
             json={
-                "variables": json.dumps({"_id": identifier}),
-                "extensions": json.dumps(
-                    {
-                        "persistedQuery": {
-                            "version": 1,
-                            "sha256Hash": "043448386c7a686bc2aabfbb6b80f6074e795d350df48015023b079527b0848a",
-                        }
-                    }
-                ),
+                "query": SHOW_QUERY,
+                "variables": {"showId": identifier},
             },
             headers={"Referer": "https://allmanga.to/"},
         )
@@ -292,12 +337,12 @@ class AllAnimeProvider(BaseProvider):
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
     ) -> List[ProviderStream]:
         tt = "dub" if lang == LanguageTypeEnum.DUB else "sub"
-        query_hash, aareq = build_source_request(self.session)
+        query_hash, aareq, lane, build_id = build_source_request(self.session)
         # The source query has to go through as a GET request with the aaReq
         # token in the query string, otherwise the api returns AA_CRYPTO_MISSING.
         req = Request(
             "GET",
-            self.API_URL,
+            self.SOURCE_API_URL,
             params={
                 "variables": json.dumps(
                     {
@@ -312,17 +357,19 @@ class AllAnimeProvider(BaseProvider):
                             "version": 1,
                             "sha256Hash": query_hash,
                         },
+                        "k": lane,
                         "aaReq": aareq,
                     }
                 ),
             },
             headers={
-                "Referer": "https://youtu-chan.com/",
-                "Origin": "https://mkissa.to",
+                "Referer": CRYPTO_HOME_URL,
+                "Origin": CRYPTO_HOME_URL,
+                "x-build-id": build_id,
             },
         )
         result = self._request_page(req).json()
-        providers = ["Yt-mp4", "S-Mp4", "Uv-mp4", "Ak", "Default"]
+        providers = ["Yt-mp4", "S-Mp4", "Uv-mp4", "Ak", "Default", "Mp4"]
         streams = []
 
         data = result.get("data") or {}
@@ -339,6 +386,25 @@ class AllAnimeProvider(BaseProvider):
 
         for provider in data["episode"]["sourceUrls"]:
             if provider["sourceName"] not in providers:
+                continue
+
+            if provider["sourceName"] == "Mp4":
+                try:
+                    response = request_page(
+                        self.session, Request("GET", provider["sourceUrl"])
+                    )
+                except HTTPError:
+                    continue
+                if link := re.search(r'src:\s*"([^"]+)"', response.text):
+                    streams.append(
+                        ProviderStream(
+                            link.group(1),
+                            1080,
+                            episode,
+                            lang,
+                            referrer="https://www.mp4upload.com",
+                        )
+                    )
                 continue
 
             if "tools.fast4speed.rsvp" in provider["sourceUrl"]:
