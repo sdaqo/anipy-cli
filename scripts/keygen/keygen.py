@@ -65,7 +65,7 @@ def source_query_hash(chunk_js: str):
                     + r"\s*=\s*\w+\s*=>\s*\w+\s*\?\s*`[^`]*`\s*:\s*`([^`]*)`",
                     chunk_js,
                 )
-                repl = fn.group(1) if fn else ""
+                repl = resolve(fn.group(1), depth + 1) if fn else ""
             else:
                 var = re.search(
                     re.escape(name) + r"\s*=\s*`([^`]*)`", chunk_js
