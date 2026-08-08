@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
-from anipy_cli.menus import SeasonalMenu
+
 from anipy_cli.clis.base_cli import CliBase
+from anipy_cli.menus import SeasonalMenu
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs

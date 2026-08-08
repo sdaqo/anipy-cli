@@ -1,14 +1,15 @@
 from pathlib import Path
 from typing import List, Protocol, Tuple
-from anipy_cli.arg_parser import CliArgs
-from anipy_cli.colors import color, colors
-from anipy_cli.config import Config
-from anipy_cli.util import DotSpinner, get_download_path, get_post_download_scripts_hook
-import anipy_cli.logger as logger
 
+import anipy_cli.logger as logger
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader
 from anipy_api.provider.base import Episode, LanguageTypeEnum
+from anipy_cli.arg_parser import CliArgs
+from anipy_cli.colors import color, colors
+from anipy_cli.config import Config
+from anipy_cli.util import (DotSpinner, get_download_path,
+                            get_post_download_scripts_hook)
 
 
 class SuccessfulEpDownload(Protocol):

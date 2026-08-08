@@ -1,15 +1,15 @@
 from __future__ import annotations
 
+import datetime
 import logging
 import logging.handlers
-from pathlib import Path
 import sys
+from pathlib import Path
 from types import TracebackType
 from typing import Protocol
-import datetime
 
-from anipy_cli.config import Config
 from anipy_cli import __appname__
+from anipy_cli.config import Config
 from appdirs import user_data_dir
 
 

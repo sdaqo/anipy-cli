@@ -1,26 +1,17 @@
 import functools
+from base64 import b64encode
+from pathlib import Path
 from typing import TYPE_CHECKING, List
 
-from base64 import b64encode
-
-from pathlib import Path
-
-from anipy_api.provider import (
-    BaseProvider,
-    ProviderInfoResult,
-    ProviderSearchResult,
-    ProviderStream,
-    LanguageTypeEnum,
-    Episode,
-)
-from anipy_api.provider.filter import (
-    FilterCapabilities,
-    Filters,
-)
+from anipy_api.provider import (BaseProvider, Episode, LanguageTypeEnum,
+                                ProviderInfoResult, ProviderSearchResult,
+                                ProviderStream)
+from anipy_api.provider.filter import FilterCapabilities, Filters
 
 if TYPE_CHECKING:
-    from anipy_api.provider import Episode
     from typing import Dict
+
+    from anipy_api.provider import Episode
 
 
 class NativeProvider(BaseProvider):

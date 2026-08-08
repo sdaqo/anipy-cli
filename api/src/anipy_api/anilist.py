@@ -1,23 +1,17 @@
+import base64
 import datetime
 import json
-import base64
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
 import Levenshtein
-from dataclasses_json import DataClassJsonMixin, config
-from requests import Request, Session
-
 from anipy_api.anime import Anime
 from anipy_api.error import AniListError
-from anipy_api.provider import (
-    FilterCapabilities,
-    Filters,
-    MediaType,
-    ProviderSearchResult,
-    Season,
-)
+from anipy_api.provider import (FilterCapabilities, Filters, MediaType,
+                                ProviderSearchResult, Season)
+from dataclasses_json import DataClassJsonMixin, config
+from requests import Request, Session
 
 if TYPE_CHECKING:
     from anipy_api.provider import BaseProvider

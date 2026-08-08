@@ -2,31 +2,23 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple
 
-from anipy_cli.download_component import DownloadComponent
-
+from anipy_api.anilist import AniList, AniListAnime, AniListMyListStatusEnum
 from anipy_api.anime import Anime
-from anipy_api.anilist import AniListAnime, AniListMyListStatusEnum, AniList
+from anipy_api.locallist import LocalList, LocalListEntry
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
-
-from anipy_api.locallist import LocalList, LocalListEntry
-from InquirerPy import inquirer
-from InquirerPy.base.control import Choice
-from InquirerPy.utils import get_style
-
+from anipy_cli.anilist_proxy import AniListProxy
 from anipy_cli.arg_parser import CliArgs
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
-from anipy_cli.anilist_proxy import AniListProxy
+from anipy_cli.download_component import DownloadComponent
 from anipy_cli.menus.base_menu import MenuBase, MenuOption
-from anipy_cli.util import (
-    DotSpinner,
-    error,
-    find_closest,
-    get_configured_player,
-    migrate_locallist,
-)
 from anipy_cli.prompts import search_show_prompt
+from anipy_cli.util import (DotSpinner, error, find_closest,
+                            get_configured_player, migrate_locallist)
+from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
+from InquirerPy.utils import get_style
 
 
 class AniListMenu(MenuBase):

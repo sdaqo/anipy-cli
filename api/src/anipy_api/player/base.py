@@ -1,11 +1,11 @@
-import os
-import requests
 import atexit
-import tempfile
+import os
 import subprocess as sp
+import tempfile
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Dict, List, Optional, Protocol
 
+import requests
 from anipy_api.error import PlayerError
 
 if TYPE_CHECKING:
@@ -165,13 +165,13 @@ class SubProcessPlayerBase(PlayerBase):
                     else ":".join(self._get_media_sub(stream).values())
                 ),
                 referrer=stream.referrer,
+                container=stream.container
             )
             for i in self.player_args_template
         ]
         player_cmd.insert(0, self._player_exec)
         if self._player_exec == "vlc":
             player_cmd.append("--sub-track=0")
-
         if isinstance(self._sub_proc, sp.Popen):
             self.kill_player()
         self._sub_proc = self._open_sproc(player_cmd)

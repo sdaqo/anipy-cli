@@ -1,12 +1,12 @@
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Iterator, Type
+from typing import TYPE_CHECKING, Iterator, List, Optional, Type
 
 from anipy_api.error import PlayerError
 from anipy_api.player.players import *
 from anipy_api.player.players import __all__
 
 if TYPE_CHECKING:
-    from anipy_api.player.base import PlayerBase, PlayCallback
+    from anipy_api.player.base import PlayCallback, PlayerBase
 
 
 def list_players() -> Iterator[Type["PlayerBase"]]:

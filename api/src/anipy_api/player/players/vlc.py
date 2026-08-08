@@ -1,5 +1,6 @@
 from typing import List, Optional
-from anipy_api.player.base import SubProcessPlayerBase, PlayCallback
+
+from anipy_api.player.base import PlayCallback, SubProcessPlayerBase
 
 
 class Vlc(SubProcessPlayerBase):

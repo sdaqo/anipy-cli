@@ -1,21 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 
-from anipy_api.anime import Anime
-from anipy_api.anilist import (
-    AniListAnime,
-    AniListMyListStatus,
-    AniListMyListStatusEnum,
-    AniList,
-    AniListAdapter,
-)
-from anipy_api.provider import LanguageTypeEnum, list_providers
-from dataclasses_json import DataClassJsonMixin, config
-from InquirerPy import inquirer
-
 import anipy_cli.logger as logger
+from anipy_api.anilist import (AniList, AniListAdapter, AniListAnime,
+                               AniListMyListStatus, AniListMyListStatusEnum)
+from anipy_api.anime import Anime
+from anipy_api.provider import LanguageTypeEnum, list_providers
 from anipy_cli.config import Config
 from anipy_cli.util import error, get_prefered_providers
+from dataclasses_json import DataClassJsonMixin, config
+from InquirerPy import inquirer
 
 
 @dataclass

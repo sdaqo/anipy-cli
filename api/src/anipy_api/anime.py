@@ -1,17 +1,13 @@
-from typing import TYPE_CHECKING, Optional, Set, Union, List
+from typing import TYPE_CHECKING, List, Optional, Set, Union
 
 from anipy_api.error import ProviderNotAvailableError
 from anipy_api.provider import Episode, list_providers
 
 if TYPE_CHECKING:
     from anipy_api.locallist import LocalListEntry
-    from anipy_api.provider import (
-        BaseProvider,
-        LanguageTypeEnum,
-        ProviderSearchResult,
-        ProviderInfoResult,
-        ProviderStream,
-    )
+    from anipy_api.provider import (BaseProvider, LanguageTypeEnum,
+                                    ProviderInfoResult, ProviderSearchResult,
+                                    ProviderStream)
 
 
 class Anime:

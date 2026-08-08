@@ -1,31 +1,20 @@
 import base64
+import functools
 import hashlib
 import json
-import functools
-import time
 import re
+import time
 from copy import deepcopy
 from typing import TYPE_CHECKING, List, Optional, Tuple
 from urllib.parse import urljoin
 
 import Levenshtein
 import m3u8
-from anipy_api.provider import (
-    BaseProvider,
-    Episode,
-    ProviderInfoResult,
-    ProviderSearchResult,
-    ProviderStream,
-)
+from anipy_api.provider import (BaseProvider, Episode, ProviderInfoResult,
+                                ProviderSearchResult, ProviderStream)
 from anipy_api.provider.base import ExternalSub, InfoCallback, LanguageTypeEnum
-from anipy_api.provider.filter import (
-    BaseFilter,
-    FilterCapabilities,
-    Filters,
-    MediaType,
-    Season,
-    Status,
-)
+from anipy_api.provider.filter import (BaseFilter, FilterCapabilities, Filters,
+                                       MediaType, Season, Status)
 from anipy_api.provider.utils import get_language_name, parsenum, request_page
 from Cryptodome.Cipher import AES
 from requests import Request, Session
@@ -327,7 +316,7 @@ class AllAnimeProvider(BaseProvider):
             headers={
                 "Referer": "https://mkissa.to",
                 "Origin": "https://mkissa.to",
-                "x-build-id": build_id
+                "x-build-id": build_id,
             },
         )
         result = self._request_page(req).json()

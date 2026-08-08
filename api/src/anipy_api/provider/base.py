@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import time
 from enum import Enum
-from typing import List, Optional, Protocol, Set, Union, Dict
-
-from requests import Request, Session, ConnectionError as RequestConnectionError
+from typing import Dict, List, Optional, Protocol, Set, Union
 
 from anipy_api.provider.filter import FilterCapabilities, Filters, Status
 from anipy_api.provider.utils import request_page
+from requests import ConnectionError as RequestConnectionError
+from requests import Request, Session
 
 Episode = Union[int, float]
 """Episode type, float or integer."""
@@ -100,6 +101,7 @@ class ProviderStream:
     language: LanguageTypeEnum
     subtitle: Optional[Dict[str, ExternalSub]] = None
     referrer: Optional[str] = None
+    container: Optional[str] = None
 
     def __hash__(self) -> int:
         return hash(self.url)

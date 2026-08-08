@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, Any, Optional
 from anipy_api.player.base import PlayCallback, PlayerBase
 
 if TYPE_CHECKING:
-    from anipy_api.provider import ProviderStream
     from anipy_api.anime import Anime
+    from anipy_api.provider import ProviderStream
 
 
 class MpvControllable(PlayerBase):

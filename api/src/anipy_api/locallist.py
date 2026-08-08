@@ -1,14 +1,12 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import time
-from typing import Any, Dict, Optional, Protocol, Set, Union, List
+from typing import Any, Dict, List, Optional, Protocol, Set, Union
 
-
-from anipy_api.error import ArgumentError
-from dataclasses_json import DataClassJsonMixin, config
-
-from anipy_api.provider import Episode, LanguageTypeEnum
 from anipy_api.anime import Anime
+from anipy_api.error import ArgumentError
+from anipy_api.provider import Episode, LanguageTypeEnum
+from dataclasses_json import DataClassJsonMixin, config
 
 
 @dataclass

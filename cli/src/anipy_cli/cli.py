@@ -2,18 +2,16 @@ from pathlib import Path
 from types import TracebackType
 from typing import Optional
 
-from pypresence.exceptions import DiscordNotFound
-
+import anipy_cli.logger as logger
 from anipy_api.locallist import LocalList
-from anipy_cli.prompts import migrate_provider
-
 from anipy_cli.arg_parser import CliArgs, parse_args
 from anipy_cli.clis import *
 from anipy_cli.colors import color, colors, cprint
-from anipy_cli.util import error, DotSpinner, migrate_locallist
 from anipy_cli.config import Config
 from anipy_cli.discord import DiscordPresence
-import anipy_cli.logger as logger
+from anipy_cli.prompts import migrate_provider
+from anipy_cli.util import DotSpinner, error, migrate_locallist
+from pypresence.exceptions import DiscordNotFound
 
 
 def run_cli(override_args: Optional[list[str]] = None):

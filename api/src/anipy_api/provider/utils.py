@@ -1,15 +1,15 @@
 """These are only internal utils, which are not made to be used outside"""
 
+from typing import TYPE_CHECKING, Optional, Union
+
 import pycountry
-from typing import TYPE_CHECKING
-from typing import Union, Optional
 
 if TYPE_CHECKING:
-    from requests import Request, Session, Response
-    from bs4 import Tag, NavigableString
+    from bs4 import NavigableString, Tag
+    from requests import Request, Response, Session
 
 
-def request_page(session: "Session", req: "Request") -> "Response":
+def request_page(session: "Session", req: "Request", raise_status: bool = True) -> "Response":
     """Prepare a request and send it.
 
     Args:
@@ -24,7 +24,8 @@ def request_page(session: "Session", req: "Request") -> "Response":
         "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36"
     )
     res = session.send(prepped)
-    res.raise_for_status()
+    if raise_status:
+        res.raise_for_status()
     return res
 
 

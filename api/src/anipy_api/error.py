@@ -1,4 +1,4 @@
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Optional
 
 if TYPE_CHECKING:
     from anipy_api.provider.base import LanguageTypeEnum

@@ -1,14 +1,13 @@
+import webbrowser
 from typing import TYPE_CHECKING
 
-from anipy_api.error import AniListError
 from anipy_api.anilist import AniList
-from InquirerPy import inquirer
-
+from anipy_api.error import AniListError
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.config import Config
 from anipy_cli.menus import AniListMenu
 from anipy_cli.util import DotSpinner, error
-import webbrowser
+from InquirerPy import inquirer
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs

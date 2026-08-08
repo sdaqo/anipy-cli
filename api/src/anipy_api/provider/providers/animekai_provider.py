@@ -5,43 +5,26 @@ import re
 import urllib.parse
 from typing import TYPE_CHECKING, List
 from urllib.parse import urljoin
-from requests import Session
-from requests import HTTPError
 
-from anipy_api.provider.base import ExternalSub
 import m3u8
+from anipy_api.error import (BeautifulSoupLocationError,
+                             LangTypeNotAvailableError)
+from anipy_api.provider import (BaseProvider, LanguageTypeEnum,
+                                ProviderInfoResult, ProviderSearchResult,
+                                ProviderStream)
+from anipy_api.provider.base import ExternalSub
+from anipy_api.provider.filter import (BaseFilter, FilterCapabilities, Filters,
+                                       MediaType, Season, Status)
+from anipy_api.provider.utils import (get_language_code2, parsenum,
+                                      request_page, safe_attr)
 from bs4 import BeautifulSoup
 from Cryptodome.Cipher import ARC4
-from requests import Request
+from requests import HTTPError, Request, Session
 from simpleeval import simple_eval
 
-from anipy_api.error import BeautifulSoupLocationError, LangTypeNotAvailableError
-from anipy_api.provider import (
-    BaseProvider,
-    LanguageTypeEnum,
-    ProviderInfoResult,
-    ProviderSearchResult,
-    ProviderStream,
-)
-from anipy_api.provider.filter import (
-    BaseFilter,
-    FilterCapabilities,
-    Filters,
-    MediaType,
-    Season,
-    Status,
-)
-from anipy_api.provider.utils import (
-    get_language_code2,
-    parsenum,
-    request_page,
-    safe_attr,
-)
-
 if TYPE_CHECKING:
-    from requests import Session
-
     from anipy_api.provider import Episode
+    from requests import Session
 
 DECODE_URL: str = (
     "https://raw.githubusercontent.com/sdaqo/anipy-cli/refs/heads/key-gen/scripts/decoder/generated/kai.json"

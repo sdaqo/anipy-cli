@@ -1,19 +1,17 @@
 from typing import TYPE_CHECKING, Optional
 
-from InquirerPy.base.control import Choice
 from anipy_api.anime import Anime
 from anipy_api.locallist import LocalList, LocalListEntry
-from InquirerPy import inquirer
-
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors
 from anipy_cli.config import Config
 from anipy_cli.menus import Menu
 from anipy_cli.util import DotSpinner, get_configured_player, migrate_locallist
+from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
 
 if TYPE_CHECKING:
     from anipy_api.provider import ProviderStream
-
     from anipy_cli.arg_parser import CliArgs
 
 

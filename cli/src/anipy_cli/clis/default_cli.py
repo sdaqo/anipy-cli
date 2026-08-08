@@ -1,24 +1,19 @@
 from typing import TYPE_CHECKING, Optional
 
 from anipy_api.locallist import LocalList
-
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors
 from anipy_cli.config import Config
 from anipy_cli.menus import Menu
-from anipy_cli.prompts import (
-    lang_prompt,
-    parse_auto_search,
-    parse_seasonal_search,
-    pick_episode_prompt,
-    search_show_prompt,
-)
-from anipy_cli.util import DotSpinner, error, get_configured_player, migrate_locallist
+from anipy_cli.prompts import (lang_prompt, parse_auto_search,
+                               parse_seasonal_search, pick_episode_prompt,
+                               search_show_prompt)
+from anipy_cli.util import (DotSpinner, error, get_configured_player,
+                            migrate_locallist)
 
 if TYPE_CHECKING:
     from anipy_api.anime import Anime
     from anipy_api.provider import Episode, LanguageTypeEnum, ProviderStream
-
     from anipy_cli.arg_parser import CliArgs
 
 

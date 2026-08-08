@@ -1,34 +1,23 @@
 import logging
 import os
-import sys
 import subprocess as sp
+import sys
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Iterator,
-    List,
-    Literal,
-    NoReturn,
-    Optional,
-    Union,
-    overload,
-)
+from typing import (TYPE_CHECKING, Any, Iterator, List, Literal, NoReturn,
+                    Optional, Union, overload)
 
 import anipy_cli.logger as logger
-
 from anipy_api.anime import Anime
 from anipy_api.download import Downloader, PostDownloadCallback
 from anipy_api.locallist import LocalListData
 from anipy_api.player import get_player
 from anipy_api.provider import list_providers
-from InquirerPy import inquirer
-from yaspin.core import Yaspin
-from yaspin.spinners import Spinners
-
 from anipy_cli.colors import color, colors
 from anipy_cli.config import Config
 from anipy_cli.discord import DiscordPresence
+from InquirerPy import inquirer
+from yaspin.core import Yaspin
+from yaspin.spinners import Spinners
 
 if TYPE_CHECKING:
     from anipy_api.player import PlayerBase

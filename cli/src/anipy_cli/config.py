@@ -6,9 +6,8 @@ from string import Template
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 import yaml
-from appdirs import user_config_dir, user_data_dir
-
 from anipy_cli import __appname__, __version__
+from appdirs import user_config_dir, user_data_dir
 
 
 class Config:
@@ -76,7 +75,7 @@ class Config:
 
         For an updated list of providers look here: https://sdaqo.github.io/anipy-cli/availabilty
 
-        Supported providers (as of $version): allanime, animekai (animekai is not functional for now), native (filesystem provider, set root in provider_urls config)
+        Supported providers (as of $version): animehub
 
         Examples:
             providers:
@@ -88,12 +87,12 @@ class Config:
                 anilist: ["provider1"]
         """
         defaults = {
-            "default": ["allanime"],
-            "download": ["allanime"],
-            "seasonal": ["allanime"],
-            "binge": ["allanime"],
-            "mal": ["allanime"],
-            "anilist": ["allanime"],
+            "default": ["animehub"],
+            "download": ["animehub"],
+            "seasonal": ["animehub"],
+            "binge": ["animehub"],
+            "mal": ["animehub"],
+            "anilist": ["animehub"],
         }
 
         value = self._get_value("providers", defaults, dict)

@@ -1,22 +1,16 @@
-from typing import TYPE_CHECKING, Optional, List
-
-from anipy_cli.download_component import DownloadComponent
+from typing import TYPE_CHECKING, List, Optional
 
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
 from anipy_cli.config import Config
-from anipy_cli.prompts import (
-    parse_seasonal_search,
-    pick_episode_range_prompt,
-    search_show_prompt,
-    lang_prompt,
-    parse_auto_search,
-)
+from anipy_cli.download_component import DownloadComponent
+from anipy_cli.prompts import (lang_prompt, parse_auto_search,
+                               parse_seasonal_search,
+                               pick_episode_range_prompt, search_show_prompt)
 
 if TYPE_CHECKING:
     from anipy_api.anime import Anime
     from anipy_api.provider import Episode, LanguageTypeEnum
-
     from anipy_cli.arg_parser import CliArgs
 
 

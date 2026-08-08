@@ -9,11 +9,10 @@ from urllib.parse import urljoin
 
 import m3u8
 import requests
-from ffmpeg import FFmpeg, Progress
-from requests.adapters import HTTPAdapter, Retry
-
 from anipy_api.error import DownloadError
 from anipy_api.provider import ProviderStream
+from ffmpeg import FFmpeg, Progress
+from requests.adapters import HTTPAdapter, Retry
 
 
 class ProgressCallback(Protocol):
@@ -272,10 +271,12 @@ class Downloader:
         if extension_picky:
             ffprobe.option("extension_picky", 0)
 
+        if stream.container == "hls":
+            ffprobe.option("f", "hls")
+
         meta = json.loads(ffprobe.execute())
         duration = float(meta["format"]["duration"])
         format_name = meta["format"]["format_name"]
-        print(format_name)
 
         ffmpeg = (
             FFmpeg()
@@ -288,6 +289,7 @@ class Downloader:
 
         if extension_picky and format_name == "hls":
             ffmpeg.option("extension_picky", 0)
+            ffmpeg.option("f", "hls")
 
         if stream.referrer:
             ffmpeg.option("headers", f"Referer: {stream.referrer}")
@@ -390,7 +392,7 @@ class Downloader:
 
         self.download_sub(stream, download_path)
 
-        if "m3u8" in stream.url:
+        if stream.container == "hls":
             if ffmpeg:
                 download_path = download_path.with_suffix(container or ".mp4")
                 self._info_callback("Using FFMPEG downloader")
@@ -399,7 +401,7 @@ class Downloader:
             else:
                 self._info_callback("Using internal M3U8 downloader")
                 path = self.m3u8_download(stream, download_path)
-        elif "mp4" in stream.url:
+        elif stream.container == "mp4":
             self._info_callback("Using internal MP4 downloader")
             path = self.mp4_download(stream, download_path.with_suffix(".mp4"))
         else:

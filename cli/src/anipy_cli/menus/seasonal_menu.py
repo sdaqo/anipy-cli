@@ -1,34 +1,22 @@
 import sys
 from typing import TYPE_CHECKING, List, Tuple
 
-
-from anipy_cli.download_component import DownloadComponent
-
 from anipy_api.anime import Anime
+from anipy_api.error import ProviderNotAvailableError
+from anipy_api.locallist import LocalList, LocalListEntry
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
-from anipy_api.locallist import LocalList, LocalListEntry
-from anipy_api.error import ProviderNotAvailableError
+from anipy_cli.colors import colors
+from anipy_cli.config import Config
+from anipy_cli.download_component import DownloadComponent
+from anipy_cli.menus.base_menu import MenuBase, MenuOption
+from anipy_cli.prompts import (lang_prompt, migrate_provider,
+                               pick_episode_prompt, search_show_prompt)
+from anipy_cli.util import (DotSpinner, error, get_configured_player,
+                            migrate_locallist)
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.utils import get_style
-
-from anipy_cli.colors import colors
-from anipy_cli.config import Config
-from anipy_cli.menus.base_menu import MenuBase, MenuOption
-from anipy_cli.util import (
-    DotSpinner,
-    error,
-    get_configured_player,
-    migrate_locallist,
-)
-from anipy_cli.prompts import (
-    pick_episode_prompt,
-    search_show_prompt,
-    lang_prompt,
-    migrate_provider,
-)
-
 
 if TYPE_CHECKING:
     from anipy_cli.arg_parser import CliArgs

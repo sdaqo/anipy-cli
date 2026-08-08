@@ -1,33 +1,21 @@
 import time
-from typing import TYPE_CHECKING, Optional, List, Tuple
-from InquirerPy import inquirer
-from InquirerPy.base.control import Choice
-from anipy_api.mal import MyAnimeListAdapter
-from anipy_api.provider import (
-    BaseProvider,
-    FilterCapabilities,
-    Filters,
-    LanguageTypeEnum,
-    Season,
-)
-from anipy_api.anime import Anime
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from anipy_cli.util import (
-    DotSpinner,
-    find_closest,
-    get_anime_season,
-    get_prefered_providers,
-    error,
-    parse_episode_ranges,
-    convert_letter_to_season,
-)
+from anipy_api.anime import Anime
+from anipy_api.mal import MyAnimeListAdapter
+from anipy_api.provider import (BaseProvider, FilterCapabilities, Filters,
+                                LanguageTypeEnum, Season)
 from anipy_cli.colors import colors
 from anipy_cli.config import Config
-
+from anipy_cli.util import (DotSpinner, convert_letter_to_season, error,
+                            find_closest, get_anime_season,
+                            get_prefered_providers, parse_episode_ranges)
+from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
 
 if TYPE_CHECKING:
-    from anipy_api.provider import Episode
     from anipy_api.locallist import LocalList
+    from anipy_api.provider import Episode
 
 
 def search_show_prompt(
@@ -82,11 +70,10 @@ def search_show_prompt(
 def _get_season_provider(mode: str) -> Optional["BaseProvider"]:
     season_provider = None
     for p in get_prefered_providers(mode):
-        if p.FILTER_CAPS & (
-            FilterCapabilities.SEASON
+        if (FilterCapabilities.SEASON
             | FilterCapabilities.YEAR
             | FilterCapabilities.NO_QUERY
-        ):
+        ) in p.FILTER_CAPS:
             season_provider = p
     return season_provider
 

@@ -1,5 +1,6 @@
 from typing import List, Optional
-from anipy_api.player.base import SubProcessPlayerBase, PlayCallback
+
+from anipy_api.player.base import PlayCallback, SubProcessPlayerBase
 
 
 class Mpv(SubProcessPlayerBase):
@@ -26,6 +27,7 @@ class Mpv(SubProcessPlayerBase):
             play_callback:
         """
         self.player_args_template = [
+            "--demuxer-lavf-format={container}",
             "{stream_url}",
             "--force-media-title={media_title}",
             "--sub-files={subtitles}",

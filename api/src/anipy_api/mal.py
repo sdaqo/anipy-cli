@@ -4,18 +4,12 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
 import Levenshtein
-from dataclasses_json import DataClassJsonMixin
-from requests import Request, Session
-
 from anipy_api.anime import Anime
 from anipy_api.error import MyAnimeListError
-from anipy_api.provider import (
-    FilterCapabilities,
-    Filters,
-    MediaType,
-    ProviderSearchResult,
-    Season,
-)
+from anipy_api.provider import (FilterCapabilities, Filters, MediaType,
+                                ProviderSearchResult, Season)
+from dataclasses_json import DataClassJsonMixin
+from requests import Request, Session
 
 if TYPE_CHECKING:
     from anipy_api.provider import BaseProvider
