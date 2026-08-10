@@ -99,6 +99,8 @@ class Downloader:
 
         return name
 
+    MAX_SEGMENT_NAME_LENGTH = 200
+
     def m3u8_download(self, stream: "ProviderStream", download_path: Path) -> Path:
         """Download a m3u8/hls stream to a specified download path in a ts container.
 
@@ -131,9 +133,9 @@ class Downloader:
             nonlocal counter
             url = urljoin(segment.base_uri, segment.uri)
             segment_uri = Path(segment.uri)
-            fname = (
-                temp_folder / self._get_valid_pathname(segment_uri.stem)
-            ).with_suffix(segment_uri.suffix)
+            segment_name = self._get_valid_pathname(segment_uri.stem)
+            segment_name = segment_name[: self.MAX_SEGMENT_NAME_LENGTH]
+            fname = (temp_folder / segment_name).with_suffix(segment_uri.suffix)
             try:
                 res = self._session.get(str(url), headers={"Referer": stream.referrer})
                 res.raise_for_status()
@@ -170,9 +172,9 @@ class Downloader:
             with download_path.open("wb") as merged:
                 for segment in m3u8_content.segments:
                     uri = Path(segment.uri)
-                    fname = (
-                        temp_folder / self._get_valid_pathname(uri.stem)
-                    ).with_suffix(uri.suffix)
+                    segment_name = self._get_valid_pathname(uri.stem)
+                    segment_name = segment_name[: self.MAX_SEGMENT_NAME_LENGTH]
+                    fname = (temp_folder / segment_name).with_suffix(uri.suffix)
                     if not fname.is_file():
                         raise DownloadError(
                             f"Could not merge, missing a segment of this playlist: {stream.url}"
