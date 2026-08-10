@@ -100,7 +100,6 @@ class Downloader:
         return name
 
     MAX_SEGMENT_NAME_LENGTH = 200
-    # the max length of a filename depends on the OS, but 200 fits most OSes
 
     def m3u8_download(self, stream: "ProviderStream", download_path: Path) -> Path:
         """Download a m3u8/hls stream to a specified download path in a ts container.
