@@ -2,7 +2,7 @@ import sys
 from typing import TYPE_CHECKING, List, Tuple
 
 from anipy_api.anime import Anime
-from anipy_api.error import ProviderNotAvailableError
+from anipy_api.error import LangTypeNotAvailableError, ProviderNotAvailableError
 from anipy_api.locallist import LocalList, LocalListEntry
 from anipy_api.provider import LanguageTypeEnum
 from anipy_api.provider.base import Episode
@@ -186,11 +186,11 @@ class SeasonalMenu(MenuBase):
             return
 
         for e in entries:
-            if e.language == LanguageTypeEnum.DUB:
-                new_lang = LanguageTypeEnum.SUB
-            else:
+            if action == "Dub":
                 new_lang = LanguageTypeEnum.DUB
-            if new_lang in e.languages:
+            else:
+                new_lang = LanguageTypeEnum.SUB
+            if new_lang in e.languages or LanguageTypeEnum.UND in e.languages:
                 self.seasonal_list.update(e, language=new_lang)
             else:
                 print(f"> {new_lang} is for {e.name} not available")
@@ -247,9 +247,22 @@ class SeasonalMenu(MenuBase):
                     ep,
                     "...",
                 ) as s:
-                    stream = anime.get_video(
-                        ep, lang, preferred_quality=self.options.quality
-                    )
+                    try:
+                        stream = anime.get_video(
+                            ep, lang, preferred_quality=self.options.quality
+                        )
+                    except LangTypeNotAvailableError:
+                        if lang == LanguageTypeEnum.SUB:
+                            new_lang = LanguageTypeEnum.DUB
+                        else:
+                            new_lang = LanguageTypeEnum.SUB
+
+                        error(f"Language {lang} not available, changing to {new_lang} for this episode!")
+
+                        stream = anime.get_video(
+                            ep, new_lang, preferred_quality=self.options.quality
+                        )
+                        
                     if stream is None:
                         error("Could not find stream for requested episode, skipping")
                     s.ok("✔")

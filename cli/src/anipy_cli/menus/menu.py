@@ -1,6 +1,8 @@
 import sys
 from typing import TYPE_CHECKING, List
 
+from anipy_api.error import LangTypeNotAvailableError
+
 import anipy_cli.logger as logger
 from anipy_api.download import Downloader
 from anipy_api.locallist import LocalList
@@ -123,7 +125,7 @@ class Menu(MenuBase):
             else LanguageTypeEnum.SUB
         )
 
-        if to_change not in self.anime.languages:
+        if to_change not in self.anime.languages and LanguageTypeEnum.UND not in self.anime.languages:
             error(f"this anime does not have a {to_change} version")
             return
 
@@ -132,9 +134,19 @@ class Menu(MenuBase):
                 f"the current episode ({self.stream.episode}) is not available in {to_change}, not switching..."
             )
             return
-
+        
+        old_lang = self.lang
         self.lang = to_change
-        self.repl_ep()
+
+        try:
+            self.repl_ep()
+        except LangTypeNotAvailableError:
+            error(
+                f"the current episode ({self.stream.episode}) is not available in {to_change}, not switching..."
+            )
+            self.lang = old_lang
+            return
+
         self.print_options()
 
     def selec_ep(self):

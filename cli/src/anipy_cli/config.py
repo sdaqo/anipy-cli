@@ -75,7 +75,7 @@ class Config:
 
         For an updated list of providers look here: https://sdaqo.github.io/anipy-cli/availabilty
 
-        Supported providers (as of $version): animehub
+        Supported providers (as of $version): animehub, anidbapp
 
         Examples:
             providers:
@@ -87,12 +87,12 @@ class Config:
                 anilist: ["provider1"]
         """
         defaults = {
-            "default": ["animehub"],
-            "download": ["animehub"],
-            "seasonal": ["animehub"],
-            "binge": ["animehub"],
-            "mal": ["animehub"],
-            "anilist": ["animehub"],
+            "default": ["anidbapp"],
+            "download": ["anidbapp"],
+            "seasonal": ["anidbapp"],
+            "binge": ["anidbapp"],
+            "mal": ["anidbapp"],
+            "anilist": ["anidbapp"],
         }
 
         value = self._get_value("providers", defaults, dict)

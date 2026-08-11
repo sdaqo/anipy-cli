@@ -1,6 +1,8 @@
 import sys
 from typing import TYPE_CHECKING
 
+from anipy_api.provider.base import LanguageTypeEnum
+from anipy_api.error import LangTypeNotAvailableError
 from anipy_api.locallist import LocalList
 from anipy_cli.clis.base_cli import CliBase
 from anipy_cli.colors import colors, cprint
@@ -76,9 +78,22 @@ class BingeCli(CliBase):
                 e,
                 "...",
             ) as s:
-                stream = self.anime.get_video(
-                    e, self.lang, preferred_quality=self.options.quality
-                )
+                try:
+                    stream = self.anime.get_video(
+                        e, self.lang, preferred_quality=self.options.quality
+                    )
+                except LangTypeNotAvailableError: 
+                    if self.lang == LanguageTypeEnum.SUB:
+                        new_lang = LanguageTypeEnum.DUB
+                    else:
+                        new_lang = LanguageTypeEnum.SUB
+
+                    error(f"Language {self.lang} not available, changing to {new_lang} for this episode!")
+
+                    stream = self.anime.get_video(
+                        e, new_lang, preferred_quality=self.options.quality
+                    )
+
                 if stream is None:
                     error("Could not find stream for requested episode, skipping")
                     continue

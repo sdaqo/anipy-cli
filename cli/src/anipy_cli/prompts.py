@@ -58,6 +58,7 @@ def search_show_prompt(
         long_instruction=(
             "\nS = Anime is available in sub\n"
             "D = Anime is available in dub\n"
+            "U = Undefined, not sure what is available\n"
             "First two letters indicate the provider\n"
             "To skip this prompt press ctrl+z"
         ),
@@ -150,6 +151,7 @@ def season_search_prompt(
         long_instruction=(
             "\nS = Anime is available in sub\n"
             "D = Anime is available in dub\n"
+            "U = Undefined, not sure what is available\n"
             "First two letters indicate the provider\n"
             "To skip this prompt press ctrl+z"
         ),
@@ -219,13 +221,13 @@ def lang_prompt(anime: "Anime") -> LanguageTypeEnum:
         else None
     )
 
-    if preferred in anime.languages:
+    if preferred in anime.languages or (preferred and LanguageTypeEnum.UND in anime.languages):
         return preferred
 
-    if LanguageTypeEnum.DUB not in anime.languages:
+    if LanguageTypeEnum.DUB not in anime.languages and LanguageTypeEnum.UND not in anime.languages:
         return LanguageTypeEnum.SUB
 
-    if len(anime.languages) == 2:
+    if len(anime.languages) == 2 or LanguageTypeEnum.UND in anime.languages:
         res = inquirer.confirm("Want to watch in dub?").execute()  # type: ignore
         print("Hint: you can set a default in the config with `preferred_type`!")
 
@@ -313,7 +315,7 @@ def parse_auto_search(
     else:
         lang = LanguageTypeEnum[ltype.upper()]
 
-    if lang not in result.languages:
+    if lang not in result.languages and LanguageTypeEnum.UND not in result.languages:
         error(f"{lang} is not available for {result.name}", fatal=True)
 
     episodes = result.get_episodes(lang)
@@ -361,7 +363,7 @@ def migrate_provider(mode: str, local_list: "LocalList"):
         if best_anime is None:
             continue
 
-        if best_ratio >= config.mal_mapping_min_similarity:
+        if best_ratio >= config.tracker_mapping_min_similarity:
             local_list.delete(s)
         else:
             print(f"Could not automatically map {s.name}, you can map it manually.")

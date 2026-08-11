@@ -23,6 +23,7 @@ class LanguageTypeEnum(Enum):
 
     SUB = "sub"
     DUB = "dub"
+    UND = "undfined"
 
     def __repr__(self) -> str:
         return self.value

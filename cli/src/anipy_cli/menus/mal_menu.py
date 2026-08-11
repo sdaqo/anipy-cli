@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple
 
 from anipy_api.anime import Anime
+from anipy_api.error import LangTypeNotAvailableError
 from anipy_api.locallist import LocalList, LocalListEntry
 from anipy_api.mal import MALAnime, MALMyListStatusEnum, MyAnimeList
 from anipy_api.provider import LanguageTypeEnum
@@ -289,12 +290,22 @@ class MALMenu(MenuBase):
                     ep,
                     "...",
                 ) as s:
-                    stream = anime.get_video(
-                        ep, lang, preferred_quality=self.options.quality
-                    )
-                    if stream is None:
-                        error("Could not find stream for requested episode, skipping")
-                    s.ok("✔")
+
+                    try:
+                        stream = anime.get_video(
+                            ep, lang, preferred_quality=self.options.quality
+                        )
+                    except LangTypeNotAvailableError:
+                        if lang == LanguageTypeEnum.SUB:
+                            new_lang = LanguageTypeEnum.DUB
+                        else:
+                            new_lang = LanguageTypeEnum.SUB
+
+                        error(f"Language {lang} not available, changing to {new_lang} for this episode!")
+
+                        stream = anime.get_video(
+                            ep, new_lang, preferred_quality=self.options.quality
+                        )
 
                 self.player.play_title(anime, stream)
                 self.player.wait()
@@ -352,7 +363,7 @@ class MALMenu(MenuBase):
                         else LanguageTypeEnum.SUB
                     )
 
-                if pref_lang in v.languages:
+                if pref_lang in v.languages or LanguageTypeEnum.UND in v.languages:
                     lang = pref_lang
                 else:
                     lang = next(iter(v.languages))
@@ -456,7 +467,7 @@ class MALMenu(MenuBase):
                         else LanguageTypeEnum.SUB
                     )
 
-                if pref_lang in result.languages:
+                if pref_lang in result.languages or LanguageTypeEnum.UND in result.languages:
                     lang = pref_lang
                     s.write(
                         f"> Looking for {lang} episodes because of config/tag preference"
