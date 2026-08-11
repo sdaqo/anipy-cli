@@ -40,6 +40,15 @@ class AnimeHubFilter(BaseFilter):
         ...
 
 class AnimeHubProvider(BaseProvider):
+    """For detailed documentation have a look
+    at the [base class][anipy_api.provider.base.BaseProvider].
+
+    Attributes:
+        NAME: animehub 
+        BASE_URL: https://123animehub.cc
+        FILTER_CAPS: NO_QUERY
+    """
+
     NAME: str = "animehub"
     BASE_URL: str = "https://123animehub.cc"
     FILTER_CAPS: FilterCapabilities = FilterCapabilities.NO_QUERY

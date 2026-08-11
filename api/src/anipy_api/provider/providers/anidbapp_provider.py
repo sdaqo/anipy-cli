@@ -53,6 +53,15 @@ class AniDBAppFilter(BaseFilter):
         self._request.params["type"] = mapping[media_type] 
 
 class AniDBAppProvider(BaseProvider):
+    """For detailed documentation have a look
+    at the [base class][anipy_api.provider.base.BaseProvider].
+
+    Attributes:
+        NAME: anidbapp 
+        BASE_URL: https://anidb.app
+        FILTER_CAPS: YEAR, MEDIA_TYPE, SEASON, STATUS, NO_QUERY
+    """
+
     NAME: str = "anidbapp"
     BASE_URL: str = "https://anidb.app"
     FILTER_CAPS: FilterCapabilities = FilterCapabilities.ALL
