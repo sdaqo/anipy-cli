@@ -193,9 +193,9 @@ class AnimeHubProvider(BaseProvider):
         res = self._request_page(req)
 
         soup = BeautifulSoup(res.json()["html"], "html.parser")
-        ep_elements = soup.find("ul", attrs={"class": "episodes"}).findAll("li")
+        ep_element_chunks = [ul.findAll("li") for ul in soup.findAll("ul", attrs={"class": "episodes"})]
 
-        return [parsenum(el.a["data-id"].split("/")[-1]) for el in ep_elements]
+        return [parsenum(el.a["data-id"].split("/")[-1]) for ep_list in ep_element_chunks for el in ep_list]
 
     def get_video(
         self, identifier: str, episode: Episode, lang: LanguageTypeEnum
