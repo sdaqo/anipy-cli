@@ -10,7 +10,6 @@ from anipy_api.provider.base import LanguageTypeEnum
 from anipy_api.provider.filter import (BaseFilter, FilterCapabilities, Filters,
                                        MediaType, Season, Status)
 from anipy_api.provider.utils import parsenum
-from anipy_api.provider import Episode
 from anipy_api.error import LangTypeNotAvailableError
 
 
@@ -193,7 +192,7 @@ class AniDBAppProvider(BaseProvider):
         
         lang_short = "eng" if lang == LanguageTypeEnum.DUB else "jpn"
 
-        embed_url = list(filter(lambda l: l["code"] == lang_short, res))
+        embed_url = list(filter(lambda x: x["code"] == lang_short, res))
         if not embed_url:
             raise LangTypeNotAvailableError(identifier, self.NAME, lang)
         else:
