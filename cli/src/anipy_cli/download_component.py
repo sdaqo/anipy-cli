@@ -52,6 +52,7 @@ class DownloadComponent:
             only_skip_ep_on_err: If we should skip the specific episode on an error. If false, we skip the entire anime.
         """
         with DotSpinner("Starting download...") as s:
+            s.write(f"> Download destination: {self.dl_path}")
 
             def progress_indicator(percentage: float):
                 s.set_text(f"Progress: {percentage:.1f}%")
@@ -79,6 +80,12 @@ class DownloadComponent:
                     only_skip_ep_on_err,
                     sub_only,
                 )
+
+            total_eps = sum(len(eps) for _, _, eps in picked)
+            ok = total_eps - len(failed)
+            s.write(f"> Finished: {ok}/{total_eps} episode(s) downloaded successfully.")
+            if failed:
+                s.write(f"{colors.RED}! {len(failed)} episode(s) failed.{colors.END}")
 
             return failed
 
