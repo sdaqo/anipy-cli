@@ -13,7 +13,6 @@ from anipy_api.provider.base import LanguageTypeEnum
 from anipy_api.provider.filter import (BaseFilter, FilterCapabilities, Filters,
                                        MediaType, Season, Status)
 from anipy_api.provider.utils import parsenum, request_page 
-from anipy_api.provider import Episode
 
 
 from bs4 import BeautifulSoup
@@ -79,7 +78,8 @@ class AnimeHubProvider(BaseProvider):
         pages = current_page.find("span", attrs={"class": "total"})
         if pages:
             pages = parsenum(pages.text)
-        else: return []
+        else:
+            return []
 
         results: dict[str, ProviderSearchResult] = {}
 
