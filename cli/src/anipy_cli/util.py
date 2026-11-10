@@ -153,7 +153,11 @@ def get_post_download_scripts_hook(
 def parse_episode_ranges(ranges: str, episodes: List["Episode"]) -> List["Episode"]:
     picked = set()
     for r in ranges.split():
-        numbers = [parsenum(n) for n in r.split("-")]
+        try:
+            numbers = [parsenum(n) for n in r.split("-")]
+        except ValueError:
+            error(f"invalid range: {r}")
+            continue
         if numbers[0] > numbers[-1]:
             error(f"invalid range: {r}")
             continue
